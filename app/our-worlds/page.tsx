@@ -51,18 +51,19 @@ export default function OurWorldsPage() {
             <button
               key={cat}
               onClick={() => setActiveCat(cat)}
-              className={`px-5 py-2.5 text-xs font-body tracking-wider uppercase transition-all duration-300 border ${
+              className={`px-5 py-2.5 text-xs font-body tracking-wider uppercase transition-all duration-300 rounded border ${
                 activeCat === cat
-                  ? 'border-[--color-accent] text-[--color-accent] bg-[rgba(0,184,217,0.08)]'
-                  : 'border-[rgba(255,255,255,0.1)] text-[--color-muted] hover:border-[rgba(255,255,255,0.3)] hover:text-white'
+                  ? 'border-[--color-accent] text-[--color-accent] bg-[rgba(0,184,217,0.1)] shadow-[0_2px_12px_rgba(0,184,217,0.2)]'
+                  : 'border-[rgba(255,255,255,0.1)] text-[--color-muted] hover:border-[rgba(255,255,255,0.3)] hover:text-white bg-[rgba(7,21,28,0.3)]'
               }`}
-              style={{ cursor: 'none' }}
+              data-cursor="VIEW"
             >
               {cat}
             </button>
           ))}
         </div>
       </div>
+
 
       {/* Projects */}
       <div className="container-max section">

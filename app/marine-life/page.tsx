@@ -65,12 +65,12 @@ export default function MarineLifePage() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-5 py-2.5 text-xs font-body tracking-wider uppercase transition-all duration-300 border ${
+                className={`px-5 py-2.5 text-xs font-body tracking-wider uppercase transition-all duration-300 rounded border ${
                   activeTab === tab
-                    ? 'border-[--color-accent] text-[--color-accent] bg-[rgba(0,184,217,0.08)]'
-                    : 'border-[rgba(255,255,255,0.1)] text-[--color-muted] hover:border-[rgba(255,255,255,0.3)] hover:text-white'
+                    ? 'border-[--color-accent] text-[--color-accent] bg-[rgba(0,184,217,0.1)] shadow-[0_2px_12px_rgba(0,184,217,0.2)]'
+                    : 'border-[rgba(255,255,255,0.1)] text-[--color-muted] hover:border-[rgba(255,255,255,0.3)] hover:text-white bg-[rgba(7,21,28,0.3)]'
                 }`}
-                style={{ cursor: 'none' }}
+                data-cursor="EXPLORE"
               >
                 {tab}
               </button>
@@ -84,8 +84,7 @@ export default function MarineLifePage() {
               placeholder="Search species..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.1)] px-4 py-2.5 text-xs text-[--color-text] placeholder:text-[--color-muted] focus:outline-none focus:border-[--color-accent] transition-colors"
-              style={{ cursor: 'text' }}
+              className="w-full bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.1)] rounded px-4 py-2.5 text-xs text-[--color-text] placeholder:text-[--color-muted] focus:outline-none focus:border-[--color-accent] transition-colors"
             />
           </div>
         </div>
@@ -99,7 +98,7 @@ export default function MarineLifePage() {
             <button
               onClick={() => { setActiveTab('All Species'); setSearch(''); }}
               className="btn-ghost mt-6 text-xs"
-              style={{ cursor: 'none' }}
+              data-cursor="EXPLORE"
             >
               RESET FILTERS
             </button>
@@ -110,9 +109,10 @@ export default function MarineLifePage() {
               <Link
                 key={species.id}
                 href={`/marine-life/${species.id}`}
-                className="group block border border-[rgba(255,255,255,0.06)] p-6 bg-[rgba(7,21,28,0.4)] hover:border-[rgba(0,184,217,0.4)] transition-all duration-300"
+                className="group block rounded-xl border border-[rgba(255,255,255,0.06)] p-5 bg-[rgba(7,21,28,0.5)] hover:border-[rgba(0,184,217,0.4)] hover:shadow-[0_8px_30px_rgba(0,184,217,0.12)] transition-all duration-300 backdrop-blur-sm"
                 data-cursor="EXPLORE"
               >
+
                 <div className="overflow-hidden mb-5 relative" style={{ aspectRatio: '4/5' }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img

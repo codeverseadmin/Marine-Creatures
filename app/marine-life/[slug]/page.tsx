@@ -69,10 +69,11 @@ export default async function SpeciesDetailPage({ params }: Props) {
           <Link
             href="/marine-life"
             className="text-label text-[--color-muted] hover:text-[--color-accent] transition-colors mb-8 flex items-center gap-2"
-            style={{ cursor: 'none' }}
+            data-cursor="EXPLORE"
           >
             ← MARINE LIFE
           </Link>
+
 
           <span className="text-label text-[--color-muted] italic block mb-2">
             {species.scientificName}

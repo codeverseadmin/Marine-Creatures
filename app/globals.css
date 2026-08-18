@@ -207,23 +207,30 @@ html.has-custom-cursor [data-cursor] {
    ============================================================================ */
 
 .fish-bubble {
-  animation: fish-bubble-float 1.2s cubic-bezier(0.2, 0.8, 0.4, 1) forwards;
+  animation: fish-bubble-float 1.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   pointer-events: none;
+  backdrop-filter: blur(1px);
 }
 
 @keyframes fish-bubble-float {
   0% {
-    opacity: 0.8;
+    opacity: 0.9;
     transform: translate(-50%, -50%) scale(0.6);
   }
-  50% {
-    opacity: 0.6;
+  30% {
+    opacity: 0.85;
+    transform: translate(calc(-50% + 3px), -25px) scale(1.1);
+  }
+  65% {
+    opacity: 0.55;
+    transform: translate(calc(-50% - 4px), -55px) scale(1.35);
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, -80px) scale(1.6);
+    transform: translate(-50%, -85px) scale(1.6);
   }
 }
+
 
 
 /* ============================================================================

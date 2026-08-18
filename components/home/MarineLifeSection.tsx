@@ -42,40 +42,60 @@ export function MarineLifeSection() {
               subheading="Curated inhabitants for extraordinary underwater environments."
             />
 
-            {/* Species selector */}
-            <div className="mt-12 space-y-1">
+            {/* Species selector with mini image avatars */}
+            <div className="mt-12 space-y-2">
               {FEATURED_SPECIES.map((species, i) => (
                 <button
                   key={species.id}
                   onClick={() => setActiveIndex(i)}
-                  className={`w-full text-left px-0 py-4 border-b transition-all duration-300 group ${
+                  className={`w-full text-left p-3.5 rounded-lg border transition-all duration-300 group flex items-center justify-between gap-4 ${
                     i === activeIndex
-                      ? 'border-[--color-accent]'
-                      : 'border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.15)]'
+                      ? 'border-[--color-accent] bg-[rgba(0,184,217,0.06)] shadow-[0_4px_20px_rgba(0,184,217,0.12)]'
+                      : 'border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.18)] bg-[rgba(7,21,28,0.3)]'
                   }`}
                   data-cursor="EXPLORE"
                   aria-pressed={i === activeIndex}
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={species.image}
+                      alt={species.name}
+                      className="w-12 h-12 rounded object-cover border border-[rgba(255,255,255,0.1)]"
+                      loading="lazy"
+                    />
                     <div>
-                      <span className="text-label text-[--color-muted] mb-1 block">
+                      <span className="text-[10px] tracking-widest text-[--color-accent] block">
                         {species.scientificName}
                       </span>
                       <span
-                        className={`font-body font-light transition-colors duration-300 ${
+                        className={`font-body font-medium transition-colors duration-300 ${
                           i === activeIndex
                             ? 'text-[--color-text]'
                             : 'text-[--color-muted] group-hover:text-[--color-text]'
                         }`}
-                        style={{ fontSize: '1.0625rem' }}
+                        style={{ fontSize: '1rem' }}
                       >
                         {species.name}
                       </span>
                     </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
                     <span
-                      className={`text-label transition-all duration-300 ${
+                      className="text-[10px] px-2 py-0.5 rounded uppercase tracking-wider font-semibold"
+                      style={{
+                        background: 'rgba(2,7,11,0.6)',
+                        color: DIFFICULTY_COLORS[species.difficulty],
+                        border: `1px solid ${DIFFICULTY_COLORS[species.difficulty]}40`,
+                      }}
+                    >
+                      {species.difficulty}
+                    </span>
+                    <span
+                      className={`text-sm transition-all duration-300 ${
                         i === activeIndex
-                          ? 'text-[--color-accent] translate-x-0 opacity-100'
+                          ? 'text-[--color-accent] translate-x-0 opacity-100 font-bold'
                           : 'text-[--color-muted] -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100'
                       }`}
                     >
@@ -86,14 +106,14 @@ export function MarineLifeSection() {
               ))}
             </div>
 
-            <ScrollReveal delay={0.2} className="mt-10">
+            <ScrollReveal delay={0.2} className="mt-8">
               <Link
                 href="/marine-life"
-                className="btn-ghost inline-flex"
+                className="btn-primary inline-flex"
                 data-cursor="EXPLORE"
               >
-                VIEW ALL SPECIES
-                <span className="text-[--color-accent]">→</span>
+                VIEW FULL 2026 SPECIMEN CATALOG
+                <span className="text-[--color-primary]">→</span>
               </Link>
             </ScrollReveal>
           </div>
@@ -103,23 +123,23 @@ export function MarineLifeSection() {
             {FEATURED_SPECIES.map((species, i) => (
               <div
                 key={species.id}
-                className={`transition-all duration-700 ${
+                className={`transition-all duration-500 rounded-xl p-5 border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.7)] backdrop-blur-md shadow-2xl ${
                   i === activeIndex
-                    ? 'opacity-100 translate-y-0'
+                    ? 'opacity-100 translate-y-0 relative z-10'
                     : 'opacity-0 translate-y-4 absolute inset-0 pointer-events-none'
                 }`}
               >
                 {/* Image */}
                 <div
-                  className="relative overflow-hidden mb-6"
-                  style={{ aspectRatio: '4/5', maxHeight: '520px' }}
+                  className="relative rounded-lg overflow-hidden mb-6"
+                  style={{ aspectRatio: '16/11' }}
                   data-cursor="EXPLORE"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={species.image}
                     alt={species.name}
-                    className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.03]"
+                    className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.04]"
                     loading={i === 0 ? 'eager' : 'lazy'}
                   />
                   {/* Overlay gradient */}
@@ -127,12 +147,12 @@ export function MarineLifeSection() {
                     className="absolute inset-0"
                     style={{
                       background:
-                        'linear-gradient(to top, rgba(2,7,11,0.8) 0%, transparent 50%)',
+                        'linear-gradient(to top, rgba(2,7,11,0.85) 0%, transparent 60%)',
                     }}
                   />
                   {/* Availability badge */}
                   <div className="absolute top-4 right-4">
-                    <span className="text-label text-[--color-text] bg-[rgba(0,0,0,0.5)] px-3 py-1.5 backdrop-blur-sm">
+                    <span className="text-[10px] tracking-widest uppercase font-semibold text-[--color-text] bg-[rgba(2,7,11,0.8)] border border-[rgba(0,184,217,0.4)] px-3 py-1.5 backdrop-blur-md rounded">
                       {species.availability.toUpperCase()}
                     </span>
                   </div>
@@ -142,36 +162,41 @@ export function MarineLifeSection() {
                 <div>
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="font-display text-display-sm text-[--color-text] font-light">
+                      <h3 className="font-display text-2xl text-[--color-text] font-light">
                         {species.name}
                       </h3>
-                      <p className="font-body text-[--color-muted] italic" style={{ fontSize: '0.875rem' }}>
+                      <p className="font-body text-[--color-accent] italic text-xs tracking-wider">
                         {species.scientificName}
                       </p>
                     </div>
                     <Link
                       href={`/marine-life/${species.id}`}
-                      className="text-label text-[--color-accent] hover:text-[--color-cyan] transition-colors mt-1"
+                      className="px-3 py-1 text-xs tracking-wider uppercase rounded bg-[--color-accent] text-[--color-primary] font-semibold hover:bg-[--color-cyan] transition-colors"
                       data-cursor="EXPLORE"
                     >
-                      ENQUIRE →
+                      DETAILS →
                     </Link>
                   </div>
 
+                  {/* Species description snippet */}
+                  <p className="font-body text-[--color-muted] text-xs leading-relaxed mb-4">
+                    {species.description}
+                  </p>
+
                   {/* Stats grid */}
-                  <div className="grid grid-cols-3 gap-4 pt-4 border-t border-[rgba(255,255,255,0.06)]">
-                    <div>
-                      <span className="text-label text-[--color-muted] block mb-1">SIZE</span>
-                      <span className="font-body text-[--color-text] text-sm">{species.size}</span>
+                  <div className="grid grid-cols-3 gap-3 pt-4 border-t border-[rgba(255,255,255,0.06)] text-center">
+                    <div className="p-2 rounded bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)]">
+                      <span className="text-[10px] tracking-widest text-[--color-muted] block mb-1">ADULT SIZE</span>
+                      <span className="font-body text-[--color-text] text-xs font-medium">{species.size}</span>
                     </div>
-                    <div>
-                      <span className="text-label text-[--color-muted] block mb-1">TEMPERAMENT</span>
-                      <span className="font-body text-[--color-text] text-sm">{species.temperament}</span>
+                    <div className="p-2 rounded bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)]">
+                      <span className="text-[10px] tracking-widest text-[--color-muted] block mb-1">TEMPERAMENT</span>
+                      <span className="font-body text-[--color-text] text-xs font-medium">{species.temperament}</span>
                     </div>
-                    <div>
-                      <span className="text-label text-[--color-muted] block mb-1">DIFFICULTY</span>
+                    <div className="p-2 rounded bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)]">
+                      <span className="text-[10px] tracking-widest text-[--color-muted] block mb-1">CARE TIER</span>
                       <span
-                        className="font-body text-sm"
+                        className="font-body text-xs font-semibold"
                         style={{ color: DIFFICULTY_COLORS[species.difficulty] }}
                       >
                         {species.difficulty}
@@ -182,6 +207,7 @@ export function MarineLifeSection() {
               </div>
             ))}
           </div>
+
         </div>
       </div>
     </section>

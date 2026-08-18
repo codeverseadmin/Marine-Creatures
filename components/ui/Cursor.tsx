@@ -7,12 +7,14 @@ interface Bubble {
   x: number;
   y: number;
   size: number;
+  vx: number;
+  vy: number;
+  glow: boolean;
 }
 
 export function CustomCursor() {
   const fishRef = useRef<HTMLDivElement>(null);
   const tailRef = useRef<SVGGElement>(null);
-  const [label, setLabel] = useState<string>('');
   const [isHovered, setIsHovered] = useState<boolean>(false);
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [bubbles, setBubbles] = useState<Bubble[]>([]);
@@ -59,21 +61,32 @@ export function CustomCursor() {
       document.documentElement.classList.remove('has-custom-cursor');
     };
 
-
-    // Global event delegation for interactive elements across all pages
+    // Global event delegation for interactive elements (glowing fish without text popups)
     const onMouseOver = (e: MouseEvent) => {
       const target = (e.target as HTMLElement)?.closest(
         'a, button, [role="button"], input, textarea, select, [data-cursor], .ba-handle'
       ) as HTMLElement | null;
 
-      if (target) {
-        setIsHovered(true);
-        const customLabel = target.dataset.cursor || '';
-        setLabel(customLabel);
-      } else {
-        setIsHovered(false);
-        setLabel('');
+      setIsHovered(!!target);
+    };
+
+    // Burst bubbles on click
+    const onMouseDown = (e: MouseEvent) => {
+      const burstBubbles: Bubble[] = [];
+      for (let i = 0; i < 6; i++) {
+        const spreadAngle = (Math.PI * 2 * i) / 6 + (Math.random() * 0.4 - 0.2);
+        const burstSpeed = Math.random() * 2 + 1.5;
+        burstBubbles.push({
+          id: ++bubbleIdRef.current,
+          x: e.clientX,
+          y: e.clientY,
+          size: Math.random() * 5 + 3,
+          vx: Math.cos(spreadAngle) * burstSpeed,
+          vy: Math.sin(spreadAngle) * burstSpeed - 1,
+          glow: true,
+        });
       }
+      setBubbles((prev) => [...prev.slice(-30), ...burstBubbles]);
     };
 
     const animate = () => {
@@ -84,11 +97,11 @@ export function CustomCursor() {
         const dist = Math.hypot(dx, dy);
 
         speed = dist;
-        fishX += dx * 0.22;
-        fishY += dy * 0.22;
+        fishX += dx * 0.24;
+        fishY += dy * 0.24;
 
         // Calculate swim direction angle
-        if (dist > 1.5) {
+        if (dist > 1.2) {
           targetAngle = Math.atan2(dy, dx) * (180 / Math.PI);
         }
 
@@ -96,36 +109,46 @@ export function CustomCursor() {
         let angleDiff = targetAngle - angle;
         while (angleDiff < -180) angleDiff += 360;
         while (angleDiff > 180) angleDiff -= 360;
-        angle += angleDiff * 0.22;
+        angle += angleDiff * 0.24;
 
         // Keep belly facing down when swimming to the left
         const isMovingLeft = Math.abs(angle) > 90;
         const scaleY = isMovingLeft ? -1 : 1;
-        const scale = isHovered ? 1.2 : 1.0;
+        const scale = isHovered ? 1.18 : 1.0;
 
         fish.style.transform = `translate3d(${fishX}px, ${fishY}px, 0) rotate(${angle}deg) scale(1, ${scaleY}) scale(${scale})`;
 
         // Tail wagging animation
         if (tailRef.current) {
-          const wagSpeed = Math.min(speed * 0.8, 20);
-          const wagAngle = Math.sin(Date.now() * 0.018) * (14 + wagSpeed * 1.6);
+          const wagSpeed = Math.min(speed * 0.9, 22);
+          const wagAngle = Math.sin(Date.now() * 0.02) * (15 + wagSpeed * 1.8);
           tailRef.current.style.transform = `rotate(${wagAngle}deg)`;
         }
 
-        // Spawn bubbles while swimming
+        // Continuous trailing bubble generation while swimming
         const now = Date.now();
-        if (dist > 3 && now - lastBubbleTime > 140) {
+        const interval = isHovered ? 60 : dist > 2 ? 75 : 350; // More bubbles on movement & hover
+        if (now - lastBubbleTime > interval) {
           lastBubbleTime = now;
           const tailOffsetX = -Math.cos((angle * Math.PI) / 180) * 26;
           const tailOffsetY = -Math.sin((angle * Math.PI) / 180) * 26;
-          const newBubble: Bubble = {
-            id: ++bubbleIdRef.current,
-            x: fishX + tailOffsetX + (Math.random() * 8 - 4),
-            y: fishY + tailOffsetY + (Math.random() * 8 - 4),
-            size: Math.random() * 4 + 3,
-          };
 
-          setBubbles((prev) => [...prev.slice(-10), newBubble]);
+          // Spawn 1 to 2 bubbles per tick
+          const count = dist > 6 ? 2 : 1;
+          const newBubbles: Bubble[] = [];
+          for (let i = 0; i < count; i++) {
+            newBubbles.push({
+              id: ++bubbleIdRef.current,
+              x: fishX + tailOffsetX + (Math.random() * 10 - 5),
+              y: fishY + tailOffsetY + (Math.random() * 10 - 5),
+              size: Math.random() * 4.5 + 2.5,
+              vx: (Math.random() - 0.5) * 0.8,
+              vy: -(Math.random() * 1.2 + 0.8),
+              glow: Math.random() > 0.6,
+            });
+          }
+
+          setBubbles((prev) => [...prev.slice(-35), ...newBubbles]);
         }
       }
 
@@ -133,6 +156,7 @@ export function CustomCursor() {
     };
 
     window.addEventListener('mousemove', onMouseMove, { passive: true });
+    window.addEventListener('mousedown', onMouseDown, { passive: true });
     document.addEventListener('mouseenter', onMouseEnter);
     document.addEventListener('mouseleave', onMouseLeave);
     document.addEventListener('mouseover', onMouseOver, { passive: true });
@@ -141,6 +165,7 @@ export function CustomCursor() {
 
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mousedown', onMouseDown);
       document.removeEventListener('mouseenter', onMouseEnter);
       document.removeEventListener('mouseleave', onMouseLeave);
       document.removeEventListener('mouseover', onMouseOver);
@@ -152,8 +177,8 @@ export function CustomCursor() {
   useEffect(() => {
     if (bubbles.length === 0) return;
     const timer = setTimeout(() => {
-      setBubbles((prev) => prev.filter((b) => Date.now() - b.id < 1000));
-    }, 120);
+      setBubbles((prev) => prev.filter((b) => Date.now() - b.id < 1400));
+    }, 100);
     return () => clearTimeout(timer);
   }, [bubbles]);
 
@@ -169,8 +194,12 @@ export function CustomCursor() {
             top: `${b.y}px`,
             width: `${b.size}px`,
             height: `${b.size}px`,
-            background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(0,184,217,0.5))',
-            boxShadow: '0 0 5px rgba(0, 184, 217, 0.6)',
+            background: b.glow
+              ? 'radial-gradient(circle at 30% 30%, rgba(255,255,255,1), rgba(0,210,247,0.7))'
+              : 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(0,184,217,0.4))',
+            boxShadow: b.glow
+              ? '0 0 6px rgba(0, 210, 247, 0.8), inset -1px -1px 2px rgba(0,0,0,0.2)'
+              : '0 0 3px rgba(0, 184, 217, 0.4), inset -1px -1px 2px rgba(0,0,0,0.2)',
             transform: 'translate(-50%, -50%)',
           }}
         />
@@ -183,40 +212,40 @@ export function CustomCursor() {
           isVisible ? 'opacity-100' : 'opacity-0'
         }`}
         style={{
-          width: '58px',
-          height: '40px',
-          marginLeft: '-14px', // Snout aligned with mouse click position
-          marginTop: '-20px',
+          width: '54px',
+          height: '38px',
+          marginLeft: '-13px', // Snout aligned with mouse click coordinates
+          marginTop: '-19px',
         }}
         aria-hidden="true"
       >
-        {/* Glow halo on hover */}
+        {/* Aquatic ambient pulse when hovering interactive elements */}
         {isHovered && (
           <div
-            className="absolute inset-0 rounded-full animate-ping opacity-40 pointer-events-none"
+            className="absolute inset-0 rounded-full animate-ping opacity-35 pointer-events-none"
             style={{
-              background: 'radial-gradient(circle, #00B8D9 0%, transparent 70%)',
-              transform: 'scale(1.8)',
+              background: 'radial-gradient(circle, #00D2F7 0%, transparent 70%)',
+              transform: 'scale(1.9)',
             }}
           />
         )}
 
-        {/* Precision Clownfish matching reference artwork */}
+        {/* Precision Clownfish SVG */}
         <svg
           viewBox="0 0 120 80"
-          className="w-full h-full overflow-visible drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)]"
+          className="w-full h-full overflow-visible drop-shadow-[0_3px_12px_rgba(0,0,0,0.7)]"
           xmlns="http://www.w3.org/2000/svg"
         >
           {/* Top Dorsal Fin */}
           <path
-            d="M 42,26 C 50,10 78,12 88,24 C 76,22 56,24 42,26 Z"
+            d="M 42,26 C 50,9 78,11 88,24 C 76,22 56,24 42,26 Z"
             fill="#FF7A00"
             stroke="#12181C"
             strokeWidth="3.5"
             strokeLinejoin="round"
           />
           <path
-            d="M 54,18 C 64,14 76,16 82,22"
+            d="M 54,17 C 64,13 76,15 82,22"
             stroke="#FFB366"
             strokeWidth="2"
             fill="none"
@@ -225,14 +254,14 @@ export function CustomCursor() {
 
           {/* Bottom Anal/Pelvic Fins */}
           <path
-            d="M 48,54 C 54,68 70,66 76,54 C 67,56 56,56 48,54 Z"
+            d="M 48,54 C 54,69 70,67 76,54 C 67,56 56,56 48,54 Z"
             fill="#FF7A00"
             stroke="#12181C"
             strokeWidth="3.5"
             strokeLinejoin="round"
           />
           <path
-            d="M 32,50 C 34,60 40,62 44,52 Z"
+            d="M 32,50 C 34,61 40,63 44,52 Z"
             fill="#E65C00"
             stroke="#12181C"
             strokeWidth="3"
@@ -248,7 +277,7 @@ export function CustomCursor() {
           >
             {/* Tail body */}
             <path
-              d="M 26,33 C 15,23 4,18 2,28 C 0,36 6,40 2,48 C 0,56 12,54 26,47 Z"
+              d="M 26,33 C 15,22 4,17 2,28 C 0,36 6,40 2,48 C 0,56 12,55 26,47 Z"
               fill="#FF8000"
               stroke="#12181C"
               strokeWidth="3.5"
@@ -256,7 +285,7 @@ export function CustomCursor() {
             />
             {/* Tail white stripe */}
             <path
-              d="M 19,31 C 14,35 14,44 19,48 C 22,44 22,34 19,31 Z"
+              d="M 19,30 C 14,35 14,45 19,48 C 22,44 22,34 19,30 Z"
               fill="#FFFFFF"
               stroke="#12181C"
               strokeWidth="2.5"
@@ -337,23 +366,10 @@ export function CustomCursor() {
           {/* Cheek blush */}
           <ellipse cx="90" cy="42" rx="4.5" ry="2.8" fill="#FF5500" opacity="0.5" />
         </svg>
-
-        {/* Hover Action Badge */}
-        {label && (
-          <div
-            className="absolute left-1/2 -top-8 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-semibold tracking-widest uppercase text-white whitespace-nowrap shadow-xl pointer-events-none"
-            style={{
-              background: 'rgba(2, 7, 11, 0.95)',
-              border: '1px solid rgba(0, 184, 217, 0.7)',
-              boxShadow: '0 4px 14px rgba(0, 184, 217, 0.4)',
-            }}
-          >
-            {label}
-          </div>
-        )}
       </div>
     </>
   );
 }
+
 
 

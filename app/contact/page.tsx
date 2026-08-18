@@ -157,7 +157,6 @@ export default function ContactPage() {
                             ? 'border-[--color-accent] text-[--color-accent] bg-[rgba(0,184,217,0.05)]'
                             : 'border-[rgba(255,255,255,0.12)] text-[--color-muted] hover:border-[rgba(255,255,255,0.3)] hover:text-[--color-text]'
                         }`}
-                        style={{ cursor: 'none' }}
                       >
                         {option}
                       </button>
@@ -174,7 +173,7 @@ export default function ContactPage() {
                   onChange={(e) => setTextVal(e.target.value)}
                   placeholder={current.placeholder}
                   className="w-full max-w-lg bg-transparent border-b border-[rgba(255,255,255,0.2)] text-[--color-text] font-body font-light py-3 focus:outline-none focus:border-[--color-accent] transition-colors placeholder:text-[--color-muted] mb-10"
-                  style={{ fontSize: '1.0625rem', cursor: 'text' }}
+                  style={{ fontSize: '1.0625rem' }}
                   onKeyDown={(e) => e.key === 'Enter' && handleNext()}
                 />
               )}
@@ -187,7 +186,7 @@ export default function ContactPage() {
                   placeholder={current.placeholder}
                   rows={5}
                   className="w-full max-w-2xl bg-transparent border border-[rgba(255,255,255,0.1)] text-[--color-text] font-body font-light p-4 focus:outline-none focus:border-[--color-accent] transition-colors placeholder:text-[--color-muted] mb-10 resize-none"
-                  style={{ fontSize: '0.9375rem', cursor: 'text' }}
+                  style={{ fontSize: '0.9375rem' }}
                 />
               )}
 
@@ -197,7 +196,6 @@ export default function ContactPage() {
                   <button
                     onClick={() => setStep((s) => s - 1)}
                     className="text-label text-[--color-muted] hover:text-[--color-text] transition-colors"
-                    style={{ cursor: 'none' }}
                   >
                     ← BACK
                   </button>
@@ -228,12 +226,12 @@ export default function ContactPage() {
             <a
               href="mailto:hello@marinecreatures.com"
               className="text-[--color-accent] hover:text-[--color-cyan] transition-colors"
-              style={{ cursor: 'none' }}
             >
               hello@marinecreatures.com
             </a>
           </p>
         </div>
+
       </div>
     </div>
   );

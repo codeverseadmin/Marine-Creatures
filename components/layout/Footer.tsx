@@ -18,7 +18,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 mb-16">
           {/* Brand column */}
           <div className="md:col-span-4">
-            <Link href="/" className="text-label-lg text-[--color-text] tracking-[0.25em] hover:text-[--color-accent] transition-colors duration-300 block mb-6" style={{ cursor: 'none' }}>
+            <Link href="/" className="text-label-lg text-[--color-text] tracking-[0.25em] hover:text-[--color-accent] transition-colors duration-300 block mb-6">
               MARINE CREATURES
             </Link>
             <p className="font-body font-light text-[--color-muted] text-sm leading-relaxed mb-6 max-w-xs">
@@ -38,7 +38,6 @@ export function Footer() {
                   <Link
                     href={link.href}
                     className="font-body font-light text-[--color-muted] text-sm hover:text-[--color-text] transition-colors duration-300"
-                    style={{ cursor: 'none' }}
                   >
                     {link.label}
                   </Link>
@@ -54,14 +53,12 @@ export function Footer() {
               <a
                 href={`mailto:${SITE_CONFIG.email}`}
                 className="font-body font-light text-[--color-muted] text-sm hover:text-[--color-text] transition-colors block"
-                style={{ cursor: 'none' }}
               >
                 {SITE_CONFIG.email}
               </a>
               <a
                 href={`tel:${SITE_CONFIG.phone}`}
                 className="font-body font-light text-[--color-muted] text-sm hover:text-[--color-text] transition-colors block"
-                style={{ cursor: 'none' }}
               >
                 {SITE_CONFIG.phone}
               </a>
@@ -76,7 +73,6 @@ export function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 mt-6 text-label text-[--color-accent] hover:text-[--color-cyan] transition-colors duration-300"
-              style={{ cursor: 'none' }}
               data-cursor="CHAT"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -93,10 +89,10 @@ export function Footer() {
             © {new Date().getFullYear()} Marine Creatures. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-            <Link href="/about" className="text-label text-[--color-muted] hover:text-[--color-text] transition-colors" style={{ cursor: 'none' }}>
+            <Link href="/about" className="text-label text-[--color-muted] hover:text-[--color-text] transition-colors">
               ABOUT
             </Link>
-            <Link href="/contact" className="text-label text-[--color-muted] hover:text-[--color-text] transition-colors" style={{ cursor: 'none' }}>
+            <Link href="/contact" className="text-label text-[--color-muted] hover:text-[--color-text] transition-colors">
               CONTACT
             </Link>
           </div>

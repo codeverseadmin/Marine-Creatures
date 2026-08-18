@@ -32,31 +32,31 @@ export function DescentSection() {
       scrollTrigger: {
         trigger: section,
         start: 'top top',
-        end: '+=200%',
+        end: '+=180%',
         pin: pinnedRef.current,
-        scrub: 1.5,
+        scrub: 1.2,
         anticipatePin: 1,
       },
     });
 
     // Phase 1: ENTER THE OCEAN
-    tl.fromTo(line1Ref.current, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.3 });
-    tl.fromTo(line2Ref.current, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.3 }, '-=0.1');
+    tl.fromTo(line1Ref.current, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.25 });
+    tl.fromTo(line2Ref.current, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.25 }, '-=0.1');
 
     // Fish passes through
     tl.fromTo(
       fishRef.current,
-      { x: '-20%', opacity: 0 },
-      { x: '110%', opacity: 1, duration: 0.5, ease: 'power1.inOut' },
-      0.4
+      { x: '-10%', opacity: 0, scale: 0.9 },
+      { x: '110%', opacity: 1, scale: 1.1, duration: 0.6, ease: 'power1.inOut' },
+      0.3
     );
 
     // Fade out first text
-    tl.to([line1Ref.current, line2Ref.current], { opacity: 0, y: -30, duration: 0.25 }, 0.6);
+    tl.to([line1Ref.current, line2Ref.current], { opacity: 0, y: -25, duration: 0.2 }, 0.55);
 
     // Phase 2: WE CREATE LIVING WORLDS
-    tl.fromTo(line3Ref.current, { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.3 }, 0.75);
-    tl.fromTo(line4Ref.current, { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.3 }, 0.85);
+    tl.fromTo(line3Ref.current, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.3 }, 0.7);
+    tl.fromTo(line4Ref.current, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.3 }, 0.8);
 
     return () => {
       ScrollTrigger.getAll().forEach((st) => {
@@ -69,25 +69,34 @@ export function DescentSection() {
     <section
       ref={sectionRef}
       className="relative"
-      style={{ background: 'var(--color-primary)', height: '300vh' }}
+      style={{ background: 'var(--color-primary)', height: '280vh' }}
       aria-label="The descent — our philosophy"
     >
       <div
         ref={pinnedRef}
         className="sticky top-0 h-screen flex flex-col justify-center overflow-hidden"
       >
-        {/* Background glow */}
+        {/* Background depth glow */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: 'radial-gradient(ellipse at 50% 50%, rgba(11,32,40,0.8) 0%, var(--color-primary) 70%)',
+            background: 'radial-gradient(ellipse at 50% 50%, rgba(0,184,217,0.06) 0%, rgba(2,7,11,0.95) 75%)',
           }}
           aria-hidden="true"
         />
 
+        {/* Dynamic Depth Meter (Right side) */}
+        <div className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 z-20 pointer-events-none hidden sm:flex flex-col items-end gap-2 border-r border-[rgba(255,255,255,0.1)] pr-4">
+          <span className="text-[10px] tracking-[0.3em] uppercase text-[--color-accent] font-medium">BATHYMETRIC DEPTH</span>
+          <span className="font-display text-2xl text-[--color-text] font-light">
+            1,200<span className="text-xs text-[--color-muted] ml-1">METERS</span>
+          </span>
+          <span className="text-[9px] tracking-[0.2em] uppercase text-[--color-muted]">MESOPELAGIC TWILIGHT ZONE</span>
+        </div>
+
         {/* Particles */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-          {Array.from({ length: 30 }).map((_, i) => (
+          {Array.from({ length: 25 }).map((_, i) => (
             <div
               key={i}
               className="particle"
@@ -110,13 +119,13 @@ export function DescentSection() {
           ref={fishRef}
           className="absolute top-1/2 -translate-y-1/2 pointer-events-none opacity-0 z-0"
           aria-hidden="true"
-          style={{ left: '-20%' }}
+          style={{ left: '-10%' }}
         >
-          <svg width="200" height="80" viewBox="0 0 200 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <ellipse cx="100" cy="40" rx="80" ry="25" fill="rgba(0,184,217,0.08)" />
-            <ellipse cx="95" cy="40" rx="65" ry="18" fill="rgba(0,184,217,0.06)" />
-            <path d="M180 30L200 15L200 55L180 40" fill="rgba(0,184,217,0.06)" />
-            <circle cx="165" cy="38" r="3" fill="rgba(0,184,217,0.1)" />
+          <svg width="220" height="90" viewBox="0 0 200 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="100" cy="40" rx="80" ry="25" fill="rgba(0,184,217,0.12)" />
+            <ellipse cx="95" cy="40" rx="65" ry="18" fill="rgba(0,184,217,0.08)" />
+            <path d="M180 30L200 15L200 55L180 40" fill="rgba(0,184,217,0.09)" />
+            <circle cx="165" cy="38" r="3.5" fill="rgba(0,184,217,0.2)" />
           </svg>
         </div>
 
@@ -155,11 +164,9 @@ export function DescentSection() {
                 className="font-display italic text-display-md text-[--color-accent] font-light"
                 style={{ opacity: 0 }}
                 ref={(el) => {
-                  // This line appears after the others
                   if (el) {
                     gsap.to(el, {
                       opacity: 1,
-                      delay: 0,
                       scrollTrigger: {
                         trigger: el,
                         start: 'top 80%',
@@ -187,3 +194,4 @@ export function DescentSection() {
     </section>
   );
 }
+

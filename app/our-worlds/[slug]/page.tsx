@@ -58,10 +58,11 @@ export default async function ProjectDetailPage({ params }: Props) {
             <Link
               href="/our-worlds"
               className="text-label text-[--color-muted] hover:text-[--color-accent] transition-colors mb-10 flex items-center gap-2"
-              style={{ cursor: 'none' }}
+              data-cursor="EXPLORE"
             >
               ← OUR WORLDS
             </Link>
+
 
             <p className="font-body font-light text-[--color-muted] leading-loose" style={{ fontSize: '1.0625rem' }}>
               {project.description}

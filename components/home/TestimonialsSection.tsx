@@ -82,18 +82,18 @@ export function TestimonialsSection() {
               <button
                 key={i}
                 onClick={() => setActiveIndex(i)}
-                className={`transition-all duration-300 ${
+                className={`transition-all duration-300 py-2 ${
                   i === activeIndex
-                    ? 'w-8 h-px bg-[--color-accent]'
-                    : 'w-4 h-px bg-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.4)]'
+                    ? 'w-10 h-1 bg-[--color-accent] rounded-full'
+                    : 'w-4 h-1 bg-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.4)] rounded-full'
                 }`}
                 role="tab"
                 aria-selected={i === activeIndex}
                 aria-label={`Testimonial ${i + 1}`}
-                style={{ cursor: 'none' }}
               />
             ))}
           </div>
+
         </div>
       </div>
     </section>

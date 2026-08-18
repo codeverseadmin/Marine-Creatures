@@ -80,7 +80,6 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
         onClick={onClose}
         className="absolute top-6 right-6 text-label-lg text-[--color-muted] hover:text-[--color-text] transition-colors"
         aria-label="Close menu"
-        style={{ cursor: 'none' }}
       >
         CLOSE
       </button>
@@ -100,12 +99,12 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             href={link.href}
             onClick={onClose}
             className="font-display text-display-sm text-[--color-text] hover:text-[--color-accent] transition-colors duration-300 leading-none"
-            style={{ cursor: 'none' }}
           >
             {link.label}
           </Link>
         ))}
       </div>
+
 
       {/* Bottom */}
       <div className="absolute bottom-8 left-8 right-8 flex justify-between items-end">

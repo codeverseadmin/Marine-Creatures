@@ -79,92 +79,92 @@ export function Hero() {
     // Animate light rays
     const rays = document.querySelectorAll('.light-ray');
 
-    // Master timeline
-    const tl = gsap.timeline({ delay: 0.3 });
+    // Snappy, luxury master timeline (completes within 1.2s)
+    const tl = gsap.timeline({ delay: 0.05 });
 
     if (!prefersReduced) {
-      // 0.5s — particles appear (handled by CSS animation)
-      // 1.0s — light rays
+      // 0.1s — light rays
       tl.to(
         rays,
         {
-          opacity: 0.7,
-          duration: 1.5,
-          stagger: 0.15,
-          ease: 'power1.out',
+          opacity: 0.75,
+          duration: 1.0,
+          stagger: 0.1,
+          ease: 'power2.out',
         },
-        0.8
+        0.05
       );
 
-      // 1.5s — image reveal
+      // 0.1s — background image reveal
       tl.fromTo(
         imageRef.current,
-        { scale: 1.08, opacity: 0 },
-        { scale: 1.02, opacity: 1, duration: 2.5, ease: 'power2.out' },
-        1.3
+        { scale: 1.06, opacity: 0 },
+        { scale: 1.0, opacity: 1, duration: 1.2, ease: 'power2.out' },
+        0.05
       );
 
-      // 2.5s — MARINE CREATURES wordmark
+      // 0.2s — Wordmark
       tl.fromTo(
         wordmarkRef.current,
-        { opacity: 0, y: 10 },
-        { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' },
-        2.3
+        { opacity: 0, y: 15 },
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+        0.2
       );
 
-      // 3.0s — THE OCEAN
+      // 0.3s — THE OCEAN
       const line1 = headingRef.current?.querySelector('.line-1') ?? null;
       const line2 = headingRef.current?.querySelector('.line-2') ?? null;
       if (line1) {
         tl.fromTo(
           line1,
-          { y: '110%' },
-          { y: '0%', duration: 1.0, ease: 'power3.out' },
-          2.8
+          { y: '100%', opacity: 0 },
+          { y: '0%', opacity: 1, duration: 0.7, ease: 'power3.out' },
+          0.3
         );
       }
 
-      // 3.4s — REIMAGINED.
+      // 0.45s — REIMAGINED.
       if (line2) {
         tl.fromTo(
           line2,
-          { y: '110%' },
-          { y: '0%', duration: 1.0, ease: 'power3.out' },
-          3.2
+          { y: '100%', opacity: 0 },
+          { y: '0%', opacity: 1, duration: 0.7, ease: 'power3.out' },
+          0.45
         );
       }
 
-      // 4.0s — subheading
+      // 0.6s — subheading
       tl.fromTo(
         subRef.current,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' },
-        3.8
+        { opacity: 0, y: 15 },
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
+        0.6
       );
 
-      // 4.4s — CTA
+      // 0.75s — CTAs
       tl.fromTo(
         ctaRef.current,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' },
-        4.2
+        { opacity: 0, y: 15 },
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
+        0.75
       );
 
-      // 4.8s — Scroll indicator
+      // 0.9s — Scroll indicator
       tl.fromTo(
         scrollRef.current,
         { opacity: 0 },
-        { opacity: 1, duration: 0.6, ease: 'power1.out' },
-        4.6
+        { opacity: 1, duration: 0.5, ease: 'power1.out' },
+        0.9
       );
 
-      // Fade initial dark overlay
+      // Fade initial overlay
       tl.to(
         overlayRef.current,
-        { opacity: 0, duration: 2.0, ease: 'power1.out' },
-        1.0
+        { opacity: 0, duration: 0.8, ease: 'power1.out' },
+        0.1
       );
     } else {
+
       // No animation — show everything immediately
       gsap.set([wordmarkRef.current, subRef.current, ctaRef.current, scrollRef.current], {
         opacity: 1,
@@ -276,43 +276,59 @@ export function Hero() {
 
       {/* Content */}
       <div className="relative z-10 container-max pb-16 md:pb-24">
-        {/* Wordmark */}
+        {/* Wordmark & Live Depth Meter */}
         <div
           ref={wordmarkRef}
-          className="mb-10 opacity-0"
+          className="mb-8 opacity-0 flex flex-wrap items-center justify-between gap-4 border-b border-[rgba(255,255,255,0.08)] pb-4 max-w-4xl"
         >
-          <span className="text-label text-[--color-accent] tracking-[0.3em]">
-            MARINE CREATURES
+          <span className="text-label text-[--color-accent] tracking-[0.3em] font-medium">
+            MARINE CREATURES ARCHITECTURE
           </span>
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[rgba(0,184,217,0.08)] border border-[rgba(0,184,217,0.25)] text-[10px] tracking-widest text-[--color-accent]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[--color-accent] animate-ping" />
+            <span>DEPTH: 000m // SURFACE REEF</span>
+          </div>
         </div>
 
         {/* Main heading */}
         <div ref={headingRef} aria-label="The Ocean Reimagined">
           <div className="overflow-hidden mb-1">
-            <div className="line-1 font-display text-display-xl text-[--color-text] font-light italic leading-[0.88]" style={{ transform: 'translateY(110%)' }}>
+            <div className="line-1 font-display text-display-xl text-[--color-text] font-light italic leading-[0.88]" style={{ transform: 'translateY(100%)' }}>
               The Ocean
             </div>
           </div>
           <div className="overflow-hidden">
-            <div className="line-2 font-display text-display-xl text-[--color-text] font-light leading-[0.88]" style={{ transform: 'translateY(110%)' }}>
+            <div className="line-2 font-display text-display-xl text-[--color-text] font-light leading-[0.88]" style={{ transform: 'translateY(100%)' }}>
               Reimagined.
             </div>
           </div>
         </div>
 
-        {/* Sub-content */}
-        <div ref={subRef} className="mt-8 opacity-0">
-          {/* Subheading */}
-          <p className="text-label text-[--color-muted] tracking-[0.2em] mb-2">
+        {/* Sub-content & Trust Badges */}
+        <div ref={subRef} className="mt-8 opacity-0 max-w-2xl">
+          <p className="text-label text-[--color-muted] tracking-[0.2em] mb-3">
             EXOTIC MARINE LIFE &nbsp;/&nbsp; BESPOKE AQUARIUMS &nbsp;/&nbsp; LIVING ECOSYSTEMS
           </p>
-          <p className="font-body font-light text-[--color-muted] max-w-md leading-relaxed mt-4 hidden md:block" style={{ fontSize: '0.9375rem' }}>
-            Exotic marine life, bespoke aquariums and living underwater environments crafted for extraordinary spaces.
+          <p className="font-body font-light text-[--color-muted] leading-relaxed mb-6" style={{ fontSize: '0.9375rem' }}>
+            Museum-grade marine life habitats, bespoke architectural aquariums, and autonomous living reef ecosystems tailored for the world&apos;s most distinguished residences and estates.
           </p>
+
+          {/* Quick trust metrics */}
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="px-3 py-1 text-[10px] tracking-widest uppercase rounded border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.5)] text-[--color-text]">
+              ✦ OptiWhite™ Monolithic Glass
+            </span>
+            <span className="px-3 py-1 text-[10px] tracking-widest uppercase rounded border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.5)] text-[--color-text]">
+              ✦ Symbiotic Coral Biotopes
+            </span>
+            <span className="px-3 py-1 text-[10px] tracking-widest uppercase rounded border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.5)] text-[--color-accent]">
+              ✦ 24/7 Marine Biology Concierge
+            </span>
+          </div>
         </div>
 
         {/* CTAs */}
-        <div ref={ctaRef} className="flex flex-wrap items-center gap-4 mt-10 opacity-0">
+        <div ref={ctaRef} className="flex flex-wrap items-center gap-5 mt-10 opacity-0">
           <Link
             href="/marine-life"
             className="btn-primary"
@@ -341,6 +357,7 @@ export function Hero() {
         <span className="text-label text-[--color-muted] rotate-90 origin-center tracking-[0.2em]">SCROLL TO DESCEND</span>
         <div className="w-px h-12 bg-gradient-to-b from-transparent to-[--color-accent] animate-scroll-bounce" />
       </div>
+
 
       {/* Layer 3 ref — invisible spacer for parallax */}
       <div ref={layer3Ref} className="absolute inset-0 z-4 pointer-events-none" aria-hidden="true" />
