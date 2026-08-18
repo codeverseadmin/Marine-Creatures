@@ -22,11 +22,11 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <div className="group rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.5)] hover:border-[rgba(0,184,217,0.5)] hover:shadow-[0_10px_30px_rgba(0,184,217,0.12)] transition-all duration-300 flex flex-col justify-between overflow-hidden">
+    <div className="group rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(5,15,22,0.85)] hover:border-[rgba(0,184,217,0.4)] hover:shadow-[0_15px_35px_rgba(0,0,0,0.6)] backdrop-blur-xl transition-all duration-300 flex flex-col h-full overflow-hidden">
       {/* Top Image Link */}
       <Link
         href={`/marketplace/${product.id}`}
-        className="block relative overflow-hidden bg-black/40"
+        className="block relative overflow-hidden bg-black/50"
         style={{ aspectRatio: '16/11' }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -38,42 +38,40 @@ export function ProductCard({ product }: ProductCardProps) {
         />
 
         {/* Minimalist category badge */}
-        <div className="absolute top-3 left-3">
-          <span className="text-[10px] tracking-wider uppercase font-medium text-white/90 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded border border-white/10">
+        <div className="absolute top-3.5 left-3.5">
+          <span className="text-[11px] tracking-wider uppercase font-medium text-white/90 bg-black/70 backdrop-blur-md px-3 py-1 rounded-lg border border-white/10">
             {product.categoryLabel}
           </span>
         </div>
       </Link>
 
       {/* Content */}
-      <div className="p-5 flex-1 flex flex-col justify-between">
+      <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
         <div>
           <Link
             href={`/marketplace/${product.id}`}
-            className="font-display text-lg text-white group-hover:text-[--color-accent] transition-colors block line-clamp-1 mb-1 font-light"
+            className="font-display text-xl text-white group-hover:text-[--color-accent] transition-colors block line-clamp-1 mb-2 font-normal"
           >
             {product.name}
           </Link>
 
-          <p className="font-body text-xs text-[--color-muted] line-clamp-2 leading-relaxed mb-4">
+          <p className="font-body text-xs text-slate-400 line-clamp-2 leading-relaxed">
             {product.shortDesc}
           </p>
         </div>
 
         {/* Price & Action */}
-        <div className="pt-3 border-t border-[rgba(255,255,255,0.06)] flex items-center justify-between gap-3">
-          <div>
-            <span className="font-display text-lg text-white font-light">
-              £{product.price.toFixed(2)}
-            </span>
-          </div>
+        <div className="pt-4 border-t border-[rgba(255,255,255,0.08)] flex items-center justify-between gap-4">
+          <span className="font-display text-xl text-white font-light">
+            £{product.price.toFixed(2)}
+          </span>
 
           <button
             onClick={handleAdd}
-            className={`px-4 py-2 rounded text-xs font-semibold tracking-wider uppercase transition-all duration-300 flex items-center gap-1 ${
+            className={`px-4 py-2.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all duration-300 flex items-center gap-1.5 shadow-md ${
               added
                 ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.7)]'
-                : 'bg-[--color-accent] text-[--color-primary] hover:bg-white'
+                : 'bg-[--color-accent] text-[--color-primary] hover:bg-white hover:shadow-[0_0_20px_rgba(0,184,217,0.4)] active:scale-95'
             }`}
             aria-label={`Add ${product.name} to bag`}
           >
