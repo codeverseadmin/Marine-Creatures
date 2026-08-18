@@ -1,0 +1,484 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+@import "tailwindcss";
+
+/* ============================================================================
+   Marine Creatures — Global Styles
+   ============================================================================ */
+
+:root {
+  /* Color tokens */
+  --color-primary: #02070B;
+  --color-secondary: #07151C;
+  --color-deep: #0B2028;
+  --color-accent: #00B8D9;
+  --color-cyan: #36D6E8;
+  --color-text: #F4F8FA;
+  --color-muted: #9AAEB5;
+  --color-border: rgba(255,255,255,0.10);
+  --color-gold: #C7A76C;
+
+  /* Typography */
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  /* Motion tokens */
+  --ease-ocean: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-reveal: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-gentle: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 200ms;
+  --dur-standard: 500ms;
+  --dur-cinematic: 1000ms;
+}
+
+/* ============================================================================
+   Reset & Base
+   ============================================================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: auto; /* Lenis handles smooth scroll */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background-color: var(--color-primary);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-weight: 300;
+  overflow-x: hidden;
+  cursor: none; /* Custom cursor handles this on desktop */
+}
+
+/* Re-enable system cursor on touch devices */
+@media (hover: none) {
+  body {
+    cursor: auto;
+  }
+}
+
+/* ============================================================================
+   Scrollbar
+   ============================================================================ */
+
+::-webkit-scrollbar {
+  width: 3px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-accent);
+  border-radius: 2px;
+}
+
+/* ============================================================================
+   Selection
+   ============================================================================ */
+
+::selection {
+  background: rgba(0, 184, 217, 0.25);
+  color: var(--color-text);
+}
+
+/* ============================================================================
+   Typography Scale
+   ============================================================================ */
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+.text-display-xl {
+  font-size: clamp(3.5rem, 10vw, 9rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+}
+
+.text-display-lg {
+  font-size: clamp(2.5rem, 7vw, 6.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+}
+
+.text-display-md {
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.015em;
+}
+
+.text-display-sm {
+  font-size: clamp(1.5rem, 3.5vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.text-label {
+  font-size: 0.625rem;
+  line-height: 1;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.text-label-lg {
+  font-size: 0.75rem;
+  line-height: 1;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+
+/* ============================================================================
+   Ocean Utility Classes
+   ============================================================================ */
+
+.ocean-gradient {
+  background: linear-gradient(180deg, #02070B 0%, #07151C 40%, #0B2028 100%);
+}
+
+.ocean-border {
+  border-color: var(--color-border);
+}
+
+.ocean-text-muted {
+  color: var(--color-muted);
+}
+
+.accent-line {
+  display: block;
+  width: 40px;
+  height: 1px;
+  background: var(--color-accent);
+}
+
+.gold-accent {
+  color: var(--color-gold);
+}
+
+/* ============================================================================
+   Scroll Animations — base states (JS fills in the rest via GSAP)
+   ============================================================================ */
+
+.reveal-hidden {
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.reveal-word {
+  display: inline-block;
+  overflow: hidden;
+}
+
+.reveal-word-inner {
+  display: inline-block;
+  transform: translateY(100%);
+}
+
+/* ============================================================================
+   Particle System
+   ============================================================================ */
+
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: rgba(54, 214, 232, 0.4);
+  pointer-events: none;
+}
+
+/* ============================================================================
+   Custom cursor
+   ============================================================================ */
+
+.cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  background: var(--color-accent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s var(--ease-ocean), height 0.3s var(--ease-ocean), background 0.3s;
+  mix-blend-mode: normal;
+}
+
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(0, 184, 217, 0.5);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s var(--ease-ocean), height 0.4s var(--ease-ocean), border-color 0.3s;
+}
+
+.cursor-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-body);
+  font-size: 0.5rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  opacity: 0;
+  transition: opacity 0.3s;
+  white-space: nowrap;
+}
+
+/* ============================================================================
+   Image Reveal
+   ============================================================================ */
+
+.img-reveal-wrapper {
+  overflow: hidden;
+}
+
+.img-reveal-wrapper img {
+  transform: scale(1.1);
+  transition: transform 1.2s var(--ease-ocean);
+}
+
+.img-reveal-wrapper.revealed img {
+  transform: scale(1);
+}
+
+/* ============================================================================
+   Section spacing
+   ============================================================================ */
+
+.section {
+  padding-top: 8rem;
+  padding-bottom: 8rem;
+}
+
+.section-sm {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
+
+.container-max {
+  max-width: 1440px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+@media (min-width: 768px) {
+  .container-max {
+    padding-left: 4rem;
+    padding-right: 4rem;
+  }
+}
+
+@media (min-width: 1440px) {
+  .container-max {
+    padding-left: 6rem;
+    padding-right: 6rem;
+  }
+}
+
+/* ============================================================================
+   Reduced Motion
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .reveal-hidden {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .reveal-word-inner {
+    transform: none !important;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* ============================================================================
+   Before/After Slider
+   ============================================================================ */
+
+.ba-slider {
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  touch-action: pan-y;
+}
+
+.ba-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(255,255,255,0.8);
+  cursor: ew-resize;
+  z-index: 10;
+}
+
+.ba-handle::before,
+.ba-handle::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.5);
+  top: 50%;
+  margin-top: -20px;
+}
+
+.ba-handle::after {
+  width: 20px;
+  height: 20px;
+  background: var(--color-accent);
+  border: none;
+  margin-top: -10px;
+}
+
+/* ============================================================================
+   Horizontal Scroll Section
+   ============================================================================ */
+
+.h-scroll-container {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 2rem;
+  will-change: transform;
+}
+
+/* ============================================================================
+   Navigation
+   ============================================================================ */
+
+.nav-link {
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  transition: color 0.3s;
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  color: var(--color-text);
+}
+
+/* ============================================================================
+   Buttons
+   ============================================================================ */
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 2rem;
+  background: var(--color-accent);
+  color: var(--color-primary);
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: none;
+  cursor: none;
+  transition: background 0.3s var(--ease-gentle), transform 0.3s var(--ease-gentle);
+}
+
+.btn-primary:hover {
+  background: var(--color-cyan);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 2rem;
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid var(--color-border);
+  cursor: none;
+  transition: border-color 0.3s, color 0.3s;
+}
+
+.btn-ghost:hover {
+  border-color: rgba(0, 184, 217, 0.5);
+  color: var(--color-accent);
+}
+
+@media (hover: none) {
+  .btn-primary,
+  .btn-ghost {
+    cursor: pointer;
+  }
+}
+
+/* ============================================================================
+   Light Rays
+   ============================================================================ */
+
+.light-ray {
+  position: absolute;
+  top: -10%;
+  width: 200px;
+  height: 120%;
+  background: linear-gradient(180deg, rgba(0, 184, 217, 0.06) 0%, transparent 100%);
+  transform-origin: top center;
+  pointer-events: none;
+}
+
+/* ============================================================================
+   Grain Overlay
+   ============================================================================ */
+
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
