@@ -13,8 +13,9 @@ export default function ServicesPage() {
   return (
     <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>
       {/* Hero Header */}
-      <div className="relative pt-36 pb-16 border-b border-[rgba(255,255,255,0.06)] overflow-hidden">
+      <div className="relative pt-44 md:pt-52 pb-16 border-b border-[rgba(255,255,255,0.06)] overflow-hidden">
         <div
+
           className="absolute inset-0 pointer-events-none"
           style={{
             background: 'radial-gradient(ellipse at 50% 0%, rgba(0,184,217,0.12) 0%, transparent 70%)',

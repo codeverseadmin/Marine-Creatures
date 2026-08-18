@@ -46,8 +46,9 @@ export default function AboutPage() {
       </div>
 
       {/* Content */}
-      <div className="container-max section">
+      <div className="container-max pt-16 pb-36">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-24">
+
           <div className="lg:col-span-5">
             <p className="font-display text-display-sm text-[--color-text] font-light italic leading-relaxed mb-8">
               &ldquo;We Don&apos;t Just Build Aquariums. We Create Living Worlds.&rdquo;

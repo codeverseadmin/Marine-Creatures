@@ -31,8 +31,9 @@ export default function RenovationPage() {
         </div>
       </div>
 
-      <div className="container-max section">
+      <div className="container-max pt-16 pb-36">
         {/* Before/After */}
+
         <div className="mb-20" style={{ height: '500px' }}>
           <BeforeAfterSlider
             beforeSrc="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=85"

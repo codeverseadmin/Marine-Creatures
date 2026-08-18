@@ -66,8 +66,9 @@ export default function OurWorldsPage() {
 
 
       {/* Projects */}
-      <div className="container-max section">
+      <div className="container-max pt-12 pb-36">
         <div className="space-y-6">
+
           {filteredProjects.map((project) => (
             <Link
               key={project.id}

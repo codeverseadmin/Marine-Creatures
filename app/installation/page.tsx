@@ -72,8 +72,9 @@ export default function InstallationPage() {
       </div>
 
       {/* Process Section */}
-      <div className="container-max section">
+      <div className="container-max pt-16 pb-36">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-20">
+
           <div className="lg:col-span-5">
             <span className="text-label text-[--color-accent] block mb-3">OUR PROTOCOL</span>
             <h2 className="font-display text-display-sm text-[--color-text] font-light leading-snug mb-6">

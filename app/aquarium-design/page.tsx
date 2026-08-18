@@ -85,9 +85,10 @@ export default function AquariumDesignPage() {
         </div>
       </div>
 
-      {/* Main Pillars */}
-      <div className="container-max section">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start mb-24">
+      {/* Content */}
+      <div className="container-max pt-16 pb-36">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-24">
+
           <div>
             <span className="text-label text-[--color-accent] block mb-3">OUR PHILOSOPHY</span>
             <h2 className="font-display text-display-sm text-[--color-text] font-light leading-snug mb-8">

@@ -8,7 +8,7 @@ import { CallbackForm } from '@/components/ui/CallbackForm';
 export function FinalCTA() {
   return (
     <section
-      className="relative min-h-screen flex flex-col justify-center overflow-hidden"
+      className="relative py-28 md:py-36 flex flex-col justify-center overflow-hidden"
       style={{ background: 'var(--color-primary)' }}
       aria-labelledby="final-cta-heading"
     >

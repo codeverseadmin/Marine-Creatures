@@ -4,17 +4,17 @@ import { SITE_CONFIG, NAV_LINKS } from '@/lib/config';
 export function Footer() {
   return (
     <footer
-      className="relative overflow-hidden"
-      style={{ background: 'var(--color-primary)', borderTop: '1px solid rgba(255,255,255,0.06)' }}
+      className="relative overflow-hidden mt-20 border-t border-[rgba(255,255,255,0.1)] bg-[#010508]"
       aria-label="Site footer"
     >
-      {/* Accent line */}
+      {/* Luminous accent line */}
       <div
-        className="h-px w-full"
+        className="h-[2px] w-full"
         style={{ background: 'linear-gradient(90deg, transparent, var(--color-accent), transparent)' }}
       />
 
-      <div className="container-max pt-16 pb-10">
+      <div className="container-max pt-20 pb-12">
+
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 mb-16">
           {/* Brand column */}
           <div className="md:col-span-4">

@@ -51,8 +51,9 @@ export default async function ProjectDetailPage({ params }: Props) {
       </div>
 
       {/* Content */}
-      <div className="container-max section">
+      <div className="container-max pt-16 pb-36">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+
           {/* Main content */}
           <div className="lg:col-span-7">
             <Link

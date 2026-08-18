@@ -92,7 +92,8 @@ export default function MarineLifePage() {
       </div>
 
       {/* Species Grid */}
-      <div className="container-max section">
+      <div className="container-max pt-12 pb-36">
+
         {filteredSpecies.length === 0 ? (
           <div className="text-center py-20">
             <p className="font-display text-xl text-[--color-muted]">No marine species found matching your filter.</p>
