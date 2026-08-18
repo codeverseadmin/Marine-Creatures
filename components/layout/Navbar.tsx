@@ -48,16 +48,16 @@ export function Navbar() {
               <span>{SITE_CONFIG.name.toUpperCase()}</span>
             </Link>
 
-            {/* Center — Nav links (desktop) */}
-            <nav className="hidden lg:flex items-center gap-8" aria-label="Primary navigation">
+            {/* Center — Nav links (tablet & desktop) */}
+            <nav className="hidden md:flex items-center gap-4 lg:gap-8" aria-label="Primary navigation">
               {NAV_LINKS.map((link) => {
                 const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`nav-link relative py-1 transition-colors duration-300 ${
-                      isActive ? 'text-[--color-accent] font-normal' : 'text-[--color-muted] hover:text-[--color-text]'
+                    className={`nav-link relative py-1 text-xs tracking-widest transition-colors duration-300 ${
+                      isActive ? 'text-[--color-accent] font-medium' : 'text-[--color-muted] hover:text-[--color-text]'
                     }`}
                     data-cursor="VIEW"
                   >
@@ -71,10 +71,10 @@ export function Navbar() {
             </nav>
 
             {/* Right — CTA + hamburger */}
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4">
               <Link
                 href="/contact"
-                className={`hidden md:inline-flex items-center gap-2 btn-ghost text-xs ${
+                className={`hidden sm:inline-flex items-center gap-2 btn-ghost text-xs ${
                   pathname === '/contact' ? 'border-[--color-accent] text-[--color-accent]' : ''
                 }`}
                 data-cursor="ENTER"
@@ -83,32 +83,32 @@ export function Navbar() {
                 <span className="text-[--color-accent]">→</span>
               </Link>
 
-
-              {/* Hamburger */}
+              {/* Hamburger (Mobile / Tablet) */}
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="flex flex-col gap-[5px] p-2 group"
+                className="md:hidden flex flex-col items-center justify-center w-10 h-10 gap-[5px] p-2 border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)]"
                 aria-expanded={menuOpen}
                 aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-                style={{ cursor: 'none' }}
+                data-cursor="MENU"
               >
                 <span
-                  className={`block w-6 h-px bg-[--color-text] transition-all duration-300 ${
-                    menuOpen ? 'rotate-45 translate-y-[6px]' : ''
+                  className={`block w-5 h-0.5 bg-[--color-text] transition-all duration-300 ${
+                    menuOpen ? 'rotate-45 translate-y-[7px]' : ''
                   }`}
                 />
                 <span
-                  className={`block h-px bg-[--color-text] transition-all duration-300 ${
-                    menuOpen ? 'opacity-0 w-0' : 'w-4'
+                  className={`block h-0.5 bg-[--color-text] transition-all duration-300 ${
+                    menuOpen ? 'opacity-0 w-0' : 'w-3.5'
                   }`}
                 />
                 <span
-                  className={`block w-6 h-px bg-[--color-text] transition-all duration-300 ${
-                    menuOpen ? '-rotate-45 -translate-y-[6px]' : ''
+                  className={`block w-5 h-0.5 bg-[--color-text] transition-all duration-300 ${
+                    menuOpen ? '-rotate-45 -translate-y-[7px]' : ''
                   }`}
                 />
               </button>
             </div>
+
           </div>
         </div>
       </header>

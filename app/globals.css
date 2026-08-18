@@ -54,15 +54,18 @@ body {
   font-family: var(--font-body);
   font-weight: 300;
   overflow-x: hidden;
-  cursor: none; /* Custom cursor handles this on desktop */
 }
 
-/* Re-enable system cursor on touch devices */
-@media (hover: none) {
-  body {
-    cursor: auto;
-  }
+/* Hide native cursor only when custom fish cursor is actively detected and running */
+html.has-custom-cursor,
+html.has-custom-cursor body,
+html.has-custom-cursor a,
+html.has-custom-cursor button,
+html.has-custom-cursor [role="button"],
+html.has-custom-cursor [data-cursor] {
+  cursor: none !important;
 }
+
 
 /* ============================================================================
    Scrollbar
