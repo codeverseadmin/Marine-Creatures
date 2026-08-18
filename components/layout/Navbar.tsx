@@ -98,12 +98,13 @@ export function Navbar() {
               </button>
 
               <Link
-                href="/services#booking-portal"
-                className="hidden lg:inline-flex items-center gap-2 btn-primary text-xs py-2 px-4"
+                href="/services"
+                className="hidden lg:inline-flex items-center gap-1 btn-ghost text-xs py-2 px-4 border-[--color-accent] text-[--color-accent] hover:bg-[rgba(0,184,217,0.1)]"
                 data-cursor="ENTER"
               >
                 BOOK SERVICE
               </Link>
+
 
               {/* Hamburger (Mobile / Tablet) */}
               <button
