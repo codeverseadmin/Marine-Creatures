@@ -10,10 +10,11 @@ export default function NotFound() {
       <div className="absolute inset-0 z-0" aria-hidden="true">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=1920&q=70"
+          src="https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1920&q=70"
           alt=""
           className="w-full h-full object-cover opacity-10"
         />
+
         <div className="absolute inset-0" style={{ background: 'rgba(2,7,11,0.8)' }} />
       </div>
 

@@ -99,7 +99,7 @@ export default function ContactPage() {
       <div className="fixed inset-0 pointer-events-none z-0" aria-hidden="true">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=1920&q=70"
+          src="https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1920&q=70"
           alt=""
           className="w-full h-full object-cover opacity-5"
         />
@@ -107,12 +107,13 @@ export default function ContactPage() {
 
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* Header */}
-        <div className="container-max pt-28 pb-12">
+        <div className="container-max pt-40 md:pt-48 pb-12">
           <span className="text-label text-[--color-accent] block mb-4">BEGIN THE CONVERSATION</span>
           <h1 className="font-display text-display-lg text-[--color-text] font-light">
             Start A Project
           </h1>
         </div>
+
 
         {/* Progress */}
         <div className="container-max mb-10">
@@ -224,13 +225,23 @@ export default function ContactPage() {
           <p className="text-label text-[--color-muted]">
             Prefer to talk? &nbsp;
             <a
-              href="mailto:hello@marinecreatures.com"
+              href="mailto:surajshasmal04@gmail.com"
               className="text-[--color-accent] hover:text-[--color-cyan] transition-colors"
             >
-              hello@marinecreatures.com
+              surajshasmal04@gmail.com
+            </a>
+            &nbsp;•&nbsp;
+            <a
+              href="https://wa.me/919330436603?text=Hi%20Marine%20Creatures,%20I%20would%20like%20to%20start%20a%20project."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[--color-accent] hover:text-white transition-colors"
+            >
+              +91 93304 36603 (WhatsApp)
             </a>
           </p>
         </div>
+
 
       </div>
     </div>

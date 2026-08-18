@@ -137,7 +137,7 @@ export default function ServicesPage() {
       </div>
 
       {/* Booking Form Section */}
-      <div id="booking-portal" className="container-max pb-28">
+      <div id="booking-portal" className="container-max pb-36 pt-8">
         <div className="mb-12 text-center max-w-2xl mx-auto">
           <span className="text-xs uppercase tracking-[0.3em] font-semibold text-[--color-accent] block mb-3">
             ONLINE RESERVATION &amp; SITE SURVEY
@@ -153,42 +153,8 @@ export default function ServicesPage() {
         <div className="max-w-4xl mx-auto">
           <BookingForm />
         </div>
-
-        {/* Direct Contact Hotline Bar */}
-        <div className="max-w-4xl mx-auto mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-          <div className="p-6 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(5,15,22,0.6)]">
-            <span className="text-xs uppercase tracking-wider text-[--color-accent] block mb-2 font-medium">
-              CALL US DIRECTLY
-            </span>
-            <a href={`tel:${SITE_CONFIG.phone}`} className="font-body text-base text-white hover:text-[--color-accent] font-medium">
-              {SITE_CONFIG.phone}
-            </a>
-          </div>
-
-          <div className="p-6 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(5,15,22,0.6)]">
-            <span className="text-xs uppercase tracking-wider text-[--color-accent] block mb-2 font-medium">
-              WHATSAPP CONCIERGE
-            </span>
-            <a
-              href={`https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-body text-base text-[--color-accent] hover:underline font-medium"
-            >
-              Chat with a Biologist ↗
-            </a>
-          </div>
-
-          <div className="p-6 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(5,15,22,0.6)]">
-            <span className="text-xs uppercase tracking-wider text-[--color-accent] block mb-2 font-medium">
-              EMAIL INQUIRIES
-            </span>
-            <a href={`mailto:${SITE_CONFIG.email}`} className="font-body text-base text-white hover:text-[--color-accent] font-medium">
-              {SITE_CONFIG.email}
-            </a>
-          </div>
-        </div>
       </div>
     </div>
   );
 }
+

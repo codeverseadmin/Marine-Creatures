@@ -34,10 +34,11 @@ export default function MarineLifePage() {
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=1920&q=85"
+          src="https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1920&q=90"
           alt="Marine Life at Marine Creatures"
-          className="absolute inset-0 w-full h-full object-cover opacity-40"
+          className="absolute inset-0 w-full h-full object-cover opacity-50"
         />
+
         <div
           className="absolute inset-0"
           style={{

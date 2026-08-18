@@ -63,8 +63,9 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Price & Action */}
         <div className="pt-4 border-t border-[rgba(255,255,255,0.08)] flex items-center justify-between gap-4">
           <span className="font-display text-xl text-white font-light">
-            £{product.price.toFixed(2)}
+            ₹{product.price.toLocaleString('en-IN')}
           </span>
+
 
           <button
             onClick={handleAdd}

@@ -18,7 +18,8 @@ const DESIGN_PILLARS = [
     number: '02',
     title: 'Precision Ecosystem Engineering',
     desc: 'Custom closed-loop filtration, silent pumps, automated dosing, and spectrum-tuned coral reef lighting systems.',
-    image: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=800&q=80',
+
   },
   {
     number: '03',

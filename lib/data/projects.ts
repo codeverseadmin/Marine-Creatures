@@ -71,7 +71,8 @@ export const PROJECTS: Project[] = [
     subtitle: 'Residential / Minimal',
     category: 'Residential',
     location: 'Private Residence',
-    image: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=1600&q=85',
+    image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1600&q=85',
+
     description:
       'A precision-designed minimal aquascape for a private architectural practice. The aquarium reflects the owner\'s design sensibility — clean lines, considered composition, and deliberate restraint.',
     services: ['Design Consultation', 'Minimalist Aquascaping', 'Installation', 'Maintenance'],

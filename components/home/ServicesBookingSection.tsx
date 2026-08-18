@@ -32,7 +32,7 @@ export function ServicesBookingSection() {
                   Turnkey Commission
                 </span>
                 <span className="text-xs text-[--color-muted]">
-                  From <strong className="text-white">£1,850</strong>
+                  From <strong className="text-white">₹1,85,000</strong>
                 </span>
               </div>
 
@@ -86,7 +86,7 @@ export function ServicesBookingSection() {
                   Ecosystem Revival
                 </span>
                 <span className="text-xs text-[--color-muted]">
-                  From <strong className="text-white">£650</strong>
+                  From <strong className="text-white">₹45,000</strong>
                 </span>
               </div>
 
@@ -101,7 +101,7 @@ export function ServicesBookingSection() {
               <div className="rounded-xl overflow-hidden mb-6 relative" style={{ height: '220px' }}>
                 <BeforeAfterSlider
                   beforeSrc="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1000&q=85"
-                  afterSrc="https://images.unsplash.com/photo-1544551763-92ab472cad5d?w=1000&q=85"
+                  afterSrc="https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1000&q=85"
                   beforeAlt="Neglected aquarium before renovation"
                   afterAlt="Pristine living reef after Marine Creatures renovation"
                 />
@@ -139,7 +139,7 @@ export function ServicesBookingSection() {
             <span className="text-xl">📞</span>
             <div>
               <span className="text-white font-medium block">Prefer to speak directly with our Senior Biologist?</span>
-              <span className="text-[--color-muted]">Available Monday–Saturday for bespoke advice</span>
+              <span className="text-[--color-muted]">Available Monday–Saturday for bespoke advice across India</span>
             </div>
           </div>
           <div className="flex items-center gap-4">
@@ -148,7 +148,7 @@ export function ServicesBookingSection() {
             </a>
             <span className="text-[--color-muted]">|</span>
             <a
-              href={`https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}`}
+              href="https://wa.me/919330436603?text=Hi%20Marine%20Creatures,%20I%20would%20like%20to%20inquire%20about%20your%20installation%20and%20renovation%20services."
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary text-xs py-2 px-4"

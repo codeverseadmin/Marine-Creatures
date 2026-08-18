@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useCart } from '@/lib/context/CartContext';
+import { SITE_CONFIG } from '@/lib/config';
 
 export function CartDrawer() {
   const {
@@ -16,6 +17,24 @@ export function CartDrawer() {
   } = useCart();
 
   if (!isCartOpen) return null;
+
+  const handleWhatsAppCheckout = () => {
+    if (cart.length === 0) return;
+
+    const itemsSummary = cart
+      .map(
+        ({ product, quantity }) =>
+          `• ${product.name} (Qty: ${quantity}) - ₹${(product.price * quantity).toLocaleString('en-IN')}`
+      )
+      .join('\n');
+
+    const message = `Hi Marine Creatures! I would like to place an order for the following items:\n\n${itemsSummary}\n\n*Cart Total: ₹${cartTotal.toLocaleString('en-IN')}*\n\nPlease confirm delivery availability and dispatch timings to my location.`;
+
+    const encoded = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encoded}`;
+    window.open(whatsappUrl, '_blank');
+    setIsCartOpen(false);
+  };
 
   return (
     <div className="fixed inset-0 z-[99990] overflow-hidden" aria-labelledby="cart-heading">
@@ -48,9 +67,9 @@ export function CartDrawer() {
           <div className="px-6 py-3 bg-[rgba(0,184,217,0.06)] border-b border-[rgba(0,184,217,0.15)] text-xs text-[--color-text] flex items-center gap-2">
             <span>⚡</span>
             <span>
-              {cartTotal >= 200
-                ? 'Unlocked: FREE Oxygenated Climate-Controlled Courier Pod Shipping!'
-                : `Add £${(200 - cartTotal).toFixed(2)} more for FREE Climate-Controlled Shipping`}
+              {cartTotal >= 15000
+                ? 'Unlocked: FREE Oxygenated Insulated Thermal Pod Shipping Across India!'
+                : `Add ₹${(15000 - cartTotal).toLocaleString('en-IN')} more for FREE Climate-Controlled Shipping`}
             </span>
           </div>
 
@@ -134,7 +153,7 @@ export function CartDrawer() {
                       </div>
 
                       <span className="font-body text-xs font-semibold text-[--color-accent]">
-                        £{(product.price * quantity).toFixed(2)}
+                        ₹{(product.price * quantity).toLocaleString('en-IN')}
                       </span>
                     </div>
                   </div>
@@ -149,23 +168,21 @@ export function CartDrawer() {
               <div className="flex items-center justify-between text-sm">
                 <span className="text-[--color-muted] font-light">Subtotal</span>
                 <span className="font-display text-xl text-[--color-text] font-light">
-                  £{cartTotal.toFixed(2)}
+                  ₹{cartTotal.toLocaleString('en-IN')}
                 </span>
               </div>
               <div className="flex items-center justify-between text-xs text-[--color-muted] border-b border-[rgba(255,255,255,0.06)] pb-3">
-                <span>Shipping & Live Guarantee</span>
+                <span>Shipping &amp; Live Guarantee</span>
                 <span className="text-[--color-accent]">Calculated at Dispatch</span>
               </div>
 
               <div className="flex flex-col gap-3">
                 <button
-                  onClick={() => {
-                    alert('Order inquiry registered! A Marine Creatures logistics specialist will confirm your delivery timing and thermal pod dispatch.');
-                    setIsCartOpen(false);
-                  }}
-                  className="btn-primary w-full justify-center text-xs py-3.5"
+                  onClick={handleWhatsAppCheckout}
+                  className="btn-primary w-full justify-center text-xs py-3.5 flex items-center gap-2 shadow-lg"
                 >
-                  PROCEED TO SECURE CHECKOUT →
+                  <span>💬</span>
+                  <span>CHECKOUT VIA WHATSAPP CONCIERGE →</span>
                 </button>
                 <Link
                   href="/services"
@@ -177,7 +194,7 @@ export function CartDrawer() {
               </div>
 
               <p className="text-[10px] text-[--color-muted] text-center opacity-70">
-                🔒 100% DOA Live Arrival Guaranteed • Verified Red Sea Batch Authenticity
+                🔒 100% DOA Live Arrival Guaranteed • Verified Red Sea Batch Authenticity • Nurtured in CODEVERSE
               </p>
             </div>
           )}

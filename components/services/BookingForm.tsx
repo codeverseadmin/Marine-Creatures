@@ -51,7 +51,7 @@ export function BookingForm({ defaultService = 'installation' }: { defaultServic
 
         <div className="flex flex-wrap justify-center gap-4 pt-4">
           <a
-            href={`https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=Hi%20Marine%20Creatures,%20I%20have%20booked%20a%20${serviceType}%20consultation`}
+            href={`https://wa.me/919330436603?text=Hi%20Marine%20Creatures!%20I%20have%20submitted%20a%20consultation%20request%20for%20a%20${encodeURIComponent(serviceType)}%20service.%20Name:%20${encodeURIComponent(name || 'Client')}%20|%20Phone:%20${encodeURIComponent(phone || 'N/A')}`}
             target="_blank"
             rel="noopener noreferrer"
             className="btn-primary text-xs py-4 px-8 rounded-xl"
@@ -65,6 +65,7 @@ export function BookingForm({ defaultService = 'installation' }: { defaultServic
             BOOK ANOTHER SERVICE
           </button>
         </div>
+
       </div>
     );
   }
@@ -96,20 +97,21 @@ export function BookingForm({ defaultService = 'installation' }: { defaultServic
               id: 'installation',
               title: 'New Installation',
               desc: 'Architectural aquarium design, concealed plumbing, live rock aquascaping & ecosystem cycling.',
-              tag: 'From £1,850',
+              tag: 'From ₹1,85,000',
             },
             {
               id: 'renovation',
               title: 'Tank Renovation',
               desc: 'Algae eradication, glass scratch polishing, silent pump & high-PAR NemoLight LED retrofitting.',
-              tag: 'From £650',
+              tag: 'From ₹45,000',
             },
             {
               id: 'maintenance',
               title: 'Marine Concierge',
               desc: 'Bi-weekly water chemical lab testing, salt water changes & 24/7 priority emergency response.',
-              tag: 'From £280 / Mo',
+              tag: 'From ₹18,500 / Mo',
             },
+
           ].map((s) => (
             <button
               key={s.id}
@@ -227,7 +229,7 @@ export function BookingForm({ defaultService = 'installation' }: { defaultServic
             <input
               type="tel"
               required
-              placeholder="e.g. +44 7911 123456"
+              placeholder="e.g. +91 93304 36603"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               className="w-full h-14 px-5 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.07)] transition-all"
@@ -241,7 +243,7 @@ export function BookingForm({ defaultService = 'installation' }: { defaultServic
             <input
               type="email"
               required
-              placeholder="client@luxuryestate.com"
+              placeholder="surajshasmal04@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full h-14 px-5 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.07)] transition-all"
@@ -250,17 +252,18 @@ export function BookingForm({ defaultService = 'installation' }: { defaultServic
 
           <div>
             <label className="text-sm font-medium text-slate-300 block mb-3">
-              City / Country Location *
+              City / State Location *
             </label>
             <input
               type="text"
               required
-              placeholder="London, Monaco, Dubai, Geneva, etc."
+              placeholder="Mumbai, Kolkata, Delhi, Bangalore, etc."
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               className="w-full h-14 px-5 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.07)] transition-all"
             />
           </div>
+
         </div>
       </div>
 

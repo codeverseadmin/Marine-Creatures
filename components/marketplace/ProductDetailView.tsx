@@ -30,7 +30,7 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
   return (
     <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>
       {/* Breadcrumb Navigation */}
-      <div className="pt-28 pb-4 border-b border-[rgba(255,255,255,0.06)]">
+      <div className="pt-36 pb-4 border-b border-[rgba(255,255,255,0.06)]">
         <div className="container-max flex items-center gap-2 text-xs text-[--color-muted]">
           <Link href="/" className="hover:text-white transition-colors">Home</Link>
           <span>/</span>
@@ -89,7 +89,7 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
                 {product.name}
               </h1>
               <span className="font-display text-3xl text-white font-light block mb-4">
-                £{product.price.toFixed(2)}
+                ₹{product.price.toLocaleString('en-IN')}
               </span>
               <p className="font-body text-xs sm:text-sm text-[--color-muted] leading-relaxed">
                 {product.description}
@@ -135,9 +135,10 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
                     : 'bg-[--color-accent] text-[--color-primary] hover:bg-white'
                 }`}
               >
-                {added ? 'ADDED TO BAG ✓' : `ADD TO BAG — £${(product.price * quantity).toFixed(2)}`}
+                {added ? 'ADDED TO BAG ✓' : `ADD TO BAG — ₹${(product.price * quantity).toLocaleString('en-IN')}`}
               </button>
             </div>
+
 
             <Link
               href="/services"

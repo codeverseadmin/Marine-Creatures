@@ -7,15 +7,17 @@ export const SITE_CONFIG = {
   name: 'Marine Creatures',
   tagline: 'Where The Ocean Becomes Art.',
   description:
-    'Marine Creatures is a luxury marine design house creating living underwater environments. Exotic captive-bred marine life, bespoke architectural aquariums, and turnkey installation & renovation services.',
+    'Marine Creatures is a luxury marine design house creating living underwater environments. Exotic captive-bred marine life, bespoke architectural aquariums, and turnkey installation & renovation services. Nurtured in CODEVERSE.',
   url: 'https://marinecreatures.com',
-  whatsapp: '+447911123456',
-  email: 'concierge@marinecreatures.com',
-  phone: '+44 (0)20 7946 0912',
-  address: 'Mayfair, London, United Kingdom',
+  whatsapp: '+919330436603',
+  email: 'surajshasmal04@gmail.com',
+  phone: '+91 93304 36603',
+  address: 'India',
   instagram: 'https://instagram.com/marinecreatures',
   facebook: 'https://facebook.com/marinecreatures',
+  nurturedBy: 'Nurtured in CODEVERSE',
 };
+
 
 
 export const STATS = [

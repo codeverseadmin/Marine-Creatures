@@ -29,7 +29,8 @@ const STAGES = [
   {
     num: '04',
     title: 'Install',
-    image: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80',
+
     desc: 'Professional installation with minimal disruption. Your home or business remains our priority throughout.',
   },
   {

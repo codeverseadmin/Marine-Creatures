@@ -16,7 +16,7 @@ export const SERVICES_DATA: ServiceOffering[] = [
     id: 'installation',
     name: 'Bespoke Aquarium Installation',
     badge: 'Turnkey Commission',
-    priceStartingFrom: '£1,850',
+    priceStartingFrom: '₹1,85,000',
     shortDesc: 'Complete architectural installation from structural load analysis to plumbing, lighting automation, aquascaping, and live ecosystem cycling.',
     description: 'Our senior marine engineers and biological curators handle every facet of your new aquarium project. We collaborate directly with your interior architects, structural engineers, and contractors to ensure precision delivery with concealed Schedule 80 plumbing, automated salt-water change stations, and whisper-silent plant rooms.',
     inclusions: [
@@ -47,7 +47,7 @@ export const SERVICES_DATA: ServiceOffering[] = [
     id: 'renovation',
     name: 'Aquarium Renovation & Revival',
     badge: 'Ecosystem Rescue',
-    priceStartingFrom: '£650',
+    priceStartingFrom: '₹45,000',
     shortDesc: 'Breathe new life into cloudy, scratched, algae-covered, or outdated aquariums with modern LED retrofits and biological resets.',
     description: 'Transform an existing, neglected, or troubled aquarium into a pristine centerpiece without replacing the entire setup. We specialize in glass scratch removal, deep bio-cleaning, plumbing re-engineering, upgrading outdated metal halide lights to NemoLight LED spectra, and revitalizing declining coral reefs.',
     inclusions: [
@@ -78,7 +78,8 @@ export const SERVICES_DATA: ServiceOffering[] = [
     id: 'maintenance',
     name: 'White-Glove Marine Concierge',
     badge: 'Ongoing Care',
-    priceStartingFrom: '£280 / Month',
+    priceStartingFrom: '₹18,500 / Month',
+
     shortDesc: 'Routine weekly or bi-weekly visits by certified marine biologists to keep your ecosystem pristine, balanced, and thriving 365 days a year.',
     description: 'Enjoy the beauty of an extraordinary living ocean without the complexity of maintenance. Our dedicated specialists handle water changes using laboratory-grade RO/DI and Red Sea salt, filter media replacements, dosing calibrations, coral grooming, and livestock wellness checks.',
     inclusions: [

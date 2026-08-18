@@ -40,7 +40,7 @@ export default function MarketplacePage() {
   return (
     <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>
       {/* Header */}
-      <div className="pt-40 pb-16 border-b border-[rgba(255,255,255,0.06)]">
+      <div className="pt-48 md:pt-56 pb-16 border-b border-[rgba(255,255,255,0.06)] bg-[rgba(2,7,11,0.6)]">
         <div className="container-max">
           <span className="text-xs uppercase tracking-[0.35em] font-semibold text-[--color-accent] block mb-3">
             OFFICIAL MARINE STORE
@@ -54,19 +54,20 @@ export default function MarketplacePage() {
         </div>
       </div>
 
-      {/* Luxury Floating Filter & Search Bar */}
-      <div className="sticky top-20 z-30 py-6 border-b border-[rgba(255,255,255,0.08)] bg-[rgba(2,7,11,0.92)] backdrop-blur-2xl">
-        <div className="container-max flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-6">
-          {/* Category Tabs Container */}
-          <div className="p-2 rounded-2xl bg-[rgba(5,15,22,0.85)] border border-[rgba(255,255,255,0.1)] flex items-center gap-2 overflow-x-auto scrollbar-none">
+
+      {/* Luxury Filter & Search Control Panel */}
+      <div className="sticky top-20 z-30 py-6 border-b border-[rgba(255,255,255,0.08)] bg-[rgba(2,7,11,0.95)] backdrop-blur-2xl">
+        <div className="container-max space-y-5">
+          {/* Row 1: Category Filter Pills */}
+          <div className="flex flex-wrap items-center gap-2.5">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-5 py-3 rounded-xl text-sm font-medium tracking-wide transition-all duration-300 whitespace-nowrap ${
+                className={`px-5 py-3 rounded-xl text-sm font-medium tracking-wide transition-all duration-300 ${
                   selectedCategory === cat.id
                     ? 'bg-[--color-accent] text-[--color-primary] shadow-[0_4px_20px_rgba(0,184,217,0.4)] font-semibold'
-                    : 'text-slate-300 hover:text-white hover:bg-[rgba(255,255,255,0.06)]'
+                    : 'text-slate-300 hover:text-white bg-[rgba(5,15,22,0.85)] hover:bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.1)]'
                 }`}
               >
                 {cat.label}
@@ -74,38 +75,46 @@ export default function MarketplacePage() {
             ))}
           </div>
 
-          {/* Search & Sort Controls */}
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="relative flex-1 sm:w-80">
+          {/* Row 2: Search, Count & Sort Controls */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-2">
+            {/* Search Input */}
+            <div className="relative flex-1 max-w-md">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate-400 pointer-events-none">
                 🔍
               </span>
               <input
                 type="text"
-                placeholder="Search products..."
+                placeholder="Search marine life, lighting, rock, salt, skimmer..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-14 pl-12 pr-10 rounded-2xl bg-[rgba(5,15,22,0.85)] border border-[rgba(255,255,255,0.12)] text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(10,25,35,0.9)] transition-all"
+                className="w-full h-12 pl-11 pr-10 rounded-xl bg-[rgba(5,15,22,0.85)] border border-[rgba(255,255,255,0.12)] text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(10,25,35,0.9)] transition-all"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-slate-400 hover:text-white"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white"
                 >
                   ✕
                 </button>
               )}
             </div>
 
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="h-14 px-5 rounded-2xl bg-[rgba(5,15,22,0.85)] border border-[rgba(255,255,255,0.12)] text-sm text-white focus:outline-none focus:border-[--color-accent] cursor-pointer"
-            >
-              <option value="featured">Sort: Featured</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-            </select>
+            {/* Results Count & Sort Dropdown */}
+            <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0">
+              <span className="text-xs text-[--color-muted]">
+                Showing <strong className="text-white">{filteredProducts.length}</strong> items
+              </span>
+
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="h-12 px-4 rounded-xl bg-[rgba(5,15,22,0.9)] border border-[rgba(255,255,255,0.12)] text-sm text-white focus:outline-none focus:border-[--color-accent] cursor-pointer"
+              >
+                <option value="featured">Sort: Featured</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -124,7 +133,7 @@ export default function MarketplacePage() {
                 setSelectedCategory('all');
                 setSearchQuery('');
               }}
-              className="btn-ghost text-xs px-6 py-3"
+              className="btn-ghost text-xs px-6 py-3 rounded-xl"
             >
               RESET FILTERS
             </button>

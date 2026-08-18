@@ -20,7 +20,8 @@ const CATEGORIES = [
     tag: 'CUSTOM SCULPTING',
     desc: 'Inert ceramic branch and plate formations kiln-fired to provide dramatic overhangs, swim-through caves, and coral frag perches.',
     specs: ['100% silicate and phosphate free', 'Custom height & spread design', 'Optimal waterflow dynamics'],
-    image: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80',
+
   },
   {
     name: 'Bahamian Aragonite Substrates',

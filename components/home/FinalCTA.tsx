@@ -14,11 +14,12 @@ export function FinalCTA() {
       <div className="absolute inset-0 z-0" aria-hidden="true">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=1920&q=80"
+          src="https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1920&q=90"
           alt=""
           className="w-full h-full object-cover opacity-20"
           loading="lazy"
         />
+
         <div
           className="absolute inset-0"
           style={{
