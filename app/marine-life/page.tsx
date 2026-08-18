@@ -1,12 +1,8 @@
-import type { Metadata } from 'next';
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 import { SPECIES } from '@/lib/data/species';
-
-export const metadata: Metadata = {
-  title: 'Marine Life — Exotic Marine Species',
-  description:
-    'Discover our curated collection of exotic marine fish, corals and invertebrates. Premium marine life for extraordinary aquarium environments.',
-};
 
 const DIFFICULTY_COLORS = {
   Beginner: 'var(--color-accent)',
@@ -14,13 +10,27 @@ const DIFFICULTY_COLORS = {
   Expert: '#E87070',
 };
 
+const FILTER_TABS = ['All Species', 'Beginner', 'Intermediate', 'Expert'];
+
 export default function MarineLifePage() {
+  const [activeTab, setActiveTab] = useState('All Species');
+  const [search, setSearch] = useState('');
+
+  const filteredSpecies = SPECIES.filter((s) => {
+    const matchesTab =
+      activeTab === 'All Species' || s.difficulty === activeTab;
+    const matchesSearch =
+      s.name.toLowerCase().includes(search.toLowerCase()) ||
+      s.scientificName.toLowerCase().includes(search.toLowerCase());
+    return matchesTab && matchesSearch;
+  });
+
   return (
     <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>
       {/* Hero */}
       <div
         className="relative flex items-end overflow-hidden"
-        style={{ height: '50vh', minHeight: '400px' }}
+        style={{ height: '60vh', minHeight: '440px' }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -32,75 +42,124 @@ export default function MarineLifePage() {
           className="absolute inset-0"
           style={{
             background:
-              'linear-gradient(to bottom, rgba(2,7,11,0.2) 0%, rgba(2,7,11,0.9) 100%)',
+              'linear-gradient(to bottom, rgba(2,7,11,0.2) 0%, rgba(2,7,11,0.95) 100%)',
           }}
         />
-        <div className="container-max relative z-10 pb-12">
-          <span className="text-label text-[--color-accent] block mb-4">MARINE CREATURES</span>
+        <div className="container-max relative z-10 pb-16">
+          <span className="text-label text-[--color-accent] block mb-4">LIVING REEF ECOSYSTEMS</span>
           <h1 className="font-display text-display-lg text-[--color-text] font-light">
-            Marine Life
+            Exotic<br /><em>Marine Species.</em>
           </h1>
-          <p className="font-body font-light text-[--color-muted] mt-3 max-w-lg" style={{ fontSize: '0.9375rem' }}>
-            Curated exotic marine species for extraordinary aquarium environments.
+          <p className="font-body font-light text-[--color-muted] mt-4 max-w-lg leading-relaxed" style={{ fontSize: '0.9375rem' }}>
+            Ethically sourced, sustainably acclimated, and strictly quarantined marine life curated for bespoke luxury ecosystems.
           </p>
+        </div>
+      </div>
+
+      {/* Filter and Search Bar */}
+      <div className="container-max pt-12 pb-6 border-b border-[rgba(255,255,255,0.06)]">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          {/* Tabs */}
+          <div className="flex flex-wrap gap-2">
+            {FILTER_TABS.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-5 py-2.5 text-xs font-body tracking-wider uppercase transition-all duration-300 border ${
+                  activeTab === tab
+                    ? 'border-[--color-accent] text-[--color-accent] bg-[rgba(0,184,217,0.08)]'
+                    : 'border-[rgba(255,255,255,0.1)] text-[--color-muted] hover:border-[rgba(255,255,255,0.3)] hover:text-white'
+                }`}
+                style={{ cursor: 'none' }}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          {/* Search */}
+          <div className="relative max-w-xs w-full">
+            <input
+              type="text"
+              placeholder="Search species..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.1)] px-4 py-2.5 text-xs text-[--color-text] placeholder:text-[--color-muted] focus:outline-none focus:border-[--color-accent] transition-colors"
+              style={{ cursor: 'text' }}
+            />
+          </div>
         </div>
       </div>
 
       {/* Species Grid */}
       <div className="container-max section">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {SPECIES.map((species) => (
-            <Link
-              key={species.id}
-              href={`/marine-life/${species.id}`}
-              className="group block"
-              data-cursor="EXPLORE"
+        {filteredSpecies.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="font-display text-xl text-[--color-muted]">No marine species found matching your filter.</p>
+            <button
+              onClick={() => { setActiveTab('All Species'); setSearch(''); }}
+              className="btn-ghost mt-6 text-xs"
+              style={{ cursor: 'none' }}
             >
-              <div className="overflow-hidden mb-4" style={{ aspectRatio: '4/5' }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={species.image}
-                  alt={species.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                  loading="lazy"
-                />
-              </div>
-
-              <div className="flex items-start justify-between">
-                <div>
-                  <span className="text-label text-[--color-muted] block mb-1 italic">
-                    {species.scientificName}
+              RESET FILTERS
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredSpecies.map((species) => (
+              <Link
+                key={species.id}
+                href={`/marine-life/${species.id}`}
+                className="group block border border-[rgba(255,255,255,0.06)] p-6 bg-[rgba(7,21,28,0.4)] hover:border-[rgba(0,184,217,0.4)] transition-all duration-300"
+                data-cursor="EXPLORE"
+              >
+                <div className="overflow-hidden mb-5 relative" style={{ aspectRatio: '4/5' }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={species.image}
+                    alt={species.name}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
+                    loading="lazy"
+                  />
+                  <span
+                    className="absolute top-4 right-4 text-[10px] px-2.5 py-1 border backdrop-blur-md"
+                    style={{
+                      color: DIFFICULTY_COLORS[species.difficulty],
+                      borderColor: DIFFICULTY_COLORS[species.difficulty],
+                      background: 'rgba(2, 7, 11, 0.75)',
+                    }}
+                  >
+                    {species.difficulty.toUpperCase()}
                   </span>
-                  <h2 className="font-display text-display-sm text-[--color-text] font-light group-hover:text-[--color-accent] transition-colors duration-300">
-                    {species.name}
-                  </h2>
                 </div>
-                <span
-                  className="text-label mt-1 px-2 py-1 border"
-                  style={{
-                    color: DIFFICULTY_COLORS[species.difficulty],
-                    borderColor: DIFFICULTY_COLORS[species.difficulty],
-                    opacity: 0.8,
-                  }}
-                >
-                  {species.difficulty}
-                </span>
-              </div>
 
-              <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-[rgba(255,255,255,0.06)]">
-                <div>
-                  <span className="text-label text-[--color-muted] block">SIZE</span>
-                  <span className="font-body text-[--color-text] text-xs mt-0.5 block">{species.size}</span>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span className="text-label text-[--color-muted] block mb-1 italic">
+                      {species.scientificName}
+                    </span>
+                    <h2 className="font-display text-2xl text-[--color-text] font-light group-hover:text-[--color-accent] transition-colors duration-300">
+                      {species.name}
+                    </h2>
+                  </div>
                 </div>
-                <div>
-                  <span className="text-label text-[--color-muted] block">AVAILABILITY</span>
-                  <span className="font-body text-[--color-accent] text-xs mt-0.5 block">{species.availability}</span>
+
+                <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-[rgba(255,255,255,0.06)]">
+                  <div>
+                    <span className="text-label text-[--color-muted] block">SIZE</span>
+                    <span className="font-body text-[--color-text] text-xs mt-0.5 block">{species.size}</span>
+                  </div>
+                  <div>
+                    <span className="text-label text-[--color-muted] block">AVAILABILITY</span>
+                    <span className="font-body text-[--color-accent] text-xs mt-0.5 block">{species.availability}</span>
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
 }
+
