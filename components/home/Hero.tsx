@@ -240,9 +240,9 @@ export function Hero() {
           ref={imageRef}
           className="absolute inset-0 opacity-0"
           style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1544551763-92ab472cad5d?w=1920&q=85')`,
+            backgroundImage: `url('https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1920&q=90')`,
             backgroundSize: 'cover',
-            backgroundPosition: 'center 40%',
+            backgroundPosition: 'center',
           }}
         />
         {/* Deep ocean vignette */}
@@ -250,7 +250,7 @@ export function Hero() {
           className="absolute inset-0"
           style={{
             background:
-              'linear-gradient(to bottom, rgba(2,7,11,0.5) 0%, rgba(2,7,11,0.1) 40%, rgba(2,7,11,0.6) 80%, rgba(2,7,11,1) 100%)',
+              'linear-gradient(to bottom, rgba(2,7,11,0.6) 0%, rgba(2,7,11,0.2) 50%, rgba(2,7,11,0.85) 90%, rgba(2,7,11,1) 100%)',
           }}
         />
       </div>
@@ -269,108 +269,60 @@ export function Hero() {
       <div
         className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none z-3"
         style={{
-          background: 'radial-gradient(ellipse at center bottom, rgba(0,184,217,0.08) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse at center bottom, rgba(0,184,217,0.1) 0%, transparent 70%)',
         }}
         aria-hidden="true"
       />
 
       {/* Content */}
-      <div className="relative z-10 container-max pb-16 md:pb-24">
-        {/* Wordmark & Live Depth Meter */}
+      <div className="relative z-10 container-max pb-20 md:pb-32 pt-20">
+        {/* Subtle category line */}
         <div
           ref={wordmarkRef}
-          className="mb-8 opacity-0 flex flex-wrap items-center justify-between gap-4 border-b border-[rgba(255,255,255,0.08)] pb-4 max-w-4xl"
+          className="mb-6 opacity-0"
         >
-          <span className="text-label text-[--color-accent] tracking-[0.3em] font-medium">
-            MARINE CREATURES ARCHITECTURE
+          <span className="text-xs uppercase tracking-[0.35em] font-semibold text-[--color-accent]">
+            EXOTIC MARINE LIFE &bull; BESPOKE AQUARIUM ARCHITECTURE
           </span>
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[rgba(0,184,217,0.08)] border border-[rgba(0,184,217,0.25)] text-[10px] tracking-widest text-[--color-accent]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[--color-accent] animate-ping" />
-            <span>DEPTH: 000m // SURFACE REEF</span>
-          </div>
         </div>
 
         {/* Main heading */}
         <div ref={headingRef} aria-label="The Ocean Reimagined">
-          <div className="overflow-hidden mb-1">
-            <div className="line-1 font-display text-display-xl text-[--color-text] font-light italic leading-[0.88]" style={{ transform: 'translateY(100%)' }}>
+          <div className="overflow-hidden mb-2">
+            <div className="line-1 font-display text-display-xl text-[--color-text] font-light italic leading-[0.9]" style={{ transform: 'translateY(100%)' }}>
               The Ocean
             </div>
           </div>
           <div className="overflow-hidden">
-            <div className="line-2 font-display text-display-xl text-[--color-text] font-light leading-[0.88]" style={{ transform: 'translateY(100%)' }}>
+            <div className="line-2 font-display text-display-xl text-[--color-text] font-light leading-[0.9]" style={{ transform: 'translateY(100%)' }}>
               Reimagined.
             </div>
           </div>
         </div>
 
-        {/* Sub-content & Trust Badges */}
-        <div ref={subRef} className="mt-8 opacity-0 max-w-2xl">
-          <p className="text-label text-[--color-muted] tracking-[0.2em] mb-3">
-            EXOTIC MARINE LIFE &nbsp;/&nbsp; BESPOKE AQUARIUMS &nbsp;/&nbsp; LIVING ECOSYSTEMS
+        {/* Sub-content */}
+        <div ref={subRef} className="mt-8 opacity-0 max-w-xl">
+          <p className="font-body font-light text-[--color-muted] leading-relaxed text-base sm:text-lg">
+            Captive-bred marine species, living coral reef ecosystems, and turnkey architectural aquarium installations for exceptional spaces.
           </p>
-          <p className="font-body font-light text-[--color-muted] leading-relaxed mb-6" style={{ fontSize: '0.9375rem' }}>
-            Museum-grade marine life habitats, bespoke architectural aquariums, and autonomous living reef ecosystems tailored for the world&apos;s most distinguished residences and estates.
-          </p>
-
-          {/* Quick trust metrics */}
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="px-3 py-1 text-[10px] tracking-widest uppercase rounded border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.5)] text-[--color-text]">
-              ✦ OptiWhite™ Monolithic Glass
-            </span>
-            <span className="px-3 py-1 text-[10px] tracking-widest uppercase rounded border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.5)] text-[--color-text]">
-              ✦ Symbiotic Coral Biotopes
-            </span>
-            <span className="px-3 py-1 text-[10px] tracking-widest uppercase rounded border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.5)] text-[--color-accent]">
-              ✦ 24/7 Marine Biology Concierge
-            </span>
-          </div>
         </div>
 
-        {/* Quick Search & Category Pills */}
-        <div ref={ctaRef} className="mt-10 opacity-0 max-w-2xl space-y-4">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              const val = (e.currentTarget.elements.namedItem('hero-search') as HTMLInputElement)?.value;
-              if (val) window.location.href = `/marketplace?q=${encodeURIComponent(val)}`;
-              else window.location.href = '/marketplace';
-            }}
-            className="flex items-center gap-2 p-1.5 rounded-xl border border-[rgba(0,184,217,0.3)] bg-[rgba(7,21,28,0.7)] backdrop-blur-md shadow-2xl"
+        {/* Direct Actions */}
+        <div ref={ctaRef} className="mt-10 opacity-0 flex flex-wrap items-center gap-4">
+          <Link
+            href="/marketplace"
+            className="btn-primary text-xs tracking-wider uppercase font-semibold py-4 px-8 rounded-xl shadow-2xl"
+            data-cursor="EXPLORE"
           >
-            <span className="pl-3 text-sm">🔍</span>
-            <input
-              name="hero-search"
-              type="text"
-              placeholder="Search fish, NemoLight, live rock, salt, or book installation..."
-              className="flex-1 bg-transparent px-2 py-2 text-xs text-white placeholder:text-[--color-muted] focus:outline-none"
-            />
-            <button
-              type="submit"
-              className="btn-primary text-xs py-2.5 px-5 rounded-lg shrink-0"
-            >
-              SEARCH STORE →
-            </button>
-          </form>
-
-          {/* Quick Direct Actions */}
-          <div className="flex flex-wrap items-center gap-3">
-            <Link
-              href="/marketplace"
-              className="btn-primary text-xs py-2.5 px-5"
-              data-cursor="EXPLORE"
-            >
-              SHOP MARKETPLACE
-              <span className="text-[--color-primary]">→</span>
-            </Link>
-            <Link
-              href="/services"
-              className="btn-ghost text-xs py-2.5 px-5 border-[--color-accent] text-[--color-accent] hover:bg-[rgba(0,184,217,0.15)]"
-              data-cursor="ENTER"
-            >
-              BOOK INSTALLATION / RENOVATION
-            </Link>
-          </div>
+            EXPLORE MARKETPLACE →
+          </Link>
+          <Link
+            href="/services"
+            className="btn-ghost text-xs tracking-wider uppercase font-semibold py-4 px-8 rounded-xl border-[rgba(255,255,255,0.2)] hover:border-white text-white"
+            data-cursor="SERVICES"
+          >
+            BOOK CONSULTATION
+          </Link>
         </div>
       </div>
 

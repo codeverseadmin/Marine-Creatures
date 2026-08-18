@@ -21,47 +21,49 @@ export function MarketplaceShowcase() {
     : PRODUCTS.filter((p) => p.category === activeFilter).slice(0, 8);
 
   return (
-    <section className="py-24 bg-[var(--color-primary)] border-t border-[rgba(255,255,255,0.06)]">
+    <section className="py-28 bg-[var(--color-primary)] border-t border-[rgba(255,255,255,0.06)]">
       <div className="container-max">
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div>
-            <span className="text-xs uppercase tracking-[0.25em] font-semibold text-[--color-accent] block mb-2">
+            <span className="text-xs uppercase tracking-[0.3em] font-semibold text-[--color-accent] block mb-3">
               OFFICIAL STORE
             </span>
-            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl text-white font-light">
+            <h2 className="font-display text-4xl sm:text-5xl text-white font-light">
               Marine Marketplace
             </h2>
           </div>
 
           <Link
             href="/marketplace"
-            className="btn-ghost text-xs py-3 px-6 self-start md:self-auto"
+            className="btn-ghost text-xs py-3.5 px-7 rounded-xl border-[rgba(255,255,255,0.15)] text-white hover:border-[--color-accent] hover:text-[--color-accent] self-start md:self-auto transition-all"
             data-cursor="EXPLORE"
           >
-            VIEW ALL PRODUCTS →
+            VIEW FULL STORE (10 ITEMS) →
           </Link>
         </div>
 
-        {/* Filter Tabs with Proper Font Size */}
-        <div className="flex items-center gap-2.5 overflow-x-auto pb-3 scrollbar-none mb-10">
-          {FILTERS.map((f) => (
-            <button
-              key={f.id}
-              onClick={() => setActiveFilter(f.id as any)}
-              className={`px-5 py-3 rounded-xl text-sm font-medium tracking-wide transition-all whitespace-nowrap ${
-                activeFilter === f.id
-                  ? 'bg-[--color-accent] text-[--color-primary] font-semibold shadow-[0_4px_20px_rgba(0,184,217,0.3)]'
-                  : 'text-slate-300 hover:text-white bg-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.08)]'
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
+        {/* Floating Luxury Glass Tab Bar */}
+        <div className="mb-12">
+          <div className="inline-flex items-center gap-2 p-2 rounded-2xl bg-[rgba(5,15,22,0.85)] border border-[rgba(255,255,255,0.1)] backdrop-blur-xl shadow-xl overflow-x-auto max-w-full scrollbar-none">
+            {FILTERS.map((f) => (
+              <button
+                key={f.id}
+                onClick={() => setActiveFilter(f.id as any)}
+                className={`px-6 py-3 rounded-xl text-sm font-medium tracking-wide transition-all duration-300 whitespace-nowrap ${
+                  activeFilter === f.id
+                    ? 'bg-[--color-accent] text-[--color-primary] font-semibold shadow-[0_4px_20px_rgba(0,184,217,0.4)]'
+                    : 'text-slate-300 hover:text-white hover:bg-[rgba(255,255,255,0.06)]'
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {displayedProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
