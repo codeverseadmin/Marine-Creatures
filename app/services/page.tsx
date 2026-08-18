@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { SERVICES_DATA } from '@/lib/data/services';
 import { BookingForm } from '@/components/services/BookingForm';
 import { SITE_CONFIG } from '@/lib/config';
@@ -14,7 +13,7 @@ export default function ServicesPage() {
   return (
     <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>
       {/* Hero Header */}
-      <div className="relative pt-32 pb-16 border-b border-[rgba(255,255,255,0.06)] overflow-hidden">
+      <div className="relative pt-36 pb-16 border-b border-[rgba(255,255,255,0.06)] overflow-hidden">
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -23,71 +22,77 @@ export default function ServicesPage() {
         />
 
         <div className="container-max relative z-10">
-          <span className="text-label text-[--color-accent] tracking-[0.3em] block mb-3">
-            MASTER ENGINEERING & BIOLOGICAL SERVICES
+          <span className="text-xs uppercase tracking-[0.3em] font-semibold text-[--color-accent] block mb-3">
+            MASTER ENGINEERING &amp; BIOLOGICAL SERVICES
           </span>
-          <h1 className="font-display text-display-lg text-[--color-text] font-light">
+          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl text-white font-light mb-4">
             Installation &amp;<br /><em>Renovation Services.</em>
           </h1>
-          <p className="font-body font-light text-[--color-muted] mt-4 max-w-xl leading-relaxed text-sm">
+          <p className="font-body text-sm sm:text-base text-[--color-muted] max-w-2xl leading-relaxed">
             Whether you are commissioning a monumental architectural living reef or revitalizing an existing troubled setup, our senior marine curators deliver perfection.
           </p>
         </div>
       </div>
 
       {/* Services Showcase Cards */}
-      <div className="container-max py-16 space-y-16">
-        {SERVICES_DATA.map((service, index) => (
+      <div className="container-max py-20 space-y-20">
+        {SERVICES_DATA.map((service) => (
           <div
             key={service.id}
             id={service.id}
-            className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.5)] p-6 md:p-10 backdrop-blur-md shadow-2xl grid grid-cols-1 lg:grid-cols-12 gap-10 items-start"
+            className="rounded-3xl border border-[rgba(255,255,255,0.1)] bg-[rgba(5,15,22,0.85)] p-8 sm:p-12 md:p-14 backdrop-blur-2xl shadow-2xl grid grid-cols-1 lg:grid-cols-12 gap-12 items-start"
           >
             {/* Left Content */}
-            <div className="lg:col-span-7">
-              <div className="flex flex-wrap items-center gap-3 mb-3">
-                <span className="text-[10px] uppercase tracking-widest font-semibold text-[--color-accent] bg-[rgba(0,184,217,0.12)] px-3 py-1 rounded border border-[rgba(0,184,217,0.3)]">
+            <div className="lg:col-span-7 space-y-6">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="text-xs uppercase tracking-widest font-semibold text-[--color-accent] bg-[rgba(0,184,217,0.12)] px-3.5 py-1.5 rounded-lg border border-[rgba(0,184,217,0.3)]">
                   {service.badge}
                 </span>
-                <span className="text-xs text-[--color-muted]">
-                  Starting From: <strong className="text-white text-sm">{service.priceStartingFrom}</strong>
+                <span className="text-sm text-[--color-muted]">
+                  Starting From: <strong className="text-white text-base">{service.priceStartingFrom}</strong>
                 </span>
               </div>
 
-              <h2 className="font-display text-2xl sm:text-3xl text-[--color-text] font-light mb-4">
+              <h2 className="font-display text-3xl sm:text-4xl text-white font-light">
                 {service.name}
               </h2>
 
-              <p className="font-body text-xs text-[--color-muted] leading-relaxed mb-8">
+              <p className="font-body text-sm text-[--color-muted] leading-relaxed">
                 {service.description}
               </p>
 
               {/* Inclusions */}
-              <div className="mb-8">
-                <span className="text-label text-[--color-accent] block mb-3">INCLUDED IN SERVICE</span>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[--color-muted]">
+              <div className="pt-2">
+                <span className="text-xs uppercase tracking-wider text-[--color-accent] font-semibold block mb-4">
+                  INCLUDED IN SERVICE
+                </span>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm text-slate-200">
                   {service.inclusions.map((inc, i) => (
-                    <li key={i} className="flex items-start gap-2">
+                    <li key={i} className="flex items-start gap-2.5">
                       <span className="text-[--color-accent] font-bold">✓</span>
-                      <span className="text-white/90">{inc}</span>
+                      <span>{inc}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
               {/* Protocol Stages */}
-              <div>
-                <span className="text-label text-[--color-accent] block mb-3">5-STAGE EXECUTION PROTOCOL</span>
+              <div className="pt-4">
+                <span className="text-xs uppercase tracking-wider text-[--color-accent] font-semibold block mb-4">
+                  5-STAGE EXECUTION PROTOCOL
+                </span>
                 <div className="space-y-3">
                   {service.stages.map((st) => (
                     <div
                       key={st.step}
-                      className="p-3 rounded-lg border border-[rgba(255,255,255,0.04)] bg-[rgba(2,7,11,0.4)] flex items-start gap-4 text-xs"
+                      className="p-4 rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(2,7,11,0.5)] flex items-start gap-4 text-xs sm:text-sm"
                     >
-                      <span className="text-label text-[--color-accent] shrink-0 mt-0.5">{st.step}</span>
+                      <span className="text-xs font-semibold text-[--color-accent] tracking-wider shrink-0 mt-0.5">
+                        {st.step}
+                      </span>
                       <div>
                         <span className="text-white font-medium block">{st.title}</span>
-                        <span className="text-[11px] text-[--color-muted]">{st.desc}</span>
+                        <span className="text-xs text-[--color-muted] mt-0.5 block">{st.desc}</span>
                       </div>
                     </div>
                   ))}
@@ -97,7 +102,7 @@ export default function ServicesPage() {
 
             {/* Right Photo & Guarantees */}
             <div className="lg:col-span-5 space-y-6">
-              <div className="rounded-xl overflow-hidden border border-[rgba(255,255,255,0.08)] shadow-lg" style={{ aspectRatio: '16/10' }}>
+              <div className="rounded-2xl overflow-hidden border border-[rgba(255,255,255,0.1)] shadow-2xl" style={{ aspectRatio: '16/10' }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={service.image}
@@ -106,15 +111,15 @@ export default function ServicesPage() {
                 />
               </div>
 
-              <div className="p-6 rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(2,7,11,0.6)] space-y-3">
-                <span className="text-[10px] uppercase tracking-widest text-[--color-accent] block">
+              <div className="p-6 sm:p-8 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(2,7,11,0.6)] space-y-4">
+                <span className="text-xs uppercase tracking-widest text-[--color-accent] font-semibold block">
                   COMMISSION GUARANTEES
                 </span>
-                <ul className="space-y-2 text-xs text-[--color-muted]">
+                <ul className="space-y-3 text-xs sm:text-sm text-slate-200">
                   {service.guarantees.map((g, i) => (
-                    <li key={i} className="flex items-center gap-2">
+                    <li key={i} className="flex items-center gap-3">
                       <span className="text-emerald-400">🛡️</span>
-                      <span className="text-white">{g}</span>
+                      <span>{g}</span>
                     </li>
                   ))}
                 </ul>
@@ -122,7 +127,7 @@ export default function ServicesPage() {
 
               <a
                 href="#booking-portal"
-                className="btn-primary w-full text-center block text-xs py-3.5"
+                className="btn-primary w-full text-center block text-xs tracking-wider uppercase font-semibold py-4 rounded-xl shadow-xl"
               >
                 SCHEDULE {service.name.toUpperCase()} →
               </a>
@@ -132,15 +137,15 @@ export default function ServicesPage() {
       </div>
 
       {/* Booking Form Section */}
-      <div id="booking-portal" className="container-max pb-24">
-        <div className="mb-8 text-center max-w-2xl mx-auto">
-          <span className="text-label text-[--color-accent] tracking-[0.3em] block mb-2">
+      <div id="booking-portal" className="container-max pb-28">
+        <div className="mb-12 text-center max-w-2xl mx-auto">
+          <span className="text-xs uppercase tracking-[0.3em] font-semibold text-[--color-accent] block mb-3">
             ONLINE RESERVATION &amp; SITE SURVEY
           </span>
-          <h2 className="font-display text-display-sm text-[--color-text] font-light">
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl text-white font-light mb-3">
             Book Your Consultation
           </h2>
-          <p className="font-body text-xs text-[--color-muted] mt-2">
+          <p className="font-body text-sm text-[--color-muted]">
             Fill in your property details below to reserve an engineering consultation with our senior biological curators.
           </p>
         </div>
@@ -150,29 +155,35 @@ export default function ServicesPage() {
         </div>
 
         {/* Direct Contact Hotline Bar */}
-        <div className="max-w-4xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-          <div className="p-5 rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(7,21,28,0.4)]">
-            <span className="text-label text-[--color-accent] block mb-1">CALL US DIRECTLY</span>
-            <a href={`tel:${SITE_CONFIG.phone}`} className="font-body text-sm text-white hover:text-[--color-accent]">
+        <div className="max-w-4xl mx-auto mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+          <div className="p-6 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(5,15,22,0.6)]">
+            <span className="text-xs uppercase tracking-wider text-[--color-accent] block mb-2 font-medium">
+              CALL US DIRECTLY
+            </span>
+            <a href={`tel:${SITE_CONFIG.phone}`} className="font-body text-base text-white hover:text-[--color-accent] font-medium">
               {SITE_CONFIG.phone}
             </a>
           </div>
 
-          <div className="p-5 rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(7,21,28,0.4)]">
-            <span className="text-label text-[--color-accent] block mb-1">WHATSAPP CONCIERGE</span>
+          <div className="p-6 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(5,15,22,0.6)]">
+            <span className="text-xs uppercase tracking-wider text-[--color-accent] block mb-2 font-medium">
+              WHATSAPP CONCIERGE
+            </span>
             <a
               href={`https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-body text-sm text-[--color-accent] hover:underline"
+              className="font-body text-base text-[--color-accent] hover:underline font-medium"
             >
               Chat with a Biologist ↗
             </a>
           </div>
 
-          <div className="p-5 rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(7,21,28,0.4)]">
-            <span className="text-label text-[--color-accent] block mb-1">EMAIL INQUIRIES</span>
-            <a href={`mailto:${SITE_CONFIG.email}`} className="font-body text-sm text-white hover:text-[--color-accent]">
+          <div className="p-6 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(5,15,22,0.6)]">
+            <span className="text-xs uppercase tracking-wider text-[--color-accent] block mb-2 font-medium">
+              EMAIL INQUIRIES
+            </span>
+            <a href={`mailto:${SITE_CONFIG.email}`} className="font-body text-base text-white hover:text-[--color-accent] font-medium">
               {SITE_CONFIG.email}
             </a>
           </div>

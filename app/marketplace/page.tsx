@@ -40,33 +40,33 @@ export default function MarketplacePage() {
   return (
     <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>
       {/* Header */}
-      <div className="pt-32 pb-12 border-b border-[rgba(255,255,255,0.06)]">
+      <div className="pt-36 pb-14 border-b border-[rgba(255,255,255,0.06)]">
         <div className="container-max">
-          <span className="text-label text-[--color-accent] tracking-[0.25em] block mb-2">
-            OFFICIAL STORE
+          <span className="text-xs uppercase tracking-[0.3em] font-semibold text-[--color-accent] block mb-3">
+            OFFICIAL MARINE STORE
           </span>
-          <h1 className="font-display text-4xl sm:text-5xl text-white font-light mb-3">
+          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl text-white font-light mb-4">
             Marine Marketplace
           </h1>
-          <p className="font-body text-xs sm:text-sm text-[--color-muted] max-w-xl">
-            Captive-bred marine life, NemoLight reef LED fixtures, biological Real Reef rock, and Red Sea salts.
+          <p className="font-body text-sm sm:text-base text-[--color-muted] max-w-2xl leading-relaxed">
+            Captive-bred marine life, NemoLight spectrum fixtures, biological Real Reef rock, Red Sea salts, and precision German filtration hardware.
           </p>
         </div>
       </div>
 
-      {/* Filter and Search Bar */}
-      <div className="py-6 border-b border-[rgba(255,255,255,0.06)] bg-[rgba(2,7,11,0.6)]">
-        <div className="container-max flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+      {/* Luxury Filter & Search Bar with Proper Font Sizes */}
+      <div className="sticky top-20 z-30 py-6 border-b border-[rgba(255,255,255,0.08)] bg-[rgba(2,7,11,0.9)] backdrop-blur-xl">
+        <div className="container-max flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6">
           {/* Category Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none">
+          <div className="flex items-center gap-2.5 overflow-x-auto pb-2 lg:pb-0 scrollbar-none">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-4 py-2 rounded-lg text-xs font-body tracking-wider transition-all whitespace-nowrap ${
+                className={`px-5 py-3 rounded-xl text-sm font-medium tracking-wide transition-all duration-300 whitespace-nowrap ${
                   selectedCategory === cat.id
-                    ? 'bg-[--color-accent] text-[--color-primary] font-semibold shadow-md'
-                    : 'text-[--color-muted] hover:text-white bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.06)]'
+                    ? 'bg-[--color-accent] text-[--color-primary] shadow-[0_4px_20px_rgba(0,184,217,0.35)] font-semibold'
+                    : 'text-slate-300 hover:text-white bg-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.08)]'
                 }`}
               >
                 {cat.label}
@@ -74,20 +74,23 @@ export default function MarketplacePage() {
             ))}
           </div>
 
-          {/* Search & Sort */}
-          <div className="flex items-center gap-3">
-            <div className="relative flex-1 md:w-60">
+          {/* Search & Sort Controls */}
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="relative flex-1 sm:w-72">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate-400 pointer-events-none">
+                🔍
+              </span>
               <input
                 type="text"
                 placeholder="Search products..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] rounded-lg px-3.5 py-2 text-xs text-white placeholder:text-[--color-muted] focus:outline-none focus:border-[--color-accent]"
+                className="w-full h-12 pl-11 pr-10 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.14)] text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.08)] transition-all"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-[--color-muted] hover:text-white"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400 hover:text-white"
                 >
                   ✕
                 </button>
@@ -97,9 +100,9 @@ export default function MarketplacePage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="bg-[rgba(7,21,28,0.8)] border border-[rgba(255,255,255,0.1)] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[--color-accent]"
+              className="h-12 px-4 rounded-xl bg-[rgba(7,21,28,0.9)] border border-[rgba(255,255,255,0.14)] text-sm text-white focus:outline-none focus:border-[--color-accent] cursor-pointer"
             >
-              <option value="featured">Featured</option>
+              <option value="featured">Sort: Featured</option>
               <option value="price-asc">Price: Low to High</option>
               <option value="price-desc">Price: High to Low</option>
             </select>
@@ -108,23 +111,26 @@ export default function MarketplacePage() {
       </div>
 
       {/* Products Grid */}
-      <div className="container-max py-12">
+      <div className="container-max py-14">
         {filteredProducts.length === 0 ? (
-          <div className="text-center py-20 border border-[rgba(255,255,255,0.06)] rounded-2xl p-8">
-            <h3 className="font-display text-xl text-white font-light mb-2">No products found</h3>
-            <p className="text-xs text-[--color-muted] mb-4">Try clearing your search query.</p>
+          <div className="text-center py-24 border border-[rgba(255,255,255,0.08)] rounded-3xl p-10 bg-[rgba(5,15,22,0.4)]">
+            <span className="text-5xl block mb-4">🐠</span>
+            <h3 className="font-display text-2xl text-white font-light mb-2">No products found</h3>
+            <p className="text-sm text-[--color-muted] mb-6">
+              We couldn&apos;t find any items matching &ldquo;{searchQuery}&rdquo;. Try another term.
+            </p>
             <button
               onClick={() => {
                 setSelectedCategory('all');
                 setSearchQuery('');
               }}
-              className="btn-ghost text-xs"
+              className="btn-ghost text-xs px-6 py-3"
             >
-              Reset Filters
+              RESET FILTERS
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -132,21 +138,25 @@ export default function MarketplacePage() {
         )}
       </div>
 
-      {/* Simple Services Banner */}
-      <div className="container-max pb-20">
-        <div className="rounded-xl p-8 border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.5)] flex flex-col md:flex-row items-center justify-between gap-6">
+      {/* Services Callout Banner */}
+      <div className="container-max pb-24">
+        <div className="rounded-3xl p-10 md:p-14 border border-[rgba(255,255,255,0.1)] bg-gradient-to-r from-[rgba(7,21,28,0.85)] via-[rgba(3,10,16,0.95)] to-[rgba(7,21,28,0.85)] shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-8">
           <div>
-            <span className="text-label text-[--color-accent] block mb-1">SERVICES</span>
-            <h3 className="font-display text-xl text-white font-light">
-              Need Professional Installation or Aquarium Renovation?
+            <span className="text-xs uppercase tracking-[0.25em] text-[--color-accent] font-semibold block mb-2">
+              EXPERT SERVICES &amp; CONSULTATIONS
+            </span>
+            <h3 className="font-display text-2xl sm:text-3xl text-white font-light mb-2">
+              Need Professional Installation or Renovation?
             </h3>
-            <p className="text-xs text-[--color-muted] mt-1">
-              Our marine biologists and engineers provide complete on-site setup and maintenance.
+            <p className="text-sm text-[--color-muted] max-w-xl leading-relaxed">
+              Our master marine engineers provide complete on-site setup, pipework, and complete revival of existing aquariums.
             </p>
           </div>
-          <Link href="/services" className="btn-primary text-xs shrink-0">
-            BOOK A SERVICE →
-          </Link>
+          <div className="flex flex-wrap gap-4 shrink-0">
+            <Link href="/services" className="btn-primary text-xs py-3.5 px-8">
+              BOOK A SERVICE →
+            </Link>
+          </div>
         </div>
       </div>
     </div>
