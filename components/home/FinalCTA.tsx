@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { ScrollReveal } from '@/components/ui/ScrollReveal';
+import { CallbackForm } from '@/components/ui/CallbackForm';
+
 
 export function FinalCTA() {
   return (
@@ -83,25 +85,21 @@ export function FinalCTA() {
           </p>
         </ScrollReveal>
 
-        {/* CTAs */}
-        <ScrollReveal delay={0.3} className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
+        {/* Callback Form Embed */}
+        <ScrollReveal delay={0.3} className="mt-12">
+          <CallbackForm />
+        </ScrollReveal>
+
+        {/* Quick navigation CTAs */}
+        <ScrollReveal delay={0.4} className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
             href="/services#booking-portal"
-            className="btn-primary"
-            data-cursor="ENTER"
+            className="text-xs uppercase tracking-wider text-[--color-accent] hover:text-white transition-colors"
           >
-            BOOK INSTALLATION / RENOVATION
-            <span className="text-[--color-primary]">→</span>
-          </Link>
-          <Link
-            href="/marketplace"
-            className="btn-ghost"
-            data-cursor="EXPLORE"
-          >
-            EXPLORE MARKETPLACE
-            <span className="text-[--color-accent]">→</span>
+            Looking for comprehensive installation booking? Open Full Portal →
           </Link>
         </ScrollReveal>
+
 
 
         {/* Logo / wordmark reveal */}
