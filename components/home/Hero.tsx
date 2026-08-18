@@ -327,26 +327,53 @@ export function Hero() {
           </div>
         </div>
 
-        {/* CTAs */}
-        <div ref={ctaRef} className="flex flex-wrap items-center gap-5 mt-10 opacity-0">
-          <Link
-            href="/marine-life"
-            className="btn-primary"
-            data-cursor="EXPLORE"
+        {/* Quick Search & Category Pills */}
+        <div ref={ctaRef} className="mt-10 opacity-0 max-w-2xl space-y-4">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const val = (e.currentTarget.elements.namedItem('hero-search') as HTMLInputElement)?.value;
+              if (val) window.location.href = `/marketplace?q=${encodeURIComponent(val)}`;
+              else window.location.href = '/marketplace';
+            }}
+            className="flex items-center gap-2 p-1.5 rounded-xl border border-[rgba(0,184,217,0.3)] bg-[rgba(7,21,28,0.7)] backdrop-blur-md shadow-2xl"
           >
-            EXPLORE MARINE LIFE
-            <span className="text-[--color-primary]">→</span>
-          </Link>
-          <Link
-            href="/aquarium-design"
-            className="btn-ghost"
-            data-cursor="ENTER"
-          >
-            DESIGN YOUR AQUARIUM
-            <span className="text-[--color-accent]">→</span>
-          </Link>
+            <span className="pl-3 text-sm">🔍</span>
+            <input
+              name="hero-search"
+              type="text"
+              placeholder="Search fish, NemoLight, live rock, salt, or book installation..."
+              className="flex-1 bg-transparent px-2 py-2 text-xs text-white placeholder:text-[--color-muted] focus:outline-none"
+            />
+            <button
+              type="submit"
+              className="btn-primary text-xs py-2.5 px-5 rounded-lg shrink-0"
+            >
+              SEARCH STORE →
+            </button>
+          </form>
+
+          {/* Quick Direct Actions */}
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/marketplace"
+              className="btn-primary text-xs py-2.5 px-5"
+              data-cursor="EXPLORE"
+            >
+              SHOP MARKETPLACE
+              <span className="text-[--color-primary]">→</span>
+            </Link>
+            <Link
+              href="/services"
+              className="btn-ghost text-xs py-2.5 px-5 border-[--color-accent] text-[--color-accent] hover:bg-[rgba(0,184,217,0.15)]"
+              data-cursor="ENTER"
+            >
+              BOOK INSTALLATION / RENOVATION
+            </Link>
+          </div>
         </div>
       </div>
+
 
       {/* Scroll indicator */}
       <div

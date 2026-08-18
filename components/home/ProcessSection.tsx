@@ -16,9 +16,9 @@ const STAGES = [
   },
   {
     num: '02',
-    title: 'Design',
-    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&q=80',
-    desc: 'A bespoke design concept is created — aquarium architecture, aquascape concept and species curation.',
+    title: 'Parametric Engineering',
+    image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=800&q=80',
+    desc: '3D modeling of aquarium structure, weight load distribution and hydrodynamic simulations.',
   },
   {
     num: '03',

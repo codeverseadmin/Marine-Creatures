@@ -25,16 +25,20 @@ export const STATS = [
 ];
 
 export const NAV_LINKS = [
+  { label: 'Marketplace', href: '/marketplace' },
   { label: 'Marine Life', href: '/marine-life' },
-  { label: 'Materials', href: '/materials' },
-  { label: 'Aquarium Design', href: '/aquarium-design' },
-  { label: 'Installation', href: '/installation' },
-  { label: 'Renovation', href: '/renovation' },
+  { label: 'Services & Booking', href: '/services' },
   { label: 'Our Worlds', href: '/our-worlds' },
+  { label: 'Materials', href: '/materials' },
 ];
 
 export const MOBILE_NAV_LINKS = [
-  ...NAV_LINKS,
-  { label: 'About', href: '/about' },
+  { label: 'Marketplace Store', href: '/marketplace' },
+  { label: 'Marine Life Species', href: '/marine-life' },
+  { label: 'Installation & Renovation', href: '/services' },
+  { label: 'Our Worlds', href: '/our-worlds' },
+  { label: 'Materials & Acrylic', href: '/materials' },
+  { label: 'About Us', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ];
+

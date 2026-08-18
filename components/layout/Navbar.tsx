@@ -5,12 +5,15 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { NAV_LINKS, SITE_CONFIG } from '@/lib/config';
 import { MobileMenu } from './MobileMenu';
+import { useCart } from '@/lib/context/CartContext';
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const navRef = useRef<HTMLElement>(null);
+  const { cartCount, setIsCartOpen, cartIconBouncing } = useCart();
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -70,17 +73,36 @@ export function Navbar() {
               })}
             </nav>
 
-            {/* Right — CTA + hamburger */}
-            <div className="flex items-center gap-4">
-              <Link
-                href="/contact"
-                className={`hidden sm:inline-flex items-center gap-2 btn-ghost text-xs ${
-                  pathname === '/contact' ? 'border-[--color-accent] text-[--color-accent]' : ''
+            {/* Right — Cart + CTA + hamburger */}
+            <div className="flex items-center gap-3">
+              {/* Shopping Bag Button */}
+              <button
+                id="navbar-cart-btn"
+                onClick={() => setIsCartOpen(true)}
+                className={`relative p-2.5 rounded-lg border border-[rgba(255,255,255,0.12)] bg-[rgba(7,21,28,0.7)] hover:border-[--color-accent] text-white transition-all duration-300 flex items-center gap-2 ${
+                  cartIconBouncing
+                    ? 'scale-125 border-[--color-accent] shadow-[0_0_20px_rgba(0,184,217,0.9)] bg-[rgba(0,184,217,0.2)]'
+                    : ''
                 }`}
+                aria-label={`Shopping Bag (${cartCount} items)`}
+              >
+                <span className="text-sm">🛒</span>
+                <span className="hidden sm:inline text-[11px] uppercase tracking-wider text-[--color-muted]">
+                  BAG
+                </span>
+                {cartCount > 0 && (
+                  <span className="w-5 h-5 rounded-full bg-[--color-accent] text-[--color-primary] font-bold text-[10px] flex items-center justify-center -mr-1 shadow-md animate-scale-pop">
+                    {cartCount}
+                  </span>
+                )}
+              </button>
+
+              <Link
+                href="/services#booking-portal"
+                className="hidden lg:inline-flex items-center gap-2 btn-primary text-xs py-2 px-4"
                 data-cursor="ENTER"
               >
-                CONTACT
-                <span className="text-[--color-accent]">→</span>
+                BOOK SERVICE
               </Link>
 
               {/* Hamburger (Mobile / Tablet) */}
@@ -108,6 +130,7 @@ export function Navbar() {
                 />
               </button>
             </div>
+
 
           </div>
         </div>

@@ -12,8 +12,9 @@ const FORM_FACTORS = [
     dimensions: '4.8m (L) × 1.8m (H) × 0.9m (D)',
     volume: '7,800 Liters / 2,060 Gal',
     material: 'Monolithic Thermoformed Cast Acrylic (90mm)',
-    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1200&q=85',
+    image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1600&q=85',
     desc: 'Seamless architectural wall integration with concealed life-support plant room and automated water-change robotics.',
+
   },
   {
     id: 'divider',

@@ -85,22 +85,23 @@ export function FinalCTA() {
         {/* CTAs */}
         <ScrollReveal delay={0.3} className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
-            href="/contact"
+            href="/services#booking-portal"
             className="btn-primary"
             data-cursor="ENTER"
           >
-            START A PROJECT
+            BOOK INSTALLATION / RENOVATION
             <span className="text-[--color-primary]">→</span>
           </Link>
           <Link
-            href="/marine-life"
+            href="/marketplace"
             className="btn-ghost"
             data-cursor="EXPLORE"
           >
-            EXPLORE MARINE LIFE
+            EXPLORE MARKETPLACE
             <span className="text-[--color-accent]">→</span>
           </Link>
         </ScrollReveal>
+
 
         {/* Logo / wordmark reveal */}
         <ScrollReveal delay={0.5} className="mt-20">
