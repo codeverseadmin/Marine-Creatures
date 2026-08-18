@@ -9,11 +9,15 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
+    if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (!prefersReduced) {
       const lenis = new Lenis({
-        duration: 1.2,
+        duration: 1.0,
         easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         orientation: 'vertical',
         gestureOrientation: 'vertical',
@@ -41,13 +45,17 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Reset scroll and recalculate heights on every page navigation
+  // Guarantee instantaneous scroll reset to (0,0) on every page navigation
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }
     if (lenisRef.current) {
       lenisRef.current.scrollTo(0, { immediate: true });
     }
-    // Refresh any GSAP ScrollTrigger instances
+    // Refresh GSAP ScrollTrigger instances
     if (typeof window !== 'undefined') {
       import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
         ScrollTrigger.refresh();
@@ -57,4 +65,3 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
 
   return <>{children}</>;
 }
-

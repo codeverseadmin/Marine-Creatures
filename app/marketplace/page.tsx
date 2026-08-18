@@ -39,26 +39,26 @@ export default function MarketplacePage() {
 
   return (
     <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>
-      {/* Luxury Marketplace Hero Banner */}
-      <section className="relative pt-44 md:pt-52 pb-20 border-b border-[rgba(255,255,255,0.08)] bg-gradient-to-b from-[rgba(4,14,20,0.9)] via-[rgba(2,7,11,0.95)] to-[var(--color-primary)] overflow-hidden">
-        {/* Subtle background glow */}
+      {/* Luxury Marketplace Header Banner (Starts Cleanly Below Fixed 80px Navbar) */}
+      <section className="relative pt-32 md:pt-36 pb-12 border-b border-[rgba(255,255,255,0.08)] bg-gradient-to-b from-[rgba(5,18,26,0.95)] via-[rgba(2,7,11,0.98)] to-[var(--color-primary)] overflow-hidden">
+        {/* Subtle background ambient glow */}
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] pointer-events-none opacity-20"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[260px] pointer-events-none opacity-25"
           style={{
-            background: 'radial-gradient(ellipse at center, rgba(0,184,217,0.35) 0%, transparent 70%)',
+            background: 'radial-gradient(ellipse at center, rgba(0,184,217,0.4) 0%, transparent 70%)',
           }}
           aria-hidden="true"
         />
 
-        <div className="container-max relative z-10 text-center max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[rgba(0,184,217,0.1)] border border-[rgba(0,184,217,0.25)] mb-6">
+        <div className="container-max relative z-10 text-center max-w-4xl mx-auto px-4">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[rgba(0,184,217,0.1)] border border-[rgba(0,184,217,0.25)] mb-4">
             <span className="w-2 h-2 rounded-full bg-[--color-accent] animate-pulse" />
             <span className="text-xs uppercase tracking-[0.25em] font-semibold text-[--color-accent]">
               OFFICIAL MARINE STORE &amp; HARDWARE
             </span>
           </div>
 
-          <h1 className="font-display text-4xl sm:text-6xl md:text-7xl text-white font-light tracking-tight mb-6">
+          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl text-white font-light tracking-tight mb-4">
             Marine Marketplace
           </h1>
 
@@ -68,16 +68,16 @@ export default function MarketplacePage() {
         </div>
       </section>
 
-      {/* Spacious, Elegant Filter & Search Section (Non-colliding) */}
-      <section className="py-10 border-b border-[rgba(255,255,255,0.06)] bg-[rgba(3,10,16,0.6)] backdrop-blur-md">
-        <div className="container-max space-y-8">
-          {/* Category Navigation Pills */}
-          <div className="flex flex-wrap items-center justify-center gap-3">
+      {/* Spacious, Elegant Filter & Search Control Panel */}
+      <section className="py-8 border-b border-[rgba(255,255,255,0.06)] bg-[rgba(3,10,16,0.7)] backdrop-blur-xl">
+        <div className="container-max space-y-6">
+          {/* Category Filter Pills */}
+          <div className="flex flex-wrap items-center justify-center gap-2.5">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-6 py-3 rounded-xl text-xs sm:text-sm font-medium tracking-wide transition-all duration-300 ${
+                className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium tracking-wide transition-all duration-300 ${
                   selectedCategory === cat.id
                     ? 'bg-[--color-accent] text-[--color-primary] shadow-[0_4px_20px_rgba(0,184,217,0.4)] font-semibold scale-105'
                     : 'text-slate-300 hover:text-white bg-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.08)]'
@@ -88,9 +88,9 @@ export default function MarketplacePage() {
             ))}
           </div>
 
-          {/* Search Bar & Sort Dropdown Row */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-6 pt-4 border-t border-[rgba(255,255,255,0.06)]">
-            {/* Search Input */}
+          {/* Search Bar & Sort Dropdown */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-4 border-t border-[rgba(255,255,255,0.06)]">
+            {/* Search Input with Vector SVG Icon */}
             <div className="relative flex-1 max-w-lg">
               <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none flex items-center justify-center">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -103,7 +103,7 @@ export default function MarketplacePage() {
                 placeholder="Search marine life, lighting, live rock, salts..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-14 pl-12 pr-12 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.07)] transition-all"
+                className="w-full h-12 pl-12 pr-12 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.07)] transition-all"
               />
               {searchQuery && (
                 <button
@@ -124,7 +124,7 @@ export default function MarketplacePage() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="h-14 px-5 rounded-xl bg-[rgba(5,15,22,0.95)] border border-[rgba(255,255,255,0.12)] text-xs sm:text-sm text-white focus:outline-none focus:border-[--color-accent] cursor-pointer"
+                className="h-12 px-4 rounded-xl bg-[rgba(5,15,22,0.95)] border border-[rgba(255,255,255,0.12)] text-xs sm:text-sm text-white focus:outline-none focus:border-[--color-accent] cursor-pointer"
               >
                 <option value="featured">Sort: Featured Collection</option>
                 <option value="price-asc">Price: Low to High</option>
@@ -136,9 +136,9 @@ export default function MarketplacePage() {
       </section>
 
       {/* Products Grid */}
-      <section className="container-max py-20">
+      <section className="container-max py-16">
         {filteredProducts.length === 0 ? (
-          <div className="text-center py-28 border border-[rgba(255,255,255,0.08)] rounded-3xl p-10 bg-[rgba(5,15,22,0.4)]">
+          <div className="text-center py-24 border border-[rgba(255,255,255,0.08)] rounded-3xl p-10 bg-[rgba(5,15,22,0.4)]">
             <span className="text-5xl block mb-4">🐠</span>
             <h3 className="font-display text-2xl text-white font-light mb-2">No products found</h3>
             <p className="text-sm text-[--color-muted] mb-6">
