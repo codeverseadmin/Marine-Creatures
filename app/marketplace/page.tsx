@@ -40,46 +40,46 @@ export default function MarketplacePage() {
   return (
     <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>
       {/* Integrated Luxury Marketplace Header */}
-      <div className="pt-24 md:pt-28 pb-8 border-b border-[rgba(255,255,255,0.08)] bg-gradient-to-b from-[rgba(6,20,29,0.95)] to-[var(--color-primary)]">
-        <div className="container-max space-y-6">
+      <div className="pt-24 sm:pt-28 md:pt-32 pb-6 sm:pb-8 border-b border-[rgba(255,255,255,0.08)] bg-gradient-to-b from-[rgba(6,20,29,0.95)] to-[var(--color-primary)]">
+        <div className="container-max space-y-5 sm:space-y-6">
           {/* Top Row: Title + Search & Sort */}
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 sm:gap-6">
             <div>
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
                 <span className="w-2 h-2 rounded-full bg-[--color-accent] animate-pulse" />
-                <span className="text-xs uppercase tracking-[0.25em] font-semibold text-[--color-accent]">
+                <span className="text-[11px] sm:text-xs uppercase tracking-[0.25em] font-semibold text-[--color-accent]">
                   OFFICIAL MARINE STORE
                 </span>
               </div>
               <h1 className="font-display text-3xl sm:text-4xl md:text-5xl text-white font-light tracking-tight">
                 Marine Marketplace
               </h1>
-              <p className="font-body text-xs sm:text-sm text-[--color-muted] mt-1.5 max-w-xl">
+              <p className="font-body text-xs sm:text-sm text-[--color-muted] mt-1 sm:mt-1.5 max-w-xl">
                 Captive-bred livestock, NemoLight fixtures, Real Reef rock, salts &amp; precision hardware across India.
               </p>
             </div>
 
             {/* Search & Sort Controls */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+            <div className="flex items-center gap-2.5 sm:gap-3 w-full lg:w-auto">
               {/* Search Box with SVG */}
               <div className="relative flex-1 sm:w-80">
                 <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none flex items-center justify-center">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="11" cy="11" r="8" />
                     <line x1="21" y1="21" x2="16.65" y2="16.65" />
                   </svg>
                 </div>
                 <input
                   type="text"
-                  placeholder="Search species, lighting, rock, salt..."
+                  placeholder="Search store..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-11 pl-10 pr-9 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.12)] text-xs sm:text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.08)] transition-all"
+                  className="w-full h-11 pl-9 pr-8 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.12)] text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.08)] transition-all"
                 />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white p-1"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center text-xs text-slate-400 hover:text-white"
                   >
                     ✕
                   </button>
@@ -90,7 +90,7 @@ export default function MarketplacePage() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="h-11 px-3.5 rounded-xl bg-[rgba(10,25,35,0.9)] border border-[rgba(255,255,255,0.12)] text-xs text-white focus:outline-none focus:border-[--color-accent] cursor-pointer"
+                className="h-11 px-3 sm:px-3.5 rounded-xl bg-[rgba(10,25,35,0.95)] border border-[rgba(255,255,255,0.12)] text-xs sm:text-sm text-white focus:outline-none focus:border-[--color-accent] cursor-pointer shrink-0"
               >
                 <option value="featured">Featured</option>
                 <option value="price-asc">Price: Low to High</option>
@@ -100,13 +100,13 @@ export default function MarketplacePage() {
           </div>
 
           {/* Bottom Row: Category Filter Tabs */}
-          <div className="flex items-center justify-between gap-4 pt-4 border-t border-[rgba(255,255,255,0.06)] overflow-x-auto scrollbar-none">
-            <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center justify-between gap-4 pt-3.5 sm:pt-4 border-t border-[rgba(255,255,255,0.06)] overflow-x-auto scrollbar-none touch-momentum">
+            <div className="flex items-center gap-2 shrink-0 py-1">
               {CATEGORIES.map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-4 py-2 rounded-xl text-xs font-medium tracking-wide transition-all duration-300 ${
+                  className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-medium tracking-wide whitespace-nowrap transition-all duration-300 active:scale-95 ${
                     selectedCategory === cat.id
                       ? 'bg-[--color-accent] text-[--color-primary] shadow-[0_2px_15px_rgba(0,184,217,0.4)] font-semibold'
                       : 'text-slate-300 hover:text-white bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.08)]'
@@ -125,9 +125,9 @@ export default function MarketplacePage() {
       </div>
 
       {/* Products Grid */}
-      <section className="container-max py-12">
+      <section className="container-max py-8 sm:py-12">
         {filteredProducts.length === 0 ? (
-          <div className="text-center py-20 border border-[rgba(255,255,255,0.08)] rounded-3xl p-8 bg-[rgba(5,15,22,0.4)]">
+          <div className="text-center py-16 border border-[rgba(255,255,255,0.08)] rounded-3xl p-6 sm:p-8 bg-[rgba(5,15,22,0.4)]">
             <span className="text-4xl block mb-3">🐠</span>
             <h3 className="font-display text-xl text-white font-light mb-2">No products found</h3>
             <p className="text-xs text-[--color-muted] mb-5">
@@ -144,7 +144,7 @@ export default function MarketplacePage() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

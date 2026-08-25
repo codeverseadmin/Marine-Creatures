@@ -25,7 +25,7 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
     setTimeout(() => {
       setAdded(false);
       setIsCartOpen(true);
-    }, 700);
+    }, 600);
   };
 
   const handleWhatsAppInquiry = () => {
@@ -35,10 +35,10 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
   };
 
   return (
-    <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>
-      {/* Breadcrumb Navigation with Generous Navbar Clearance */}
-      <div className="pt-44 md:pt-48 pb-6 border-b border-[rgba(255,255,255,0.08)] bg-[rgba(2,7,11,0.85)]">
-        <div className="container-max flex items-center gap-2 text-xs sm:text-sm text-[--color-muted]">
+    <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }} className="pb-28 md:pb-12">
+      {/* Breadcrumb Navigation with Optimized Clearance */}
+      <div className="pt-24 sm:pt-28 md:pt-32 pb-4 border-b border-[rgba(255,255,255,0.08)] bg-[rgba(2,7,11,0.85)] backdrop-blur-md">
+        <div className="container-max flex items-center gap-2 text-xs sm:text-sm text-[--color-muted] overflow-x-auto scrollbar-none whitespace-nowrap">
           <Link href="/" className="hover:text-white transition-colors">Home</Link>
           <span className="opacity-40">/</span>
           <Link href="/marketplace" className="hover:text-white transition-colors">Marketplace</Link>
@@ -50,36 +50,37 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
       </div>
 
       {/* Main Product Showcase Section */}
-      <div className="container-max pt-12 pb-24">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+      <div className="container-max pt-6 sm:pt-10 pb-16 md:pb-24">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
           {/* Left Column: Image Gallery */}
-          <div className="lg:col-span-7 space-y-4">
+          <div className="lg:col-span-7 space-y-3 sm:space-y-4">
             <div
-              className="rounded-3xl overflow-hidden border border-[rgba(255,255,255,0.1)] bg-black/60 shadow-2xl relative"
+              className="rounded-2xl sm:rounded-3xl overflow-hidden border border-[rgba(255,255,255,0.1)] bg-black/60 shadow-2xl relative"
               style={{ aspectRatio: '16/11' }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={selectedImg}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-opacity duration-300"
               />
               {product.badge && (
-                <div className="absolute top-4 left-4">
-                  <span className="text-xs uppercase tracking-wider font-semibold text-white bg-[--color-accent] px-3.5 py-1.5 rounded-xl shadow-lg">
+                <div className="absolute top-3.5 left-3.5 sm:top-4 sm:left-4">
+                  <span className="text-[11px] sm:text-xs uppercase tracking-wider font-semibold text-white bg-[--color-accent] px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-xl shadow-lg">
                     {product.badge}
                   </span>
                 </div>
               )}
             </div>
 
+            {/* Thumbnail selector */}
             {product.images.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-2">
+              <div className="flex gap-2.5 sm:gap-3 overflow-x-auto pb-2 scrollbar-none touch-momentum">
                 {product.images.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => setSelectedImg(img)}
-                    className={`w-24 h-20 rounded-xl overflow-hidden border-2 transition-all shrink-0 ${
+                    className={`w-20 h-16 sm:w-24 sm:h-20 rounded-xl overflow-hidden border-2 transition-all shrink-0 active:scale-95 ${
                       selectedImg === img
                         ? 'border-[--color-accent] shadow-[0_0_15px_rgba(0,184,217,0.4)]'
                         : 'border-transparent opacity-60 hover:opacity-100'
@@ -94,59 +95,61 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
           </div>
 
           {/* Right Column: Pricing & Purchase */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="lg:col-span-5 space-y-5 sm:space-y-6">
             <div>
               <span className="text-xs uppercase tracking-[0.25em] font-semibold text-[--color-accent] block mb-2">
                 {product.scientificName || product.categoryLabel}
               </span>
-              <h1 className="font-display text-3xl sm:text-4xl md:text-5xl text-white font-light mb-4 leading-tight">
+              <h1 className="font-display text-2xl sm:text-4xl md:text-5xl text-white font-light mb-3 leading-tight">
                 {product.name}
               </h1>
-              <div className="flex items-baseline gap-4 mb-4">
-                <span className="font-display text-3xl sm:text-4xl text-white font-light">
+              <div className="flex flex-wrap items-baseline gap-3 sm:gap-4 mb-3">
+                <span className="font-display text-2xl sm:text-4xl text-white font-light">
                   ₹{product.price.toLocaleString('en-IN')}
                 </span>
                 {product.originalPrice && (
-                  <span className="text-sm sm:text-base text-slate-500 line-through">
+                  <span className="text-xs sm:text-base text-slate-500 line-through">
                     ₹{product.originalPrice.toLocaleString('en-IN')}
                   </span>
                 )}
-                <span className="px-2.5 py-0.5 rounded-full text-xs bg-emerald-500/10 text-emerald-400 font-medium border border-emerald-500/20">
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs bg-emerald-500/10 text-emerald-400 font-medium border border-emerald-500/20">
                   In Stock ({product.stockCount} Available)
                 </span>
               </div>
-              <p className="font-body text-sm text-slate-300 leading-relaxed">
+              <p className="font-body text-xs sm:text-sm text-slate-300 leading-relaxed">
                 {product.description}
               </p>
             </div>
 
             {/* Delivery Assurance */}
-            <div className="p-5 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.7)] space-y-2 text-xs">
+            <div className="p-4 sm:p-5 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.7)] space-y-1.5 text-xs">
               <div className="flex items-center gap-2 text-white font-medium">
                 <span className="text-base">⚡</span>
                 <span>{product.deliveryInfo.estimatedDays}</span>
               </div>
-              <p className="text-[12px] text-[--color-muted] leading-relaxed">
+              <p className="text-[11px] sm:text-xs text-[--color-muted] leading-relaxed">
                 {product.deliveryInfo.guaranteeText} • {product.deliveryInfo.shippingMethod}
               </p>
             </div>
 
             {/* Quantity and Add to Bag */}
-            <div className="space-y-4 pt-2">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center border border-[rgba(255,255,255,0.15)] bg-[rgba(255,255,255,0.03)] rounded-xl h-14 px-2">
+            <div className="space-y-3.5 pt-1">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="flex items-center border border-[rgba(255,255,255,0.15)] bg-[rgba(255,255,255,0.03)] rounded-xl h-12 sm:h-14 px-2">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-10 h-10 flex items-center justify-center text-base text-[--color-muted] hover:text-white transition-colors"
+                    className="w-8 sm:w-10 h-10 flex items-center justify-center text-base text-[--color-muted] hover:text-white transition-colors"
+                    aria-label="Decrease quantity"
                   >
                     −
                   </button>
-                  <span className="w-10 text-center text-sm font-semibold text-white">
+                  <span className="w-8 sm:w-10 text-center text-xs sm:text-sm font-semibold text-white">
                     {quantity}
                   </span>
                   <button
                     onClick={() => setQuantity(Math.min(product.stockCount, quantity + 1))}
-                    className="w-10 h-10 flex items-center justify-center text-base text-[--color-muted] hover:text-white transition-colors"
+                    className="w-8 sm:w-10 h-10 flex items-center justify-center text-base text-[--color-muted] hover:text-white transition-colors"
+                    aria-label="Increase quantity"
                   >
                     +
                   </button>
@@ -154,7 +157,7 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
 
                 <button
                   onClick={handleAddToCart}
-                  className={`flex-1 h-14 px-8 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all duration-300 shadow-xl ${
+                  className={`flex-1 h-12 sm:h-14 px-4 sm:px-8 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all duration-300 shadow-xl active:scale-95 ${
                     added
                       ? 'bg-emerald-500 text-white'
                       : 'bg-[--color-accent] text-[--color-primary] hover:bg-white'
@@ -167,14 +170,14 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
               {/* WhatsApp direct order button */}
               <button
                 onClick={handleWhatsAppInquiry}
-                className="w-full h-12 rounded-xl border border-[rgba(0,184,217,0.3)] bg-[rgba(0,184,217,0.06)] hover:bg-[rgba(0,184,217,0.15)] text-xs text-[--color-accent] font-semibold tracking-wider uppercase transition-all flex items-center justify-center gap-2"
+                className="w-full h-12 rounded-xl border border-[rgba(0,184,217,0.3)] bg-[rgba(0,184,217,0.06)] hover:bg-[rgba(0,184,217,0.15)] active:scale-95 text-xs text-[--color-accent] font-semibold tracking-wider uppercase transition-all flex items-center justify-center gap-2"
               >
                 <span>💬</span>
-                <span>INQUIRE / ORDER VIA WHATSAPP CONCIERGE</span>
+                <span>INQUIRE / ORDER VIA WHATSAPP</span>
               </button>
             </div>
 
-            <div className="pt-2">
+            <div className="pt-1">
               <Link
                 href="/services"
                 className="text-xs text-[--color-muted] hover:text-[--color-accent] flex items-center gap-1.5 transition-colors"
@@ -187,13 +190,13 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
         </div>
 
         {/* Detailed Information Tabs */}
-        <div className="mt-20 pt-12 border-t border-[rgba(255,255,255,0.08)]">
+        <div className="mt-14 sm:mt-20 pt-10 border-t border-[rgba(255,255,255,0.08)]">
           {/* Tab buttons */}
-          <div className="flex gap-3 border-b border-[rgba(255,255,255,0.08)] pb-4 overflow-x-auto scrollbar-none">
+          <div className="flex gap-2 sm:gap-3 border-b border-[rgba(255,255,255,0.08)] pb-4 overflow-x-auto scrollbar-none touch-momentum">
             {product.careGuide && (
               <button
                 onClick={() => setActiveTab('care')}
-                className={`px-5 py-3 rounded-xl text-xs font-medium tracking-wider uppercase transition-all ${
+                className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs font-medium tracking-wider uppercase whitespace-nowrap transition-all ${
                   activeTab === 'care'
                     ? 'bg-[--color-accent] text-[--color-primary] font-semibold shadow-lg'
                     : 'text-[--color-muted] hover:text-white bg-[rgba(255,255,255,0.03)]'
@@ -206,7 +209,7 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
             {product.installationGuide && (
               <button
                 onClick={() => setActiveTab('installation')}
-                className={`px-5 py-3 rounded-xl text-xs font-medium tracking-wider uppercase transition-all ${
+                className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs font-medium tracking-wider uppercase whitespace-nowrap transition-all ${
                   activeTab === 'installation'
                     ? 'bg-[--color-accent] text-[--color-primary] font-semibold shadow-lg'
                     : 'text-[--color-muted] hover:text-white bg-[rgba(255,255,255,0.03)]'
@@ -218,7 +221,7 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
 
             <button
               onClick={() => setActiveTab('specs')}
-              className={`px-5 py-3 rounded-xl text-xs font-medium tracking-wider uppercase transition-all ${
+              className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs font-medium tracking-wider uppercase whitespace-nowrap transition-all ${
                 activeTab === 'specs'
                   ? 'bg-[--color-accent] text-[--color-primary] font-semibold shadow-lg'
                   : 'text-[--color-muted] hover:text-white bg-[rgba(255,255,255,0.03)]'
@@ -229,7 +232,7 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
 
             <button
               onClick={() => setActiveTab('shipping')}
-              className={`px-5 py-3 rounded-xl text-xs font-medium tracking-wider uppercase transition-all ${
+              className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs font-medium tracking-wider uppercase whitespace-nowrap transition-all ${
                 activeTab === 'shipping'
                   ? 'bg-[--color-accent] text-[--color-primary] font-semibold shadow-lg'
                   : 'text-[--color-muted] hover:text-white bg-[rgba(255,255,255,0.03)]'
@@ -240,40 +243,40 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
           </div>
 
           {/* Tab Body */}
-          <div className="py-10">
+          <div className="py-8 sm:py-10">
             {activeTab === 'care' && product.careGuide && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="p-8 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.5)] space-y-4 text-xs">
-                  <h3 className="text-base text-white font-medium mb-4">Optimal Water Parameters</h3>
-                  <div className="flex justify-between border-b border-[rgba(255,255,255,0.06)] pb-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+                <div className="p-6 sm:p-8 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.5)] space-y-4 text-xs">
+                  <h3 className="text-base text-white font-medium mb-3">Optimal Water Parameters</h3>
+                  <div className="flex justify-between border-b border-[rgba(255,255,255,0.06)] pb-2.5">
                     <span className="text-[--color-muted]">Temperature</span>
                     <span className="text-white font-medium text-sm">{product.careGuide.temperature}</span>
                   </div>
-                  <div className="flex justify-between border-b border-[rgba(255,255,255,0.06)] pb-3">
+                  <div className="flex justify-between border-b border-[rgba(255,255,255,0.06)] pb-2.5">
                     <span className="text-[--color-muted]">Salinity</span>
                     <span className="text-white font-medium text-sm">{product.careGuide.salinity}</span>
                   </div>
-                  <div className="flex justify-between border-b border-[rgba(255,255,255,0.06)] pb-3">
+                  <div className="flex justify-between border-b border-[rgba(255,255,255,0.06)] pb-2.5">
                     <span className="text-[--color-muted]">pH Level</span>
                     <span className="text-white font-medium text-sm">{product.careGuide.ph}</span>
                   </div>
                   {product.careGuide.minimumTankSize && (
-                    <div className="flex justify-between border-b border-[rgba(255,255,255,0.06)] pb-3">
+                    <div className="flex justify-between border-b border-[rgba(255,255,255,0.06)] pb-2.5">
                       <span className="text-[--color-muted]">Minimum Tank Size</span>
                       <span className="text-white font-medium text-sm">{product.careGuide.minimumTankSize}</span>
                     </div>
                   )}
                   {product.careGuide.diet && (
-                    <div className="flex justify-between border-b border-[rgba(255,255,255,0.06)] pb-3">
+                    <div className="flex justify-between border-b border-[rgba(255,255,255,0.06)] pb-2.5">
                       <span className="text-[--color-muted]">Diet</span>
                       <span className="text-white font-medium text-sm">{product.careGuide.diet}</span>
                     </div>
                   )}
                 </div>
 
-                <div className="p-8 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.5)] text-xs space-y-3">
-                  <h3 className="text-base text-white font-medium mb-4">Acclimation Steps</h3>
-                  <ol className="space-y-3 list-decimal list-inside text-slate-300">
+                <div className="p-6 sm:p-8 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.5)] text-xs space-y-3">
+                  <h3 className="text-base text-white font-medium mb-3">Acclimation Steps</h3>
+                  <ol className="space-y-2.5 list-decimal list-inside text-slate-300">
                     {product.careGuide.acclimationSteps.map((s, i) => (
                       <li key={i} className="leading-relaxed"><span className="text-white font-medium">{s}</span></li>
                     ))}
@@ -283,19 +286,19 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
             )}
 
             {activeTab === 'installation' && product.installationGuide && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="p-8 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.5)] text-xs space-y-3">
-                  <h3 className="text-base text-white font-medium mb-4">Installation Steps</h3>
-                  <ol className="space-y-3 list-decimal list-inside text-slate-300">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+                <div className="p-6 sm:p-8 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.5)] text-xs space-y-3">
+                  <h3 className="text-base text-white font-medium mb-3">Installation Steps</h3>
+                  <ol className="space-y-2.5 list-decimal list-inside text-slate-300">
                     {product.installationGuide.steps.map((s, i) => (
                       <li key={i} className="leading-relaxed"><span className="text-white font-medium">{s}</span></li>
                     ))}
                   </ol>
                 </div>
 
-                <div className="p-8 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.5)] text-xs space-y-3">
-                  <h3 className="text-base text-white font-medium mb-4">Included In The Box</h3>
-                  <ul className="space-y-3 text-slate-300">
+                <div className="p-6 sm:p-8 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.5)] text-xs space-y-3">
+                  <h3 className="text-base text-white font-medium mb-3">Included In The Box</h3>
+                  <ul className="space-y-2.5 text-slate-300">
                     {product.installationGuide.includedInBox.map((item, i) => (
                       <li key={i} className="flex items-center gap-2.5">
                         <span className="text-[--color-accent] font-bold">✓</span>
@@ -308,10 +311,10 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
             )}
 
             {activeTab === 'specs' && (
-              <div className="p-8 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.5)] max-w-2xl text-xs space-y-4">
-                <h3 className="text-base text-white font-medium mb-4">Technical Specifications</h3>
+              <div className="p-6 sm:p-8 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.5)] max-w-2xl text-xs space-y-3.5">
+                <h3 className="text-base text-white font-medium mb-3">Technical Specifications</h3>
                 {Object.entries(product.specifications).map(([k, v]) => (
-                  <div key={k} className="flex justify-between border-b border-[rgba(255,255,255,0.06)] pb-3">
+                  <div key={k} className="flex justify-between border-b border-[rgba(255,255,255,0.06)] pb-2.5">
                     <span className="text-[--color-muted]">{k}</span>
                     <span className="text-white font-medium text-sm">{v}</span>
                   </div>
@@ -320,7 +323,7 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
             )}
 
             {activeTab === 'shipping' && (
-              <div className="p-8 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.5)] max-w-2xl text-xs text-slate-300 leading-relaxed space-y-4">
+              <div className="p-6 sm:p-8 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.5)] max-w-2xl text-xs text-slate-300 leading-relaxed space-y-4">
                 <h3 className="text-base text-white font-medium">100% Live Arrival Guarantee Across India</h3>
                 <p>
                   All livestock is dispatched in oxygenated, climate-controlled thermal courier pods with continuous temperature monitoring.
@@ -335,20 +338,52 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
 
         {/* Frequently Paired Products */}
         {relatedProducts.length > 0 && (
-          <div className="mt-20 pt-16 border-t border-[rgba(255,255,255,0.08)] pb-24">
+          <div className="mt-14 sm:mt-20 pt-12 border-t border-[rgba(255,255,255,0.08)] pb-12">
             <span className="text-xs uppercase tracking-[0.25em] font-semibold text-[--color-accent] block mb-2">
               RECOMMENDED COMBINATIONS
             </span>
-            <h2 className="font-display text-3xl text-white font-light mb-10">
+            <h2 className="font-display text-2xl sm:text-3xl text-white font-light mb-8">
               Frequently Paired Products
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
               {relatedProducts.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}
             </div>
           </div>
         )}
+      </div>
+
+      {/* =========================================================================
+          Sticky Floating Mobile Buy Bar (Thumb-friendly high conversion bar)
+         ========================================================================= */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[rgba(3,10,16,0.96)] border-t border-[rgba(255,255,255,0.12)] backdrop-blur-2xl p-3.5 pb-safe shadow-[0_-10px_25px_rgba(0,0,0,0.7)] flex items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <span className="text-[11px] text-[--color-muted] truncate block">{product.name}</span>
+          <span className="font-display text-xl text-white font-light leading-none">
+            ₹{product.price.toLocaleString('en-IN')}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleWhatsAppInquiry}
+            className="w-11 h-11 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg active:scale-95 transition-transform"
+            aria-label="WhatsApp Inquiry"
+          >
+            💬
+          </button>
+          <button
+            onClick={handleAddToCart}
+            className={`h-11 px-5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all shadow-lg active:scale-95 ${
+              added
+                ? 'bg-emerald-500 text-white'
+                : 'bg-[--color-accent] text-[--color-primary]'
+            }`}
+          >
+            {added ? 'ADDED ✓' : '+ BAG'}
+          </button>
+        </div>
       </div>
     </div>
   );

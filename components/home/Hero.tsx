@@ -275,50 +275,50 @@ export function Hero() {
       />
 
       {/* Content */}
-      <div className="relative z-10 container-max pb-20 md:pb-32 pt-20">
+      <div className="relative z-10 container-max pb-16 sm:pb-20 md:pb-32 pt-28 sm:pt-32">
         {/* Subtle category line */}
         <div
           ref={wordmarkRef}
-          className="mb-6 opacity-0"
+          className="mb-4 sm:mb-6 opacity-0"
         >
-          <span className="text-xs uppercase tracking-[0.35em] font-semibold text-[--color-accent]">
+          <span className="text-[11px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.35em] font-semibold text-[--color-accent] block">
             EXOTIC MARINE LIFE &bull; BESPOKE AQUARIUM ARCHITECTURE
           </span>
         </div>
 
         {/* Main heading */}
         <div ref={headingRef} aria-label="The Ocean Reimagined">
-          <div className="overflow-hidden mb-2">
-            <div className="line-1 font-display text-display-xl text-[--color-text] font-light italic leading-[0.9]" style={{ transform: 'translateY(100%)' }}>
+          <div className="overflow-hidden mb-1 sm:mb-2">
+            <div className="line-1 font-display text-display-xl text-[--color-text] font-light italic leading-[0.92]" style={{ transform: 'translateY(100%)' }}>
               The Ocean
             </div>
           </div>
           <div className="overflow-hidden">
-            <div className="line-2 font-display text-display-xl text-[--color-text] font-light leading-[0.9]" style={{ transform: 'translateY(100%)' }}>
+            <div className="line-2 font-display text-display-xl text-[--color-text] font-light leading-[0.92]" style={{ transform: 'translateY(100%)' }}>
               Reimagined.
             </div>
           </div>
         </div>
 
         {/* Sub-content */}
-        <div ref={subRef} className="mt-8 opacity-0 max-w-xl">
-          <p className="font-body font-light text-[--color-muted] leading-relaxed text-base sm:text-lg">
+        <div ref={subRef} className="mt-6 sm:mt-8 opacity-0 max-w-xl">
+          <p className="font-body font-light text-[--color-muted] leading-relaxed text-sm sm:text-base md:text-lg">
             Captive-bred marine species, living coral reef ecosystems, and turnkey architectural aquarium installations for exceptional spaces.
           </p>
         </div>
 
         {/* Direct Actions */}
-        <div ref={ctaRef} className="mt-10 opacity-0 flex flex-wrap items-center gap-4">
+        <div ref={ctaRef} className="mt-8 sm:mt-10 opacity-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 sm:gap-4 max-w-md sm:max-w-none">
           <Link
             href="/marketplace"
-            className="btn-primary text-xs tracking-wider uppercase font-semibold py-4 px-8 rounded-xl shadow-2xl"
+            className="btn-primary text-xs tracking-wider uppercase font-semibold py-4 px-8 rounded-xl shadow-2xl justify-center text-center"
             data-cursor="EXPLORE"
           >
             EXPLORE MARKETPLACE →
           </Link>
           <Link
             href="/services"
-            className="btn-ghost text-xs tracking-wider uppercase font-semibold py-4 px-8 rounded-xl border-[rgba(255,255,255,0.2)] hover:border-white text-white"
+            className="btn-ghost text-xs tracking-wider uppercase font-semibold py-4 px-8 rounded-xl border-[rgba(255,255,255,0.2)] hover:border-white text-white justify-center text-center"
             data-cursor="SERVICES"
           >
             BOOK CONSULTATION
@@ -326,11 +326,10 @@ export function Hero() {
         </div>
       </div>
 
-
-      {/* Scroll indicator */}
+      {/* Scroll indicator (Desktop only) */}
       <div
         ref={scrollRef}
-        className="absolute bottom-8 right-8 md:right-12 opacity-0 flex flex-col items-center gap-2 z-10"
+        className="hidden md:flex absolute bottom-8 right-8 md:right-12 opacity-0 flex-col items-center gap-2 z-10"
         aria-hidden="true"
       >
         <span className="text-label text-[--color-muted] rotate-90 origin-center tracking-[0.2em]">SCROLL TO DESCEND</span>

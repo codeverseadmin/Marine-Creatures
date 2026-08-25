@@ -89,7 +89,7 @@ export default function AquariumDesignPage() {
       <div className="container-max pt-16 pb-36">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-24">
 
-          <div>
+          <div className="lg:col-span-6">
             <span className="text-label text-[--color-accent] block mb-3">OUR PHILOSOPHY</span>
             <h2 className="font-display text-display-sm text-[--color-text] font-light leading-snug mb-8">
               Every space has a rhythm. We design the ocean to inhabit it.
@@ -105,7 +105,7 @@ export default function AquariumDesignPage() {
             </Link>
           </div>
 
-          <div className="space-y-4">
+          <div className="lg:col-span-6 space-y-4">
             {SPECIFICATIONS.map((spec, i) => (
               <div
                 key={spec.label}

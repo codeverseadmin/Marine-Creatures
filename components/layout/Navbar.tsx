@@ -74,24 +74,24 @@ export function Navbar() {
             </nav>
 
             {/* Right — Cart + CTA + hamburger */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5 sm:gap-3">
               {/* Shopping Bag Button */}
               <button
                 id="navbar-cart-btn"
                 onClick={() => setIsCartOpen(true)}
-                className={`relative p-2.5 rounded-lg border border-[rgba(255,255,255,0.12)] bg-[rgba(7,21,28,0.7)] hover:border-[--color-accent] text-white transition-all duration-300 flex items-center gap-2 ${
+                className={`relative h-11 px-3 sm:px-3.5 rounded-xl border border-[rgba(255,255,255,0.14)] bg-[rgba(7,21,28,0.75)] hover:border-[--color-accent] active:scale-95 text-white transition-all duration-300 flex items-center gap-2 shadow-sm ${
                   cartIconBouncing
-                    ? 'scale-125 border-[--color-accent] shadow-[0_0_20px_rgba(0,184,217,0.9)] bg-[rgba(0,184,217,0.2)]'
+                    ? 'scale-110 border-[--color-accent] shadow-[0_0_20px_rgba(0,184,217,0.9)] bg-[rgba(0,184,217,0.25)]'
                     : ''
                 }`}
                 aria-label={`Shopping Bag (${cartCount} items)`}
               >
                 <span className="text-sm">🛒</span>
-                <span className="hidden sm:inline text-[11px] uppercase tracking-wider text-[--color-muted]">
+                <span className="hidden sm:inline text-[11px] uppercase tracking-wider text-[--color-muted] font-medium">
                   BAG
                 </span>
                 {cartCount > 0 && (
-                  <span className="w-5 h-5 rounded-full bg-[--color-accent] text-[--color-primary] font-bold text-[10px] flex items-center justify-center -mr-1 shadow-md animate-scale-pop">
+                  <span className="w-5 h-5 rounded-full bg-[--color-accent] text-[--color-primary] font-bold text-[10px] flex items-center justify-center -mr-0.5 shadow-md animate-scale-pop">
                     {cartCount}
                   </span>
                 )}
@@ -99,19 +99,18 @@ export function Navbar() {
 
               <Link
                 href="/services"
-                className="hidden lg:inline-flex items-center gap-1 btn-ghost text-xs py-2 px-4 border-[--color-accent] text-[--color-accent] hover:bg-[rgba(0,184,217,0.1)]"
+                className="hidden lg:inline-flex items-center gap-1 btn-ghost text-xs py-2.5 px-4 rounded-xl border-[--color-accent] text-[--color-accent] hover:bg-[rgba(0,184,217,0.1)]"
                 data-cursor="ENTER"
               >
                 BOOK SERVICE
               </Link>
 
-
               {/* Hamburger (Mobile / Tablet) */}
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="md:hidden flex flex-col items-center justify-center w-10 h-10 gap-[5px] p-2 border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)]"
+                className="md:hidden flex flex-col items-center justify-center w-11 h-11 gap-[5px] p-2.5 rounded-xl border border-[rgba(255,255,255,0.14)] bg-[rgba(7,21,28,0.75)] hover:border-[--color-accent] active:scale-95 transition-all"
                 aria-expanded={menuOpen}
-                aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+                aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
                 data-cursor="MENU"
               >
                 <span

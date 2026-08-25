@@ -13,31 +13,30 @@ export function Footer() {
         style={{ background: 'linear-gradient(90deg, transparent, var(--color-accent), transparent)' }}
       />
 
-      <div className="container-max pt-20 pb-12">
-
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 mb-16">
+      <div className="container-max pt-16 sm:pt-20 pb-12">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8 mb-16">
           {/* Brand column */}
           <div className="md:col-span-4">
-            <Link href="/" className="text-label-lg text-[--color-text] tracking-[0.25em] hover:text-[--color-accent] transition-colors duration-300 block mb-6">
+            <Link href="/" className="text-label-lg text-[--color-text] tracking-[0.25em] hover:text-[--color-accent] transition-colors duration-300 block mb-4 sm:mb-6">
               MARINE CREATURES
             </Link>
-            <p className="font-body font-light text-[--color-muted] text-sm leading-relaxed mb-6 max-w-xs">
-              A premium marine design house creating living underwater environments for extraordinary spaces.
+            <p className="font-body font-light text-[--color-muted] text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6 max-w-xs">
+              A premium marine design house creating living underwater environments for extraordinary spaces across India.
             </p>
-            <span className="font-display italic text-[--color-muted] text-sm opacity-70">
+            <span className="font-display italic text-[--color-muted] text-xs sm:text-sm opacity-70 block">
               Where the Ocean Becomes Art.
             </span>
           </div>
 
           {/* Navigation */}
           <div className="md:col-span-3 md:col-start-6">
-            <h3 className="text-label text-[--color-accent] mb-6">SERVICES</h3>
-            <ul className="space-y-3">
+            <h3 className="text-label text-[--color-accent] mb-4 sm:mb-6">EXPLORE</h3>
+            <ul className="space-y-2.5 sm:space-y-3">
               {NAV_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="font-body font-light text-[--color-muted] text-sm hover:text-[--color-text] transition-colors duration-300"
+                    className="font-body font-light text-[--color-muted] text-xs sm:text-sm hover:text-[--color-text] transition-colors duration-300"
                   >
                     {link.label}
                   </Link>
@@ -48,21 +47,21 @@ export function Footer() {
 
           {/* Contact */}
           <div className="md:col-span-3">
-            <h3 className="text-label text-[--color-accent] mb-6">GET IN TOUCH</h3>
-            <div className="space-y-3">
+            <h3 className="text-label text-[--color-accent] mb-4 sm:mb-6">GET IN TOUCH</h3>
+            <div className="space-y-2.5 sm:space-y-3 text-xs sm:text-sm">
               <a
                 href={`mailto:${SITE_CONFIG.email}`}
-                className="font-body font-light text-[--color-muted] text-sm hover:text-[--color-text] transition-colors block"
+                className="font-body font-light text-[--color-muted] hover:text-[--color-text] transition-colors block"
               >
                 {SITE_CONFIG.email}
               </a>
               <a
                 href={`tel:${SITE_CONFIG.phone}`}
-                className="font-body font-light text-[--color-muted] text-sm hover:text-[--color-text] transition-colors block"
+                className="font-body font-light text-[--color-muted] hover:text-[--color-text] transition-colors block"
               >
                 {SITE_CONFIG.phone}
               </a>
-              <p className="font-body font-light text-[--color-muted] text-sm">
+              <p className="font-body font-light text-[--color-muted]">
                 {SITE_CONFIG.address}
               </p>
             </div>
@@ -72,7 +71,7 @@ export function Footer() {
               href="https://wa.me/919330436603?text=Hi%20Marine%20Creatures,%20I%20would%20like%20to%20inquire%20about%20your%20marine%20life,%20aquarium%20installations%20and%20renovation%20services."
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 mt-6 text-label text-[--color-accent] hover:text-[--color-cyan] transition-colors duration-300"
+              className="inline-flex items-center gap-2 mt-5 sm:mt-6 px-4 py-2.5 rounded-xl border border-[rgba(0,184,217,0.3)] bg-[rgba(0,184,217,0.06)] hover:bg-[rgba(0,184,217,0.15)] text-xs text-[--color-accent] font-medium tracking-wider active:scale-95 transition-all"
               data-cursor="CHAT"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -84,22 +83,24 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between pt-8 border-t border-[rgba(255,255,255,0.06)] gap-4">
-          <p className="text-label text-[--color-muted] flex items-center gap-2">
-            <span>© {new Date().getFullYear()} Marine Creatures. All rights reserved.</span>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-6 sm:pt-8 border-t border-[rgba(255,255,255,0.06)] gap-4 pb-safe">
+          <p className="text-xs text-[--color-muted] flex flex-wrap items-center gap-2">
+            <span>© {new Date().getFullYear()} Marine Creatures.</span>
             <span>•</span>
             <span className="text-[--color-accent] font-medium tracking-wider">Nurtured in CODEVERSE</span>
           </p>
-          <div className="flex items-center gap-6">
-            <Link href="/about" className="text-label text-[--color-muted] hover:text-[--color-text] transition-colors">
+          <div className="flex items-center gap-6 text-xs">
+            <Link href="/about" className="text-[--color-muted] hover:text-[--color-text] transition-colors">
               ABOUT
             </Link>
-            <Link href="/contact" className="text-label text-[--color-muted] hover:text-[--color-text] transition-colors">
+            <Link href="/contact" className="text-[--color-muted] hover:text-[--color-text] transition-colors">
               CONTACT
+            </Link>
+            <Link href="/marketplace" className="text-[--color-muted] hover:text-[--color-text] transition-colors">
+              MARKETPLACE
             </Link>
           </div>
         </div>
-
       </div>
     </footer>
   );

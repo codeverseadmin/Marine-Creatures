@@ -46,11 +46,11 @@ export function ProductCard({ product }: ProductCardProps) {
       </Link>
 
       {/* Content */}
-      <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+      <div className="p-4 sm:p-6 flex-1 flex flex-col justify-between space-y-3.5 sm:space-y-4">
         <div>
           <Link
             href={`/marketplace/${product.id}`}
-            className="font-display text-xl text-white group-hover:text-[--color-accent] transition-colors block line-clamp-1 mb-2 font-normal"
+            className="font-display text-lg sm:text-xl text-white group-hover:text-[--color-accent] transition-colors block line-clamp-1 mb-1.5 font-normal"
           >
             {product.name}
           </Link>
@@ -61,18 +61,17 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Price & Action */}
-        <div className="pt-4 border-t border-[rgba(255,255,255,0.08)] flex items-center justify-between gap-4">
-          <span className="font-display text-xl text-white font-light">
+        <div className="pt-3.5 sm:pt-4 border-t border-[rgba(255,255,255,0.08)] flex items-center justify-between gap-3">
+          <span className="font-display text-lg sm:text-xl text-white font-light">
             ₹{product.price.toLocaleString('en-IN')}
           </span>
 
-
           <button
             onClick={handleAdd}
-            className={`px-4 py-2.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all duration-300 flex items-center gap-1.5 shadow-md ${
+            className={`min-h-[40px] px-3.5 sm:px-4 py-2 rounded-xl text-[11px] sm:text-xs font-semibold tracking-wider uppercase transition-all duration-300 flex items-center gap-1.5 shadow-md active:scale-95 ${
               added
                 ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.7)]'
-                : 'bg-[--color-accent] text-[--color-primary] hover:bg-white hover:shadow-[0_0_20px_rgba(0,184,217,0.4)] active:scale-95'
+                : 'bg-[--color-accent] text-[--color-primary] hover:bg-white hover:shadow-[0_0_20px_rgba(0,184,217,0.4)]'
             }`}
             aria-label={`Add ${product.name} to bag`}
           >

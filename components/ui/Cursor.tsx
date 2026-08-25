@@ -20,8 +20,15 @@ export function CustomCursor() {
   const [bubbles, setBubbles] = useState<Bubble[]>([]);
   const bubbleIdRef = useRef(0);
 
+  const [isTouchDevice, setIsTouchDevice] = useState<boolean>(false);
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    const isTouch = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
+    if (isTouch) {
+      setIsTouchDevice(true);
+      return;
+    }
 
     const fish = fishRef.current;
     if (!fish) return;
@@ -181,6 +188,8 @@ export function CustomCursor() {
     }, 100);
     return () => clearTimeout(timer);
   }, [bubbles]);
+
+  if (isTouchDevice) return null;
 
   return (
     <>

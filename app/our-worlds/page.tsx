@@ -19,7 +19,7 @@ export default function OurWorldsPage() {
       {/* Hero */}
       <div
         className="relative flex items-end overflow-hidden"
-        style={{ height: '65vh', minHeight: '480px' }}
+        style={{ height: '54vh', minHeight: '380px' }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -33,28 +33,28 @@ export default function OurWorldsPage() {
             background: 'linear-gradient(to bottom, rgba(2,7,11,0.2) 0%, rgba(2,7,11,0.95) 100%)',
           }}
         />
-        <div className="container-max relative z-10 pb-16">
-          <span className="text-label text-[--color-accent] block mb-4">PORTFOLIO & COMMISSION ARCHIVE</span>
+        <div className="container-max relative z-10 pb-10 sm:pb-16">
+          <span className="text-[11px] sm:text-xs uppercase tracking-[0.25em] text-[--color-accent] block mb-2 sm:mb-4">PORTFOLIO & COMMISSION ARCHIVE</span>
           <h1 className="font-display text-display-lg text-[--color-text] font-light">
             Our Worlds.
           </h1>
-          <p className="font-body font-light text-[--color-muted] mt-4 max-w-lg leading-relaxed" style={{ fontSize: '0.9375rem' }}>
+          <p className="font-body font-light text-[--color-muted] mt-3 sm:mt-4 max-w-lg leading-relaxed text-xs sm:text-sm">
             A curated archive of living underwater environments designed and engineered for private estates, flagship corporate spaces, and luxury resorts.
           </p>
         </div>
       </div>
 
       {/* Category Tabs */}
-      <div className="container-max pt-12 pb-6 border-b border-[rgba(255,255,255,0.06)]">
-        <div className="flex flex-wrap gap-2">
+      <div className="container-max pt-8 sm:pt-12 pb-5 border-b border-[rgba(255,255,255,0.06)]">
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none touch-momentum py-1">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCat(cat)}
-              className={`px-5 py-2.5 text-xs font-body tracking-wider uppercase transition-all duration-300 rounded border ${
+              className={`px-4 sm:px-5 py-2.5 text-xs font-body tracking-wider uppercase transition-all duration-300 rounded-xl border whitespace-nowrap active:scale-95 ${
                 activeCat === cat
-                  ? 'border-[--color-accent] text-[--color-accent] bg-[rgba(0,184,217,0.1)] shadow-[0_2px_12px_rgba(0,184,217,0.2)]'
-                  : 'border-[rgba(255,255,255,0.1)] text-[--color-muted] hover:border-[rgba(255,255,255,0.3)] hover:text-white bg-[rgba(7,21,28,0.3)]'
+                  ? 'border-[--color-accent] text-[--color-accent] bg-[rgba(0,184,217,0.12)] shadow-[0_2px_12px_rgba(0,184,217,0.25)] font-semibold'
+                  : 'border-[rgba(255,255,255,0.1)] text-[--color-muted] hover:border-[rgba(255,255,255,0.3)] hover:text-white bg-[rgba(7,21,28,0.4)]'
               }`}
               data-cursor="VIEW"
             >
@@ -64,16 +64,15 @@ export default function OurWorldsPage() {
         </div>
       </div>
 
-
       {/* Projects */}
-      <div className="container-max pt-12 pb-36">
-        <div className="space-y-6">
+      <div className="container-max pt-8 sm:pt-12 pb-36">
+        <div className="space-y-4 sm:space-y-6">
 
           {filteredProjects.map((project) => (
             <Link
               key={project.id}
               href={`/our-worlds/${project.id}`}
-              className="group grid grid-cols-1 md:grid-cols-12 gap-8 p-6 md:p-8 border border-[rgba(255,255,255,0.06)] bg-[rgba(7,21,28,0.3)] hover:border-[rgba(0,184,217,0.4)] transition-all duration-300"
+              className="group grid grid-cols-1 md:grid-cols-12 gap-5 md:gap-8 p-4 sm:p-6 md:p-8 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.4)] hover:border-[rgba(0,184,217,0.4)] transition-all duration-300 active:scale-[0.99]"
               data-cursor="VIEW PROJECT"
             >
               {/* Number */}

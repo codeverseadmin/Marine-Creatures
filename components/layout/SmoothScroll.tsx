@@ -14,8 +14,9 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
     }
 
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isTouch = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
 
-    if (!prefersReduced) {
+    if (!prefersReduced && !isTouch) {
       const lenis = new Lenis({
         duration: 1.0,
         easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -23,7 +24,7 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
         gestureOrientation: 'vertical',
         smoothWheel: true,
         wheelMultiplier: 0.8,
-        touchMultiplier: 2,
+        touchMultiplier: 0,
       });
 
       lenisRef.current = lenis;

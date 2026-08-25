@@ -45,7 +45,7 @@ export default function MaterialsPage() {
       {/* Hero */}
       <div
         className="relative flex items-end overflow-hidden"
-        style={{ height: '65vh', minHeight: '480px' }}
+        style={{ height: '54vh', minHeight: '380px' }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -59,28 +59,28 @@ export default function MaterialsPage() {
             background: 'linear-gradient(to bottom, rgba(2,7,11,0.2) 0%, rgba(2,7,11,0.95) 100%)',
           }}
         />
-        <div className="container-max relative z-10 pb-16">
-          <span className="text-label text-[--color-accent] block mb-4">REVEALED IN PURITY</span>
+        <div className="container-max relative z-10 pb-10 sm:pb-16">
+          <span className="text-[11px] sm:text-xs uppercase tracking-[0.25em] text-[--color-accent] block mb-2 sm:mb-4">REVEALED IN PURITY</span>
           <h1 className="font-display text-display-lg text-[--color-text] font-light">
             The Raw Beauty<br /><em>of the Reef.</em>
           </h1>
-          <p className="font-body font-light text-[--color-muted] mt-4 max-w-lg leading-relaxed" style={{ fontSize: '0.9375rem' }}>
+          <p className="font-body font-light text-[--color-muted] mt-3 sm:mt-4 max-w-lg leading-relaxed text-xs sm:text-sm">
             Only the purest, laboratory-tested substrates, handcrafted reef ceramics, and surgical-grade life support hardware make it into a Marine Creatures environment.
           </p>
         </div>
       </div>
 
       {/* Materials Grid */}
-      <div className="container-max pt-20 pb-36">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+      <div className="container-max pt-10 sm:pt-16 pb-36">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10">
 
           {CATEGORIES.map((cat) => (
             <div
               key={cat.name}
-              className="group border border-[rgba(255,255,255,0.06)] p-8 bg-[rgba(7,21,28,0.4)] hover:border-[rgba(0,184,217,0.3)] transition-all duration-300 flex flex-col justify-between"
+              className="group border border-[rgba(255,255,255,0.08)] p-5 sm:p-8 rounded-2xl bg-[rgba(7,21,28,0.5)] hover:border-[rgba(0,184,217,0.3)] transition-all duration-300 flex flex-col justify-between"
             >
               <div>
-                <div className="overflow-hidden mb-6" style={{ aspectRatio: '16/9' }}>
+                <div className="overflow-hidden mb-5 sm:mb-6 rounded-xl" style={{ aspectRatio: '16/9' }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={cat.image}

@@ -13,9 +13,8 @@ export default function ServicesPage() {
   return (
     <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>
       {/* Hero Header */}
-      <div className="relative pt-44 md:pt-52 pb-16 border-b border-[rgba(255,255,255,0.06)] overflow-hidden">
+      <div className="relative pt-28 sm:pt-36 md:pt-48 pb-10 sm:pb-16 border-b border-[rgba(255,255,255,0.06)] overflow-hidden">
         <div
-
           className="absolute inset-0 pointer-events-none"
           style={{
             background: 'radial-gradient(ellipse at 50% 0%, rgba(0,184,217,0.12) 0%, transparent 70%)',
@@ -23,38 +22,38 @@ export default function ServicesPage() {
         />
 
         <div className="container-max relative z-10">
-          <span className="text-xs uppercase tracking-[0.3em] font-semibold text-[--color-accent] block mb-3">
+          <span className="text-[11px] sm:text-xs uppercase tracking-[0.3em] font-semibold text-[--color-accent] block mb-2 sm:mb-3">
             MASTER ENGINEERING &amp; BIOLOGICAL SERVICES
           </span>
-          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl text-white font-light mb-4">
+          <h1 className="font-display text-3xl sm:text-5xl md:text-6xl text-white font-light mb-3 sm:mb-4">
             Installation &amp;<br /><em>Renovation Services.</em>
           </h1>
-          <p className="font-body text-sm sm:text-base text-[--color-muted] max-w-2xl leading-relaxed">
+          <p className="font-body text-xs sm:text-base text-[--color-muted] max-w-2xl leading-relaxed">
             Whether you are commissioning a monumental architectural living reef or revitalizing an existing troubled setup, our senior marine curators deliver perfection.
           </p>
         </div>
       </div>
 
       {/* Services Showcase Cards */}
-      <div className="container-max py-20 space-y-20">
+      <div className="container-max py-10 sm:py-16 space-y-12 sm:space-y-16">
         {SERVICES_DATA.map((service) => (
           <div
             key={service.id}
             id={service.id}
-            className="rounded-3xl border border-[rgba(255,255,255,0.1)] bg-[rgba(5,15,22,0.85)] p-8 sm:p-12 md:p-14 backdrop-blur-2xl shadow-2xl grid grid-cols-1 lg:grid-cols-12 gap-12 items-start"
+            className="rounded-2xl sm:rounded-3xl border border-[rgba(255,255,255,0.1)] bg-[rgba(5,15,22,0.85)] p-5 sm:p-10 md:p-14 backdrop-blur-2xl shadow-2xl grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start"
           >
             {/* Left Content */}
-            <div className="lg:col-span-7 space-y-6">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="text-xs uppercase tracking-widest font-semibold text-[--color-accent] bg-[rgba(0,184,217,0.12)] px-3.5 py-1.5 rounded-lg border border-[rgba(0,184,217,0.3)]">
+            <div className="lg:col-span-7 space-y-5 sm:space-y-6">
+              <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+                <span className="text-xs uppercase tracking-widest font-semibold text-[--color-accent] bg-[rgba(0,184,217,0.12)] px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-lg border border-[rgba(0,184,217,0.3)]">
                   {service.badge}
                 </span>
-                <span className="text-sm text-[--color-muted]">
-                  Starting From: <strong className="text-white text-base">{service.priceStartingFrom}</strong>
+                <span className="text-xs sm:text-sm text-[--color-muted]">
+                  Starting From: <strong className="text-white text-sm sm:text-base">{service.priceStartingFrom}</strong>
                 </span>
               </div>
 
-              <h2 className="font-display text-3xl sm:text-4xl text-white font-light">
+              <h2 className="font-display text-2xl sm:text-4xl text-white font-light">
                 {service.name}
               </h2>
 
