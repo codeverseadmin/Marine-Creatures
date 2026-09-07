@@ -1,6 +1,5 @@
 // =============================================================================
 // Marine Creatures — Business Configuration
-// Replace placeholders with real data before launch
 // =============================================================================
 
 export const SITE_CONFIG = {
@@ -8,13 +7,14 @@ export const SITE_CONFIG = {
   tagline: 'Where The Ocean Becomes Art.',
   description:
     'Marine Creatures is a luxury marine design house creating living underwater environments. Exotic captive-bred marine life, bespoke architectural aquariums, and turnkey installation & renovation services. Nurtured in CODEVERSE.',
+  slogan: 'Bringing Ocean At Your Door Step',
   url: 'https://marinecreatures.com',
   whatsapp: '+919330436603',
   email: 'surajshasmal04@gmail.com',
   phone: '+91 93304 36603',
   address: 'Kolkata, West Bengal, India',
-  instagram: 'https://instagram.com/marinecreatures',
-  facebook: 'https://facebook.com/marinecreatures',
+  facebook: 'https://www.facebook.com/share/1HWXFrHZ9V/',
+  googleMaps: 'https://maps.app.goo.gl/uYfMxyXqsGD8iQWz7?g_st=ac',
   nurturedBy: 'Nurtured in CODEVERSE',
 };
 

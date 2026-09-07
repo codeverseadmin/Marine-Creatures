@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { NAV_LINKS, SITE_CONFIG } from '@/lib/config';
 import { MobileMenu } from './MobileMenu';
@@ -50,10 +51,22 @@ export function Navbar() {
             {/* Left — Wordmark */}
             <Link
               href="/"
-              className="text-label-lg text-[--color-text] tracking-[0.25em] hover:text-[--color-accent] transition-colors duration-300 font-body flex items-center gap-2"
+              className="flex items-center gap-2.5 group"
               aria-label="Marine Creatures — Home"
             >
-              <span>{SITE_CONFIG.name.toUpperCase()}</span>
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg overflow-hidden border border-[rgba(255,255,255,0.15)] bg-white/95 flex-shrink-0 group-hover:border-[--color-accent] transition-all shadow-sm">
+                <Image
+                  src="/logo.jpg"
+                  alt="Marine Creatures"
+                  width={36}
+                  height={36}
+                  className="w-full h-full object-contain"
+                  priority
+                />
+              </div>
+              <span className="text-label-lg text-[--color-text] tracking-[0.2em] group-hover:text-[--color-accent] transition-colors duration-300 font-body font-semibold hidden sm:block">
+                {SITE_CONFIG.name.toUpperCase()}
+              </span>
             </Link>
 
             {/* Center — Nav links (desktop) */}

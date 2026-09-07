@@ -31,16 +31,25 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_CONFIG.url),
   openGraph: {
     type: 'website',
-    locale: 'en_US',
+    locale: 'en_IN',
     url: SITE_CONFIG.url,
     siteName: SITE_CONFIG.name,
     title: `${SITE_CONFIG.name} — ${SITE_CONFIG.tagline}`,
     description: SITE_CONFIG.description,
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1024,
+        height: 1024,
+        alt: 'Marine Creatures — Bringing Ocean At Your Door Step',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: `${SITE_CONFIG.name} — ${SITE_CONFIG.tagline}`,
     description: SITE_CONFIG.description,
+    images: ['/og-image.jpg'],
   },
   robots: {
     index: true,
