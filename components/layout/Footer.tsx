@@ -13,7 +13,7 @@ export function Footer() {
         style={{ background: 'linear-gradient(90deg, transparent, var(--color-accent), transparent)' }}
       />
 
-      <div className="container-max pt-16 sm:pt-20 pb-12">
+      <div className="container-max pt-16 sm:pt-20 pb-28 md:pb-12">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8 mb-16">
           {/* Brand column */}
           <div className="md:col-span-4">
@@ -98,6 +98,9 @@ export function Footer() {
             </Link>
             <Link href="/marketplace" className="text-[--color-muted] hover:text-[--color-text] transition-colors">
               MARKETPLACE
+            </Link>
+            <Link href="/admin" className="text-[--color-accent] hover:underline transition-all flex items-center gap-1 font-mono tracking-wider">
+              <span>⚡</span> ADMIN
             </Link>
           </div>
         </div>

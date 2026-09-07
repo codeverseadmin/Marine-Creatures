@@ -51,15 +51,15 @@ export function Navbar() {
               <span>{SITE_CONFIG.name.toUpperCase()}</span>
             </Link>
 
-            {/* Center — Nav links (tablet & desktop) */}
-            <nav className="hidden md:flex items-center gap-4 lg:gap-8" aria-label="Primary navigation">
+            {/* Center — Nav links (desktop) */}
+            <nav className="hidden md:flex items-center gap-3 lg:gap-6 xl:gap-8 shrink min-w-0" aria-label="Primary navigation">
               {NAV_LINKS.map((link) => {
                 const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`nav-link relative py-1 text-xs tracking-widest transition-colors duration-300 ${
+                    className={`nav-link relative py-1 text-xs tracking-widest whitespace-nowrap transition-colors duration-300 ${
                       isActive ? 'text-[--color-accent] font-medium' : 'text-[--color-muted] hover:text-[--color-text]'
                     }`}
                     data-cursor="VIEW"
@@ -74,12 +74,12 @@ export function Navbar() {
             </nav>
 
             {/* Right — Cart + CTA + hamburger */}
-            <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
               {/* Shopping Bag Button */}
               <button
                 id="navbar-cart-btn"
                 onClick={() => setIsCartOpen(true)}
-                className={`relative h-11 px-3 sm:px-3.5 rounded-xl border border-[rgba(255,255,255,0.14)] bg-[rgba(7,21,28,0.75)] hover:border-[--color-accent] active:scale-95 text-white transition-all duration-300 flex items-center gap-2 shadow-sm ${
+                className={`relative h-10 sm:h-11 px-3 sm:px-3.5 rounded-xl border border-[rgba(255,255,255,0.14)] bg-[rgba(7,21,28,0.75)] hover:border-[--color-accent] active:scale-95 text-white transition-all duration-300 flex items-center gap-2 shadow-sm ${
                   cartIconBouncing
                     ? 'scale-110 border-[--color-accent] shadow-[0_0_20px_rgba(0,184,217,0.9)] bg-[rgba(0,184,217,0.25)]'
                     : ''
@@ -99,7 +99,7 @@ export function Navbar() {
 
               <Link
                 href="/services"
-                className="hidden lg:inline-flex items-center gap-1 btn-ghost text-xs py-2.5 px-4 rounded-xl border-[--color-accent] text-[--color-accent] hover:bg-[rgba(0,184,217,0.1)]"
+                className="hidden xl:flex items-center gap-1 px-4 py-2.5 rounded-xl border border-[--color-accent] text-xs font-semibold text-[--color-accent] hover:bg-[rgba(0,184,217,0.1)] active:scale-95 transition-all whitespace-nowrap"
                 data-cursor="ENTER"
               >
                 BOOK SERVICE
@@ -108,7 +108,7 @@ export function Navbar() {
               {/* Hamburger (Mobile / Tablet) */}
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="md:hidden flex flex-col items-center justify-center w-11 h-11 gap-[5px] p-2.5 rounded-xl border border-[rgba(255,255,255,0.14)] bg-[rgba(7,21,28,0.75)] hover:border-[--color-accent] active:scale-95 transition-all"
+                className="md:hidden flex flex-col items-center justify-center w-10 h-10 sm:w-11 sm:h-11 gap-[5px] p-2 rounded-xl border border-[rgba(255,255,255,0.14)] bg-[rgba(7,21,28,0.75)] hover:border-[--color-accent] active:scale-95 transition-all shrink-0"
                 aria-expanded={menuOpen}
                 aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
                 data-cursor="MENU"

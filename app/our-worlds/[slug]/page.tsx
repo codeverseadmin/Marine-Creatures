@@ -75,7 +75,7 @@ export default async function ProjectDetailPage({ params }: Props) {
                 <h2 className="font-display text-display-sm text-[--color-text] font-light mb-6">
                   The Transformation
                 </h2>
-                <div style={{ height: '400px' }} className="relative">
+                <div className="h-[280px] sm:h-[360px] md:h-[400px] relative rounded-2xl overflow-hidden border border-[rgba(255,255,255,0.08)]">
                   <BeforeAfterSlider
                     beforeSrc={project.beforeImage}
                     afterSrc={project.afterImage}

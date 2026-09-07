@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Product } from '@/lib/data/products';
 import { useCart } from '@/lib/context/CartContext';
+import { useCatalog } from '@/lib/context/CatalogContext';
 import { ProductCard } from './ProductCard';
 import { SITE_CONFIG } from '@/lib/config';
 
@@ -12,12 +13,23 @@ interface ProductDetailViewProps {
   relatedProducts: Product[];
 }
 
-export function ProductDetailView({ product, relatedProducts }: ProductDetailViewProps) {
+export function ProductDetailView({ product: initialProduct, relatedProducts }: ProductDetailViewProps) {
+  const { getProduct } = useCatalog();
+  const product = getProduct(initialProduct.id) || initialProduct;
   const { addToCart, setIsCartOpen } = useCart();
   const [selectedImg, setSelectedImg] = useState<string>(product.images[0]);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<'care' | 'installation' | 'specs' | 'shipping'>('care');
   const [added, setAdded] = useState(false);
+  const [pincode, setPincode] = useState('');
+  const [pincodeChecked, setPincodeChecked] = useState(false);
+
+  const handlePincodeCheck = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pincode.trim().length >= 4) {
+      setPincodeChecked(true);
+    }
+  };
 
   const handleAddToCart = (e: React.MouseEvent) => {
     addToCart(product, quantity, e);
@@ -29,33 +41,44 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
   };
 
   const handleWhatsAppInquiry = () => {
-    const message = `Hi Marine Creatures! I would like to inquire about the ${product.name} (₹${product.price.toLocaleString('en-IN')}).\n\nCan you confirm delivery timing and live availability for my location?`;
+    const locInfo = pincode ? ` (Delivery Pincode: ${pincode})` : '';
+    const message = `Hi Marine Creatures! I would like to inquire about the ${product.name} (₹${product.price.toLocaleString('en-IN')})${locInfo}.\n\nCan you confirm delivery timing and live availability for my location?`;
     const encoded = encodeURIComponent(message);
     window.open(`https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encoded}`, '_blank');
   };
 
   return (
-    <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }} className="pb-28 md:pb-12">
-      {/* Breadcrumb Navigation with Optimized Clearance */}
-      <div className="pt-24 sm:pt-28 md:pt-32 pb-4 border-b border-[rgba(255,255,255,0.08)] bg-[rgba(2,7,11,0.85)] backdrop-blur-md">
-        <div className="container-max flex items-center gap-2 text-xs sm:text-sm text-[--color-muted] overflow-x-auto scrollbar-none whitespace-nowrap">
-          <Link href="/" className="hover:text-white transition-colors">Home</Link>
-          <span className="opacity-40">/</span>
-          <Link href="/marketplace" className="hover:text-white transition-colors">Marketplace</Link>
-          <span className="opacity-40">/</span>
-          <span className="text-[--color-accent] font-medium">{product.categoryLabel}</span>
-          <span className="opacity-40">/</span>
-          <span className="text-white font-medium truncate max-w-xs">{product.name}</span>
+    <div
+      style={{ background: 'var(--color-primary)', minHeight: '100vh', paddingTop: '130px' }}
+      className="pb-32 md:pb-16"
+    >
+      {/* Main Product Container */}
+      <div className="container-max pb-16 md:pb-24">
+        {/* Integrated Top Navigation & Breadcrumbs */}
+        <div className="flex items-center justify-between gap-4 pb-5 sm:pb-6 mb-6 sm:mb-10 border-b border-[rgba(255,255,255,0.08)] text-xs sm:text-sm">
+          <Link
+            href="/marketplace"
+            className="inline-flex items-center gap-2 text-[--color-accent] hover:text-white font-medium transition-colors"
+          >
+            ← BACK TO MARKETPLACE
+          </Link>
+          <div className="hidden sm:flex items-center gap-2 text-[--color-muted] overflow-x-auto scrollbar-none whitespace-nowrap">
+            <Link href="/" className="hover:text-white transition-colors">Home</Link>
+            <span className="opacity-30">/</span>
+            <Link href="/marketplace" className="hover:text-white transition-colors">Marketplace</Link>
+            <span className="opacity-30">/</span>
+            <span className="text-[--color-accent]">{product.categoryLabel}</span>
+            <span className="opacity-30">/</span>
+            <span className="text-white truncate max-w-xs">{product.name}</span>
+          </div>
         </div>
-      </div>
 
-      {/* Main Product Showcase Section */}
-      <div className="container-max pt-6 sm:pt-10 pb-16 md:pb-24">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
+        {/* Main Product Showcase Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-start">
           {/* Left Column: Image Gallery */}
-          <div className="lg:col-span-7 space-y-3 sm:space-y-4">
+          <div className="lg:col-span-7 space-y-4">
             <div
-              className="rounded-2xl sm:rounded-3xl overflow-hidden border border-[rgba(255,255,255,0.1)] bg-black/60 shadow-2xl relative"
+              className="rounded-3xl overflow-hidden border border-[rgba(255,255,255,0.1)] bg-black/60 shadow-2xl relative"
               style={{ aspectRatio: '16/11' }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -96,14 +119,14 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
 
           {/* Right Column: Pricing & Purchase */}
           <div className="lg:col-span-5 space-y-5 sm:space-y-6">
-            <div>
-              <span className="text-xs uppercase tracking-[0.25em] font-semibold text-[--color-accent] block mb-2">
+            <div className="space-y-2.5">
+              <span className="inline-block text-[11px] sm:text-xs uppercase tracking-[0.25em] font-semibold text-[--color-accent] px-3 py-1 rounded-lg bg-[rgba(0,184,217,0.1)] border border-[rgba(0,184,217,0.25)]">
                 {product.scientificName || product.categoryLabel}
               </span>
-              <h1 className="font-display text-2xl sm:text-4xl md:text-5xl text-white font-light mb-3 leading-tight">
+              <h1 className="font-display text-2xl sm:text-4xl md:text-5xl text-white font-light leading-tight">
                 {product.name}
               </h1>
-              <div className="flex flex-wrap items-baseline gap-3 sm:gap-4 mb-3">
+              <div className="flex flex-wrap items-baseline gap-3 sm:gap-4 pt-1">
                 <span className="font-display text-2xl sm:text-4xl text-white font-light">
                   ₹{product.price.toLocaleString('en-IN')}
                 </span>
@@ -116,13 +139,28 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
                   In Stock ({product.stockCount} Available)
                 </span>
               </div>
+
+              {/* Quick Spec Badges */}
+              {product.specifications && Object.keys(product.specifications).length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {Object.entries(product.specifications).slice(0, 3).map(([k, v]) => (
+                    <span
+                      key={k}
+                      className="px-2.5 py-1 rounded-lg bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] text-[10px] sm:text-[11px] text-slate-300"
+                    >
+                      <strong className="text-[--color-accent] font-medium">{k}:</strong> {v}
+                    </span>
+                  ))}
+                </div>
+              )}
+
               <p className="font-body text-xs sm:text-sm text-slate-300 leading-relaxed">
                 {product.description}
               </p>
             </div>
 
-            {/* Delivery Assurance */}
-            <div className="p-4 sm:p-5 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.7)] space-y-1.5 text-xs">
+            {/* Delivery Assurance & Pincode Checker */}
+            <div className="p-4 sm:p-5 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.7)] space-y-3 text-xs">
               <div className="flex items-center gap-2 text-white font-medium">
                 <span className="text-base">⚡</span>
                 <span>{product.deliveryInfo.estimatedDays}</span>
@@ -130,6 +168,36 @@ export function ProductDetailView({ product, relatedProducts }: ProductDetailVie
               <p className="text-[11px] sm:text-xs text-[--color-muted] leading-relaxed">
                 {product.deliveryInfo.guaranteeText} • {product.deliveryInfo.shippingMethod}
               </p>
+
+              {/* Pincode checker form */}
+              <form onSubmit={handlePincodeCheck} className="pt-2 border-t border-white/5 flex gap-2">
+                <input
+                  type="text"
+                  maxLength={6}
+                  placeholder="Enter 6-digit Pincode"
+                  value={pincode}
+                  onChange={(e) => {
+                    setPincode(e.target.value.replace(/\D/g, ''));
+                    setPincodeChecked(false);
+                  }}
+                  className="w-40 sm:w-48 h-9 px-3 rounded-xl bg-black/40 border border-white/10 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-[--color-accent]"
+                />
+                <button
+                  type="submit"
+                  className="h-9 px-4 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-[11px] font-semibold tracking-wider uppercase text-white transition-all"
+                >
+                  Check
+                </button>
+              </form>
+
+              {pincodeChecked && (
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-emerald-300 flex items-center gap-2 animate-fade-in">
+                  <span>✓</span>
+                  <span>
+                    Direct insulated climate delivery available for pincode <strong>{pincode}</strong>.
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Quantity and Add to Bag */}

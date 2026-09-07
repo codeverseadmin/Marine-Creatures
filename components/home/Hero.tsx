@@ -222,7 +222,7 @@ export function Hero() {
   return (
     <section
       ref={heroRef}
-      className="relative min-h-screen flex flex-col justify-end overflow-hidden"
+      className="relative min-h-[100dvh] flex flex-col justify-center overflow-hidden pt-24 pb-20 sm:pt-28 sm:pb-28 md:pt-32 md:pb-32"
       style={{ background: 'var(--color-primary)' }}
       aria-label="Hero — The Ocean Reimagined"
     >
@@ -250,7 +250,7 @@ export function Hero() {
           className="absolute inset-0"
           style={{
             background:
-              'linear-gradient(to bottom, rgba(2,7,11,0.6) 0%, rgba(2,7,11,0.2) 50%, rgba(2,7,11,0.85) 90%, rgba(2,7,11,1) 100%)',
+              'linear-gradient(to bottom, rgba(2,7,11,0.65) 0%, rgba(2,7,11,0.25) 45%, rgba(2,7,11,0.85) 85%, rgba(2,7,11,1) 100%)',
           }}
         />
       </div>
@@ -269,20 +269,21 @@ export function Hero() {
       <div
         className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none z-3"
         style={{
-          background: 'radial-gradient(ellipse at center bottom, rgba(0,184,217,0.1) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse at center bottom, rgba(0,184,217,0.12) 0%, transparent 70%)',
         }}
         aria-hidden="true"
       />
 
       {/* Content */}
-      <div className="relative z-10 container-max pb-16 sm:pb-20 md:pb-32 pt-28 sm:pt-32">
+      <div className="relative z-10 container-max my-auto">
         {/* Subtle category line */}
         <div
           ref={wordmarkRef}
-          className="mb-4 sm:mb-6 opacity-0"
+          className="mb-3 sm:mb-5 opacity-0"
         >
-          <span className="text-[11px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.35em] font-semibold text-[--color-accent] block">
-            EXOTIC MARINE LIFE &bull; BESPOKE AQUARIUM ARCHITECTURE
+          <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.35em] font-semibold text-[--color-accent] inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[rgba(0,184,217,0.08)] border border-[rgba(0,184,217,0.2)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[--color-accent] animate-pulse" />
+            EXOTIC MARINE LIFE &bull; BESPOKE AQUARIUMS
           </span>
         </div>
 
@@ -301,9 +302,9 @@ export function Hero() {
         </div>
 
         {/* Sub-content */}
-        <div ref={subRef} className="mt-6 sm:mt-8 opacity-0 max-w-xl">
+        <div ref={subRef} className="mt-5 sm:mt-8 opacity-0 max-w-xl">
           <p className="font-body font-light text-[--color-muted] leading-relaxed text-sm sm:text-base md:text-lg">
-            Captive-bred marine species, living coral reef ecosystems, and turnkey architectural aquarium installations for exceptional spaces.
+            Captive-bred marine species, living coral reef ecosystems, and turnkey architectural aquarium installations for exceptional spaces across India.
           </p>
         </div>
 
@@ -311,14 +312,14 @@ export function Hero() {
         <div ref={ctaRef} className="mt-8 sm:mt-10 opacity-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 sm:gap-4 max-w-md sm:max-w-none">
           <Link
             href="/marketplace"
-            className="btn-primary text-xs tracking-wider uppercase font-semibold py-4 px-8 rounded-xl shadow-2xl justify-center text-center"
+            className="btn-primary text-xs tracking-wider uppercase font-semibold py-4 px-8 rounded-2xl shadow-2xl justify-center text-center active:scale-[0.98] transition-transform"
             data-cursor="EXPLORE"
           >
             EXPLORE MARKETPLACE →
           </Link>
           <Link
             href="/services"
-            className="btn-ghost text-xs tracking-wider uppercase font-semibold py-4 px-8 rounded-xl border-[rgba(255,255,255,0.2)] hover:border-white text-white justify-center text-center"
+            className="btn-ghost text-xs tracking-wider uppercase font-semibold py-4 px-8 rounded-2xl border-[rgba(255,255,255,0.2)] hover:border-white text-white justify-center text-center active:scale-[0.98] transition-transform"
             data-cursor="SERVICES"
           >
             BOOK CONSULTATION
@@ -336,9 +337,9 @@ export function Hero() {
         <div className="w-px h-12 bg-gradient-to-b from-transparent to-[--color-accent] animate-scroll-bounce" />
       </div>
 
-
       {/* Layer 3 ref — invisible spacer for parallax */}
       <div ref={layer3Ref} className="absolute inset-0 z-4 pointer-events-none" aria-hidden="true" />
     </section>
+
   );
 }

@@ -34,7 +34,7 @@ export default function RenovationPage() {
       <div className="container-max pt-16 pb-36">
         {/* Before/After */}
 
-        <div className="mb-20" style={{ height: '500px' }}>
+        <div className="mb-20 h-[320px] sm:h-[420px] md:h-[500px] rounded-2xl overflow-hidden border border-[rgba(255,255,255,0.08)]">
           <BeforeAfterSlider
             beforeSrc="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=85"
             afterSrc="https://images.unsplash.com/photo-1544551763-92ab472cad5d?w=1200&q=85"

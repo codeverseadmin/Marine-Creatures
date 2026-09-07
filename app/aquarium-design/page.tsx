@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { AquariumEstimator } from '@/components/services/AquariumEstimator';
 
 export const metadata: Metadata = {
   title: 'Aquarium Design — Bespoke Marine Environments',
@@ -121,6 +122,11 @@ export default function AquariumDesignPage() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Interactive Estimator Configurator */}
+        <div className="mb-24">
+          <AquariumEstimator />
         </div>
 
         {/* Pillars Grid */}

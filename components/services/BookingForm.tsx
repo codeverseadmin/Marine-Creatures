@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { SITE_CONFIG } from '@/lib/config';
+import { useCatalog } from '@/lib/context/CatalogContext';
 
 export function BookingForm({ defaultService = 'installation' }: { defaultService?: string }) {
   const [serviceType, setServiceType] = useState<string>(defaultService);
@@ -14,9 +15,26 @@ export function BookingForm({ defaultService = 'installation' }: { defaultServic
   const [notes, setNotes] = useState('');
   const [preferredDate, setPreferredDate] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const { addInquiry } = useCatalog();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      addInquiry({
+        type: 'service_booking',
+        name: name.trim() || 'Client',
+        phone: phone.trim(),
+        email: email.trim(),
+        serviceType,
+        spaceType,
+        tankSize,
+        location: location.trim(),
+        notes: notes.trim(),
+        preferredDate,
+      });
+    } catch (err) {
+      console.error('Error saving service booking inquiry:', err);
+    }
     setSubmitted(true);
   };
 
@@ -72,25 +90,25 @@ export function BookingForm({ defaultService = 'installation' }: { defaultServic
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-2xl sm:rounded-3xl p-5 sm:p-10 md:p-14 border border-[rgba(255,255,255,0.1)] bg-[rgba(5,15,22,0.92)] backdrop-blur-2xl shadow-2xl"
+      className="rounded-3xl p-6 sm:p-10 md:p-14 border border-[rgba(255,255,255,0.1)] bg-[rgba(5,15,22,0.92)] backdrop-blur-2xl shadow-2xl space-y-8 sm:space-y-10"
     >
       {/* SECTION 1: Service Selection */}
       <div className="pb-8 sm:pb-10 border-b border-[rgba(255,255,255,0.08)]">
-        <div className="flex items-center gap-3 mb-5 sm:mb-6">
-          <span className="w-8 h-8 rounded-lg bg-[--color-accent] text-[--color-primary] font-bold text-xs flex items-center justify-center">
+        <div className="flex items-center gap-3 mb-6">
+          <span className="w-8 h-8 rounded-xl bg-[--color-accent] text-[--color-primary] font-bold text-xs flex items-center justify-center shadow-md">
             01
           </span>
           <div>
-            <h3 className="text-sm sm:text-base font-medium text-white">
+            <h3 className="text-base sm:text-lg font-medium text-white">
               Select Desired Service
             </h3>
-            <p className="text-[11px] sm:text-xs text-[--color-muted]">
+            <p className="text-xs text-[--color-muted]">
               Choose the bespoke engineering or biological service required
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
           {[
             {
               id: 'installation',
@@ -115,15 +133,15 @@ export function BookingForm({ defaultService = 'installation' }: { defaultServic
               key={s.id}
               type="button"
               onClick={() => setServiceType(s.id)}
-              className={`p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 text-left transition-all duration-300 flex flex-col justify-between min-h-[160px] sm:min-h-[190px] active:scale-[0.98] ${
+              className={`p-5 sm:p-6 rounded-2xl border-2 text-left transition-all duration-300 flex flex-col justify-between min-h-[170px] sm:min-h-[190px] active:scale-[0.98] ${
                 serviceType === s.id
                   ? 'border-[--color-accent] bg-[rgba(0,184,217,0.12)] shadow-[0_0_25px_rgba(0,184,217,0.25)]'
                   : 'border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] hover:border-[rgba(255,255,255,0.2)]'
               }`}
             >
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <h4 className="font-display text-base sm:text-lg text-white font-medium">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-display text-lg text-white font-medium">
                     {s.title}
                   </h4>
                   {serviceType === s.id && (
@@ -132,11 +150,11 @@ export function BookingForm({ defaultService = 'installation' }: { defaultServic
                     </span>
                   )}
                 </div>
-                <p className="font-body text-xs text-[--color-muted] leading-relaxed mb-3">
+                <p className="font-body text-xs text-[--color-muted] leading-relaxed mb-4">
                   {s.desc}
                 </p>
               </div>
-              <span className="text-xs font-semibold text-[--color-accent] tracking-wider pt-2 border-t border-[rgba(255,255,255,0.06)] block">
+              <span className="text-xs font-semibold text-[--color-accent] tracking-wider pt-2.5 border-t border-[rgba(255,255,255,0.06)] block">
                 {s.tag}
               </span>
             </button>
@@ -145,16 +163,16 @@ export function BookingForm({ defaultService = 'installation' }: { defaultServic
       </div>
 
       {/* SECTION 2: Space & Scale Details */}
-      <div className="py-8 sm:py-10 border-b border-[rgba(255,255,255,0.08)]">
-        <div className="flex items-center gap-3 mb-5 sm:mb-6">
-          <span className="w-8 h-8 rounded-lg bg-[--color-accent] text-[--color-primary] font-bold text-xs flex items-center justify-center">
+      <div className="pb-8 sm:pb-10 border-b border-[rgba(255,255,255,0.08)]">
+        <div className="flex items-center gap-3 mb-6">
+          <span className="w-8 h-8 rounded-xl bg-[--color-accent] text-[--color-primary] font-bold text-xs flex items-center justify-center shadow-md">
             02
           </span>
           <div>
-            <h3 className="text-sm sm:text-base font-medium text-white">
+            <h3 className="text-base sm:text-lg font-medium text-white">
               Space &amp; Scale Specifications
             </h3>
-            <p className="text-[11px] sm:text-xs text-[--color-muted]">
+            <p className="text-xs text-[--color-muted]">
               Specify your property environment and estimated aquarium scale
             </p>
           </div>
@@ -162,13 +180,13 @@ export function BookingForm({ defaultService = 'installation' }: { defaultServic
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
           <div>
-            <label className="text-xs sm:text-sm font-medium text-slate-300 block mb-2 sm:mb-3">
+            <label className="text-xs sm:text-sm font-medium text-slate-300 block mb-2 sm:mb-2.5">
               Property / Space Type
             </label>
             <select
               value={spaceType}
               onChange={(e) => setSpaceType(e.target.value)}
-              className="w-full h-12 sm:h-14 px-4 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.12)] text-base text-white focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.08)] transition-all cursor-pointer"
+              className="w-full h-12 sm:h-14 px-4 rounded-2xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.12)] text-base text-white focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.08)] transition-all cursor-pointer"
             >
               <option value="Residential Penthouse / Private Estate">Residential Penthouse / Private Estate</option>
               <option value="Luxury Hotel & Hospitality Lounge">Luxury Hotel &amp; Hospitality Lounge</option>
@@ -179,13 +197,13 @@ export function BookingForm({ defaultService = 'installation' }: { defaultServic
           </div>
 
           <div>
-            <label className="text-xs sm:text-sm font-medium text-slate-300 block mb-2 sm:mb-3">
+            <label className="text-xs sm:text-sm font-medium text-slate-300 block mb-2 sm:mb-2.5">
               Approximate Tank Scale
             </label>
             <select
               value={tankSize}
               onChange={(e) => setTankSize(e.target.value)}
-              className="w-full h-12 sm:h-14 px-4 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.12)] text-base text-white focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.08)] transition-all cursor-pointer"
+              className="w-full h-12 sm:h-14 px-4 rounded-2xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.12)] text-base text-white focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.08)] transition-all cursor-pointer"
             >
               <option value="Compact (Under 1.2m / Up to 300 Liters)">Compact (Under 1.2m / Up to 300 Liters)</option>
               <option value="Mid-Range (1.5m – 2.5m / 400L – 1,000 Liters)">Mid-Range (1.5m – 2.5m / 400L – 1,000 Liters)</option>
@@ -197,16 +215,16 @@ export function BookingForm({ defaultService = 'installation' }: { defaultServic
       </div>
 
       {/* SECTION 3: Contact Information */}
-      <div className="py-8 sm:py-10 border-b border-[rgba(255,255,255,0.08)]">
-        <div className="flex items-center gap-3 mb-5 sm:mb-6">
-          <span className="w-8 h-8 rounded-lg bg-[--color-accent] text-[--color-primary] font-bold text-xs flex items-center justify-center">
+      <div className="pb-8 sm:pb-10 border-b border-[rgba(255,255,255,0.08)]">
+        <div className="flex items-center gap-3 mb-6">
+          <span className="w-8 h-8 rounded-xl bg-[--color-accent] text-[--color-primary] font-bold text-xs flex items-center justify-center shadow-md">
             03
           </span>
           <div>
-            <h3 className="text-sm sm:text-base font-medium text-white">
+            <h3 className="text-base sm:text-lg font-medium text-white">
               Contact Information
             </h3>
-            <p className="text-[11px] sm:text-xs text-[--color-muted]">
+            <p className="text-xs text-[--color-muted]">
               Where our senior marine curator should reach you
             </p>
           </div>
@@ -223,7 +241,7 @@ export function BookingForm({ defaultService = 'installation' }: { defaultServic
               placeholder="e.g. Lord / Lady / Mr. / Ms. Smith"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full h-12 sm:h-14 px-4 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] text-base text-white placeholder:text-slate-500 focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.07)] transition-all"
+              className="w-full h-12 sm:h-14 px-4 rounded-2xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] text-base text-white placeholder:text-slate-500 focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.07)] transition-all"
             />
           </div>
 
@@ -237,7 +255,7 @@ export function BookingForm({ defaultService = 'installation' }: { defaultServic
               placeholder="e.g. +91 93304 36603"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full h-12 sm:h-14 px-4 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] text-base text-white placeholder:text-slate-500 focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.07)] transition-all"
+              className="w-full h-12 sm:h-14 px-4 rounded-2xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] text-base text-white placeholder:text-slate-500 focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.07)] transition-all"
             />
           </div>
 
@@ -251,7 +269,7 @@ export function BookingForm({ defaultService = 'installation' }: { defaultServic
               placeholder="surajshasmal04@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full h-12 sm:h-14 px-4 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] text-base text-white placeholder:text-slate-500 focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.07)] transition-all"
+              className="w-full h-12 sm:h-14 px-4 rounded-2xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] text-base text-white placeholder:text-slate-500 focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.07)] transition-all"
             />
           </div>
 
@@ -265,23 +283,23 @@ export function BookingForm({ defaultService = 'installation' }: { defaultServic
               placeholder="Mumbai, Kolkata, Delhi, Bangalore, etc."
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              className="w-full h-12 sm:h-14 px-4 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] text-base text-white placeholder:text-slate-500 focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.07)] transition-all"
+              className="w-full h-12 sm:h-14 px-4 rounded-2xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] text-base text-white placeholder:text-slate-500 focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.07)] transition-all"
             />
           </div>
         </div>
       </div>
 
       {/* SECTION 4: Scheduling & Vision */}
-      <div className="py-8 sm:py-10">
-        <div className="flex items-center gap-3 mb-5 sm:mb-6">
-          <span className="w-8 h-8 rounded-lg bg-[--color-accent] text-[--color-primary] font-bold text-xs flex items-center justify-center">
+      <div>
+        <div className="flex items-center gap-3 mb-6">
+          <span className="w-8 h-8 rounded-xl bg-[--color-accent] text-[--color-primary] font-bold text-xs flex items-center justify-center shadow-md">
             04
           </span>
           <div>
-            <h3 className="text-sm sm:text-base font-medium text-white">
+            <h3 className="text-base sm:text-lg font-medium text-white">
               Preferred Date &amp; Scope
             </h3>
-            <p className="text-[11px] sm:text-xs text-[--color-muted]">
+            <p className="text-xs text-[--color-muted]">
               Tell us your timing and aesthetic vision
             </p>
           </div>
@@ -296,7 +314,7 @@ export function BookingForm({ defaultService = 'installation' }: { defaultServic
               type="date"
               value={preferredDate}
               onChange={(e) => setPreferredDate(e.target.value)}
-              className="w-full h-12 sm:h-14 px-4 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] text-base text-white focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.07)] transition-all"
+              className="w-full h-12 sm:h-14 px-4 rounded-2xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] text-base text-white [color-scheme:dark] focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.07)] transition-all"
             />
           </div>
 
@@ -309,7 +327,7 @@ export function BookingForm({ defaultService = 'installation' }: { defaultServic
               placeholder="Describe your aesthetic vision, architectural constraints, or existing setup issues..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full p-3 sm:p-4 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] text-base text-white placeholder:text-slate-500 focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.07)] transition-all resize-none"
+              className="w-full p-4 rounded-2xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] text-base text-white placeholder:text-slate-500 focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.07)] transition-all resize-none"
             />
           </div>
         </div>
@@ -326,7 +344,7 @@ export function BookingForm({ defaultService = 'installation' }: { defaultServic
 
         <button
           type="submit"
-          className="w-full sm:w-auto h-12 sm:h-14 px-8 sm:px-10 rounded-xl bg-[--color-accent] text-[--color-primary] font-semibold text-xs uppercase tracking-widest hover:bg-white active:scale-95 transition-all shadow-xl"
+          className="w-full sm:w-auto h-12 sm:h-14 px-8 sm:px-10 rounded-2xl bg-[--color-accent] text-[--color-primary] font-semibold text-xs uppercase tracking-widest hover:bg-white active:scale-95 transition-all shadow-xl"
         >
           CONFIRM CONSULTATION BOOKING →
         </button>

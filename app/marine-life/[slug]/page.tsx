@@ -65,7 +65,7 @@ export default async function SpeciesDetailPage({ params }: Props) {
         </div>
 
         {/* Right — Content */}
-        <div className="px-8 md:px-12 pt-36 md:pt-44 pb-28" style={{ background: 'var(--color-secondary)' }}>
+        <div className="px-4 sm:px-8 md:px-12 pt-24 sm:pt-36 md:pt-44 pb-28" style={{ background: 'var(--color-secondary)' }}>
           <Link
             href="/marine-life"
             className="text-label text-[--color-muted] hover:text-[--color-accent] transition-colors mb-8 flex items-center gap-2"

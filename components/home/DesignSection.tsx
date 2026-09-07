@@ -55,7 +55,7 @@ export function DesignSection() {
     >
       <div className="container-max">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 sm:mb-16 gap-6">
           <SectionHeading
             id="design-heading"
             label="Bespoke Architecture"
@@ -64,7 +64,7 @@ export function DesignSection() {
           />
           <Link
             href="/aquarium-design"
-            className="btn-primary inline-flex shrink-0 self-start md:self-auto"
+            className="btn-primary inline-flex shrink-0 self-start md:self-auto rounded-2xl py-3.5 px-7 shadow-xl active:scale-95 transition-transform"
             data-cursor="ENTER"
           >
             START AN ARCHITECTURAL BRIEF
@@ -73,25 +73,27 @@ export function DesignSection() {
         </div>
 
         {/* Interactive Form Factor Showcase */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-20 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 mb-16 sm:mb-20 items-stretch">
           {/* Left tabs */}
-          <div className="lg:col-span-4 flex flex-col justify-between gap-3">
+          <div className="lg:col-span-4 flex flex-col justify-between gap-4">
             <div className="space-y-3">
-              <span className="text-label text-[--color-accent] block mb-2">SELECT CONFIGURATION</span>
+              <span className="text-[11px] uppercase tracking-widest font-semibold text-[--color-accent] block mb-2">
+                SELECT CONFIGURATION
+              </span>
               {FORM_FACTORS.map((form, i) => (
                 <button
                   key={form.id}
                   onClick={() => setActiveForm(i)}
-                  className={`w-full text-left p-5 rounded-lg border transition-all duration-300 ${
+                  className={`w-full text-left p-4 sm:p-5 rounded-2xl border transition-all duration-300 active:scale-[0.99] ${
                     i === activeForm
-                      ? 'border-[--color-accent] bg-[rgba(0,184,217,0.08)] shadow-[0_4px_20px_rgba(0,184,217,0.15)]'
-                      : 'border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.15)] bg-[rgba(7,21,28,0.4)]'
+                      ? 'border-[--color-accent] bg-[rgba(0,184,217,0.12)] shadow-[0_4px_20px_rgba(0,184,217,0.2)]'
+                      : 'border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.18)] bg-[rgba(7,21,28,0.5)]'
                   }`}
                   data-cursor="ENTER"
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-display text-lg text-[--color-text] font-light">{form.name}</span>
-                    <span className={`text-xs ${i === activeForm ? 'text-[--color-accent]' : 'text-[--color-muted]'}`}>0{i + 1}</span>
+                    <span className="font-display text-lg sm:text-xl text-[--color-text] font-light">{form.name}</span>
+                    <span className={`text-xs ${i === activeForm ? 'text-[--color-accent] font-bold' : 'text-[--color-muted]'}`}>0{i + 1}</span>
                   </div>
                   <span className="text-xs text-[--color-muted] font-body block">{form.dimensions}</span>
                 </button>
@@ -99,32 +101,32 @@ export function DesignSection() {
             </div>
 
             {/* Quick spec summary card */}
-            <div className="p-5 rounded-lg border border-[rgba(255,255,255,0.06)] bg-[rgba(2,7,11,0.6)]">
-              <span className="text-[10px] uppercase tracking-widest text-[--color-accent] block mb-2">ENGINEERING SPECIFICATION</span>
+            <div className="p-5 sm:p-6 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(2,7,11,0.7)] backdrop-blur-md">
+              <span className="text-[10px] uppercase tracking-widest text-[--color-accent] font-medium block mb-2">ENGINEERING SPECIFICATION</span>
               <p className="font-body text-xs text-[--color-muted] leading-relaxed mb-3">{current.desc}</p>
-              <div className="text-[11px] text-[--color-text] border-t border-[rgba(255,255,255,0.06)] pt-2">
+              <div className="text-xs text-[--color-text] border-t border-[rgba(255,255,255,0.06)] pt-2.5">
                 <span className="text-[--color-muted]">Material: </span>{current.material}
               </div>
             </div>
           </div>
 
           {/* Right image preview */}
-          <div className="lg:col-span-8 relative rounded-xl overflow-hidden min-h-[380px] lg:min-h-[460px] border border-[rgba(255,255,255,0.08)] shadow-2xl">
+          <div className="lg:col-span-8 relative rounded-3xl overflow-hidden min-h-[360px] sm:min-h-[420px] lg:min-h-[480px] border border-[rgba(255,255,255,0.08)] shadow-2xl">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={current.image}
               alt={current.name}
               className="w-full h-full object-cover transition-transform duration-1000 hover:scale-105"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[rgba(2,7,11,0.9)] via-[rgba(2,7,11,0.2)] to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[rgba(2,7,11,0.92)] via-[rgba(2,7,11,0.2)] to-transparent" />
             <div className="absolute bottom-6 left-6 right-6 flex flex-wrap items-end justify-between gap-4">
               <div>
-                <span className="text-label text-[--color-accent] block mb-1">CAPACITY & VOLUME</span>
-                <span className="font-display text-2xl text-[--color-text] font-light">{current.volume}</span>
+                <span className="text-[10px] uppercase tracking-widest text-[--color-accent] block mb-1">CAPACITY &amp; VOLUME</span>
+                <span className="font-display text-2xl sm:text-3xl text-[--color-text] font-light">{current.volume}</span>
               </div>
               <Link
                 href="/aquarium-design"
-                className="btn-ghost text-xs"
+                className="btn-ghost text-xs py-3 px-5 rounded-xl border-white/20 hover:border-white text-white active:scale-95"
                 data-cursor="ENTER"
               >
                 REQUEST CUSTOM BLUEPRINT →
@@ -134,15 +136,15 @@ export function DesignSection() {
         </div>
 
         {/* 4-Step Engineering Protocol */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 pt-10 sm:pt-12 border-t border-[rgba(255,255,255,0.06)]">
           {PROCESS_STEPS.map((item, i) => (
             <ScrollReveal
               key={item.step}
               delay={i * 0.08}
-              className="p-6 rounded-lg border border-[rgba(255,255,255,0.06)] bg-[rgba(7,21,28,0.3)] hover:border-[rgba(0,184,217,0.3)] transition-colors duration-300"
+              className="p-6 sm:p-7 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.4)] hover:border-[rgba(0,184,217,0.3)] transition-all duration-300 glass-card-hover"
             >
-              <span className="text-label text-[--color-accent] block mb-3">{item.step}</span>
-              <h3 className="font-display text-lg text-[--color-text] font-light mb-2">
+              <span className="text-xs font-mono font-semibold text-[--color-accent] block mb-3">{item.step}</span>
+              <h3 className="font-display text-lg sm:text-xl text-[--color-text] font-light mb-2">
                 {item.label}
               </h3>
               <p className="font-body font-light text-[--color-muted] text-xs leading-relaxed">

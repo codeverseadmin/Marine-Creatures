@@ -8,7 +8,7 @@ import { CallbackForm } from '@/components/ui/CallbackForm';
 export function FinalCTA() {
   return (
     <section
-      className="relative py-28 md:py-36 flex flex-col justify-center overflow-hidden"
+      className="section relative flex flex-col justify-center overflow-hidden"
       style={{ background: 'var(--color-primary)' }}
       aria-labelledby="final-cta-heading"
     >
@@ -55,22 +55,24 @@ export function FinalCTA() {
       <div
         className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] pointer-events-none z-1"
         style={{
-          background: 'radial-gradient(ellipse at center, rgba(0,184,217,0.06) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse at center, rgba(0,184,217,0.08) 0%, transparent 70%)',
         }}
         aria-hidden="true"
       />
 
       <div className="relative z-10 container-max text-center">
         {/* Label */}
-        <ScrollReveal className="mb-10">
-          <span className="text-label text-[--color-accent] tracking-[0.3em]">BEGIN THE CONVERSATION</span>
+        <ScrollReveal className="mb-6 sm:mb-8">
+          <span className="text-[11px] sm:text-xs uppercase tracking-[0.3em] font-semibold text-[--color-accent]">
+            BEGIN THE CONVERSATION
+          </span>
         </ScrollReveal>
 
         {/* Heading */}
         <ScrollReveal delay={0.1}>
           <h2
             id="final-cta-heading"
-            className="font-display text-display-xl text-[--color-text] font-light leading-[0.9]"
+            className="font-display text-3xl sm:text-5xl md:text-6xl text-[--color-text] font-light leading-tight"
           >
             Let&apos;s Build
             <br />
@@ -79,19 +81,19 @@ export function FinalCTA() {
         </ScrollReveal>
 
         {/* Supporting text */}
-        <ScrollReveal delay={0.2} className="mt-8">
-          <p className="font-body font-light text-[--color-muted] max-w-lg mx-auto leading-relaxed" style={{ fontSize: '1.0625rem' }}>
+        <ScrollReveal delay={0.2} className="mt-4 sm:mt-6">
+          <p className="font-body font-light text-[--color-muted] max-w-lg mx-auto leading-relaxed text-xs sm:text-sm md:text-base">
             Tell us about your space, your existing aquarium or your vision. Every extraordinary aquarium begins with a single conversation.
           </p>
         </ScrollReveal>
 
         {/* Callback Form Embed */}
-        <ScrollReveal delay={0.3} className="mt-12">
+        <ScrollReveal delay={0.3} className="mt-8 sm:mt-12">
           <CallbackForm />
         </ScrollReveal>
 
         {/* Quick navigation CTAs */}
-        <ScrollReveal delay={0.4} className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <ScrollReveal delay={0.4} className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
             href="/services#booking-portal"
             className="text-xs uppercase tracking-wider text-[--color-accent] hover:text-white transition-colors"
@@ -100,12 +102,10 @@ export function FinalCTA() {
           </Link>
         </ScrollReveal>
 
-
-
         {/* Logo / wordmark reveal */}
-        <ScrollReveal delay={0.5} className="mt-20">
+        <ScrollReveal delay={0.5} className="mt-14 sm:mt-20">
           <div>
-            <span className="text-label text-[--color-muted] tracking-[0.4em] block mb-2">
+            <span className="text-[10px] sm:text-xs text-[--color-muted] tracking-[0.4em] uppercase block mb-2">
               MARINE CREATURES
             </span>
             <span className="font-display text-sm italic text-[--color-muted] opacity-60">

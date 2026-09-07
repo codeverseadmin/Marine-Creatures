@@ -30,6 +30,11 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
       lenisRef.current = lenis;
       (window as unknown as Record<string, unknown>).lenis = lenis;
 
+      if (!window.location.hash) {
+        lenis.scrollTo(0, { immediate: true });
+        window.scrollTo(0, 0);
+      }
+
       let animId: number;
       function raf(time: number) {
         lenis.raf(time);

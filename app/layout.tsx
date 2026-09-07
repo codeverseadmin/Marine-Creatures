@@ -48,9 +48,11 @@ export const metadata: Metadata = {
   },
 };
 
+import { CatalogProvider } from '@/lib/context/CatalogContext';
 import { CartProvider } from '@/lib/context/CartContext';
 import { CartDrawer } from '@/components/cart/CartDrawer';
 import { FlyToCartEffect } from '@/components/cart/FlyToCartEffect';
+import { MobileBottomNav } from '@/components/layout/MobileBottomNav';
 
 export default function RootLayout({
   children,
@@ -63,18 +65,22 @@ export default function RootLayout({
         {/* Subtle grain overlay for texture */}
         <div className="grain-overlay" aria-hidden="true" />
 
-        <CartProvider>
-          <SmoothScroll>
-            <CustomCursor />
-            <FlyToCartEffect />
-            <CartDrawer />
-            <Navbar />
-            <main>{children}</main>
-            <Footer />
-          </SmoothScroll>
-        </CartProvider>
+        <CatalogProvider>
+          <CartProvider>
+            <SmoothScroll>
+              <CustomCursor />
+              <FlyToCartEffect />
+              <CartDrawer />
+              <Navbar />
+              <main className="min-h-screen pb-16 md:pb-0">{children}</main>
+              <MobileBottomNav />
+              <Footer />
+            </SmoothScroll>
+          </CartProvider>
+        </CatalogProvider>
       </body>
     </html>
   );
 }
+
 

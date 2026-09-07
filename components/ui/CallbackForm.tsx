@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { SITE_CONFIG } from '@/lib/config';
+import { useCatalog } from '@/lib/context/CatalogContext';
 
 export function CallbackForm() {
   const [name, setName] = useState('');
@@ -9,9 +10,21 @@ export function CallbackForm() {
   const [callTime, setCallTime] = useState('Immediate / ASAP');
   const [interest, setInterest] = useState('New Aquarium Installation');
   const [submitted, setSubmitted] = useState(false);
+  const { addInquiry } = useCatalog();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      addInquiry({
+        type: 'callback',
+        name: name.trim() || 'Client',
+        phone: phone.trim(),
+        notes: `Preferred Time: ${callTime} | Requirement: ${interest}`,
+        serviceType: interest,
+      });
+    } catch (err) {
+      console.error('Error saving inquiry lead:', err);
+    }
     setSubmitted(true);
   };
 

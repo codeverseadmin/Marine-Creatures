@@ -51,7 +51,7 @@ export default function NotFound() {
 
         <Link
           href="/"
-          className="btn-primary inline-flex"
+          className="btn-primary inline-flex rounded-xl text-xs py-3.5 px-8 shadow-xl active:scale-95 transition-transform"
           data-cursor="ENTER"
         >
           RETURN TO MARINE CREATURES

@@ -107,7 +107,7 @@ export default function ContactPage() {
 
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* Header */}
-        <div className="container-max pt-24 sm:pt-28 md:pt-36 pb-6 sm:pb-8">
+        <div className="container-max pt-32 sm:pt-40 md:pt-44 pb-6 sm:pb-8">
           <span className="text-[11px] sm:text-xs uppercase tracking-[0.25em] text-[--color-accent] block mb-2 sm:mb-3">
             BEGIN THE CONVERSATION
           </span>

@@ -22,7 +22,7 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <div className="group rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(5,15,22,0.85)] hover:border-[rgba(0,184,217,0.4)] hover:shadow-[0_15px_35px_rgba(0,0,0,0.6)] backdrop-blur-xl transition-all duration-300 flex flex-col h-full overflow-hidden">
+    <div className="group rounded-3xl border border-[rgba(255,255,255,0.08)] bg-[rgba(5,15,22,0.85)] hover:border-[rgba(0,184,217,0.4)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.6)] backdrop-blur-xl transition-all duration-300 flex flex-col h-full overflow-hidden glass-card-hover">
       {/* Top Image Link */}
       <Link
         href={`/marketplace/${product.id}`}
@@ -39,14 +39,14 @@ export function ProductCard({ product }: ProductCardProps) {
 
         {/* Minimalist category badge */}
         <div className="absolute top-3.5 left-3.5">
-          <span className="text-[11px] tracking-wider uppercase font-medium text-white/90 bg-black/70 backdrop-blur-md px-3 py-1 rounded-lg border border-white/10">
+          <span className="text-[10px] sm:text-[11px] tracking-wider uppercase font-medium text-white/90 bg-black/70 backdrop-blur-md px-3 py-1 rounded-xl border border-white/10">
             {product.categoryLabel}
           </span>
         </div>
       </Link>
 
       {/* Content */}
-      <div className="p-4 sm:p-6 flex-1 flex flex-col justify-between space-y-3.5 sm:space-y-4">
+      <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
         <div>
           <Link
             href={`/marketplace/${product.id}`}
@@ -61,14 +61,14 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Price & Action */}
-        <div className="pt-3.5 sm:pt-4 border-t border-[rgba(255,255,255,0.08)] flex items-center justify-between gap-3">
-          <span className="font-display text-lg sm:text-xl text-white font-light">
+        <div className="pt-4 border-t border-[rgba(255,255,255,0.08)] flex items-center justify-between gap-3">
+          <span className="font-display text-xl sm:text-2xl text-white font-light">
             ₹{product.price.toLocaleString('en-IN')}
           </span>
 
           <button
             onClick={handleAdd}
-            className={`min-h-[40px] px-3.5 sm:px-4 py-2 rounded-xl text-[11px] sm:text-xs font-semibold tracking-wider uppercase transition-all duration-300 flex items-center gap-1.5 shadow-md active:scale-95 ${
+            className={`min-h-[42px] px-4 py-2 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all duration-300 flex items-center gap-1.5 shadow-md active:scale-95 ${
               added
                 ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.7)]'
                 : 'bg-[--color-accent] text-[--color-primary] hover:bg-white hover:shadow-[0_0_20px_rgba(0,184,217,0.4)]'
