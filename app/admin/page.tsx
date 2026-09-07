@@ -297,12 +297,32 @@ export default function AdminDashboardPage() {
   const outOfStockCount = products.filter((p) => !p.inStock || p.stockCount <= 0).length;
 
   return (
-    <div style={{ background: 'var(--color-primary)', minHeight: '100vh', paddingTop: '100px' }} className="pb-32 text-white">
-      {/* Top Header Bar */}
-      <div className="border-b border-[rgba(255,255,255,0.08)] bg-[rgba(3,10,16,0.9)] backdrop-blur-md sticky top-0 z-30">
+    <div style={{ background: '#02070B', minHeight: '100vh', paddingTop: '0px' }} className="pb-24 text-white">
+      {/* Top Restricted Security Banner */}
+      <div className="bg-[#0b131a] border-b border-slate-800/80 px-4 py-1.5 text-[10px] sm:text-[11px] font-mono text-slate-400 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+          <span className="text-amber-400 font-semibold tracking-wider">RESTRICTED ADMIN CONSOLE</span>
+          <span className="hidden sm:inline text-slate-600">|</span>
+          <span className="hidden sm:inline">Internal Operations &amp; Broadcast Management</span>
+        </div>
+        <Link
+          href="/"
+          target="_blank"
+          className="text-[--color-accent] hover:underline font-sans text-xs flex items-center gap-1 font-medium"
+        >
+          <span>Live Customer Portal</span>
+          <span>↗</span>
+        </Link>
+      </div>
+
+      {/* Main Admin Navigation Bar */}
+      <div className="border-b border-[rgba(255,255,255,0.08)] bg-[rgba(3,10,16,0.96)] backdrop-blur-md sticky top-0 z-30">
         <div className="container-max py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">⚙️</span>
+            <div className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-xl">
+              ⚙️
+            </div>
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="font-display text-xl sm:text-2xl font-light text-white">
@@ -326,7 +346,7 @@ export default function AdminDashboardPage() {
               className="px-3.5 py-2 rounded-xl text-xs border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.04)] hover:bg-white/10 text-white flex items-center gap-1.5 transition-colors"
             >
               <span>🛍️</span>
-              <span>View Storefront</span>
+              <span>View Storefront ↗</span>
             </Link>
 
             <button
@@ -1202,6 +1222,28 @@ export default function AdminDashboardPage() {
           </div>
         )}
       </div>
+
+      {/* Dedicated Admin Console Footer */}
+      <footer className="mt-20 border-t border-slate-800/80 bg-[#010406] py-6 text-xs text-slate-400">
+        <div className="container-max flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-slate-300 font-medium">🛡️ Marine Creatures Admin OS v1.0.0</span>
+            <span className="text-slate-600">•</span>
+            <span className="text-slate-500">Restricted Internal Access</span>
+          </div>
+
+          <div className="flex items-center gap-5">
+            <Link href="/" target="_blank" className="text-[--color-accent] hover:underline flex items-center gap-1 font-medium">
+              <span>Switch to Live Customer Storefront</span>
+              <span>↗</span>
+            </Link>
+            <span className="text-slate-700">•</span>
+            <button onClick={handleLogout} className="text-red-400 hover:text-red-300 font-medium">
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

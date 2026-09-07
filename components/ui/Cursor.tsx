@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 interface Bubble {
   id: number;
@@ -13,6 +14,7 @@ interface Bubble {
 }
 
 export function CustomCursor() {
+  const pathname = usePathname();
   const fishRef = useRef<HTMLDivElement>(null);
   const tailRef = useRef<SVGGElement>(null);
   const [isHovered, setIsHovered] = useState<boolean>(false);
@@ -24,6 +26,10 @@ export function CustomCursor() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    if (pathname.startsWith('/admin')) {
+      document.documentElement.classList.remove('has-custom-cursor');
+      return;
+    }
     const isTouch = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
     if (isTouch) {
       setIsTouchDevice(true);

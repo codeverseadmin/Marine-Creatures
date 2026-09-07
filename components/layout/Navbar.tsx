@@ -29,6 +29,11 @@ export function Navbar() {
     return () => { document.body.style.overflow = ''; };
   }, [menuOpen]);
 
+  // Hide customer navbar completely on admin console
+  if (pathname.startsWith('/admin')) {
+    return null;
+  }
+
   return (
     <>
       <header

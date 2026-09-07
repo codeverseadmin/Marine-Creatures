@@ -1,7 +1,17 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { SITE_CONFIG, NAV_LINKS } from '@/lib/config';
 
 export function Footer() {
+  const pathname = usePathname();
+
+  // Hide customer storefront footer on admin console
+  if (pathname.startsWith('/admin')) {
+    return null;
+  }
+
   return (
     <footer
       className="relative overflow-hidden mt-20 border-t border-[rgba(255,255,255,0.1)] bg-[#010508]"
