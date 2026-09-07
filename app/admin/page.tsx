@@ -7,7 +7,7 @@ import { Product } from '@/lib/data/products';
 import { BannerSlide } from '@/lib/data/banners';
 import { PromoCarousel } from '@/components/ui/PromoCarousel';
 
-const ADMIN_PASSCODE = 'marine2026';
+const ADMIN_PASSCODE = process.env.NEXT_PUBLIC_ADMIN_PASSCODE || 'mc@admin#2026!';
 
 export default function AdminDashboardPage() {
   const {
@@ -95,7 +95,7 @@ export default function AdminDashboardPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (passcode === ADMIN_PASSCODE || passcode === 'admin123') {
+    if (passcode === ADMIN_PASSCODE) {
       setIsAuthenticated(true);
       setAuthError(false);
       sessionStorage.setItem('mc_admin_authenticated', 'true');
@@ -262,7 +262,7 @@ export default function AdminDashboardPage() {
               />
               {authError && (
                 <p className="text-xs text-red-400 mt-1.5 font-medium">
-                  ✕ Invalid passcode. Try &lsquo;marine2026&rsquo;
+                  ✕ Invalid passcode. Please try again.
                 </p>
               )}
             </div>

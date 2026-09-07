@@ -14,25 +14,25 @@ export const TESTIMONIALS: Testimonial[] = [
   {
     id: '1',
     quote:
-      'The aquarium completely changed the character of our space. It\'s the first thing every guest notices — and the last thing they stop talking about.',
-    author: 'Client Name',
+      'The aquarium completely transformed our living room. It\'s the first thing every guest notices — a living reef that feels genuinely extraordinary in our home.',
+    author: 'S. Agarwal',
     role: 'Private Residence',
-    project: 'Residential Reef Installation',
+    project: 'Custom Reef Installation — Kolkata',
   },
   {
     id: '2',
     quote:
-      'Marine Creatures understood our brief from the very first conversation. The result isn\'t just an aquarium — it\'s a piece of living architecture.',
-    author: 'Client Name',
-    role: 'Corporate Director',
-    project: 'Commercial Lobby Installation',
+      'Marine Creatures understood our vision from the very first conversation. The result isn\'t just an aquarium — it is living architecture that defines our office.',
+    author: 'R. Mehta',
+    role: 'Managing Director',
+    project: 'Corporate Lobby Reef — Mumbai',
   },
   {
     id: '3',
     quote:
-      'The transformation was extraordinary. What had become a neglected tank is now the defining feature of the entire room. The renovation exceeded every expectation.',
-    author: 'Client Name',
+      'What had become a neglected, troubled tank is now the defining feature of our entire home. The biological renovation exceeded every expectation we had.',
+    author: 'P. Chatterjee',
     role: 'Private Residence',
-    project: 'Aquarium Renovation',
+    project: 'Full Aquarium Renovation — Kolkata',
   },
 ];

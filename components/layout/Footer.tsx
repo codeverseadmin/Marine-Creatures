@@ -109,9 +109,6 @@ export function Footer() {
             <Link href="/marketplace" className="text-[--color-muted] hover:text-[--color-text] transition-colors">
               MARKETPLACE
             </Link>
-            <Link href="/admin" className="text-[--color-accent] hover:underline transition-all flex items-center gap-1 font-mono tracking-wider">
-              <span>⚡</span> ADMIN
-            </Link>
           </div>
         </div>
       </div>

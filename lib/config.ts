@@ -12,7 +12,7 @@ export const SITE_CONFIG = {
   whatsapp: '+919330436603',
   email: 'surajshasmal04@gmail.com',
   phone: '+91 93304 36603',
-  address: 'India',
+  address: 'Kolkata, West Bengal, India',
   instagram: 'https://instagram.com/marinecreatures',
   facebook: 'https://facebook.com/marinecreatures',
   nurturedBy: 'Nurtured in CODEVERSE',
@@ -21,10 +21,10 @@ export const SITE_CONFIG = {
 
 
 export const STATS = [
-  { value: 'XX+', label: 'Aquariums Created' },
-  { value: 'XX+', label: 'Marine Species' },
-  { value: 'XX', label: 'Projects Completed' },
-  { value: 'XX', label: 'Years of Expertise' },
+  { value: '50+', label: 'Aquariums Created' },
+  { value: '200+', label: 'Marine Species' },
+  { value: '40+', label: 'Projects Completed' },
+  { value: '5+', label: 'Years of Expertise' },
 ];
 
 export const NAV_LINKS = [
