@@ -64,7 +64,7 @@ export function Navbar() {
                   priority
                 />
               </div>
-              <span className="text-xs sm:text-sm md:text-base text-[--color-text] tracking-[0.15em] sm:tracking-[0.2em] group-hover:text-[--color-accent] transition-colors duration-300 font-body font-semibold truncate max-w-[140px] xs:max-w-[180px] sm:max-w-none">
+              <span className="text-[12px] xs:text-[13px] sm:text-sm md:text-base text-white tracking-[0.12em] sm:tracking-[0.18em] group-hover:text-[--color-accent] transition-colors duration-300 font-body font-bold whitespace-nowrap">
                 {SITE_CONFIG.name.toUpperCase()}
               </span>
             </Link>
@@ -123,29 +123,26 @@ export function Navbar() {
                 BOOK SERVICE
               </Link>
 
-              {/* Hamburger (Mobile / Tablet) */}
+              {/* Hamburger (Mobile / Tablet) with crisp high-visibility SVG */}
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="md:hidden flex flex-col items-center justify-center w-10 h-10 sm:w-11 sm:h-11 gap-[5px] p-2 rounded-xl border border-[rgba(255,255,255,0.14)] bg-[rgba(7,21,28,0.75)] hover:border-[--color-accent] active:scale-95 transition-all shrink-0"
+                className="md:hidden flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl border border-white/20 bg-[rgba(7,21,28,0.85)] hover:border-cyan-400 active:scale-95 transition-all shrink-0 text-white shadow-sm"
                 aria-expanded={menuOpen}
                 aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
                 data-cursor="MENU"
               >
-                <span
-                  className={`block w-5 h-0.5 bg-[--color-text] transition-all duration-300 ${
-                    menuOpen ? 'rotate-45 translate-y-[7px]' : ''
-                  }`}
-                />
-                <span
-                  className={`block h-0.5 bg-[--color-text] transition-all duration-300 ${
-                    menuOpen ? 'opacity-0 w-0' : 'w-3.5'
-                  }`}
-                />
-                <span
-                  className={`block w-5 h-0.5 bg-[--color-text] transition-all duration-300 ${
-                    menuOpen ? '-rotate-45 -translate-y-[7px]' : ''
-                  }`}
-                />
+                {menuOpen ? (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                ) : (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="4" y1="6" x2="20" y2="6" />
+                    <line x1="4" y1="12" x2="20" y2="12" />
+                    <line x1="4" y1="18" x2="20" y2="18" />
+                  </svg>
+                )}
               </button>
             </div>
 

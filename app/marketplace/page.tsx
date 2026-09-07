@@ -42,7 +42,7 @@ export default function MarketplacePage() {
   return (
     <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>
       {/* Integrated Luxury Marketplace Header */}
-      <div className="pt-24 sm:pt-36 md:pt-40 pb-6 sm:pb-10 border-b border-[rgba(255,255,255,0.08)] bg-gradient-to-b from-[rgba(6,20,29,0.95)] to-[var(--color-primary)]">
+      <div className="pt-28 sm:pt-36 md:pt-40 pb-6 sm:pb-10 border-b border-[rgba(255,255,255,0.08)] bg-gradient-to-b from-[rgba(6,20,29,0.95)] to-[var(--color-primary)]">
         <div className="container-max space-y-5 sm:space-y-6">
           {/* Top Row: Title + Search & Sort */}
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 sm:gap-6">
@@ -65,8 +65,8 @@ export default function MarketplacePage() {
             <div className="flex items-center gap-3 w-full lg:w-auto">
               {/* Search Box with SVG */}
               <div className="relative flex-1 sm:w-80">
-                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none flex items-center justify-center">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none flex items-center justify-center">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="11" cy="11" r="8" />
                     <line x1="21" y1="21" x2="16.65" y2="16.65" />
                   </svg>
@@ -76,7 +76,8 @@ export default function MarketplacePage() {
                   placeholder="Search store..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-12 pl-10 pr-9 rounded-2xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.12)] text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.08)] transition-all"
+                  style={{ paddingLeft: '44px', paddingRight: '36px' }}
+                  className="w-full h-12 rounded-2xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.12)] text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-[--color-accent] focus:bg-[rgba(255,255,255,0.08)] transition-all"
                 />
                 {searchQuery && (
                   <button

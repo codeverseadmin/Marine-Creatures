@@ -240,9 +240,18 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               <span>Find Us on Maps</span>
             </a>
           </div>
-          <p className="font-display italic text-slate-400 text-sm text-center pt-1">
-            Where The Ocean Becomes Art.
-          </p>
+          <div className="flex items-center justify-between pt-2 border-t border-white/5">
+            <p className="font-display italic text-slate-400 text-sm">
+              Where The Ocean Becomes Art.
+            </p>
+            <Link
+              href="/admin"
+              onClick={onClose}
+              className="text-[11px] text-slate-400 hover:text-cyan-400 transition-colors flex items-center gap-1.5 py-1 px-2.5 rounded-lg border border-white/10 hover:border-cyan-400/40 bg-white/5"
+            >
+              <span>🔒 Admin</span>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

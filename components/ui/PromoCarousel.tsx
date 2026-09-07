@@ -89,7 +89,7 @@ export function PromoCarousel() {
         {activeBanners.map((slide: BannerSlide, idx: number) => (
           <div
             key={slide.id}
-            className="w-full shrink-0 relative min-h-[360px] sm:min-h-[420px] md:min-h-[460px] flex items-center"
+            className="w-full shrink-0 relative min-h-[290px] sm:min-h-[420px] md:min-h-[460px] flex items-center"
           >
             {/* Background Image with Deep Vignette */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -111,11 +111,11 @@ export function PromoCarousel() {
             />
 
             {/* Slide Content */}
-            <div className="relative z-10 container-max py-10 sm:py-14 max-w-3xl">
+            <div className="relative z-10 container-max py-6 sm:py-14 max-w-3xl">
               {/* Badge */}
-              <div className="mb-3 sm:mb-4">
+              <div className="mb-2 sm:mb-4">
                 <span
-                  className="inline-flex items-center gap-2 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.25em] px-3.5 py-1.5 rounded-full backdrop-blur-md shadow-md"
+                  className="inline-flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] sm:tracking-[0.25em] px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full backdrop-blur-md shadow-md"
                   style={{
                     backgroundColor: 'rgba(2, 7, 11, 0.75)',
                     border: `1px solid ${slide.badgeColor || 'var(--color-accent)'}`,
@@ -131,12 +131,12 @@ export function PromoCarousel() {
               </div>
 
               {/* Title */}
-              <h2 className="font-display text-2xl sm:text-4xl md:text-5xl text-white font-light leading-tight mb-2 sm:mb-3">
+              <h2 className="font-display text-xl sm:text-3xl md:text-5xl text-white font-light leading-tight mb-1.5 sm:mb-3">
                 {slide.title}
               </h2>
 
               {/* Subtitle */}
-              <p className="font-body text-xs sm:text-base text-slate-200 font-normal mb-2 sm:mb-4 leading-normal">
+              <p className="font-body text-xs sm:text-base text-slate-200 font-normal mb-3 sm:mb-4 leading-normal">
                 {slide.subtitle}
               </p>
 
@@ -148,10 +148,10 @@ export function PromoCarousel() {
               )}
 
               {/* CTAs */}
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+              <div className="flex flex-wrap items-center gap-2.5 sm:gap-4">
                 <Link
                   href={slide.ctaLink}
-                  className="btn-primary text-xs py-3.5 px-6 sm:px-8 rounded-xl font-semibold tracking-wider uppercase shadow-xl active:scale-95 transition-transform"
+                  className="btn-primary text-xs py-3 px-5 sm:py-3.5 sm:px-8 rounded-xl font-semibold tracking-wider uppercase shadow-xl active:scale-95 transition-transform"
                   data-cursor="EXPLORE"
                 >
                   {slide.ctaText}
@@ -160,7 +160,7 @@ export function PromoCarousel() {
                 {slide.secondaryCtaText && slide.secondaryCtaLink && (
                   <Link
                     href={slide.secondaryCtaLink}
-                    className="btn-ghost text-xs py-3.5 px-6 rounded-xl font-medium tracking-wider uppercase border-white/20 hover:border-white text-white active:scale-95 transition-transform"
+                    className="btn-ghost text-xs py-3 px-5 rounded-xl font-medium tracking-wider uppercase border-white/20 hover:border-white text-white active:scale-95 transition-transform"
                     data-cursor="VIEW"
                   >
                     {slide.secondaryCtaText}
@@ -172,12 +172,12 @@ export function PromoCarousel() {
         ))}
       </div>
 
-      {/* Prev / Next Chevrons */}
+      {/* Prev / Next Chevrons (desktop only; mobile users swipe naturally) */}
       {total > 1 && (
         <>
           <button
             onClick={prevSlide}
-            className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-white/15 bg-black/50 hover:bg-black/80 hover:border-white/40 text-white flex items-center justify-center transition-all backdrop-blur-md opacity-80 group-hover:opacity-100 active:scale-90"
+            className="hidden sm:flex absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-white/15 bg-black/50 hover:bg-black/80 hover:border-white/40 text-white items-center justify-center transition-all backdrop-blur-md opacity-80 group-hover:opacity-100 active:scale-90"
             aria-label="Previous slide"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -187,7 +187,7 @@ export function PromoCarousel() {
 
           <button
             onClick={nextSlide}
-            className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-white/15 bg-black/50 hover:bg-black/80 hover:border-white/40 text-white flex items-center justify-center transition-all backdrop-blur-md opacity-80 group-hover:opacity-100 active:scale-90"
+            className="hidden sm:flex absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-white/15 bg-black/50 hover:bg-black/80 hover:border-white/40 text-white items-center justify-center transition-all backdrop-blur-md opacity-80 group-hover:opacity-100 active:scale-90"
             aria-label="Next slide"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
