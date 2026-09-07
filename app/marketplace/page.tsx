@@ -42,21 +42,21 @@ export default function MarketplacePage() {
   return (
     <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>
       {/* Integrated Luxury Marketplace Header */}
-      <div className="pt-32 sm:pt-40 md:pt-44 pb-8 sm:pb-10 border-b border-[rgba(255,255,255,0.08)] bg-gradient-to-b from-[rgba(6,20,29,0.95)] to-[var(--color-primary)]">
-        <div className="container-max space-y-6">
+      <div className="pt-24 sm:pt-36 md:pt-40 pb-6 sm:pb-10 border-b border-[rgba(255,255,255,0.08)] bg-gradient-to-b from-[rgba(6,20,29,0.95)] to-[var(--color-primary)]">
+        <div className="container-max space-y-5 sm:space-y-6">
           {/* Top Row: Title + Search & Sort */}
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 sm:gap-6">
             <div>
-              <div className="flex items-center gap-2 mb-2 sm:mb-2.5">
+              <div className="flex items-center gap-2 mb-1.5 sm:mb-2.5">
                 <span className="w-2 h-2 rounded-full bg-[--color-accent] animate-pulse" />
                 <span className="text-[11px] sm:text-xs uppercase tracking-[0.25em] font-semibold text-[--color-accent]">
                   OFFICIAL MARINE STORE
                 </span>
               </div>
-              <h1 className="font-display text-3xl sm:text-4xl md:text-5xl text-white font-light tracking-tight">
+              <h1 className="font-display text-2xl sm:text-4xl md:text-5xl text-white font-light tracking-tight">
                 Marine Marketplace
               </h1>
-              <p className="font-body text-xs sm:text-sm text-[--color-muted] mt-1.5 sm:mt-2 max-w-xl">
+              <p className="font-body text-xs sm:text-sm text-slate-300 font-normal mt-1 sm:mt-2 max-w-xl leading-relaxed">
                 Captive-bred livestock, NemoLight fixtures, Real Reef rock, salts &amp; precision hardware across India.
               </p>
             </div>

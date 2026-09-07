@@ -64,7 +64,7 @@ export function Navbar() {
                   priority
                 />
               </div>
-              <span className="text-label-lg text-[--color-text] tracking-[0.2em] group-hover:text-[--color-accent] transition-colors duration-300 font-body font-semibold hidden sm:block">
+              <span className="text-xs sm:text-sm md:text-base text-[--color-text] tracking-[0.15em] sm:tracking-[0.2em] group-hover:text-[--color-accent] transition-colors duration-300 font-body font-semibold truncate max-w-[140px] xs:max-w-[180px] sm:max-w-none">
                 {SITE_CONFIG.name.toUpperCase()}
               </span>
             </Link>

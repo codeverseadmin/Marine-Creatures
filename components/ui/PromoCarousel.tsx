@@ -136,13 +136,13 @@ export function PromoCarousel() {
               </h2>
 
               {/* Subtitle */}
-              <p className="font-body text-xs sm:text-sm md:text-base text-slate-300 font-medium mb-3 sm:mb-4">
+              <p className="font-body text-xs sm:text-base text-slate-200 font-normal mb-2 sm:mb-4 leading-normal">
                 {slide.subtitle}
               </p>
 
-              {/* Description */}
+              {/* Description (hide on small screens to prevent crowded/dense text; show on sm+) */}
               {slide.desc && (
-                <p className="font-body text-xs sm:text-sm text-slate-400 font-light max-w-xl line-clamp-2 sm:line-clamp-3 mb-6 sm:mb-8 leading-relaxed">
+                <p className="hidden sm:block font-body text-xs sm:text-sm text-slate-300 font-light max-w-xl line-clamp-2 mb-6 sm:mb-8 leading-relaxed">
                   {slide.desc}
                 </p>
               )}
