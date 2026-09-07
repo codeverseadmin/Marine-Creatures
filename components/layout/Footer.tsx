@@ -173,13 +173,31 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-6 sm:pt-8 border-t border-[rgba(255,255,255,0.06)] gap-4 pb-safe">
-          <p className="text-xs text-[--color-muted] flex flex-wrap items-center gap-2">
-            <span>© {new Date().getFullYear()} Marine Creatures.</span>
-            <span>•</span>
-            <span className="text-[--color-accent] font-medium tracking-wider">Nurtured in CODEVERSE</span>
-          </p>
-          <div className="flex items-center gap-6 text-xs">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-6 sm:pt-8 border-t border-[rgba(255,255,255,0.06)] gap-3 sm:gap-4 pb-safe">
+          {/* Left — copyright + attribution */}
+          <div className="flex flex-col gap-1.5">
+            <p className="text-xs text-[--color-muted] flex flex-wrap items-center gap-x-2 gap-y-1">
+              <span>© {new Date().getFullYear()} Marine Creatures.</span>
+              <span className="text-slate-700">•</span>
+              <span className="text-[--color-accent] font-medium tracking-wider">
+                {SITE_CONFIG.nurturedBy}
+              </span>
+            </p>
+            <p className="text-[11px] text-slate-500 flex flex-wrap items-center gap-x-1.5">
+              <span>Founded by</span>
+              <a
+                href={SITE_CONFIG.founderLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[--color-accent] hover:text-white font-medium transition-colors underline underline-offset-2 decoration-[rgba(0,184,217,0.4)] hover:decoration-white"
+              >
+                {SITE_CONFIG.founder}
+              </a>
+            </p>
+          </div>
+
+          {/* Right — nav links */}
+          <div className="flex items-center gap-5 sm:gap-6 text-xs">
             <Link href="/about" className="text-[--color-muted] hover:text-[--color-text] transition-colors">
               ABOUT
             </Link>

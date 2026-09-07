@@ -202,6 +202,18 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             <span>{SITE_CONFIG.email}</span>
             <span className="text-[10px] uppercase tracking-widest text-[--color-accent]">NURTURED IN CODEVERSE</span>
           </div>
+          {/* Founded by */}
+          <p className="text-[11px] text-slate-500 flex items-center gap-1">
+            <span>Founded by</span>
+            <a
+              href={SITE_CONFIG.founderLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[--color-accent] font-semibold underline underline-offset-2 decoration-[rgba(0,184,217,0.4)] hover:text-white hover:decoration-white transition-colors"
+            >
+              {SITE_CONFIG.founder}
+            </a>
+          </p>
           {/* Social quick links */}
           <div className="flex items-center gap-3">
             <a

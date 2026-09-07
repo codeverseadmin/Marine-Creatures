@@ -16,6 +16,9 @@ export const SITE_CONFIG = {
   facebook: 'https://www.facebook.com/share/1HWXFrHZ9V/',
   googleMaps: 'https://maps.app.goo.gl/uYfMxyXqsGD8iQWz7?g_st=ac',
   nurturedBy: 'Nurtured in CODEVERSE',
+  founder: 'Aritya Saha',
+  founderLink: 'https://www.facebook.com/share/19cXkY5XbV/',
+  codeverseTagline: 'Nurtured in CODEVERSE',
 };
 
 
