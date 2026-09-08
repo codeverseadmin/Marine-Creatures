@@ -174,7 +174,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
   const [activeOrder, setActiveOrder] = useState<CustomerOrder | null>(DEFAULT_ORDERS[0]);
   const [isTrackingOpen, setIsTrackingOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [ownerSignature, setOwnerSignatureState] = useState<string | null>(null);
+  const [ownerSignature, setOwnerSignatureState] = useState<string | null>('/signature.png');
 
   const SIGNATURE_STORAGE_KEY = 'mc_admin_owner_signature_v1';
 
@@ -427,6 +427,16 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
   };
 
   const approveOrder = (orderId: string, customInvoiceNum?: string) => {
+    const targetOrder = orders.find((o) => o.id === orderId);
+    if (!targetOrder) return;
+
+    // Strict Packaging Protocol: Invoices are strictly released only once order is marked as Packed or later
+    const isPackedOrLater = ['packed', 'dispatched', 'delivered'].includes(targetOrder.currentStep);
+    if (!isPackedOrLater) {
+      console.warn(`[Marine Protocol] Order #${orderId} cannot be approved/invoiced prior to Step 3: Packed.`);
+      return;
+    }
+
     const now = new Date().toLocaleDateString('en-IN', {
       day: 'numeric',
       month: 'short',
@@ -435,7 +445,6 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
       minute: '2-digit',
     });
 
-    const targetOrder = orders.find((o) => o.id === orderId);
     const invNum = customInvoiceNum || targetOrder?.invoiceNumber || `INV-${orderId}`;
 
     setOrders((prev) =>

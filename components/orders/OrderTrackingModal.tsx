@@ -161,14 +161,24 @@ export function OrderTrackingModal() {
                     )}
                   </div>
 
-                  <Link
-                    href={`/invoice/${currentOrder.id}`}
-                    target="_blank"
-                    className="h-9 px-3.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 text-xs font-bold uppercase tracking-wider inline-flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all"
-                  >
-                    <span>🧾</span>
-                    <span>View Tax Invoice ↗</span>
-                  </Link>
+                  {['packed', 'dispatched', 'delivered'].includes(currentOrder.currentStep) && currentOrder.isApproved ? (
+                    <Link
+                      href={`/invoice/${currentOrder.id}`}
+                      target="_blank"
+                      className="h-9 px-3.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 text-xs font-bold uppercase tracking-wider inline-flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all"
+                    >
+                      <span>🧾</span>
+                      <span>View Tax Invoice ↗</span>
+                    </Link>
+                  ) : (
+                    <span
+                      className="h-9 px-3 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-400 text-[11px] font-medium inline-flex items-center gap-1.5 cursor-not-allowed"
+                      title="Invoice is strictly generated and released once order is sealed in Thermal Pod Packaging (Stage 3)"
+                    >
+                      <span>🔒</span>
+                      <span>Invoice releases upon packaging</span>
+                    </span>
+                  )}
                 </div>
               </div>
 

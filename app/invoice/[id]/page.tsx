@@ -72,6 +72,68 @@ export default function InvoicePage({ params }: InvoicePageProps) {
     );
   }
 
+  // Strict packaging guard: Invoice is only generated after order is marked as Packed (Stage 3) or later
+  const isPackedOrLater = ['packed', 'dispatched', 'delivered'].includes(order.currentStep);
+
+  if (!isPackedOrLater) {
+    return (
+      <div className="marine-invoice-view min-h-screen bg-[#02070c] text-white flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-[#071520] border border-amber-500/40 rounded-3xl p-8 text-center space-y-5 shadow-2xl relative overflow-hidden">
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-3xl shadow-inner">
+            📦
+          </div>
+          <div className="space-y-1.5">
+            <span className="inline-block px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 font-bold text-[10px] uppercase tracking-wider">
+              Packaging Verification Required
+            </span>
+            <h2 className="text-xl font-black text-white tracking-wide">
+              Invoice Locked Until Packed
+            </h2>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Official Tax Invoices are strictly released only after livestock completes quarantine and is verified and sealed in <strong className="text-slate-200">Stage 3: Thermal Pod Packaging</strong>.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 text-left text-xs space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-slate-400">Order Ref:</span>
+              <span className="font-mono font-bold text-cyan-400">#{order.id}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-slate-400">Customer:</span>
+              <span className="font-semibold text-white">{order.customerName}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-slate-400">Current Milestone:</span>
+              <span className="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-medium capitalize">
+                {order.currentStep === 'placed' ? 'Step 1: Order Placed' : 'Step 2: Quarantine Clearance'}
+              </span>
+            </div>
+            <div className="flex justify-between items-center pt-2 border-t border-slate-800/80 text-[11px]">
+              <span className="text-slate-500">Unlocks At:</span>
+              <span className="text-emerald-400 font-bold">Step 3: Thermal Pod Packed 📦</span>
+            </div>
+          </div>
+
+          <div className="pt-2 flex justify-center gap-3">
+            <Link
+              href="/marketplace"
+              className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-800 transition-all"
+            >
+              ← Storefront
+            </Link>
+            <Link
+              href="/admin"
+              className="px-5 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 text-xs font-bold uppercase tracking-wider transition-all shadow-md"
+            >
+              Admin Portal
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const invoiceNumber = order.invoiceNumber || `INV-${order.id}`;
   const invoiceDate = order.approvedAt || order.createdAt;
 
@@ -168,8 +230,8 @@ export default function InvoicePage({ params }: InvoicePageProps) {
               <p className="font-semibold text-slate-300 print:text-black">Marine Creatures Aquatics Private Limited</p>
               <p>Registered Studio: {SITE_CONFIG.address}</p>
               <p>Hotline: {SITE_CONFIG.phone} | Support: {SITE_CONFIG.email}</p>
-              <p className="font-mono text-[11px]">
-                GSTIN: <span className="font-bold text-slate-300 print:text-black">19AAACM4921L1Z4</span> | State Code: 19 (WB)
+              <p className="font-mono text-[11px] text-slate-400 print:text-slate-600">
+                Registry: <span className="font-bold text-slate-300 print:text-black">Kolkata, West Bengal</span> • Live Marine Cargo Permitted
               </p>
             </div>
           </div>
@@ -325,9 +387,9 @@ export default function InvoicePage({ params }: InvoicePageProps) {
               </span>
             </div>
             <div className="flex justify-between py-1 border-b border-slate-800/80 print:border-black/20">
-              <span className="text-slate-400 print:text-slate-600">Integrated GST (18% Included):</span>
-              <span className="font-mono text-slate-300 print:text-black">
-                ₹{Math.round(order.totalAmount * 0.18 / 1.18).toLocaleString('en-IN')}
+              <span className="text-slate-400 print:text-slate-600">Applicable Taxes &amp; Packaging:</span>
+              <span className="font-mono text-emerald-400 print:text-black font-semibold">
+                Included (₹0 Extra)
               </span>
             </div>
             <div className="flex justify-between py-1 border-b border-slate-800/80 print:border-black/20">
@@ -373,20 +435,14 @@ export default function InvoicePage({ params }: InvoicePageProps) {
               For Marine Creatures Aquatics Pvt. Ltd.
             </span>
 
-            {/* Signature Graphic: uploaded custom image or default cursive calligraphy */}
-            <div className="h-14 flex items-center justify-end">
-              {ownerSignature ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  src={ownerSignature}
-                  alt="Authorized Signature"
-                  className="max-h-12 max-w-[160px] object-contain filter invert print:filter-none drop-shadow"
-                />
-              ) : (
-                <div className="font-serif italic text-2xl font-bold tracking-wider text-cyan-300 print:text-black select-none pr-2">
-                  Suraj Shasmal
-                </div>
-              )}
+            {/* Signature Graphic: uploaded custom image or default authentic handwritten signature */}
+            <div className="h-16 flex items-center justify-end py-1">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={ownerSignature || '/signature.png'}
+                alt="Authorized Signature - Suraj Shasmal"
+                className="max-h-14 max-w-[170px] object-contain rounded-lg p-1 bg-white/95 border border-slate-700/40 shadow-sm print:bg-transparent print:border-none print:shadow-none print:p-0 print:mix-blend-multiply"
+              />
             </div>
 
             <div className="border-t border-slate-700 print:border-black pt-1 w-44 text-right">

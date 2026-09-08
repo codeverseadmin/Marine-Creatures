@@ -541,6 +541,11 @@ export default function AdminDashboardPage() {
   };
 
   const handleSendInvoiceWhatsApp = (order: CustomerOrder) => {
+    const isPackedOrLater = ['packed', 'dispatched', 'delivered'].includes(order.currentStep);
+    if (!isPackedOrLater) {
+      showToast('⚠️ Invoice strictly unlocks once order reaches "Step 3: Thermal Pod Packed"');
+      return;
+    }
     const origin = typeof window !== 'undefined' ? window.location.origin : 'https://marine-creatures-sand.vercel.app';
     const invoiceUrl = `${origin}/invoice/${order.id}`;
     const cleanPhone = order.phone.replace(/[^0-9]/g, '');
@@ -1993,53 +1998,78 @@ export default function AdminDashboardPage() {
                           </div>
 
                           {/* Row 3: Order Approval & Official Tax Invoice Actions */}
-                          <div className="flex items-center justify-between gap-2.5 flex-wrap pt-1 text-xs">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              {order.isApproved ? (
-                                <span className="px-3 py-1 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-bold flex items-center gap-1.5 text-xs shadow-sm">
-                                  <span>✓</span>
-                                  <span>Approved &amp; Invoiced ({order.invoiceNumber || `INV-${order.id}`})</span>
-                                </span>
-                              ) : (
-                                <button
-                                  onClick={() => {
-                                    approveOrder(order.id);
-                                    showToast(`✓ Order #${order.id} Approved! Official Invoice generated.`);
-                                  }}
-                                  className="h-8 px-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold flex items-center gap-1.5 text-xs shadow-md active:scale-95 transition-all"
-                                >
-                                  <span>⚡</span>
-                                  <span>Approve Order &amp; Issue Tax Invoice</span>
-                                </button>
-                              )}
+                          {(() => {
+                            const isPackedOrLater = ['packed', 'dispatched', 'delivered'].includes(order.currentStep);
+                            return (
+                              <div className="flex items-center justify-between gap-2.5 flex-wrap pt-1 text-xs">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  {order.isApproved ? (
+                                    <span className="px-3 py-1 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-bold flex items-center gap-1.5 text-xs shadow-sm">
+                                      <span>✓</span>
+                                      <span>Approved &amp; Invoiced ({order.invoiceNumber || `INV-${order.id}`})</span>
+                                    </span>
+                                  ) : isPackedOrLater ? (
+                                    <button
+                                      onClick={() => {
+                                        approveOrder(order.id);
+                                        showToast(`✓ Order #${order.id} Approved! Official Invoice generated.`);
+                                      }}
+                                      className="h-8 px-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold flex items-center gap-1.5 text-xs shadow-md active:scale-95 transition-all"
+                                    >
+                                      <span>⚡</span>
+                                      <span>Approve Order &amp; Issue Tax Invoice</span>
+                                    </button>
+                                  ) : (
+                                    <span
+                                      className="h-8 px-3 rounded-xl bg-slate-900/90 border border-amber-500/30 text-amber-400 font-medium flex items-center gap-1.5 text-xs cursor-not-allowed"
+                                      title="Invoice strictly unlocks once the order is advanced to Step 3: Thermal Pod Packed"
+                                    >
+                                      <span>🔒</span>
+                                      <span>Invoice Locked (Advance to &quot;Step 3: Packed&quot; first)</span>
+                                    </span>
+                                  )}
 
-                              {order.orderNotes && (
-                                <span className="text-[11px] text-slate-400 italic bg-slate-950/60 px-2.5 py-1 rounded-lg border border-slate-800/60">
-                                  Note: {order.orderNotes}
-                                </span>
-                              )}
-                            </div>
+                                  {order.orderNotes && (
+                                    <span className="text-[11px] text-slate-400 italic bg-slate-950/60 px-2.5 py-1 rounded-lg border border-slate-800/60">
+                                      Note: {order.orderNotes}
+                                    </span>
+                                  )}
+                                </div>
 
-                            <div className="flex items-center gap-2">
-                              <Link
-                                href={`/invoice/${order.id}`}
-                                target="_blank"
-                                className="h-8 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-cyan-300 hover:text-cyan-200 border border-slate-800 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
-                              >
-                                <span>🧾</span>
-                                <span>View Invoice ↗</span>
-                              </Link>
+                                <div className="flex items-center gap-2">
+                                  {isPackedOrLater ? (
+                                    <>
+                                      <Link
+                                        href={`/invoice/${order.id}`}
+                                        target="_blank"
+                                        className="h-8 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-cyan-300 hover:text-cyan-200 border border-slate-800 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
+                                      >
+                                        <span>🧾</span>
+                                        <span>View Invoice ↗</span>
+                                      </Link>
 
-                              <button
-                                onClick={() => handleSendInvoiceWhatsApp(order)}
-                                className="h-8 px-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95"
-                                title="Send Invoice PDF link to customer via WhatsApp"
-                              >
-                                <span>💬</span>
-                                <span>WhatsApp Invoice</span>
-                              </button>
-                            </div>
-                          </div>
+                                      <button
+                                        onClick={() => handleSendInvoiceWhatsApp(order)}
+                                        className="h-8 px-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95"
+                                        title="Send Invoice PDF link to customer via WhatsApp"
+                                      >
+                                        <span>💬</span>
+                                        <span>WhatsApp Invoice</span>
+                                      </button>
+                                    </>
+                                  ) : (
+                                    <span
+                                      className="h-8 px-2.5 rounded-xl bg-slate-950 text-slate-500 border border-slate-800/80 text-[11px] font-medium flex items-center gap-1 cursor-not-allowed"
+                                      title="Invoice will unlock after marking as Step 3: Thermal Pod Packed"
+                                    >
+                                      <span>🔒</span>
+                                      <span>Invoice unlocks after packaging</span>
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })()}
                         </div>
 
                         {/* Interactive Milestone Progress Control (Zero overlap!) */}
@@ -2723,22 +2753,18 @@ export default function AdminDashboardPage() {
                   <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block mb-1">
                     Active Signatory Signature:
                   </span>
-                  <div className="h-14 flex items-center bg-slate-900/60 px-4 rounded-xl border border-slate-800/80 min-w-[200px] justify-center">
-                    {ownerSignature ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img
-                        src={ownerSignature}
-                        alt="Owner Signature"
-                        className="max-h-12 max-w-[180px] object-contain filter invert"
-                      />
-                    ) : (
-                      <span className="font-serif italic text-2xl font-bold text-cyan-300">
-                        Suraj Shasmal
-                      </span>
-                    )}
+                  <div className="h-14 flex items-center bg-white/95 px-4 rounded-xl border border-slate-700/50 min-w-[200px] justify-center shadow-inner">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={ownerSignature || '/signature.png'}
+                      alt="Owner Signature"
+                      className="max-h-12 max-w-[180px] object-contain"
+                    />
                   </div>
-                  <span className="text-[11px] text-slate-500 mt-1 block">
-                    {ownerSignature ? 'Custom uploaded handwritten signature' : 'Default digital calligraphy signature'}
+                  <span className="text-[11px] text-slate-400 mt-1 block">
+                    {ownerSignature && ownerSignature !== '/signature.png'
+                      ? 'Custom uploaded handwritten signature'
+                      : 'Official handwritten signature (Suraj Shasmal)'}
                   </span>
                 </div>
 
@@ -2766,12 +2792,12 @@ export default function AdminDashboardPage() {
                     />
                   </label>
 
-                  {ownerSignature && (
+                  {ownerSignature && ownerSignature !== '/signature.png' && (
                     <button
                       type="button"
                       onClick={() => {
-                        setOwnerSignature(null);
-                        showToast('Reset to default signature');
+                        setOwnerSignature('/signature.png');
+                        showToast('Reset to default handwritten signature');
                       }}
                       className="h-10 px-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold"
                     >
