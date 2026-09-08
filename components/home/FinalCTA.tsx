@@ -109,7 +109,7 @@ export function FinalCTA() {
               MARINE CREATURES
             </span>
             <span className="font-display text-sm italic text-[--color-muted] opacity-60">
-              Where the Ocean Becomes Art.
+              Bringing ocean at your door step
             </span>
           </div>
         </ScrollReveal>

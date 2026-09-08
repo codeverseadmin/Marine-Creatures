@@ -30,7 +30,7 @@ export default function InvoicePage({ params }: InvoicePageProps) {
   const handleShareWhatsApp = () => {
     if (!order) return;
     const invoiceUrl = typeof window !== 'undefined' ? window.location.href : `https://marine-creatures-sand.vercel.app/invoice/${order.id}`;
-    const text = `🌊 *MARINE CREATURES — OFFICIAL TAX INVOICE & DISPATCH MANIFEST* 🌊\n\nDear *${order.customerName}*,\nYour order *#${order.id}* has been verified & approved.\n\n🧾 *Invoice No:* ${order.invoiceNumber || `INV-${order.id}`}\n📅 *Date:* ${order.approvedAt || order.createdAt}\n📦 *Total Amount:* ₹${order.totalAmount.toLocaleString('en-IN')} (All-inclusive)\n📍 *Delivery Address:* ${order.address}, ${order.city} (${order.pincode})\n✈️ *Carrier:* ${order.courierName || 'Priority Air Cargo Express'} ${order.awbNumber ? `(AWB: ${order.awbNumber})` : ''}\n\n📄 *View / Download Your Official Invoice:* \n${invoiceUrl}\n\nThank you for trusting Marine Creatures with your bespoke marine ecosystem!`;
+    const text = `🌊 *MARINE CREATURES — OFFICIAL TAX INVOICE & DISPATCH MANIFEST* 🌊\n\nDear *${order.customerName}*,\nYour order *#${order.id}* has been verified & approved.\n\n🧾 *Invoice No:* ${order.invoiceNumber || `INV-${order.id}`}\n📅 *Date:* ${order.approvedAt || order.createdAt}\n📦 *Total Amount:* ₹${order.totalAmount.toLocaleString('en-IN')} (All-inclusive)\n📍 *Delivery Address:* ${order.address}, ${order.city} (${order.pincode})\n✈️ *Carrier:* ${order.courierName || 'Priority Air Cargo Express'} ${order.awbNumber ? `(AWB: ${order.awbNumber})` : ''}\n\n📄 *View / Download Your Official Invoice:* \n${invoiceUrl}\n\nThank you for trusting Marine Creatures — Bringing ocean at your door step!`;
     const phone = order.phone ? order.phone.replace(/\D/g, '') : '';
     const url = phone ? `https://wa.me/91${phone}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
@@ -221,7 +221,7 @@ export default function InvoicePage({ params }: InvoicePageProps) {
                   Marine Creatures
                 </h1>
                 <p className="text-[11px] font-semibold text-cyan-400 print:text-slate-700 tracking-widest uppercase">
-                  Bespoke Ocean Systems &amp; Captive-Bred Livestock
+                  Bringing ocean at your door step
                 </p>
               </div>
             </div>
@@ -459,7 +459,7 @@ export default function InvoicePage({ params }: InvoicePageProps) {
         {/* Footer Note */}
         <div className="text-[10px] text-slate-500 print:text-slate-600 text-center pt-4 border-t border-slate-800/40 print:border-none leading-relaxed">
           This is a computer-generated luxury tax invoice and dispatch certificate requiring no physical stamp.
-          Nurtured in CODEVERSE • Kolkata, India.
+          Bringing ocean at your door step • Kolkata, India.
         </div>
       </div>
     </div>

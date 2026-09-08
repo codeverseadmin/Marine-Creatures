@@ -374,7 +374,7 @@ export function CartDrawer() {
               </div>
 
               <p className="text-[10px] text-[--color-muted] text-center opacity-70 leading-tight pt-1">
-                🔒 100% DOA Live Arrival Guaranteed • Verified Red Sea Batch Authenticity • Nurtured in CODEVERSE
+                🔒 100% DOA Live Arrival Guaranteed • Verified Red Sea Batch Authenticity • Bringing ocean at your door step
               </p>
             </div>
           )}

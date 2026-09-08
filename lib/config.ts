@@ -4,10 +4,10 @@
 
 export const SITE_CONFIG = {
   name: 'Marine Creatures',
-  tagline: 'Where The Ocean Becomes Art.',
+  tagline: 'Bringing ocean at your door step',
   description:
-    'Marine Creatures is a luxury marine design house creating living underwater environments. Exotic captive-bred marine life, bespoke architectural aquariums, and turnkey installation & renovation services. Nurtured in CODEVERSE.',
-  slogan: 'Bringing Ocean At Your Door Step',
+    'Marine Creatures is a luxury marine design house creating living underwater environments. Exotic captive-bred marine life, bespoke architectural aquariums, and turnkey installation & renovation services. Bringing ocean at your door step.',
+  slogan: 'Bringing ocean at your door step',
   url: 'https://marinecreatures.com',
   whatsapp: '+919330436603',
   email: 'surajshasmal04@gmail.com',
@@ -15,10 +15,10 @@ export const SITE_CONFIG = {
   address: 'Kolkata, West Bengal, India',
   facebook: 'https://www.facebook.com/share/1HWXFrHZ9V/',
   googleMaps: 'https://maps.app.goo.gl/uYfMxyXqsGD8iQWz7?g_st=ac',
-  nurturedBy: 'Nurtured in CODEVERSE',
-  founder: 'Aritya Saha',
+  nurturedBy: 'Bringing ocean at your door step',
+  founder: 'Suraj Shasmal',
   founderLink: 'https://www.facebook.com/share/19cXkY5XbV/',
-  codeverseTagline: 'Nurtured in CODEVERSE',
+  studioTagline: 'Bringing ocean at your door step',
 };
 
 
