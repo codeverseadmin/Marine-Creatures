@@ -1719,14 +1719,24 @@ export default function AdminDashboardPage() {
             {/* Filter & Search Bar */}
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1 relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm select-none pointer-events-none">
+                  🔍
+                </span>
                 <input
                   type="text"
-                  placeholder="Search by Order ID (#MC-...), Customer Name, Phone, or City..."
+                  placeholder="Search order #, customer, phone, city..."
                   value={orderSearch}
                   onChange={(e) => setOrderSearch(e.target.value)}
-                  className="w-full h-12 pl-10 pr-4 rounded-2xl bg-slate-900 border border-slate-700 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:border-cyan-400 transition-colors"
+                  className="w-full h-12 pl-11 pr-10 rounded-2xl bg-slate-900 border border-slate-700 text-white placeholder:text-slate-500 text-xs sm:text-sm focus:outline-none focus:border-cyan-400 transition-colors"
                 />
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+                {orderSearch && (
+                  <button
+                    onClick={() => setOrderSearch('')}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white p-1"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
 
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
@@ -1743,7 +1753,7 @@ export default function AdminDashboardPage() {
                     onClick={() => setOrderStatusFilter(tab.id)}
                     className={`h-11 px-3.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                       orderStatusFilter === tab.id
-                        ? 'bg-cyan-400 text-slate-950 shadow-md'
+                        ? 'bg-cyan-400 text-slate-950 font-bold shadow-md'
                         : 'bg-slate-900/80 hover:bg-slate-800 text-slate-400 border border-slate-800'
                     }`}
                   >
@@ -1791,80 +1801,93 @@ export default function AdminDashboardPage() {
                     return (
                       <div
                         key={order.id}
-                        className="bg-[#071520] border border-slate-800 rounded-3xl p-5 sm:p-6 space-y-5 shadow-xl hover:border-cyan-500/30 transition-all"
+                        className="bg-[#071520] border border-slate-800 rounded-3xl p-4 sm:p-6 space-y-5 shadow-xl hover:border-cyan-500/30 transition-all"
                       >
                         {/* Order Top Bar */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800/80">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2.5">
-                              <span className="text-base font-extrabold text-cyan-400">
+                        <div className="flex flex-col gap-3 pb-4 border-b border-slate-800/80">
+                          {/* Row 1: Order ID, Created Date & Status + Delete */}
+                          <div className="flex items-center justify-between gap-2 flex-wrap">
+                            <div className="flex items-center gap-2">
+                              <span className="text-base sm:text-lg font-black text-cyan-400 tracking-tight">
                                 #{order.id}
                               </span>
-                              <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono">
+                              <span className="text-[11px] px-2.5 py-0.5 rounded-md bg-slate-900 border border-slate-800 text-slate-400 font-mono">
                                 {order.createdAt}
                               </span>
                             </div>
-                            <p className="text-sm font-bold text-white flex items-center gap-2">
-                              <span>👤 {order.customerName}</span>
-                              <span className="text-slate-500">•</span>
-                              <span className="text-slate-400 text-xs font-normal">
-                                📞 +91 {order.phone}
-                              </span>
-                              <span className="text-slate-500">•</span>
-                              <span className="text-slate-400 text-xs font-normal">
-                                📍 {order.city} ({order.pincode})
-                              </span>
-                            </p>
+
+                            {/* Current Status Badge + Delete Button */}
+                            <div className="flex items-center gap-2">
+                              <div
+                                className={`px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 border shadow-sm ${
+                                  order.currentStep === 'delivered'
+                                    ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                                    : order.currentStep === 'dispatched'
+                                    ? 'bg-purple-500/15 text-purple-400 border-purple-500/30'
+                                    : 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30'
+                                }`}
+                              >
+                                <span className="text-sm">{currentMeta.icon}</span>
+                                <span>{currentMeta.label}</span>
+                              </div>
+
+                              <button
+                                onClick={() => {
+                                  if (confirm(`Delete order #${order.id}?`)) {
+                                    deleteOrder(order.id);
+                                    showToast(`Order #${order.id} deleted`);
+                                  }
+                                }}
+                                className="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-xs transition-colors shrink-0 border border-red-500/20"
+                                title="Delete Order"
+                              >
+                                ✕
+                              </button>
+                            </div>
                           </div>
 
-                          {/* Current Status Badge */}
-                          <div className="flex items-center gap-2">
-                            <div
-                              className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 border ${
-                                order.currentStep === 'delivered'
-                                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                                  : order.currentStep === 'dispatched'
-                                  ? 'bg-purple-500/10 text-purple-400 border-purple-500/30'
-                                  : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
-                              }`}
-                            >
-                              <span className="text-sm">{currentMeta.icon}</span>
-                              <span>{currentMeta.label}</span>
-                            </div>
-
-                            <button
-                              onClick={() => {
-                                if (confirm(`Delete order #${order.id}?`)) {
-                                  deleteOrder(order.id);
-                                  showToast(`Order #${order.id} deleted`);
-                                }
-                              }}
-                              className="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-xs"
-                              title="Delete Order"
-                            >
-                              ✕
-                            </button>
+                          {/* Row 2: Customer Contact & Location Chips (No cramped inline dots) */}
+                          <div className="flex flex-wrap items-center gap-2 text-xs">
+                            <span className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 bg-slate-900/90 px-2.5 py-1 rounded-lg border border-slate-800">
+                              <span>👤</span>
+                              <span>{order.customerName}</span>
+                            </span>
+                            <span className="text-slate-300 flex items-center gap-1.5 bg-slate-900/60 px-2.5 py-1 rounded-lg border border-slate-800/80">
+                              <span>📞</span>
+                              <span>+91 {order.phone}</span>
+                            </span>
+                            <span className="text-slate-300 flex items-center gap-1.5 bg-slate-900/60 px-2.5 py-1 rounded-lg border border-slate-800/80">
+                              <span>📍</span>
+                              <span>{order.city} ({order.pincode})</span>
+                            </span>
                           </div>
                         </div>
 
-                        {/* Interactive Milestone Progress Control */}
-                        <div className="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs uppercase font-bold tracking-wider text-slate-400">
-                              Simulate / Advance Tracking Milestone:
-                            </span>
+                        {/* Interactive Milestone Progress Control (Zero overlap!) */}
+                        <div className="bg-slate-950/80 border border-slate-800/90 rounded-2xl p-4 space-y-3">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div>
+                              <span className="text-xs uppercase font-extrabold tracking-wider text-cyan-400 flex items-center gap-1.5">
+                                <span>⚡</span>
+                                <span>Milestone Progression Control</span>
+                              </span>
+                              <p className="text-[11px] text-slate-400 mt-0.5">
+                                Tap any milestone below or advance 1-tap to next stage
+                              </p>
+                            </div>
+
                             {nextStep && nextMeta && (
                               <button
                                 onClick={() => {
                                   updateOrderStatus(order.id, nextStep);
                                   showToast(`✓ Advanced #${order.id} to "${nextMeta.label}"`);
                                 }}
-                                className="h-9 px-4 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 active:scale-95 transition-all shadow-md"
+                                className="w-full sm:w-auto h-11 px-4 rounded-xl bg-gradient-to-r from-cyan-400 to-teal-400 hover:from-cyan-300 hover:to-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-all shadow-md shrink-0"
                               >
-                                <span>1-Tap Advance to:</span>
-                                <span>{nextMeta.icon}</span>
-                                <span>{nextMeta.label}</span>
-                                <span>→</span>
+                                <span>1-Tap Advance:</span>
+                                <span className="text-sm">{nextMeta.icon}</span>
+                                <span className="underline decoration-slate-950/30 underline-offset-2">{nextMeta.label}</span>
+                                <span className="text-sm">→</span>
                               </button>
                             )}
                           </div>
@@ -1876,6 +1899,7 @@ export default function AdminDashboardPage() {
                               const isCurrent = order.currentStep === stepKey;
                               const isPassed =
                                 ORDER_STEPS_SEQUENCE.indexOf(order.currentStep) >= idx;
+                              const isLastStepOnMobile = idx === 4;
 
                               return (
                                 <button
@@ -1884,9 +1908,11 @@ export default function AdminDashboardPage() {
                                     updateOrderStatus(order.id, stepKey);
                                     showToast(`✓ Status updated to ${meta.label}`);
                                   }}
-                                  className={`p-2.5 rounded-xl text-left border transition-all text-xs flex flex-col gap-1 ${
+                                  className={`p-2.5 sm:p-3 rounded-xl text-left border transition-all text-xs flex flex-col gap-1.5 relative overflow-hidden ${
+                                    isLastStepOnMobile ? 'col-span-2 sm:col-span-1' : ''
+                                  } ${
                                     isCurrent
-                                      ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200 shadow-sm ring-1 ring-cyan-400/50'
+                                      ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200 shadow-md ring-1 ring-cyan-400/50'
                                       : isPassed
                                       ? 'bg-emerald-950/30 border-emerald-500/30 text-emerald-300'
                                       : 'bg-slate-900/50 border-slate-800 text-slate-400 hover:border-slate-700'
@@ -1894,13 +1920,24 @@ export default function AdminDashboardPage() {
                                 >
                                   <div className="flex items-center justify-between">
                                     <span className="text-base">{meta.icon}</span>
-                                    <span className="text-[10px] font-mono opacity-60">Step {idx + 1}</span>
+                                    <span className="text-[10px] font-mono opacity-70 bg-slate-950/60 px-1.5 py-0.5 rounded border border-slate-800/60">
+                                      Step {idx + 1}
+                                    </span>
                                   </div>
-                                  <span className="font-bold leading-tight line-clamp-1">
+                                  <span className="font-bold leading-tight line-clamp-1 text-xs sm:text-[13px]">
                                     {meta.label}
                                   </span>
-                                  <span className="text-[10px] opacity-70">
-                                    {isCurrent ? '● Active' : isPassed ? '✓ Done' : 'Pending'}
+                                  <span className="text-[10px] font-semibold flex items-center gap-1">
+                                    {isCurrent ? (
+                                      <span className="text-cyan-300 flex items-center gap-1">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse inline-block" />
+                                        Active
+                                      </span>
+                                    ) : isPassed ? (
+                                      <span className="text-emerald-400">✓ Completed</span>
+                                    ) : (
+                                      <span className="text-slate-500">Pending</span>
+                                    )}
                                   </span>
                                 </button>
                               );
@@ -1921,7 +1958,7 @@ export default function AdminDashboardPage() {
                                   key={idx}
                                   className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/60"
                                 >
-                                  <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-800 shrink-0">
+                                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-800 shrink-0">
                                     <img
                                       src={item.product.images[0] || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=200&q=80'}
                                       alt={item.product.name}
@@ -1929,14 +1966,14 @@ export default function AdminDashboardPage() {
                                     />
                                   </div>
                                   <div className="flex-1 min-w-0">
-                                    <h4 className="text-xs font-bold text-white truncate">
+                                    <h4 className="text-xs sm:text-sm font-bold text-white truncate">
                                       {item.product.name}
                                     </h4>
                                     <p className="text-[11px] text-slate-400">
                                       Qty: {item.quantity} × ₹{item.product.price.toLocaleString('en-IN')}
                                     </p>
                                   </div>
-                                  <span className="text-xs font-mono font-bold text-cyan-300 shrink-0">
+                                  <span className="text-xs sm:text-sm font-mono font-bold text-cyan-300 shrink-0">
                                     ₹{(item.product.price * item.quantity).toLocaleString('en-IN')}
                                   </span>
                                 </div>
@@ -1958,7 +1995,7 @@ export default function AdminDashboardPage() {
                               </span>
 
                               {isEditingTracking ? (
-                                <div className="p-3 rounded-xl bg-slate-900 border border-cyan-400/50 space-y-2.5">
+                                <div className="p-3.5 rounded-xl bg-slate-900 border border-cyan-400/50 space-y-2.5">
                                   <div>
                                     <label className="text-[10px] text-slate-400 uppercase block mb-1">
                                       Air Waybill / AWB Number
@@ -1980,7 +2017,7 @@ export default function AdminDashboardPage() {
                                     </label>
                                     <input
                                       type="text"
-                                      placeholder="e.g. BlueDart Apex Cargo / Air India Cargo"
+                                      placeholder="e.g. IndiGo CarGo / Air India Cargo"
                                       value={trackingForm.courier}
                                       onChange={(e) =>
                                         setTrackingForm({ ...trackingForm, courier: e.target.value })
@@ -2007,22 +2044,22 @@ export default function AdminDashboardPage() {
                                   </div>
                                 </div>
                               ) : (
-                                <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-1.5">
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-xs text-slate-400">Carrier:</span>
-                                    <span className="text-xs font-semibold text-white">
+                                <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-2 text-xs">
+                                  <div className="flex items-center justify-between gap-3">
+                                    <span className="text-slate-400 shrink-0">Carrier:</span>
+                                    <span className="font-semibold text-white text-right truncate">
                                       {order.courierName || 'BlueDart Apex Express'}
                                     </span>
                                   </div>
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-xs text-slate-400">Air Waybill (AWB):</span>
-                                    <span className="text-xs font-mono font-bold text-cyan-300">
+                                  <div className="flex items-center justify-between gap-3">
+                                    <span className="text-slate-400 shrink-0">Air Waybill (AWB):</span>
+                                    <span className="font-mono font-bold text-cyan-300 text-right truncate">
                                       {order.awbNumber || 'Generating...'}
                                     </span>
                                   </div>
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-xs text-slate-400">Est. Arrival:</span>
-                                    <span className="text-xs text-white">
+                                  <div className="flex items-center justify-between gap-3">
+                                    <span className="text-slate-400 shrink-0">Est. Arrival:</span>
+                                    <span className="text-white text-right truncate">
                                       {order.estimatedDelivery}
                                     </span>
                                   </div>
@@ -2035,7 +2072,7 @@ export default function AdminDashboardPage() {
                                       });
                                       setEditingTrackingOrderId(order.id);
                                     }}
-                                    className="w-full mt-2 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-1 border border-slate-700"
+                                    className="w-full mt-2 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 border border-slate-700 transition-colors"
                                   >
                                     <span>✏️</span>
                                     <span>Edit AWB & Courier</span>
