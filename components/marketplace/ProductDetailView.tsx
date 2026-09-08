@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Product } from '@/lib/data/products';
+import { Product, ProductMedia } from '@/lib/data/products';
 import { useCart } from '@/lib/context/CartContext';
 import { useCatalog } from '@/lib/context/CatalogContext';
 import { ProductCard } from './ProductCard';
@@ -17,12 +17,47 @@ export function ProductDetailView({ product: initialProduct, relatedProducts }: 
   const { getProduct } = useCatalog();
   const product = getProduct(initialProduct.id) || initialProduct;
   const { addToCart, setIsCartOpen } = useCart();
-  const [selectedImg, setSelectedImg] = useState<string>(product.images[0]);
+
+  // Unified Media List (Photos + Videos)
+  const mediaItems: ProductMedia[] = React.useMemo(() => {
+    if (product.media && product.media.length > 0) {
+      return product.media;
+    }
+    const list: ProductMedia[] = (product.images || []).map((img, i) => ({
+      id: `img-${i}`,
+      type: 'image' as const,
+      url: img,
+      title: `${product.name} Photo ${i + 1}`,
+    }));
+    if (product.videos && product.videos.length > 0) {
+      product.videos.forEach((vid, i) => {
+        list.push({
+          id: `vid-${i}`,
+          type: 'video' as const,
+          url: vid,
+          title: `Live Quarantine Specimen Video`,
+        });
+      });
+    }
+    return list;
+  }, [product]);
+
+  const [activeMediaIndex, setActiveMediaIndex] = useState(0);
+  const currentMedia = mediaItems[activeMediaIndex] || mediaItems[0];
+
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<'care' | 'installation' | 'specs' | 'shipping'>('care');
   const [added, setAdded] = useState(false);
   const [pincode, setPincode] = useState('');
   const [pincodeChecked, setPincodeChecked] = useState(false);
+
+  const prevMedia = () => {
+    setActiveMediaIndex((prev) => (prev - 1 + mediaItems.length) % mediaItems.length);
+  };
+
+  const nextMedia = () => {
+    setActiveMediaIndex((prev) => (prev + 1) % mediaItems.length);
+  };
 
   const handlePincodeCheck = (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,42 +110,119 @@ export function ProductDetailView({ product: initialProduct, relatedProducts }: 
 
         {/* Main Product Showcase Section */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-start">
-          {/* Left Column: Image Gallery */}
+          {/* Left Column: Photo & Video Interactive Slideshow */}
           <div className="lg:col-span-7 space-y-4">
             <div
-              className="rounded-3xl overflow-hidden border border-[rgba(255,255,255,0.1)] bg-black/60 shadow-2xl relative"
+              className="rounded-3xl overflow-hidden border border-[rgba(255,255,255,0.12)] bg-black/80 shadow-2xl relative select-none flex items-center justify-center"
               style={{ aspectRatio: '16/11' }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={selectedImg}
-                alt={product.name}
-                className="w-full h-full object-cover transition-opacity duration-300"
-              />
-              {product.badge && (
-                <div className="absolute top-3.5 left-3.5 sm:top-4 sm:left-4">
+              {/* Main Media Display: Image or Video */}
+              {currentMedia?.type === 'video' ? (
+                <div className="w-full h-full relative bg-black flex items-center justify-center">
+                  <video
+                    key={currentMedia.url}
+                    src={currentMedia.url}
+                    controls
+                    autoPlay
+                    loop
+                    playsInline
+                    className="w-full h-full object-contain max-h-full"
+                  />
+                  {/* Live Quarantine Badge */}
+                  <div className="absolute top-4 right-4 z-20 pointer-events-none">
+                    <span className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-wider font-semibold text-cyan-300 bg-slate-950/85 px-3 py-1.5 rounded-xl border border-cyan-400/40 backdrop-blur-md shadow-lg">
+                      <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                      LIVE SPECIMEN VIDEO
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={currentMedia?.url || product.images[0]}
+                  alt={product.name}
+                  className="w-full h-full object-cover transition-opacity duration-300"
+                />
+              )}
+
+              {/* Badges Overlay */}
+              {product.badge && currentMedia?.type !== 'video' && (
+                <div className="absolute top-3.5 left-3.5 sm:top-4 sm:left-4 z-10 pointer-events-none">
                   <span className="text-[11px] sm:text-xs uppercase tracking-wider font-semibold text-white bg-[--color-accent] px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-xl shadow-lg">
                     {product.badge}
                   </span>
                 </div>
               )}
+
+              {/* Prev / Next Slide Chevrons */}
+              {mediaItems.length > 1 && (
+                <>
+                  <button
+                    onClick={prevMedia}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full border border-white/20 bg-black/60 hover:bg-black/90 text-white flex items-center justify-center backdrop-blur-md transition-all active:scale-90"
+                    aria-label="Previous media slide"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                  </button>
+
+                  <button
+                    onClick={nextMedia}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full border border-white/20 bg-black/60 hover:bg-black/90 text-white flex items-center justify-center backdrop-blur-md transition-all active:scale-90"
+                    aria-label="Next media slide"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </button>
+
+                  {/* Slide Counter Overlay */}
+                  <div className="absolute bottom-3.5 right-3.5 z-10 pointer-events-none">
+                    <span className="px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-md text-[11px] font-mono font-medium text-white/90 border border-white/10">
+                      {activeMediaIndex + 1} / {mediaItems.length}
+                    </span>
+                  </div>
+                </>
+              )}
             </div>
 
-            {/* Thumbnail selector */}
-            {product.images.length > 1 && (
-              <div className="flex gap-2.5 sm:gap-3 overflow-x-auto pb-2 scrollbar-none touch-momentum">
-                {product.images.map((img, idx) => (
+            {/* Thumbnail Selector Strip (Photos + Videos) */}
+            {mediaItems.length > 1 && (
+              <div className="flex items-center gap-2.5 sm:gap-3 overflow-x-auto pb-2 scrollbar-none touch-momentum">
+                {mediaItems.map((item, idx) => (
                   <button
-                    key={idx}
-                    onClick={() => setSelectedImg(img)}
-                    className={`w-20 h-16 sm:w-24 sm:h-20 rounded-xl overflow-hidden border-2 transition-all shrink-0 active:scale-95 ${
-                      selectedImg === img
-                        ? 'border-[--color-accent] shadow-[0_0_15px_rgba(0,184,217,0.4)]'
-                        : 'border-transparent opacity-60 hover:opacity-100'
+                    key={item.id || idx}
+                    onClick={() => setActiveMediaIndex(idx)}
+                    className={`relative w-20 h-16 sm:w-24 sm:h-20 rounded-xl overflow-hidden border-2 transition-all shrink-0 active:scale-95 bg-black/50 ${
+                      activeMediaIndex === idx
+                        ? 'border-cyan-400 shadow-[0_0_15px_rgba(0,184,217,0.5)] scale-[1.02]'
+                        : 'border-white/10 opacity-60 hover:opacity-100'
                     }`}
+                    aria-label={`View slide ${idx + 1} (${item.type})`}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    {item.type === 'video' ? (
+                      <div className="w-full h-full relative flex items-center justify-center bg-slate-900">
+                        {item.thumbnail ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img src={item.thumbnail} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-slate-900 to-cyan-950 flex items-center justify-center" />
+                        )}
+                        {/* Play Icon Badge */}
+                        <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-0.5">
+                          <span className="w-6 h-6 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center text-[10px] pl-0.5 shadow-md font-bold">
+                            ▶
+                          </span>
+                          <span className="text-[9px] uppercase font-bold tracking-wider text-cyan-300">
+                            VIDEO
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src={item.url} alt="" className="w-full h-full object-cover" />
+                    )}
                   </button>
                 ))}
               </div>
@@ -242,6 +354,18 @@ export function ProductDetailView({ product: initialProduct, relatedProducts }: 
               >
                 <span>💬</span>
                 <span>INQUIRE / ORDER VIA WHATSAPP</span>
+              </button>
+
+              {/* Request Live Feeding Video button */}
+              <button
+                onClick={() => {
+                  const message = `Hi Marine Creatures! I am interested in the ${product.name} (₹${product.price.toLocaleString('en-IN')}). Could you please share a quick 10-second quarantine tank feeding clip or live video before I order?`;
+                  window.open(`https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
+                }}
+                className="w-full h-11 rounded-xl border border-cyan-500/30 bg-cyan-500/10 hover:bg-cyan-500/20 active:scale-95 text-xs text-cyan-300 font-semibold tracking-wider uppercase transition-all flex items-center justify-center gap-2 shadow-sm"
+              >
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                <span>🎥 REQUEST LIVE FEEDING VIDEO ON WHATSAPP</span>
               </button>
             </div>
 

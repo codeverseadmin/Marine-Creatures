@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useCatalog, InquiryLead } from '@/lib/context/CatalogContext';
-import { Product } from '@/lib/data/products';
+import { Product, ProductMedia } from '@/lib/data/products';
 import { BannerSlide } from '@/lib/data/banners';
 import { PromoCarousel } from '@/components/ui/PromoCarousel';
 
@@ -49,9 +49,22 @@ export default function AdminDashboardPage() {
     inStock: true,
     stockCount: 10,
     images: ['https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1000&q=85'],
+    videos: [],
+    media: [
+      {
+        id: 'media-init-1',
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1000&q=85',
+        title: 'Primary Photo',
+      },
+    ],
     shortDesc: '',
     description: '',
   });
+
+  // Media upload input helpers
+  const [newMediaUrl, setNewMediaUrl] = useState('');
+  const [newMediaType, setNewMediaType] = useState<'image' | 'video'>('image');
 
   // Banner Form State
   const [isEditingBanner, setIsEditingBanner] = useState(false);
@@ -139,6 +152,8 @@ export default function AdminDashboardPage() {
       images: Array.isArray(productForm.images) && productForm.images.length > 0 && productForm.images[0].trim() !== ''
         ? productForm.images
         : ['https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1000&q=85'],
+      videos: productForm.videos || [],
+      media: productForm.media || [],
       shortDesc: productForm.shortDesc || '',
       description: productForm.description || '',
       deliveryInfo: {
@@ -161,8 +176,177 @@ export default function AdminDashboardPage() {
     setEditingProductId(null);
   };
 
+  // Media Manager Handlers
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    Array.from(files).forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (uploadEvent) => {
+        const base64 = uploadEvent.target?.result as string;
+        if (!base64) return;
+        setProductForm((prev) => {
+          const currentMedia: ProductMedia[] = prev.media ? [...prev.media] : [];
+          const newMediaItem: ProductMedia = {
+            id: `media-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+            type: 'image',
+            url: base64,
+            title: file.name,
+          };
+          const updatedMedia = [...currentMedia, newMediaItem];
+          const updatedImages = updatedMedia.filter((m) => m.type === 'image').map((m) => m.url);
+          return {
+            ...prev,
+            media: updatedMedia,
+            images: updatedImages.length > 0 ? updatedImages : prev.images,
+          };
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+    showToast(`✓ Uploaded ${files.length} photo(s)`);
+    e.target.value = '';
+  };
+
+  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const file = files[0];
+
+    if (file.size > 25 * 1024 * 1024) {
+      alert('Video file is larger than 25MB. For optimal performance, please use an MP4 URL or compress the video before uploading.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      const videoDataUrl = uploadEvent.target?.result as string;
+      if (!videoDataUrl) return;
+      setProductForm((prev) => {
+        const currentMedia: ProductMedia[] = prev.media ? [...prev.media] : [];
+        const newMediaItem: ProductMedia = {
+          id: `media-vid-${Date.now()}`,
+          type: 'video',
+          url: videoDataUrl,
+          title: file.name,
+        };
+        const updatedMedia = [...currentMedia, newMediaItem];
+        const updatedVideos = updatedMedia.filter((m) => m.type === 'video').map((m) => m.url);
+        return {
+          ...prev,
+          media: updatedMedia,
+          videos: updatedVideos,
+        };
+      });
+      showToast(`✓ Video "${file.name}" uploaded to slideshow`);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleAddMediaUrl = () => {
+    if (!newMediaUrl.trim()) return;
+    const item: ProductMedia = {
+      id: `media-${Date.now()}`,
+      type: newMediaType,
+      url: newMediaUrl.trim(),
+      title: newMediaType === 'video' ? 'Product Video' : 'Product Photo',
+    };
+    setProductForm((prev) => {
+      const currentMedia: ProductMedia[] = prev.media ? [...prev.media] : [];
+      const updatedMedia = [...currentMedia, item];
+      const updatedImages = updatedMedia.filter((m) => m.type === 'image').map((m) => m.url);
+      const updatedVideos = updatedMedia.filter((m) => m.type === 'video').map((m) => m.url);
+      return {
+        ...prev,
+        media: updatedMedia,
+        images: updatedImages.length > 0 ? updatedImages : prev.images,
+        videos: updatedVideos,
+      };
+    });
+    setNewMediaUrl('');
+    showToast(`✓ Added ${newMediaType} URL to slideshow`);
+  };
+
+  const handleRemoveMedia = (index: number) => {
+    setProductForm((prev) => {
+      if (!prev.media) return prev;
+      const updatedMedia = prev.media.filter((_, i) => i !== index);
+      const updatedImages = updatedMedia.filter((m) => m.type === 'image').map((m) => m.url);
+      const updatedVideos = updatedMedia.filter((m) => m.type === 'video').map((m) => m.url);
+      return {
+        ...prev,
+        media: updatedMedia,
+        images: updatedImages.length > 0 ? updatedImages : ['https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1000&q=85'],
+        videos: updatedVideos,
+      };
+    });
+    showToast('✓ Media item removed');
+  };
+
+  const handleMoveMedia = (index: number, direction: 'up' | 'down') => {
+    setProductForm((prev) => {
+      if (!prev.media) return prev;
+      const items = [...prev.media];
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= items.length) return prev;
+      const temp = items[index];
+      items[index] = items[targetIndex];
+      items[targetIndex] = temp;
+      const updatedImages = items.filter((m) => m.type === 'image').map((m) => m.url);
+      const updatedVideos = items.filter((m) => m.type === 'video').map((m) => m.url);
+      return {
+        ...prev,
+        media: items,
+        images: updatedImages,
+        videos: updatedVideos,
+      };
+    });
+  };
+
+  const handleSetMediaCover = (index: number) => {
+    setProductForm((prev) => {
+      if (!prev.media || index === 0) return prev;
+      const items = [...prev.media];
+      const [selected] = items.splice(index, 1);
+      items.unshift(selected);
+      const updatedImages = items.filter((m) => m.type === 'image').map((m) => m.url);
+      const updatedVideos = items.filter((m) => m.type === 'video').map((m) => m.url);
+      return {
+        ...prev,
+        media: items,
+        images: updatedImages,
+        videos: updatedVideos,
+      };
+    });
+    showToast('✓ Set as primary cover slide');
+  };
+
   const handleEditProductClick = (product: Product) => {
-    setProductForm({ ...product });
+    const existingMedia: ProductMedia[] = (product.media && product.media.length > 0)
+      ? [...product.media]
+      : [
+          ...(product.images || []).map((img, i) => ({
+            id: `img-${i}`,
+            type: 'image' as const,
+            url: img,
+            title: `Photo ${i + 1}`,
+          })),
+          ...(product.videos || []).map((vid, i) => ({
+            id: `vid-${i}`,
+            type: 'video' as const,
+            url: vid,
+            title: `Live Specimen Video`,
+          })),
+        ];
+
+    setProductForm({
+      ...product,
+      media: existingMedia,
+      images: product.images || [],
+      videos: product.videos || [],
+    });
     setEditingProductId(product.id);
     setIsEditingProduct(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -182,6 +366,15 @@ export default function AdminDashboardPage() {
       inStock: true,
       stockCount: 5,
       images: ['https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1000&q=85'],
+      videos: [],
+      media: [
+        {
+          id: `media-${Date.now()}`,
+          type: 'image',
+          url: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1000&q=85',
+          title: 'Primary Photo',
+        },
+      ],
       shortDesc: '',
       description: '',
     });
@@ -677,22 +870,192 @@ export default function AdminDashboardPage() {
                       </label>
                     </div>
 
-                    <div className="sm:col-span-2">
-                      <label className="text-xs font-semibold text-slate-300 block mb-1.5 uppercase tracking-wider">
-                        Image URL
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="https://..."
-                        value={Array.isArray(productForm.images) ? productForm.images.join(', ') : ''}
-                        onChange={(e) =>
-                          setProductForm({
-                            ...productForm,
-                            images: e.target.value.split(',').map((s) => s.trim()).filter(Boolean),
-                          })
-                        }
-                        className="w-full h-12 px-4 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-cyan-400"
-                      />
+                    {/* Media Gallery Manager (Photos & Videos Slideshow) */}
+                    <div className="sm:col-span-2 space-y-3 pt-2 border-t border-slate-800/80">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                          <label className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                            <span>📸 Product Media Slideshow (Photos &amp; Videos)</span>
+                            <span className="text-[10px] text-cyan-400 font-mono font-normal">
+                              ({productForm.media?.length || 0} items)
+                            </span>
+                          </label>
+                          <p className="text-[11px] text-slate-400 mt-0.5">
+                            Upload photos and live quarantine specimen video clips. Slide #1 will be the main catalog cover.
+                          </p>
+                        </div>
+
+                        {/* Direct Action Upload Buttons */}
+                        <div className="flex flex-wrap items-center gap-2">
+                          {/* Photo File Picker */}
+                          <label className="cursor-pointer h-9 px-3.5 rounded-xl bg-cyan-400/10 hover:bg-cyan-400/20 text-cyan-300 text-xs font-semibold flex items-center gap-1.5 border border-cyan-400/30 active:scale-95 transition-all">
+                            <span>📸</span>
+                            <span>Upload Photos</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              multiple
+                              onChange={handlePhotoUpload}
+                              className="hidden"
+                            />
+                          </label>
+
+                          {/* Video File Picker */}
+                          <label className="cursor-pointer h-9 px-3.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-xs font-semibold flex items-center gap-1.5 border border-emerald-500/30 active:scale-95 transition-all">
+                            <span>🎥</span>
+                            <span>Upload Video</span>
+                            <input
+                              type="file"
+                              accept="video/mp4,video/webm,video/ogg"
+                              onChange={handleVideoUpload}
+                              className="hidden"
+                            />
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Add by URL input bar */}
+                      <div className="flex flex-col sm:flex-row gap-2 bg-slate-900/90 p-3 rounded-2xl border border-slate-800">
+                        <select
+                          value={newMediaType}
+                          onChange={(e) => setNewMediaType(e.target.value as any)}
+                          className="h-10 px-3 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400 shrink-0 font-medium"
+                        >
+                          <option value="image">📸 Photo URL</option>
+                          <option value="video">🎥 Video URL (MP4/WebM)</option>
+                        </select>
+                        <input
+                          type="text"
+                          placeholder={newMediaType === 'video' ? 'Paste direct video URL (e.g. https://.../video.mp4)' : 'Paste image URL (e.g. https://.../photo.jpg)'}
+                          value={newMediaUrl}
+                          onChange={(e) => setNewMediaUrl(e.target.value)}
+                          className="flex-1 h-10 px-3.5 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleAddMediaUrl}
+                          className="h-10 px-4 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs uppercase tracking-wider shrink-0 active:scale-95"
+                        >
+                          + Add to Slideshow
+                        </button>
+                      </div>
+
+                      {/* Visual Slideshow Strip Grid */}
+                      {productForm.media && productForm.media.length > 0 ? (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pt-1">
+                          {productForm.media.map((item, idx) => (
+                            <div
+                              key={item.id || idx}
+                              className={`relative rounded-2xl border overflow-hidden bg-slate-900 flex flex-col group ${
+                                idx === 0 ? 'border-cyan-400 shadow-[0_0_12px_rgba(0,184,217,0.3)]' : 'border-slate-800'
+                              }`}
+                            >
+                              {/* Slide Preview Container */}
+                              <div className="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden">
+                                {item.type === 'video' ? (
+                                  <div className="w-full h-full relative flex items-center justify-center">
+                                    <video
+                                      src={item.url}
+                                      muted
+                                      className="w-full h-full object-cover"
+                                    />
+                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                      <span className="w-7 h-7 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center text-xs pl-0.5 font-bold shadow-md">
+                                        ▶
+                                      </span>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  /* eslint-disable-next-line @next/next/no-img-element */
+                                  <img
+                                    src={item.url}
+                                    alt=""
+                                    className="w-full h-full object-cover"
+                                  />
+                                )}
+
+                                {/* Slide Number Badge */}
+                                <div className="absolute top-2 left-2 flex items-center gap-1">
+                                  <span className="px-2 py-0.5 rounded-lg bg-black/80 backdrop-blur-md text-[10px] font-bold text-white">
+                                    #{idx + 1}
+                                  </span>
+                                  {idx === 0 && (
+                                    <span className="px-2 py-0.5 rounded-lg bg-cyan-400 text-[9px] font-bold text-slate-950 uppercase tracking-wider">
+                                      Cover
+                                    </span>
+                                  )}
+                                </div>
+
+                                {/* Media Type Indicator */}
+                                <div className="absolute top-2 right-2">
+                                  <span
+                                    className={`px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider ${
+                                      item.type === 'video'
+                                        ? 'bg-emerald-500 text-white'
+                                        : 'bg-slate-800/90 text-slate-200'
+                                    }`}
+                                  >
+                                    {item.type === 'video' ? '🎥 Video' : '📸 Photo'}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Card Action Controls */}
+                              <div className="p-2 bg-slate-950/80 flex items-center justify-between gap-1 border-t border-slate-800/80 text-[11px]">
+                                {idx !== 0 ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleSetMediaCover(idx)}
+                                    className="text-[10px] text-cyan-400 hover:text-cyan-300 font-semibold"
+                                    title="Make this the main cover image"
+                                  >
+                                    ★ Make Cover
+                                  </button>
+                                ) : (
+                                  <span className="text-[10px] text-slate-500 font-medium italic">
+                                    Primary Cover
+                                  </span>
+                                )}
+
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    type="button"
+                                    disabled={idx === 0}
+                                    onClick={() => handleMoveMedia(idx, 'up')}
+                                    className="w-6 h-6 rounded bg-slate-800 text-slate-300 hover:text-white disabled:opacity-30 flex items-center justify-center text-xs"
+                                    title="Move earlier"
+                                  >
+                                    ◀
+                                  </button>
+                                  <button
+                                    type="button"
+                                    disabled={idx === (productForm.media?.length || 0) - 1}
+                                    onClick={() => handleMoveMedia(idx, 'down')}
+                                    className="w-6 h-6 rounded bg-slate-800 text-slate-300 hover:text-white disabled:opacity-30 flex items-center justify-center text-xs"
+                                    title="Move later"
+                                  >
+                                    ▶
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveMedia(idx)}
+                                    className="w-6 h-6 rounded bg-red-500/20 text-red-400 hover:bg-red-500/40 flex items-center justify-center text-xs ml-1"
+                                    title="Remove slide"
+                                  >
+                                    🗑️
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="p-6 rounded-2xl border border-dashed border-slate-800 text-center text-slate-500 bg-slate-900/40">
+                          <span className="text-2xl block mb-1">📸</span>
+                          <p className="text-xs text-slate-400 font-medium">No media uploaded for this product yet.</p>
+                          <p className="text-[11px] text-slate-500 mt-1">Upload at least one photo or video to display in the customer slideshow.</p>
+                        </div>
+                      )}
                     </div>
 
                     <div className="sm:col-span-2">

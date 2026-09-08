@@ -43,6 +43,16 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.categoryLabel}
           </span>
         </div>
+
+        {/* Live Video Indicator Badge */}
+        {((product.videos && product.videos.length > 0) || (product.media && product.media.some((m) => m.type === 'video'))) && (
+          <div className="absolute top-3.5 right-3.5">
+            <span className="text-[10px] tracking-wider font-semibold text-cyan-300 bg-black/80 backdrop-blur-md px-2.5 py-1 rounded-xl border border-cyan-400/40 flex items-center gap-1 shadow-md">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+              <span>LIVE VIDEO</span>
+            </span>
+          </div>
+        )}
       </Link>
 
       {/* Content */}

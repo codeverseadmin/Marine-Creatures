@@ -1,3 +1,11 @@
+export interface ProductMedia {
+  id: string;
+  type: 'image' | 'video';
+  url: string;
+  thumbnail?: string;
+  title?: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -13,6 +21,8 @@ export interface Product {
   inStock: boolean;
   stockCount: number;
   images: string[];
+  videos?: string[];
+  media?: ProductMedia[];
   shortDesc: string;
   description: string;
   deliveryInfo: {
@@ -60,6 +70,30 @@ export const PRODUCTS: Product[] = [
       'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1000&q=85',
       'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1000&q=85',
     ],
+    videos: [
+      'https://assets.mixkit.co/videos/43187/43187-720.mp4',
+    ],
+    media: [
+      {
+        id: 'clown-img-1',
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1000&q=85',
+        title: 'Snowflake Pair — Primary Profile',
+      },
+      {
+        id: 'clown-vid-1',
+        type: 'video',
+        url: 'https://assets.mixkit.co/videos/43187/43187-720.mp4',
+        thumbnail: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&q=70',
+        title: 'Live Quarantine Tank Feeding Clip',
+      },
+      {
+        id: 'clown-img-2',
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1000&q=85',
+        title: 'Anemone Hosting Behavior',
+      },
+    ],
     shortDesc: 'Captive-bred bonded pair with vivid white patterns. Peaceful and 100% reef safe.',
     description: 'Our Snowflake Ocellaris Clownfish pairs are captive-bred in closed-loop aquaculture systems. Bonded for immediate harmony in your aquarium, they display striking contrasting white patterns with deep orange accents.',
     deliveryInfo: {
@@ -103,6 +137,30 @@ export const PRODUCTS: Product[] = [
     images: [
       'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1000&q=85',
       'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=1000&q=85',
+    ],
+    videos: [
+      'https://assets.mixkit.co/videos/43200/43200-720.mp4',
+    ],
+    media: [
+      {
+        id: 'angelfish-img-1',
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1000&q=85',
+        title: 'Juvenile Spiral Color Pattern',
+      },
+      {
+        id: 'angelfish-vid-1',
+        type: 'video',
+        url: 'https://assets.mixkit.co/videos/43200/43200-720.mp4',
+        thumbnail: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=400&q=70',
+        title: 'Active Swimming & Grazing Video',
+      },
+      {
+        id: 'angelfish-img-2',
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=1000&q=85',
+        title: 'Reef Showcase Angle',
+      },
     ],
     shortDesc: 'Regal circular blue and white patterning that morphs into brilliant gold adult stripes.',
     description: 'The Emperor Angelfish is the centerpiece of large marine displays. This show-grade juvenile exhibits hypnotic concentric blue-and-white rings that gradually transform into horizontal gold and sapphire lines.',
