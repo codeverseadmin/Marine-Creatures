@@ -35,6 +35,7 @@ export default function AdminDashboardPage() {
   const [showPasscode, setShowPasscode] = useState(false);
   const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'banners' | 'inquiries' | 'overview' | 'system'>('products');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
   const [adminViewMode, setAdminViewMode] = useState<'grid' | 'table'>('grid');
 
   // Order Management State
@@ -747,25 +748,41 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* Permanent Desktop / Laptop Sidebar */}
-      <aside className="hidden lg:flex flex-col fixed top-0 bottom-0 left-0 w-72 xl:w-80 bg-[#05111a] border-r border-slate-800/80 z-40 p-5 xl:p-6 justify-between overflow-y-auto shadow-2xl">
+      {/* Collapsible Desktop / Laptop Sidebar */}
+      <aside
+        className={`hidden lg:flex flex-col fixed top-0 bottom-0 left-0 w-72 xl:w-80 bg-[#05111a] border-r border-slate-800/80 z-40 p-5 xl:p-6 justify-between overflow-y-auto shadow-2xl transition-transform duration-300 ease-in-out ${
+          desktopSidebarOpen ? 'translate-x-0' : '-translate-x-full pointer-events-none'
+        }`}
+      >
         <div className="space-y-6">
-          {/* Brand Header */}
-          <div className="flex items-center gap-3 pb-5 border-b border-slate-800">
-            <div className="w-11 h-11 rounded-2xl bg-cyan-400/10 border border-cyan-400/30 flex items-center justify-center text-xl shadow-[0_0_15px_rgba(0,184,217,0.2)]">
-              🌊
-            </div>
-            <div>
-              <h2 className="font-bold text-white text-base leading-tight tracking-wide">
-                Marine Creatures
-              </h2>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-[10px] text-emerald-400 font-semibold uppercase tracking-wider">
-                  Control Center
-                </span>
+          {/* Brand Header with Close Button */}
+          <div className="flex items-center justify-between pb-5 border-b border-slate-800">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-cyan-400/10 border border-cyan-400/30 flex items-center justify-center text-xl shadow-[0_0_15px_rgba(0,184,217,0.2)]">
+                🌊
+              </div>
+              <div>
+                <h2 className="font-bold text-white text-base leading-tight tracking-wide">
+                  Marine Creatures
+                </h2>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-[10px] text-emerald-400 font-semibold uppercase tracking-wider">
+                    Control Center
+                  </span>
+                </div>
               </div>
             </div>
+
+            {/* Close Sidebar Button */}
+            <button
+              onClick={() => setDesktopSidebarOpen(false)}
+              className="w-8 h-8 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-xs transition-colors shrink-0 border border-slate-700"
+              title="Close navigation sidebar"
+              aria-label="Close navigation sidebar"
+            >
+              ✕
+            </button>
           </div>
 
           {/* Navigation Links */}
@@ -843,8 +860,12 @@ export default function AdminDashboardPage() {
         </div>
       </aside>
 
-      {/* Main Content Area Wrapper (Offset for Desktop Sidebar) */}
-      <div className="flex-1 w-full lg:pl-72 xl:pl-80 min-h-screen flex flex-col bg-[#02070c]">
+      {/* Main Content Area Wrapper (Offset when Desktop Sidebar is Open) */}
+      <div
+        className={`flex-1 w-full min-h-screen flex flex-col bg-[#02070c] transition-all duration-300 ease-in-out ${
+          desktopSidebarOpen ? 'lg:pl-72 xl:pl-80' : 'lg:pl-0'
+        }`}
+      >
         {/* Top Mobile Header (Phone / Tablet Only) */}
         <header className="lg:hidden sticky top-0 z-30 bg-[#05111a]/95 backdrop-blur-md border-b border-slate-800 px-4 py-3.5 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -890,21 +911,38 @@ export default function AdminDashboardPage() {
         </header>
 
         {/* Top Desktop Header (Laptop / Desktop Only) */}
-        <header className="hidden lg:flex sticky top-0 z-30 bg-[#05111a]/90 backdrop-blur-xl border-b border-slate-800/80 px-8 py-4 items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
-              <span>ADMIN</span>
-              <span>/</span>
-              <span className="text-cyan-400 font-bold uppercase">{activeTab}</span>
+        <header className="hidden lg:flex sticky top-0 z-30 bg-[#05111a]/90 backdrop-blur-xl border-b border-slate-800/80 px-6 xl:px-8 py-3.5 items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            {/* Sidebar Toggle Button (Open / Close) */}
+            <button
+              onClick={() => setDesktopSidebarOpen(!desktopSidebarOpen)}
+              className={`h-10 px-3.5 rounded-xl border transition-all flex items-center gap-2 text-xs font-semibold active:scale-95 shadow-sm ${
+                desktopSidebarOpen
+                  ? 'bg-slate-900/90 hover:bg-slate-800 text-slate-300 border-slate-800'
+                  : 'bg-cyan-400 text-slate-950 font-bold border-cyan-300 shadow-cyan-400/20'
+              }`}
+              title={desktopSidebarOpen ? 'Close navigation sidebar' : 'Open navigation sidebar'}
+              aria-label="Toggle navigation sidebar"
+            >
+              <span className="text-sm">{desktopSidebarOpen ? '◀' : '☰'}</span>
+              <span>{desktopSidebarOpen ? 'Hide Nav' : 'Show Nav'}</span>
+            </button>
+
+            <div>
+              <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
+                <span>ADMIN</span>
+                <span>/</span>
+                <span className="text-cyan-400 font-bold uppercase">{activeTab}</span>
+              </div>
+              <h1 className="font-bold text-lg xl:text-xl text-white capitalize mt-0.5">
+                {activeTab === 'products' && 'Product Catalog & Inventory Studio'}
+                {activeTab === 'orders' && 'Live Orders & Air Cargo Dispatches'}
+                {activeTab === 'banners' && 'Homepage Announcement Slides'}
+                {activeTab === 'inquiries' && 'VIP Client Consultation Leads'}
+                {activeTab === 'overview' && 'Store Operations & Analytics'}
+                {activeTab === 'system' && 'Backup, Export & Database Tools'}
+              </h1>
             </div>
-            <h1 className="font-bold text-xl text-white capitalize mt-0.5">
-              {activeTab === 'products' && 'Product Catalog & Inventory Studio'}
-              {activeTab === 'orders' && 'Live Orders & Air Cargo Dispatches'}
-              {activeTab === 'banners' && 'Homepage Announcement Slides'}
-              {activeTab === 'inquiries' && 'VIP Client Consultation Leads'}
-              {activeTab === 'overview' && 'Store Operations & Analytics'}
-              {activeTab === 'system' && 'Backup, Export & Database Tools'}
-            </h1>
           </div>
 
           <div className="flex items-center gap-3">
