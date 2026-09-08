@@ -45,6 +45,22 @@ export const metadata: Metadata = {
       },
     ],
   },
+  alternates: {
+    canonical: '/',
+  },
+  keywords: [
+    'Marine Creatures',
+    'Bringing ocean at your door step',
+    'Exotic Marine Fish India',
+    'Captive-Bred Marine Life',
+    'Clownfish Pairs India',
+    'Bespoke Aquarium Design Kolkata',
+    'Reef Tank Installation India',
+    'Live Marine Cargo Dispatch',
+    'Custom Living Coral Reefs',
+    'Museum Grade Acrylic Aquariums',
+    'Suraj Shasmal Marine Creatures',
+  ],
   twitter: {
     card: 'summary_large_image',
     title: `${SITE_CONFIG.name} — ${SITE_CONFIG.tagline}`,
@@ -54,6 +70,13 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 };
 
@@ -74,8 +97,56 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebSite',
+        '@id': `${SITE_CONFIG.url}/#website`,
+        url: SITE_CONFIG.url,
+        name: SITE_CONFIG.name,
+        description: SITE_CONFIG.description,
+        publisher: {
+          '@id': `${SITE_CONFIG.url}/#organization`,
+        },
+      },
+      {
+        '@type': 'LocalBusiness',
+        '@id': `${SITE_CONFIG.url}/#organization`,
+        name: SITE_CONFIG.name,
+        alternateName: 'Marine Creatures Aquatics Private Limited',
+        url: SITE_CONFIG.url,
+        logo: `${SITE_CONFIG.url}/logo.jpg`,
+        image: `${SITE_CONFIG.url}/og-image.jpg`,
+        description: SITE_CONFIG.description,
+        slogan: SITE_CONFIG.slogan,
+        telephone: SITE_CONFIG.phone,
+        email: SITE_CONFIG.email,
+        founder: {
+          '@type': 'Person',
+          name: SITE_CONFIG.founder,
+        },
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: 'Registered Aquaculture Studio',
+          addressLocality: 'Kolkata',
+          addressRegion: 'West Bengal',
+          addressCountry: 'IN',
+        },
+        priceRange: '₹₹₹₹',
+        sameAs: [SITE_CONFIG.facebook, SITE_CONFIG.googleMaps],
+      },
+    ],
+  };
+
   return (
     <html lang="en" className={`${cormorant.variable} ${inter.variable}`}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body>
         {/* Subtle grain overlay for texture */}
         <div className="grain-overlay" aria-hidden="true" />
