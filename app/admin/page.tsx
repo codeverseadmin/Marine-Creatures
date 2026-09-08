@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useCatalog, InquiryLead } from '@/lib/context/CatalogContext';
+import { useOrder, CustomerOrder, OrderProgressStep, TRACKING_STEPS_META } from '@/lib/context/OrderContext';
 import { Product, ProductMedia } from '@/lib/data/products';
 import { BannerSlide } from '@/lib/data/banners';
 import { PromoCarousel } from '@/components/ui/PromoCarousel';
@@ -26,12 +27,20 @@ export default function AdminDashboardPage() {
     importDataJson,
   } = useCatalog();
 
+  const { orders, updateOrderStatus, updateOrderTracking, deleteOrder } = useOrder();
+
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [passcode, setPasscode] = useState('');
   const [authError, setAuthError] = useState(false);
   const [showPasscode, setShowPasscode] = useState(false);
-  const [activeTab, setActiveTab] = useState<'products' | 'banners' | 'inquiries' | 'overview' | 'system'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'banners' | 'inquiries' | 'overview' | 'system'>('products');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Order Management State
+  const [orderSearch, setOrderSearch] = useState('');
+  const [orderStatusFilter, setOrderStatusFilter] = useState<string>('all');
+  const [editingTrackingOrderId, setEditingTrackingOrderId] = useState<string | null>(null);
+  const [trackingForm, setTrackingForm] = useState({ awb: '', courier: '' });
 
   // Product Form State
   const [isEditingProduct, setIsEditingProduct] = useState(false);
@@ -457,6 +466,33 @@ export default function AdminDashboardPage() {
     });
   };
 
+  // Order helpers
+  const ORDER_STEPS_SEQUENCE: OrderProgressStep[] = ['placed', 'quarantine', 'packed', 'dispatched', 'delivered'];
+
+  const getNextStep = (current: OrderProgressStep): OrderProgressStep | null => {
+    const idx = ORDER_STEPS_SEQUENCE.indexOf(current);
+    if (idx >= 0 && idx < ORDER_STEPS_SEQUENCE.length - 1) {
+      return ORDER_STEPS_SEQUENCE[idx + 1];
+    }
+    return null;
+  };
+
+  const handleSendWhatsAppAlert = (order: CustomerOrder) => {
+    const stepMeta = TRACKING_STEPS_META[order.currentStep];
+    const itemsSummary = order.items.map((i) => `• ${i.product.name} (x${i.quantity})`).join('\n');
+    const message = `🌊 *MARINE CREATURES DISPATCH UPDATE*\n\nHello *${order.customerName}*,\n\nYour order *#${order.id}* has been updated to:\n🔹 *${stepMeta.icon} ${stepMeta.label.toUpperCase()}*\n_${stepMeta.description}_\n\n📋 *Specimens & Gear:*\n${itemsSummary}\n\n💰 *Total:* ₹${order.totalAmount.toLocaleString('en-IN')}\n📍 *Destination:* ${order.city} (${order.pincode})\n${order.awbNumber ? `\n✈️ *Courier:* ${order.courierName || 'Priority Air Cargo'}\n🔖 *Air Waybill (AWB):* ${order.awbNumber}` : ''}\n⏳ *Est. Arrival:* ${order.estimatedDelivery}\n\nTrack live on our portal anytime.\nMarine Creatures Concierge`;
+
+    const cleanPhone = order.phone.replace(/[^0-9]/g, '');
+    const url = `https://wa.me/${cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  };
+
+  const handleSaveTracking = (orderId: string) => {
+    updateOrderTracking(orderId, trackingForm.awb, trackingForm.courier);
+    setEditingTrackingOrderId(null);
+    showToast(`✓ Tracking details updated for #${orderId}`);
+  };
+
   // Auth Screen (Clean & Mobile-Ready)
   if (!isAuthenticated) {
     return (
@@ -543,6 +579,7 @@ export default function AdminDashboardPage() {
 
   const TAB_ITEMS = [
     { id: 'products', label: 'Products & Inventory', count: products.length, icon: '🐠' },
+    { id: 'orders', label: 'Orders & Dispatches', count: orders.length, icon: '📦' },
     { id: 'banners', label: 'Announcement Slides', count: banners.length, icon: '🎬' },
     { id: 'inquiries', label: 'Client Inquiries', count: inquiries.length, icon: '📬' },
     { id: 'overview', label: 'Analytics & Stats', icon: '📊' },
@@ -676,6 +713,7 @@ export default function AdminDashboardPage() {
               <div className="flex items-center gap-2">
                 <h1 className="font-bold text-base sm:text-lg text-white capitalize">
                   {activeTab === 'products' && 'Product Inventory'}
+                  {activeTab === 'orders' && 'Orders & Live Dispatches'}
                   {activeTab === 'banners' && 'Announcement Slides'}
                   {activeTab === 'inquiries' && 'Client Inquiries'}
                   {activeTab === 'overview' && 'Store Metrics'}
@@ -1307,6 +1345,380 @@ export default function AdminDashboardPage() {
         )}
 
         {/* =========================================================================
+            TAB: ORDERS & LIVE DISPATCH TRACKER
+           ========================================================================= */}
+        {activeTab === 'orders' && (
+          <div className="space-y-6">
+            {/* Header & Metrics */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <span>📦</span>
+                  <span>Orders & Live Dispatches</span>
+                </h2>
+                <p className="text-xs text-slate-400">
+                  Manage live customer orders, advance Amazon-style 5-stage milestones, and send WhatsApp dispatch alerts.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 text-xs font-semibold">
+                <span className="px-3 py-1.5 rounded-xl bg-cyan-400/10 border border-cyan-400/30 text-cyan-300">
+                  Total Orders: {orders.length}
+                </span>
+                <span className="px-3 py-1.5 rounded-xl bg-amber-400/10 border border-amber-400/30 text-amber-300">
+                  Active: {orders.filter((o) => o.currentStep !== 'delivered').length}
+                </span>
+              </div>
+            </div>
+
+            {/* Filter & Search Bar */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  placeholder="Search by Order ID (#MC-...), Customer Name, Phone, or City..."
+                  value={orderSearch}
+                  onChange={(e) => setOrderSearch(e.target.value)}
+                  className="w-full h-12 pl-10 pr-4 rounded-2xl bg-slate-900 border border-slate-700 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:border-cyan-400 transition-colors"
+                />
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+              </div>
+
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+                {[
+                  { id: 'all', label: 'All' },
+                  { id: 'placed', label: 'Confirmed' },
+                  { id: 'quarantine', label: 'Quarantine' },
+                  { id: 'packed', label: 'Packed' },
+                  { id: 'dispatched', label: 'Dispatched' },
+                  { id: 'delivered', label: 'Delivered' },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setOrderStatusFilter(tab.id)}
+                    className={`h-11 px-3.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                      orderStatusFilter === tab.id
+                        ? 'bg-cyan-400 text-slate-950 shadow-md'
+                        : 'bg-slate-900/80 hover:bg-slate-800 text-slate-400 border border-slate-800'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Orders List */}
+            {(() => {
+              const filteredOrders = orders.filter((order) => {
+                const matchesSearch =
+                  order.id.toLowerCase().includes(orderSearch.toLowerCase()) ||
+                  order.customerName.toLowerCase().includes(orderSearch.toLowerCase()) ||
+                  order.phone.includes(orderSearch) ||
+                  order.city.toLowerCase().includes(orderSearch.toLowerCase());
+                const matchesStatus =
+                  orderStatusFilter === 'all' || order.currentStep === orderStatusFilter;
+                return matchesSearch && matchesStatus;
+              });
+
+              if (filteredOrders.length === 0) {
+                return (
+                  <div className="bg-[#071520] border border-slate-800 rounded-3xl p-10 text-center space-y-3">
+                    <span className="text-4xl">📦</span>
+                    <h3 className="text-base font-bold text-white">No Orders Found</h3>
+                    <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                      {orderSearch || orderStatusFilter !== 'all'
+                        ? 'No orders match your filter criteria.'
+                        : 'Orders placed by customers through the checkout drawer will appear here.'}
+                    </p>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="space-y-4">
+                  {filteredOrders.map((order) => {
+                    const currentMeta = TRACKING_STEPS_META[order.currentStep];
+                    const nextStep = getNextStep(order.currentStep);
+                    const nextMeta = nextStep ? TRACKING_STEPS_META[nextStep] : null;
+                    const isEditingTracking = editingTrackingOrderId === order.id;
+
+                    return (
+                      <div
+                        key={order.id}
+                        className="bg-[#071520] border border-slate-800 rounded-3xl p-5 sm:p-6 space-y-5 shadow-xl hover:border-cyan-500/30 transition-all"
+                      >
+                        {/* Order Top Bar */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800/80">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2.5">
+                              <span className="text-base font-extrabold text-cyan-400">
+                                #{order.id}
+                              </span>
+                              <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono">
+                                {order.createdAt}
+                              </span>
+                            </div>
+                            <p className="text-sm font-bold text-white flex items-center gap-2">
+                              <span>👤 {order.customerName}</span>
+                              <span className="text-slate-500">•</span>
+                              <span className="text-slate-400 text-xs font-normal">
+                                📞 +91 {order.phone}
+                              </span>
+                              <span className="text-slate-500">•</span>
+                              <span className="text-slate-400 text-xs font-normal">
+                                📍 {order.city} ({order.pincode})
+                              </span>
+                            </p>
+                          </div>
+
+                          {/* Current Status Badge */}
+                          <div className="flex items-center gap-2">
+                            <div
+                              className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 border ${
+                                order.currentStep === 'delivered'
+                                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                                  : order.currentStep === 'dispatched'
+                                  ? 'bg-purple-500/10 text-purple-400 border-purple-500/30'
+                                  : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
+                              }`}
+                            >
+                              <span className="text-sm">{currentMeta.icon}</span>
+                              <span>{currentMeta.label}</span>
+                            </div>
+
+                            <button
+                              onClick={() => {
+                                if (confirm(`Delete order #${order.id}?`)) {
+                                  deleteOrder(order.id);
+                                  showToast(`Order #${order.id} deleted`);
+                                }
+                              }}
+                              className="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-xs"
+                              title="Delete Order"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Interactive Milestone Progress Control */}
+                        <div className="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs uppercase font-bold tracking-wider text-slate-400">
+                              Simulate / Advance Tracking Milestone:
+                            </span>
+                            {nextStep && nextMeta && (
+                              <button
+                                onClick={() => {
+                                  updateOrderStatus(order.id, nextStep);
+                                  showToast(`✓ Advanced #${order.id} to "${nextMeta.label}"`);
+                                }}
+                                className="h-9 px-4 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 active:scale-95 transition-all shadow-md"
+                              >
+                                <span>1-Tap Advance to:</span>
+                                <span>{nextMeta.icon}</span>
+                                <span>{nextMeta.label}</span>
+                                <span>→</span>
+                              </button>
+                            )}
+                          </div>
+
+                          {/* 5 Milestone Step Pills */}
+                          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1">
+                            {ORDER_STEPS_SEQUENCE.map((stepKey, idx) => {
+                              const meta = TRACKING_STEPS_META[stepKey];
+                              const isCurrent = order.currentStep === stepKey;
+                              const isPassed =
+                                ORDER_STEPS_SEQUENCE.indexOf(order.currentStep) >= idx;
+
+                              return (
+                                <button
+                                  key={stepKey}
+                                  onClick={() => {
+                                    updateOrderStatus(order.id, stepKey);
+                                    showToast(`✓ Status updated to ${meta.label}`);
+                                  }}
+                                  className={`p-2.5 rounded-xl text-left border transition-all text-xs flex flex-col gap-1 ${
+                                    isCurrent
+                                      ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200 shadow-sm ring-1 ring-cyan-400/50'
+                                      : isPassed
+                                      ? 'bg-emerald-950/30 border-emerald-500/30 text-emerald-300'
+                                      : 'bg-slate-900/50 border-slate-800 text-slate-400 hover:border-slate-700'
+                                  }`}
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-base">{meta.icon}</span>
+                                    <span className="text-[10px] font-mono opacity-60">Step {idx + 1}</span>
+                                  </div>
+                                  <span className="font-bold leading-tight line-clamp-1">
+                                    {meta.label}
+                                  </span>
+                                  <span className="text-[10px] opacity-70">
+                                    {isCurrent ? '● Active' : isPassed ? '✓ Done' : 'Pending'}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Order Items & Summary */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Items List */}
+                          <div className="space-y-2">
+                            <span className="text-xs uppercase font-bold tracking-wider text-slate-400 block">
+                              Order Items ({order.items.length})
+                            </span>
+                            <div className="space-y-2">
+                              {order.items.map((item, idx) => (
+                                <div
+                                  key={idx}
+                                  className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/60"
+                                >
+                                  <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-800 shrink-0">
+                                    <img
+                                      src={item.product.images[0] || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=200&q=80'}
+                                      alt={item.product.name}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className="text-xs font-bold text-white truncate">
+                                      {item.product.name}
+                                    </h4>
+                                    <p className="text-[11px] text-slate-400">
+                                      Qty: {item.quantity} × ₹{item.product.price.toLocaleString('en-IN')}
+                                    </p>
+                                  </div>
+                                  <span className="text-xs font-mono font-bold text-cyan-300 shrink-0">
+                                    ₹{(item.product.price * item.quantity).toLocaleString('en-IN')}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="pt-2 flex items-center justify-between text-xs font-bold text-white px-1">
+                              <span>Total Value:</span>
+                              <span className="text-base text-cyan-400 font-mono">
+                                ₹{order.totalAmount.toLocaleString('en-IN')}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Tracking & Dispatch Controls */}
+                          <div className="space-y-3 flex flex-col justify-between">
+                            <div className="space-y-2">
+                              <span className="text-xs uppercase font-bold tracking-wider text-slate-400 block">
+                                Shipping & AWB Details
+                              </span>
+
+                              {isEditingTracking ? (
+                                <div className="p-3 rounded-xl bg-slate-900 border border-cyan-400/50 space-y-2.5">
+                                  <div>
+                                    <label className="text-[10px] text-slate-400 uppercase block mb-1">
+                                      Air Waybill / AWB Number
+                                    </label>
+                                    <input
+                                      type="text"
+                                      placeholder="e.g. BLR-EXP-99281"
+                                      value={trackingForm.awb}
+                                      onChange={(e) =>
+                                        setTrackingForm({ ...trackingForm, awb: e.target.value })
+                                      }
+                                      className="w-full h-9 px-3 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400"
+                                    />
+                                  </div>
+
+                                  <div>
+                                    <label className="text-[10px] text-slate-400 uppercase block mb-1">
+                                      Courier / Airline Cargo Partner
+                                    </label>
+                                    <input
+                                      type="text"
+                                      placeholder="e.g. BlueDart Apex Cargo / Air India Cargo"
+                                      value={trackingForm.courier}
+                                      onChange={(e) =>
+                                        setTrackingForm({ ...trackingForm, courier: e.target.value })
+                                      }
+                                      className="w-full h-9 px-3 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400"
+                                    />
+                                  </div>
+
+                                  <div className="flex gap-2 pt-1">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSaveTracking(order.id)}
+                                      className="flex-1 h-8 rounded-lg bg-cyan-400 text-slate-950 font-bold text-xs"
+                                    >
+                                      Save AWB
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setEditingTrackingOrderId(null)}
+                                      className="h-8 px-3 rounded-lg bg-slate-800 text-slate-300 text-xs"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-1.5">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-xs text-slate-400">Carrier:</span>
+                                    <span className="text-xs font-semibold text-white">
+                                      {order.courierName || 'BlueDart Apex Express'}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-xs text-slate-400">Air Waybill (AWB):</span>
+                                    <span className="text-xs font-mono font-bold text-cyan-300">
+                                      {order.awbNumber || 'Generating...'}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-xs text-slate-400">Est. Arrival:</span>
+                                    <span className="text-xs text-white">
+                                      {order.estimatedDelivery}
+                                    </span>
+                                  </div>
+
+                                  <button
+                                    onClick={() => {
+                                      setTrackingForm({
+                                        awb: order.awbNumber || '',
+                                        courier: order.courierName || '',
+                                      });
+                                      setEditingTrackingOrderId(order.id);
+                                    }}
+                                    className="w-full mt-2 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-1 border border-slate-700"
+                                  >
+                                    <span>✏️</span>
+                                    <span>Edit AWB & Courier</span>
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* WhatsApp Dispatch Alert Trigger */}
+                            <button
+                              onClick={() => handleSendWhatsAppAlert(order)}
+                              className="w-full h-11 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg"
+                            >
+                              <span>💬</span>
+                              <span>Send WhatsApp Dispatch Alert</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+          </div>
+        )}
+
+        {/* =========================================================================
             TAB 2: BANNERS
            ========================================================================= */}
         {activeTab === 'banners' && (
@@ -1698,6 +2110,17 @@ export default function AdminDashboardPage() {
                   <div>
                     <h4 className="text-sm font-bold text-white">Add New Product</h4>
                     <p className="text-xs text-slate-400">Post new corals, fish, or lights</p>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('orders')}
+                  className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-left hover:border-cyan-400/50 transition-colors flex items-center gap-3.5"
+                >
+                  <span className="text-2xl">📦</span>
+                  <div>
+                    <h4 className="text-sm font-bold text-white">Live Dispatches</h4>
+                    <p className="text-xs text-slate-400">{orders.length} orders tracked</p>
                   </div>
                 </button>
 

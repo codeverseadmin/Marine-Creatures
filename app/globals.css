@@ -31,6 +31,28 @@
   --dur-cinematic: 1000ms;
 }
 
+/* Actinic Moonlight Mode: Bioluminescent fluorescent coral lighting */
+[data-spectrum="actinic"] {
+  --color-primary: #010306;
+  --color-secondary: #040d17;
+  --color-deep: #061828;
+  --color-accent: #00F0FF;
+  --color-cyan: #38E1FF;
+  --color-text: #F0F8FF;
+  --color-muted: #8EADC0;
+  --color-border: rgba(0, 240, 255, 0.22);
+  --color-gold: #00FF9D;
+}
+
+[data-spectrum="actinic"] .glass-card-hover:hover {
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.35), 0 0 50px rgba(112, 0, 255, 0.2) !important;
+  border-color: rgba(0, 240, 255, 0.6) !important;
+}
+
+[data-spectrum="actinic"] .btn-primary {
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.6) !important;
+}
+
 /* ============================================================================
    Reset & Base
    ============================================================================ */

@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Product } from '@/lib/data/products';
 import { useCart } from '@/lib/context/CartContext';
+import { useWishlist } from '@/lib/context/WishlistContext';
 
 interface ProductCardProps {
   product: Product;
@@ -11,7 +12,9 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const [added, setAdded] = React.useState(false);
+  const isWished = isInWishlist(product.id);
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -53,6 +56,24 @@ export function ProductCard({ product }: ProductCardProps) {
             </span>
           </div>
         )}
+
+        {/* Wishlist Heart Button */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleWishlist(product);
+          }}
+          className={`absolute bottom-3 right-3 z-10 w-9 h-9 rounded-full backdrop-blur-md flex items-center justify-center transition-all active:scale-90 ${
+            isWished
+              ? 'bg-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.7)] scale-105'
+              : 'bg-black/60 border border-white/20 text-white/80 hover:text-white hover:border-white/50'
+          }`}
+          aria-label={isWished ? 'Remove from wishlist' : 'Add to wishlist'}
+        >
+          <span className="text-sm leading-none">{isWished ? '❤️' : '🤍'}</span>
+        </button>
       </Link>
 
       {/* Content */}

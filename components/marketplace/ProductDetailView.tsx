@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Product, ProductMedia } from '@/lib/data/products';
 import { useCart } from '@/lib/context/CartContext';
+import { useWishlist } from '@/lib/context/WishlistContext';
 import { useCatalog } from '@/lib/context/CatalogContext';
 import { ProductCard } from './ProductCard';
 import { SITE_CONFIG } from '@/lib/config';
@@ -17,6 +18,8 @@ export function ProductDetailView({ product: initialProduct, relatedProducts }: 
   const { getProduct } = useCatalog();
   const product = getProduct(initialProduct.id) || initialProduct;
   const { addToCart, setIsCartOpen } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
+  const isWished = isInWishlist(product.id);
 
   // Unified Media List (Photos + Videos)
   const mediaItems: ProductMedia[] = React.useMemo(() => {
@@ -344,6 +347,21 @@ export function ProductDetailView({ product: initialProduct, relatedProducts }: 
                   }`}
                 >
                   {added ? 'ADDED TO BAG ✓' : `ADD TO BAG — ₹${(product.price * quantity).toLocaleString('en-IN')}`}
+                </button>
+
+                {/* Wishlist Toggle Button */}
+                <button
+                  type="button"
+                  onClick={() => toggleWishlist(product)}
+                  className={`h-12 sm:h-14 w-12 sm:w-14 rounded-xl border flex items-center justify-center text-lg active:scale-90 transition-all shrink-0 ${
+                    isWished
+                      ? 'border-rose-500 bg-rose-500/20 text-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.4)]'
+                      : 'border-white/15 bg-white/5 text-white/70 hover:text-white hover:border-white/40'
+                  }`}
+                  aria-label={isWished ? 'Remove from wishlist' : 'Save to wishlist'}
+                  title={isWished ? 'Saved in Wishlist' : 'Add to Wishlist'}
+                >
+                  {isWished ? '❤️' : '🤍'}
                 </button>
               </div>
 

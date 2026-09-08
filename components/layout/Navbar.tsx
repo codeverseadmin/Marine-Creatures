@@ -7,6 +7,9 @@ import { usePathname } from 'next/navigation';
 import { NAV_LINKS, SITE_CONFIG } from '@/lib/config';
 import { MobileMenu } from './MobileMenu';
 import { useCart } from '@/lib/context/CartContext';
+import { useTheme } from '@/lib/context/ThemeContext';
+import { useWishlist } from '@/lib/context/WishlistContext';
+import { useOrder } from '@/lib/context/OrderContext';
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -14,7 +17,9 @@ export function Navbar() {
   const pathname = usePathname();
   const navRef = useRef<HTMLElement>(null);
   const { cartCount, setIsCartOpen, cartIconBouncing } = useCart();
-
+  const { spectrum, toggleSpectrum } = useTheme();
+  const { wishlistCount, setIsWishlistOpen } = useWishlist();
+  const { setIsTrackingOpen } = useOrder();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -91,8 +96,39 @@ export function Navbar() {
               })}
             </nav>
 
-            {/* Right — Cart + CTA + hamburger */}
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Right — Actions: Spectrum Switch + Wishlist + Cart + Track + Hamburger */}
+            <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+              {/* Dual-Spectrum Lighting Switch */}
+              <button
+                onClick={toggleSpectrum}
+                className="h-10 px-2.5 sm:px-3 rounded-xl border border-white/10 bg-[rgba(7,21,28,0.75)] hover:border-cyan-400 text-xs font-semibold flex items-center gap-1.5 transition-all text-white active:scale-95 shadow-sm"
+                title={`Current spectrum: ${spectrum === 'actinic' ? 'Actinic Moonlight' : 'Sunlit Reef'}. Tap to switch.`}
+                aria-label="Toggle reef lighting spectrum"
+              >
+                <span>{spectrum === 'actinic' ? '🌙' : '☀️'}</span>
+                <span className="hidden lg:inline text-[10px] uppercase tracking-wider text-slate-300">
+                  {spectrum === 'actinic' ? 'Actinic' : 'Sunlit'}
+                </span>
+              </button>
+
+              {/* Wishlist Button */}
+              <button
+                onClick={() => setIsWishlistOpen(true)}
+                className="relative h-10 w-10 sm:w-auto sm:px-3 rounded-xl border border-white/10 bg-[rgba(7,21,28,0.75)] hover:border-rose-400 text-white flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-sm"
+                aria-label={`Wishlist (${wishlistCount} items)`}
+                title="Open Wishlist"
+              >
+                <span className="text-xs sm:text-sm">❤️</span>
+                <span className="hidden sm:inline text-[10px] uppercase tracking-wider text-slate-300 font-medium">
+                  SAVED
+                </span>
+                {wishlistCount > 0 && (
+                  <span className="w-4 h-4 rounded-full bg-rose-500 text-white font-bold text-[9px] flex items-center justify-center -mr-0.5 shadow-md">
+                    {wishlistCount}
+                  </span>
+                )}
+              </button>
+
               {/* Shopping Bag Button */}
               <button
                 id="navbar-cart-btn"
@@ -115,9 +151,19 @@ export function Navbar() {
                 )}
               </button>
 
+              {/* Track Order Button */}
+              <button
+                onClick={() => setIsTrackingOpen(true)}
+                className="hidden xl:flex items-center gap-1.5 h-10 px-3 rounded-xl border border-cyan-400/30 bg-cyan-400/10 hover:bg-cyan-400/20 text-cyan-300 text-xs font-semibold tracking-wider uppercase transition-all active:scale-95 shadow-sm"
+                title="Track Live Order Dispatch"
+              >
+                <span>📦</span>
+                <span>TRACK</span>
+              </button>
+
               <Link
                 href="/services"
-                className="hidden xl:flex items-center gap-1 px-4 py-2.5 rounded-xl border border-[--color-accent] text-xs font-semibold text-[--color-accent] hover:bg-[rgba(0,184,217,0.1)] active:scale-95 transition-all whitespace-nowrap"
+                className="hidden 2xl:flex items-center gap-1 px-4 py-2.5 rounded-xl border border-[--color-accent] text-xs font-semibold text-[--color-accent] hover:bg-[rgba(0,184,217,0.1)] active:scale-95 transition-all whitespace-nowrap"
                 data-cursor="ENTER"
               >
                 BOOK SERVICE

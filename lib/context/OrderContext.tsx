@@ -1,0 +1,342 @@
+'use client';
+
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { Product } from '@/lib/data/products';
+
+export type OrderProgressStep = 'placed' | 'quarantine' | 'packed' | 'dispatched' | 'delivered';
+
+export interface OrderItem {
+  product: Product;
+  quantity: number;
+}
+
+export interface StatusUpdateLog {
+  status: OrderProgressStep;
+  title: string;
+  description: string;
+  timestamp: string;
+  completed: boolean;
+}
+
+export interface CustomerOrder {
+  id: string; // e.g. MC-8921
+  customerName: string;
+  phone: string;
+  city: string;
+  pincode: string;
+  items: OrderItem[];
+  totalAmount: number;
+  currentStep: OrderProgressStep;
+  statusHistory: StatusUpdateLog[];
+  awbNumber?: string;
+  courierName?: string;
+  estimatedDelivery: string;
+  createdAt: string;
+}
+
+interface OrderContextType {
+  orders: CustomerOrder[];
+  activeOrder: CustomerOrder | null;
+  setActiveOrder: (order: CustomerOrder | null) => void;
+  isTrackingOpen: boolean;
+  setIsTrackingOpen: (open: boolean) => void;
+  createOrder: (orderData: Omit<CustomerOrder, 'id' | 'currentStep' | 'statusHistory' | 'createdAt'>) => CustomerOrder;
+  updateOrderStatus: (orderId: string, nextStep: OrderProgressStep, note?: string) => void;
+  updateOrderTracking: (orderId: string, awbNumber: string, courierName: string) => void;
+  deleteOrder: (orderId: string) => void;
+  findOrder: (query: string) => CustomerOrder | undefined;
+}
+
+const OrderContext = createContext<OrderContextType | undefined>(undefined);
+
+const STORAGE_KEY = 'mc_customer_orders_v1';
+
+export const TRACKING_STEPS_META: Record<OrderProgressStep, { label: string; icon: string; description: string }> = {
+  placed: {
+    label: 'Order Confirmed',
+    icon: '🧾',
+    description: 'Order received and verified by Marine Creatures concierge.',
+  },
+  quarantine: {
+    label: 'Quarantine Check',
+    icon: '🔬',
+    description: 'Specimen examined in closed-loop quarantine; active feeding verified.',
+  },
+  packed: {
+    label: 'Thermal Pod Packed',
+    icon: '📦',
+    description: 'Sealed in oxygenated double-layer pouch inside insulated climate pod.',
+  },
+  dispatched: {
+    label: 'Air Cargo Dispatched',
+    icon: '✈️',
+    description: 'Handed over to priority express airline cargo for fast transit.',
+  },
+  delivered: {
+    label: 'Delivered Safely',
+    icon: '🐠',
+    description: 'Delivered to destination doorstep. 48-hr LAG guarantee active.',
+  },
+};
+
+const DEFAULT_ORDERS: CustomerOrder[] = [
+  {
+    id: 'MC-8921',
+    customerName: 'Rahul Verma',
+    phone: '9876543210',
+    city: 'Bengaluru',
+    pincode: '560001',
+    items: [
+      {
+        product: {
+          id: 'designer-clownfish-pair',
+          name: 'Snowflake Ocellaris Clownfish (Bonded Pair)',
+          price: 14999,
+          category: 'marine-life',
+          categoryLabel: 'Marine Life',
+          stockCount: 6,
+          inStock: true,
+          rating: 4.9,
+          reviewsCount: 38,
+          images: ['https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1000&q=85'],
+          shortDesc: 'Captive-bred bonded pair with vivid white patterns.',
+          description: 'Our Snowflake Ocellaris Clownfish pairs are captive-bred in closed-loop aquaculture systems.',
+          deliveryInfo: {
+            estimatedDays: 'Tomorrow Morning',
+            shippingMethod: 'Express Air Cargo',
+            guaranteeText: '100% Live Arrival Guaranteed',
+          },
+          specifications: { Origin: 'Indo-Pacific' },
+        },
+        quantity: 1,
+      },
+    ],
+    totalAmount: 14999,
+    currentStep: 'dispatched',
+    awbNumber: 'BLR-AIR-892144',
+    courierName: 'IndiGo CarGo Priority Express',
+    estimatedDelivery: 'Tomorrow, 10:30 AM',
+    createdAt: '2026-09-08 08:30 AM',
+    statusHistory: [
+      {
+        status: 'placed',
+        title: 'Order Verified',
+        description: 'Payment verified and reservation confirmed in livestock holding facility.',
+        timestamp: '08:30 AM',
+        completed: true,
+      },
+      {
+        status: 'quarantine',
+        title: 'Quarantine & Feeding Assessment',
+        description: 'Specimen checked under actinic LED; active mysis feeding approved by marine biologist.',
+        timestamp: '10:15 AM',
+        completed: true,
+      },
+      {
+        status: 'packed',
+        title: 'Oxygen Thermal Pod Sealed',
+        description: 'Pure medical-grade oxygen added with heat/cool thermal pack in high-density EPS pod.',
+        timestamp: '01:45 PM',
+        completed: true,
+      },
+      {
+        status: 'dispatched',
+        title: 'Dispatched via Air Cargo',
+        description: 'Flight 6E-204 departed Kolkata CCU bound for BLR.',
+        timestamp: '04:10 PM',
+        completed: true,
+      },
+      {
+        status: 'delivered',
+        title: 'Doorstep Handover',
+        description: 'Delivery agent will hand over insulated pod for immediate drip acclimation.',
+        timestamp: 'Pending Handover',
+        completed: false,
+      },
+    ],
+  },
+];
+
+export function OrderProvider({ children }: { children: React.ReactNode }) {
+  const [orders, setOrders] = useState<CustomerOrder[]>(DEFAULT_ORDERS);
+  const [activeOrder, setActiveOrder] = useState<CustomerOrder | null>(DEFAULT_ORDERS[0]);
+  const [isTrackingOpen, setIsTrackingOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setOrders(parsed);
+          setActiveOrder(parsed[0]);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isMounted) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
+      } catch {
+        // ignore
+      }
+    }
+  }, [orders, isMounted]);
+
+  const createOrder = (orderData: Omit<CustomerOrder, 'id' | 'currentStep' | 'statusHistory' | 'createdAt'>): CustomerOrder => {
+    const id = `MC-${Math.floor(1000 + Math.random() * 9000)}`;
+    const now = new Date().toLocaleDateString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    const newOrder: CustomerOrder = {
+      ...orderData,
+      id,
+      currentStep: 'placed',
+      estimatedDelivery: '1–2 Business Days (Express Air Cargo)',
+      createdAt: now,
+      statusHistory: [
+        {
+          status: 'placed',
+          title: 'Order Confirmed',
+          description: 'Your marine order has been registered and verified by Marine Creatures.',
+          timestamp: 'Just now',
+          completed: true,
+        },
+        {
+          status: 'quarantine',
+          title: 'Quarantine Health Inspection',
+          description: 'Specimen undergoing parasite check and active feeding verification.',
+          timestamp: 'Pending',
+          completed: false,
+        },
+        {
+          status: 'packed',
+          title: 'Oxygen Thermal Pod Packaging',
+          description: 'Insulated climate-controlled packing with activated carbon and pure oxygen.',
+          timestamp: 'Pending',
+          completed: false,
+        },
+        {
+          status: 'dispatched',
+          title: 'Air Cargo Dispatch',
+          description: 'Priority flight transfer from Kolkata to destination airport.',
+          timestamp: 'Pending',
+          completed: false,
+        },
+        {
+          status: 'delivered',
+          title: 'Safe Live Arrival',
+          description: 'Doorstep handover with 48-Hour Live Arrival Guarantee.',
+          timestamp: 'Pending',
+          completed: false,
+        },
+      ],
+    };
+
+    setOrders((prev) => [newOrder, ...prev]);
+    setActiveOrder(newOrder);
+    return newOrder;
+  };
+
+  const updateOrderStatus = (orderId: string, nextStep: OrderProgressStep, note?: string) => {
+    const stepsSequence: OrderProgressStep[] = ['placed', 'quarantine', 'packed', 'dispatched', 'delivered'];
+    const targetIdx = stepsSequence.indexOf(nextStep);
+
+    setOrders((prev) =>
+      prev.map((order) => {
+        if (order.id !== orderId) return order;
+
+        const updatedHistory = order.statusHistory.map((log) => {
+          const logIdx = stepsSequence.indexOf(log.status);
+          const isDone = logIdx <= targetIdx;
+          return {
+            ...log,
+            completed: isDone,
+            timestamp: isDone && log.timestamp === 'Pending' ? 'Updated today' : log.timestamp,
+            description: log.status === nextStep && note ? note : log.description,
+          };
+        });
+
+        const updated = {
+          ...order,
+          currentStep: nextStep,
+          statusHistory: updatedHistory,
+        };
+
+        if (activeOrder?.id === orderId) {
+          setActiveOrder(updated);
+        }
+
+        return updated;
+      })
+    );
+  };
+
+  const updateOrderTracking = (orderId: string, awbNumber: string, courierName: string) => {
+    setOrders((prev) =>
+      prev.map((order) => {
+        if (order.id !== orderId) return order;
+        const updated = { ...order, awbNumber, courierName };
+        if (activeOrder?.id === orderId) {
+          setActiveOrder(updated);
+        }
+        return updated;
+      })
+    );
+  };
+
+  const deleteOrder = (orderId: string) => {
+    setOrders((prev) => prev.filter((o) => o.id !== orderId));
+    if (activeOrder?.id === orderId) {
+      setActiveOrder(null);
+    }
+  };
+
+  const findOrder = (query: string): CustomerOrder | undefined => {
+    const cleanQuery = query.trim().toLowerCase();
+    return orders.find(
+      (o) =>
+        o.id.toLowerCase() === cleanQuery ||
+        o.phone.includes(cleanQuery) ||
+        (o.awbNumber && o.awbNumber.toLowerCase().includes(cleanQuery))
+    );
+  };
+
+  return (
+    <OrderContext.Provider
+      value={{
+        orders,
+        activeOrder,
+        setActiveOrder,
+        isTrackingOpen,
+        setIsTrackingOpen,
+        createOrder,
+        updateOrderStatus,
+        updateOrderTracking,
+        deleteOrder,
+        findOrder,
+      }}
+    >
+      {children}
+    </OrderContext.Provider>
+  );
+}
+
+export function useOrder() {
+  const context = useContext(OrderContext);
+  if (!context) {
+    throw new Error('useOrder must be used within an OrderProvider');
+  }
+  return context;
+}

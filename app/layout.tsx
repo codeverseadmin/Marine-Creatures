@@ -59,7 +59,13 @@ export const metadata: Metadata = {
 
 import { CatalogProvider } from '@/lib/context/CatalogContext';
 import { CartProvider } from '@/lib/context/CartContext';
+import { ThemeProvider } from '@/lib/context/ThemeContext';
+import { WishlistProvider } from '@/lib/context/WishlistContext';
+import { OrderProvider } from '@/lib/context/OrderContext';
 import { CartDrawer } from '@/components/cart/CartDrawer';
+import { WishlistDrawer } from '@/components/wishlist/WishlistDrawer';
+import { OrderTrackingModal } from '@/components/orders/OrderTrackingModal';
+import { FounderConciergePill } from '@/components/ui/FounderConciergePill';
 import { FlyToCartEffect } from '@/components/cart/FlyToCartEffect';
 import { MobileBottomNav } from '@/components/layout/MobileBottomNav';
 
@@ -74,19 +80,28 @@ export default function RootLayout({
         {/* Subtle grain overlay for texture */}
         <div className="grain-overlay" aria-hidden="true" />
 
-        <CatalogProvider>
-          <CartProvider>
-            <SmoothScroll>
-              <CustomCursor />
-              <FlyToCartEffect />
-              <CartDrawer />
-              <Navbar />
-              <main className="min-h-screen pb-16 md:pb-0">{children}</main>
-              <MobileBottomNav />
-              <Footer />
-            </SmoothScroll>
-          </CartProvider>
-        </CatalogProvider>
+        <ThemeProvider>
+          <CatalogProvider>
+            <CartProvider>
+              <WishlistProvider>
+                <OrderProvider>
+                  <SmoothScroll>
+                    <CustomCursor />
+                    <FlyToCartEffect />
+                    <CartDrawer />
+                    <WishlistDrawer />
+                    <OrderTrackingModal />
+                    <Navbar />
+                    <main className="min-h-screen pb-16 md:pb-0">{children}</main>
+                    <FounderConciergePill />
+                    <MobileBottomNav />
+                    <Footer />
+                  </SmoothScroll>
+                </OrderProvider>
+              </WishlistProvider>
+            </CartProvider>
+          </CatalogProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

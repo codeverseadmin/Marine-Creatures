@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { gsap } from 'gsap';
 import { MOBILE_NAV_LINKS, SITE_CONFIG } from '@/lib/config';
+import { useWishlist } from '@/lib/context/WishlistContext';
+import { useOrder } from '@/lib/context/OrderContext';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -17,6 +19,8 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   const linksRef = useRef<HTMLDivElement>(null);
   const actionsRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const { wishlistCount, setIsWishlistOpen } = useWishlist();
+  const { setIsTrackingOpen } = useOrder();
 
   useEffect(() => {
     const overlay = overlayRef.current;
@@ -137,6 +141,36 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             </div>
             <span className="text-xs font-medium text-white">Services &amp; Setup</span>
           </Link>
+
+          <button
+            onClick={() => {
+              onClose();
+              setIsWishlistOpen(true);
+            }}
+            className="p-3.5 rounded-2xl border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 transition-all flex flex-col justify-between active:scale-[0.98] text-left"
+          >
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xl">❤️</span>
+              <span className="text-[10px] text-rose-400 font-semibold tracking-wider">
+                {wishlistCount > 0 ? `${wishlistCount} SAVED` : 'WISHLIST'}
+              </span>
+            </div>
+            <span className="text-xs font-medium text-white">Saved Specimens</span>
+          </button>
+
+          <button
+            onClick={() => {
+              onClose();
+              setIsTrackingOpen(true);
+            }}
+            className="p-3.5 rounded-2xl border border-cyan-400/30 bg-cyan-400/10 hover:bg-cyan-400/20 transition-all flex flex-col justify-between active:scale-[0.98] text-left"
+          >
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xl">📦</span>
+              <span className="text-[10px] text-cyan-400 font-semibold tracking-wider">LIVE TELEMETRY</span>
+            </div>
+            <span className="text-xs font-medium text-white">Track Orders</span>
+          </button>
 
           <a
             href={`https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent('Hi Marine Creatures! I would like to inquire about your marine life, bespoke aquariums, and services.')}`}

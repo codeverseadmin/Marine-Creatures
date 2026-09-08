@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/lib/context/CartContext';
+import { useOrder } from '@/lib/context/OrderContext';
 import { SITE_CONFIG } from '@/lib/config';
 
 export function CartDrawer() {
@@ -12,14 +13,31 @@ export function CartDrawer() {
     setIsCartOpen,
     removeFromCart,
     updateQuantity,
+    clearCart,
     cartCount,
     cartTotal,
   } = useCart();
+  const { createOrder, setIsTrackingOpen } = useOrder();
+
+  const [customerName, setCustomerName] = useState('');
+  const [customerCity, setCustomerCity] = useState('');
+  const [customerPincode, setCustomerPincode] = useState('');
 
   if (!isCartOpen) return null;
 
   const handleWhatsAppCheckout = () => {
     if (cart.length === 0) return;
+
+    // Create tracked order in system
+    const newOrder = createOrder({
+      customerName: customerName.trim() || 'Client',
+      phone: '',
+      city: customerCity.trim() || 'India',
+      pincode: customerPincode.trim() || '700001',
+      items: cart.map((i) => ({ product: i.product, quantity: i.quantity })),
+      totalAmount: cartTotal,
+      estimatedDelivery: 'Tomorrow via Priority Air Cargo',
+    });
 
     const itemsSummary = cart
       .map(
@@ -28,12 +46,17 @@ export function CartDrawer() {
       )
       .join('\n');
 
-    const message = `Hi Marine Creatures! I would like to place an order for the following items:\n\n${itemsSummary}\n\n*Cart Total: ₹${cartTotal.toLocaleString('en-IN')}*\n\nPlease confirm delivery availability and dispatch timings to my location.`;
+    const destInfo = customerCity ? `\n📍 *Destination:* ${customerCity} ${customerPincode ? `(${customerPincode})` : ''}` : '';
+
+    const message = `Hi Marine Creatures! I am placing Order *#${newOrder.id}* on your online store:\n\n${itemsSummary}\n\n*Cart Total: ₹${cartTotal.toLocaleString('en-IN')}*${destInfo}\n\nLive Tracking ID: *#${newOrder.id}*\nPlease confirm payment link and dispatch timing for my insulated pod!`;
 
     const encoded = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encoded}`;
     window.open(whatsappUrl, '_blank');
+
+    clearCart();
     setIsCartOpen(false);
+    setIsTrackingOpen(true);
   };
 
   return (
@@ -181,21 +204,52 @@ export function CartDrawer() {
                 <span className="text-[--color-accent] font-medium">Calculated at Dispatch</span>
               </div>
 
-              <div className="flex flex-col gap-2.5 pt-1">
+              <div className="space-y-2 pt-1">
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    placeholder="Your Name"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    className="h-10 px-3 rounded-xl bg-black/50 border border-white/10 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
+                  />
+                  <input
+                    type="text"
+                    placeholder="City & Pincode"
+                    value={customerCity}
+                    onChange={(e) => setCustomerCity(e.target.value)}
+                    className="h-10 px-3 rounded-xl bg-black/50 border border-white/10 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
+                  />
+                </div>
+
                 <button
                   onClick={handleWhatsAppCheckout}
-                  className="btn-primary w-full justify-center text-xs py-4 px-4 rounded-xl flex items-center gap-2 shadow-xl active:scale-[0.98] transition-transform"
+                  className="btn-primary w-full justify-center text-xs py-4 px-4 rounded-xl flex items-center gap-2 shadow-xl active:scale-[0.98] transition-transform font-bold tracking-wider uppercase"
                 >
                   <span className="text-base">💬</span>
-                  <span className="font-semibold tracking-wider uppercase">CHECKOUT VIA WHATSAPP →</span>
+                  <span>CHECKOUT VIA WHATSAPP →</span>
                 </button>
-                <Link
-                  href="/services"
-                  onClick={() => setIsCartOpen(false)}
-                  className="btn-ghost w-full justify-center text-xs py-3 px-4 rounded-xl text-center block"
-                >
-                  ADD INSTALLATION / RENOVATION SERVICE
-                </Link>
+
+                <div className="flex items-center justify-between gap-2 pt-1">
+                  <Link
+                    href="/services"
+                    onClick={() => setIsCartOpen(false)}
+                    className="text-[11px] text-slate-400 hover:text-cyan-300 transition-colors"
+                  >
+                    + Add Installation Setup
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsCartOpen(false);
+                      setIsTrackingOpen(true);
+                    }}
+                    className="text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1"
+                  >
+                    <span>📦</span>
+                    <span>Track Active Order</span>
+                  </button>
+                </div>
               </div>
 
               <p className="text-[10px] text-[--color-muted] text-center opacity-70 leading-tight pt-1">
