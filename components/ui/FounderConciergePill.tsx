@@ -9,8 +9,8 @@ export function FounderConciergePill() {
   const [isExpanded, setIsExpanded] = useState(false);
   const pathname = usePathname();
 
-  // Hide on admin page
-  if (pathname.startsWith('/admin')) return null;
+  // Hide on admin page and invoice pages
+  if (pathname.startsWith('/admin') || pathname.startsWith('/invoice')) return null;
 
   const handleOpenWhatsApp = (customIntent?: string) => {
     let contextMessage = 'Hi Suraj! I am browsing the Marine Creatures portal and would like to consult with you directly.';

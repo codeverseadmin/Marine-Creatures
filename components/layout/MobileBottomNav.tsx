@@ -10,10 +10,11 @@ export function MobileBottomNav() {
   const pathname = usePathname();
   const { cartCount, setIsCartOpen, isCartOpen, cartIconBouncing } = useCart();
 
-  // Hide bottom nav when on admin, when cart drawer is open or when viewing an individual product detail
+  // Hide bottom nav when on admin, on invoice, when cart drawer is open or when viewing an individual product detail
   const isProductDetail = pathname.startsWith('/marketplace/') && pathname.split('/').filter(Boolean).length > 1;
   const isAdmin = pathname.startsWith('/admin');
-  if (isCartOpen || isProductDetail || isAdmin) return null;
+  const isInvoice = pathname.startsWith('/invoice');
+  if (isCartOpen || isProductDetail || isAdmin || isInvoice) return null;
 
   const isHome = pathname === '/';
   const isMarketplace = pathname === '/marketplace';

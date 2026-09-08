@@ -88,7 +88,7 @@ export default function InvoicePage({ params }: InvoicePageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#02070c] py-6 sm:py-10 px-3 sm:px-6 flex flex-col items-center">
+    <div className="marine-invoice-view min-h-screen bg-[#02070c] py-6 sm:py-10 px-3 sm:px-6 flex flex-col items-center">
       {/* Top Action Bar (Hidden during print) */}
       <div className="w-full max-w-4xl mb-5 flex items-center justify-between gap-3 flex-wrap print:hidden">
         <div className="flex items-center gap-2">

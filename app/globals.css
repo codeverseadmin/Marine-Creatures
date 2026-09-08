@@ -588,3 +588,36 @@ html.has-custom-cursor [data-cursor] {
   80%  { opacity: 0.2; }
   100% { transform: translateY(-130px) translateX(-8px); opacity: 0; }
 }
+
+/* ============================================================================
+   Tax Invoice Isolated & Print Styles
+   ============================================================================ */
+
+body:has(.marine-invoice-view) nav,
+body:has(.marine-invoice-view) footer,
+body:has(.marine-invoice-view) [aria-label="Mobile quick actions"],
+body:has(.marine-invoice-view) [aria-label="Concierge consultation floating trigger"],
+body:has(.marine-invoice-view) .grain-overlay {
+  display: none !important;
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  header, footer, nav, .print\:hidden, .no-print {
+    display: none !important;
+  }
+  .marine-invoice-view {
+    padding: 0 !important;
+    background: transparent !important;
+  }
+}
+

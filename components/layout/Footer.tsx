@@ -8,8 +8,8 @@ import { SITE_CONFIG, NAV_LINKS } from '@/lib/config';
 export function Footer() {
   const pathname = usePathname();
 
-  // Hide customer storefront footer on admin console
-  if (pathname.startsWith('/admin')) {
+  // Hide customer storefront footer on admin console and invoice pages
+  if (pathname.startsWith('/admin') || pathname.startsWith('/invoice')) {
     return null;
   }
 
