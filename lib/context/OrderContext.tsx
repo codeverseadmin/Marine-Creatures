@@ -22,8 +22,10 @@ export interface CustomerOrder {
   id: string; // e.g. MC-8921
   customerName: string;
   phone: string;
+  address: string;
   city: string;
   pincode: string;
+  orderNotes?: string;
   items: OrderItem[];
   totalAmount: number;
   currentStep: OrderProgressStep;
@@ -32,6 +34,9 @@ export interface CustomerOrder {
   courierName?: string;
   estimatedDelivery: string;
   createdAt: string;
+  isApproved?: boolean;
+  approvedAt?: string;
+  invoiceNumber?: string;
 }
 
 interface OrderContextType {
@@ -43,8 +48,11 @@ interface OrderContextType {
   createOrder: (orderData: Omit<CustomerOrder, 'id' | 'currentStep' | 'statusHistory' | 'createdAt'>) => CustomerOrder;
   updateOrderStatus: (orderId: string, nextStep: OrderProgressStep, note?: string) => void;
   updateOrderTracking: (orderId: string, awbNumber: string, courierName: string) => void;
+  approveOrder: (orderId: string, customInvoiceNum?: string) => void;
   deleteOrder: (orderId: string) => void;
   findOrder: (query: string) => CustomerOrder | undefined;
+  ownerSignature: string | null;
+  setOwnerSignature: (url: string | null) => void;
 }
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
@@ -84,8 +92,12 @@ const DEFAULT_ORDERS: CustomerOrder[] = [
     id: 'MC-8921',
     customerName: 'Rahul Verma',
     phone: '9876543210',
+    address: 'Flat 402, Coral Heights, 100ft Road, Indiranagar',
     city: 'Bengaluru',
     pincode: '560001',
+    isApproved: true,
+    approvedAt: '2026-09-08 08:45 AM',
+    invoiceNumber: 'INV-MC-8921',
     items: [
       {
         product: {
@@ -162,6 +174,9 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
   const [activeOrder, setActiveOrder] = useState<CustomerOrder | null>(DEFAULT_ORDERS[0]);
   const [isTrackingOpen, setIsTrackingOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [ownerSignature, setOwnerSignatureState] = useState<string | null>(null);
+
+  const SIGNATURE_STORAGE_KEY = 'mc_admin_owner_signature_v1';
 
   useEffect(() => {
     setIsMounted(true);
@@ -174,10 +189,27 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
           setActiveOrder(parsed[0]);
         }
       }
+      const savedSig = localStorage.getItem(SIGNATURE_STORAGE_KEY);
+      if (savedSig) {
+        setOwnerSignatureState(savedSig);
+      }
     } catch {
       // ignore
     }
   }, []);
+
+  const setOwnerSignature = (url: string | null) => {
+    setOwnerSignatureState(url);
+    try {
+      if (url) {
+        localStorage.setItem(SIGNATURE_STORAGE_KEY, url);
+      } else {
+        localStorage.removeItem(SIGNATURE_STORAGE_KEY);
+      }
+    } catch {
+      // ignore
+    }
+  };
 
   useEffect(() => {
     if (isMounted) {
@@ -202,6 +234,9 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     const newOrder: CustomerOrder = {
       ...orderData,
       id,
+      address: orderData.address || 'Address pending verification',
+      invoiceNumber: `INV-${id}`,
+      isApproved: false,
       currentStep: 'placed',
       estimatedDelivery: '1–2 Business Days (Express Air Cargo)',
       createdAt: now,
@@ -296,6 +331,33 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
+  const approveOrder = (orderId: string, customInvoiceNum?: string) => {
+    const now = new Date().toLocaleDateString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    setOrders((prev) =>
+      prev.map((order) => {
+        if (order.id !== orderId) return order;
+        const invNum = customInvoiceNum || order.invoiceNumber || `INV-${order.id}`;
+        const updated = {
+          ...order,
+          isApproved: true,
+          approvedAt: now,
+          invoiceNumber: invNum,
+        };
+        if (activeOrder?.id === orderId) {
+          setActiveOrder(updated);
+        }
+        return updated;
+      })
+    );
+  };
+
   const deleteOrder = (orderId: string) => {
     setOrders((prev) => prev.filter((o) => o.id !== orderId));
     if (activeOrder?.id === orderId) {
@@ -324,8 +386,11 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
         createOrder,
         updateOrderStatus,
         updateOrderTracking,
+        approveOrder,
         deleteOrder,
         findOrder,
+        ownerSignature,
+        setOwnerSignature,
       }}
     >
       {children}

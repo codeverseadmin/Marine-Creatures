@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useOrder, TRACKING_STEPS_META, OrderProgressStep } from '@/lib/context/OrderContext';
 import { SITE_CONFIG } from '@/lib/config';
 
@@ -121,29 +122,53 @@ export function OrderTrackingModal() {
             <>
               {/* Order Meta Header Card */}
               <div className="p-4 sm:p-5 rounded-2xl border border-white/10 bg-slate-950/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <span className="font-mono text-sm sm:text-base font-bold text-cyan-400">
                       Order #{currentOrder.id}
                     </span>
                     <span className="text-xs text-slate-500">• {currentOrder.createdAt}</span>
+                    {currentOrder.isApproved ? (
+                      <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-bold">
+                        ✓ Invoiced ({currentOrder.invoiceNumber || `INV-${currentOrder.id}`})
+                      </span>
+                    ) : (
+                      <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 font-semibold">
+                        ● Order Placed
+                      </span>
+                    )}
                   </div>
                   <p className="text-xs text-slate-300">
-                    Recipient: <strong className="text-white">{currentOrder.customerName}</strong> ({currentOrder.city}, {currentOrder.pincode})
+                    Recipient: <strong className="text-white">{currentOrder.customerName}</strong>
+                    {currentOrder.phone && <span> (📞 +91 {currentOrder.phone})</span>}
+                  </p>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    📍 Delivery Address: <span className="text-slate-200">{currentOrder.address ? `${currentOrder.address}, ` : ''}{currentOrder.city} ({currentOrder.pincode})</span>
                   </p>
                 </div>
 
-                <div className="text-left sm:text-right border-t sm:border-t-0 pt-2 sm:pt-0 border-white/5">
-                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Estimated Delivery</span>
-                  <span className="text-xs sm:text-sm font-bold text-emerald-400 flex items-center sm:justify-end gap-1">
-                    <span>⚡</span>
-                    <span>{currentOrder.estimatedDelivery}</span>
-                  </span>
-                  {currentOrder.awbNumber && (
-                    <span className="text-[11px] font-mono text-slate-400 block mt-0.5">
-                      AWB: <strong className="text-white">{currentOrder.awbNumber}</strong> ({currentOrder.courierName})
+                <div className="flex flex-col sm:items-end gap-2 border-t sm:border-t-0 pt-3 sm:pt-0 border-white/5 shrink-0">
+                  <div className="text-left sm:text-right">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Estimated Delivery</span>
+                    <span className="text-xs sm:text-sm font-bold text-emerald-400 flex items-center sm:justify-end gap-1">
+                      <span>⚡</span>
+                      <span>{currentOrder.estimatedDelivery}</span>
                     </span>
-                  )}
+                    {currentOrder.awbNumber && (
+                      <span className="text-[11px] font-mono text-slate-400 block mt-0.5">
+                        AWB: <strong className="text-white">{currentOrder.awbNumber}</strong> ({currentOrder.courierName})
+                      </span>
+                    )}
+                  </div>
+
+                  <Link
+                    href={`/invoice/${currentOrder.id}`}
+                    target="_blank"
+                    className="h-9 px-3.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 text-xs font-bold uppercase tracking-wider inline-flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all"
+                  >
+                    <span>🧾</span>
+                    <span>View Tax Invoice ↗</span>
+                  </Link>
                 </div>
               </div>
 

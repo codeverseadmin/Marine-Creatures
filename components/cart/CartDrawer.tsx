@@ -20,20 +20,49 @@ export function CartDrawer() {
   const { createOrder, setIsTrackingOpen } = useOrder();
 
   const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [customerAddress, setCustomerAddress] = useState('');
   const [customerCity, setCustomerCity] = useState('');
   const [customerPincode, setCustomerPincode] = useState('');
+  const [orderNotes, setOrderNotes] = useState('');
+  const [formError, setFormError] = useState<string | null>(null);
 
   if (!isCartOpen) return null;
 
   const handleWhatsAppCheckout = () => {
     if (cart.length === 0) return;
 
-    // Create tracked order in system
+    if (!customerName.trim()) {
+      setFormError('Please enter your full name');
+      return;
+    }
+
+    const cleanPhone = customerPhone.replace(/\D/g, '');
+    if (cleanPhone.length < 10) {
+      setFormError('Please enter a valid 10-digit WhatsApp phone number');
+      return;
+    }
+
+    if (!customerAddress.trim()) {
+      setFormError('Please enter your delivery street/house address');
+      return;
+    }
+
+    if (!customerCity.trim() || !customerPincode.trim()) {
+      setFormError('Please enter your city and 6-digit postal code');
+      return;
+    }
+
+    setFormError(null);
+
+    // Create tracked order in system with full contact & address
     const newOrder = createOrder({
-      customerName: customerName.trim() || 'Client',
-      phone: '',
-      city: customerCity.trim() || 'India',
-      pincode: customerPincode.trim() || '700001',
+      customerName: customerName.trim(),
+      phone: cleanPhone,
+      address: customerAddress.trim(),
+      city: customerCity.trim(),
+      pincode: customerPincode.trim(),
+      orderNotes: orderNotes.trim() || undefined,
       items: cart.map((i) => ({ product: i.product, quantity: i.quantity })),
       totalAmount: cartTotal,
       estimatedDelivery: 'Tomorrow via Priority Air Cargo',
@@ -46,9 +75,7 @@ export function CartDrawer() {
       )
       .join('\n');
 
-    const destInfo = customerCity ? `\n📍 *Destination:* ${customerCity} ${customerPincode ? `(${customerPincode})` : ''}` : '';
-
-    const message = `Hi Marine Creatures! I am placing Order *#${newOrder.id}* on your online store:\n\n${itemsSummary}\n\n*Cart Total: ₹${cartTotal.toLocaleString('en-IN')}*${destInfo}\n\nLive Tracking ID: *#${newOrder.id}*\nPlease confirm payment link and dispatch timing for my insulated pod!`;
+    const message = `🌊 *NEW ORDER RECEIVED — MARINE CREATURES* 🌊\n*Order ID:* #${newOrder.id}\n\n👤 *CUSTOMER DETAILS:*\n• *Name:* ${customerName.trim()}\n• *Phone:* +91 ${cleanPhone}\n• *Delivery Address:* ${customerAddress.trim()}\n• *City & Pincode:* ${customerCity.trim()} (${customerPincode.trim()})${orderNotes.trim() ? `\n• *Special Notes:* ${orderNotes.trim()}` : ''}\n\n📦 *ORDERED SPECIMENS:*\n${itemsSummary}\n\n*Total Order Value:* ₹${cartTotal.toLocaleString('en-IN')}\n*Thermal Pod Packaging:* FREE Oxygenated Climate Pod\n\n🔗 *Review & Approve in Admin:* https://marine-creatures-sand.vercel.app/admin\nPlease verify holding tank reservation and approve to generate the Tax Invoice.`;
 
     const encoded = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encoded}`;
@@ -204,52 +231,146 @@ export function CartDrawer() {
                 <span className="text-[--color-accent] font-medium">Calculated at Dispatch</span>
               </div>
 
-              <div className="space-y-2 pt-1">
+              {/* Delivery Details Form */}
+              <div className="space-y-2 pt-1 border-t border-[rgba(255,255,255,0.06)]">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-cyan-400">
+                    Live Cargo Delivery Details
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-medium">
+                    * Required for Tax Invoice
+                  </span>
+                </div>
+
+                {formError && (
+                  <div className="p-2 rounded-lg bg-red-500/15 border border-red-500/30 text-red-300 text-xs flex items-center gap-1.5 animate-shake">
+                    <span>⚠️</span>
+                    <span>{formError}</span>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[9px] uppercase font-semibold text-slate-400 block mb-0.5">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Rahul Verma"
+                      value={customerName}
+                      onChange={(e) => {
+                        setCustomerName(e.target.value);
+                        if (formError) setFormError(null);
+                      }}
+                      className="w-full h-9 px-3 rounded-xl bg-black/60 border border-white/10 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[9px] uppercase font-semibold text-slate-400 block mb-0.5">
+                      WhatsApp Phone *
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="10-digit number"
+                      maxLength={10}
+                      value={customerPhone}
+                      onChange={(e) => {
+                        setCustomerPhone(e.target.value);
+                        if (formError) setFormError(null);
+                      }}
+                      className="w-full h-9 px-3 rounded-xl bg-black/60 border border-white/10 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-400 font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[9px] uppercase font-semibold text-slate-400 block mb-0.5">
+                    Delivery Street Address *
+                  </label>
                   <input
                     type="text"
-                    placeholder="Your Name"
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    className="h-10 px-3 rounded-xl bg-black/50 border border-white/10 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
+                    placeholder="House/Flat No, Apartment, Landmark, Area"
+                    value={customerAddress}
+                    onChange={(e) => {
+                      setCustomerAddress(e.target.value);
+                      if (formError) setFormError(null);
+                    }}
+                    className="w-full h-9 px-3 rounded-xl bg-black/60 border border-white/10 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-400"
                   />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[9px] uppercase font-semibold text-slate-400 block mb-0.5">
+                      City *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Bengaluru"
+                      value={customerCity}
+                      onChange={(e) => {
+                        setCustomerCity(e.target.value);
+                        if (formError) setFormError(null);
+                      }}
+                      className="w-full h-9 px-3 rounded-xl bg-black/60 border border-white/10 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[9px] uppercase font-semibold text-slate-400 block mb-0.5">
+                      Pincode *
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={6}
+                      placeholder="e.g. 560038"
+                      value={customerPincode}
+                      onChange={(e) => {
+                        setCustomerPincode(e.target.value);
+                        if (formError) setFormError(null);
+                      }}
+                      className="w-full h-9 px-3 rounded-xl bg-black/60 border border-white/10 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-400 font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div>
                   <input
                     type="text"
-                    placeholder="City & Pincode"
-                    value={customerCity}
-                    onChange={(e) => setCustomerCity(e.target.value)}
-                    className="h-10 px-3 rounded-xl bg-black/50 border border-white/10 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
+                    placeholder="Optional Acclimation / Delivery Notes..."
+                    value={orderNotes}
+                    onChange={(e) => setOrderNotes(e.target.value)}
+                    className="w-full h-8 px-3 rounded-xl bg-black/40 border border-white/5 text-[11px] text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-400"
                   />
                 </div>
 
                 <button
                   onClick={handleWhatsAppCheckout}
-                  className="btn-primary w-full justify-center text-xs py-4 px-4 rounded-xl flex items-center gap-2 shadow-xl active:scale-[0.98] transition-transform font-bold tracking-wider uppercase"
+                  className="btn-primary w-full justify-center text-xs py-3.5 px-4 rounded-xl flex items-center gap-2 shadow-xl active:scale-[0.98] transition-transform font-bold tracking-wider uppercase mt-2"
                 >
                   <span className="text-base">💬</span>
-                  <span>CHECKOUT VIA WHATSAPP →</span>
+                  <span>PLACE ORDER &amp; REQUEST INVOICE →</span>
                 </button>
+              </div>
 
-                <div className="flex items-center justify-between gap-2 pt-1">
-                  <Link
-                    href="/services"
-                    onClick={() => setIsCartOpen(false)}
-                    className="text-[11px] text-slate-400 hover:text-cyan-300 transition-colors"
-                  >
-                    + Add Installation Setup
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsCartOpen(false);
-                      setIsTrackingOpen(true);
-                    }}
-                    className="text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1"
-                  >
-                    <span>📦</span>
-                    <span>Track Active Order</span>
-                  </button>
-                </div>
+              <div className="flex items-center justify-between gap-2 pt-1">
+                <Link
+                  href="/services"
+                  onClick={() => setIsCartOpen(false)}
+                  className="text-[11px] text-slate-400 hover:text-cyan-300 transition-colors"
+                >
+                  + Add Installation Setup
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCartOpen(false);
+                    setIsTrackingOpen(true);
+                  }}
+                  className="text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1"
+                >
+                  <span>📦</span>
+                  <span>Track Active Order</span>
+                </button>
               </div>
 
               <p className="text-[10px] text-[--color-muted] text-center opacity-70 leading-tight pt-1">

@@ -27,7 +27,7 @@ export default function AdminDashboardPage() {
     importDataJson,
   } = useCatalog();
 
-  const { orders, updateOrderStatus, updateOrderTracking, deleteOrder } = useOrder();
+  const { orders, updateOrderStatus, updateOrderTracking, deleteOrder, approveOrder, ownerSignature, setOwnerSignature } = useOrder();
 
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [passcode, setPasscode] = useState('');
@@ -485,6 +485,16 @@ export default function AdminDashboardPage() {
     const message = `🌊 *MARINE CREATURES DISPATCH UPDATE*\n\nHello *${order.customerName}*,\n\nYour order *#${order.id}* has been updated to:\n🔹 *${stepMeta.icon} ${stepMeta.label.toUpperCase()}*\n_${stepMeta.description}_\n\n📋 *Specimens & Gear:*\n${itemsSummary}\n\n💰 *Total:* ₹${order.totalAmount.toLocaleString('en-IN')}\n📍 *Destination:* ${order.city} (${order.pincode})\n${order.awbNumber ? `\n✈️ *Courier:* ${order.courierName || 'Priority Air Cargo'}\n🔖 *Air Waybill (AWB):* ${order.awbNumber}` : ''}\n⏳ *Est. Arrival:* ${order.estimatedDelivery}\n\nTrack live on our portal anytime.\nMarine Creatures Concierge`;
 
     const cleanPhone = order.phone.replace(/[^0-9]/g, '');
+    const url = `https://wa.me/${cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  };
+
+  const handleSendInvoiceWhatsApp = (order: CustomerOrder) => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://marine-creatures-sand.vercel.app';
+    const invoiceUrl = `${origin}/invoice/${order.id}`;
+    const cleanPhone = order.phone.replace(/[^0-9]/g, '');
+    const message = `🌊 *MARINE CREATURES — OFFICIAL TAX INVOICE & DISPATCH CONFIRMATION* 🌊\n\nDear *${order.customerName}*,\nYour order *#${order.id}* has been verified & approved by Marine Creatures Concierge.\n\n🧾 *Tax Invoice No:* ${order.invoiceNumber || `INV-${order.id}`}\n📅 *Date:* ${order.approvedAt || order.createdAt}\n📦 *Total Amount:* ₹${order.totalAmount.toLocaleString('en-IN')} (All-inclusive)\n📍 *Delivery Address:* ${order.address}, ${order.city} (${order.pincode})\n✈️ *Carrier:* ${order.courierName || 'Priority Air Cargo'} ${order.awbNumber ? `(AWB: ${order.awbNumber})` : ''}\n\n📄 *View / Download Your Official Tax Invoice:* \n${invoiceUrl}\n\nYour specimens are in specialized oxygenated thermal pods. Thank you for choosing Marine Creatures!`;
+
     const url = `https://wa.me/${cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
   };
@@ -1884,20 +1894,76 @@ export default function AdminDashboardPage() {
                             </div>
                           </div>
 
-                          {/* Row 2: Customer Contact & Location Chips (No cramped inline dots) */}
+                          {/* Row 2: Customer Contact & Location Chips */}
                           <div className="flex flex-wrap items-center gap-2 text-xs">
                             <span className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 bg-slate-900/90 px-2.5 py-1 rounded-lg border border-slate-800">
                               <span>👤</span>
                               <span>{order.customerName}</span>
                             </span>
-                            <span className="text-slate-300 flex items-center gap-1.5 bg-slate-900/60 px-2.5 py-1 rounded-lg border border-slate-800/80">
+                            <a
+                              href={`https://wa.me/${order.phone.replace(/\D/g, '').length === 10 ? '91' + order.phone.replace(/\D/g, '') : order.phone.replace(/\D/g, '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-cyan-300 hover:text-cyan-200 flex items-center gap-1 bg-slate-900/60 hover:bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800/80 transition-colors"
+                              title="Chat with customer on WhatsApp"
+                            >
                               <span>📞</span>
                               <span>+91 {order.phone}</span>
-                            </span>
-                            <span className="text-slate-300 flex items-center gap-1.5 bg-slate-900/60 px-2.5 py-1 rounded-lg border border-slate-800/80">
+                              <span className="text-[10px] text-emerald-400 font-bold ml-0.5">💬</span>
+                            </a>
+                            <span className="text-slate-300 flex items-center gap-1 bg-slate-900/60 px-2.5 py-1 rounded-lg border border-slate-800/80">
                               <span>📍</span>
-                              <span>{order.city} ({order.pincode})</span>
+                              <span>{order.address ? `${order.address}, ` : ''}{order.city} ({order.pincode})</span>
                             </span>
+                          </div>
+
+                          {/* Row 3: Order Approval & Official Tax Invoice Actions */}
+                          <div className="flex items-center justify-between gap-2.5 flex-wrap pt-1 text-xs">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              {order.isApproved ? (
+                                <span className="px-3 py-1 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-bold flex items-center gap-1.5 text-xs shadow-sm">
+                                  <span>✓</span>
+                                  <span>Approved &amp; Invoiced ({order.invoiceNumber || `INV-${order.id}`})</span>
+                                </span>
+                              ) : (
+                                <button
+                                  onClick={() => {
+                                    approveOrder(order.id);
+                                    showToast(`✓ Order #${order.id} Approved! Official Invoice generated.`);
+                                  }}
+                                  className="h-8 px-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold flex items-center gap-1.5 text-xs shadow-md active:scale-95 transition-all"
+                                >
+                                  <span>⚡</span>
+                                  <span>Approve Order &amp; Issue Tax Invoice</span>
+                                </button>
+                              )}
+
+                              {order.orderNotes && (
+                                <span className="text-[11px] text-slate-400 italic bg-slate-950/60 px-2.5 py-1 rounded-lg border border-slate-800/60">
+                                  Note: {order.orderNotes}
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <Link
+                                href={`/invoice/${order.id}`}
+                                target="_blank"
+                                className="h-8 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-cyan-300 hover:text-cyan-200 border border-slate-800 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
+                              >
+                                <span>🧾</span>
+                                <span>View Invoice ↗</span>
+                              </Link>
+
+                              <button
+                                onClick={() => handleSendInvoiceWhatsApp(order)}
+                                className="h-8 px-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95"
+                                title="Send Invoice PDF link to customer via WhatsApp"
+                              >
+                                <span>💬</span>
+                                <span>WhatsApp Invoice</span>
+                              </button>
+                            </div>
                           </div>
                         </div>
 
@@ -2564,6 +2630,83 @@ export default function AdminDashboardPage() {
            ========================================================================= */}
         {activeTab === 'system' && (
           <div className="space-y-4 max-w-xl">
+            {/* Owner Signature & Invoice Branding */}
+            <div className="bg-[#071520] border border-cyan-500/30 rounded-3xl p-5 space-y-4 shadow-xl">
+              <div>
+                <h4 className="text-base font-bold text-white flex items-center gap-2">
+                  <span>✍️</span>
+                  <span>Owner Signature &amp; Invoice Branding</span>
+                </h4>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  This signature and the official dispatch seal automatically appear on all approved customer tax invoices.
+                </p>
+              </div>
+
+              {/* Current Signature Preview */}
+              <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block mb-1">
+                    Active Signatory Signature:
+                  </span>
+                  <div className="h-14 flex items-center bg-slate-900/60 px-4 rounded-xl border border-slate-800/80 min-w-[200px] justify-center">
+                    {ownerSignature ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={ownerSignature}
+                        alt="Owner Signature"
+                        className="max-h-12 max-w-[180px] object-contain filter invert"
+                      />
+                    ) : (
+                      <span className="font-serif italic text-2xl font-bold text-cyan-300">
+                        Suraj Shasmal
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[11px] text-slate-500 mt-1 block">
+                    {ownerSignature ? 'Custom uploaded handwritten signature' : 'Default digital calligraphy signature'}
+                  </span>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                  <label className="h-10 px-4 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-all shadow-md active:scale-95">
+                    <span>📁</span>
+                    <span>Upload Image</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = () => {
+                            if (typeof reader.result === 'string') {
+                              setOwnerSignature(reader.result);
+                              showToast('✓ Owner signature updated for all invoices!');
+                            }
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                  </label>
+
+                  {ownerSignature && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOwnerSignature(null);
+                        showToast('Reset to default signature');
+                      }}
+                      className="h-10 px-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold"
+                    >
+                      Reset Default
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <div className="bg-[#071520] border border-slate-800 rounded-3xl p-5 space-y-3">
               <h4 className="text-base font-bold text-white">Export Catalog Backup</h4>
               <p className="text-xs text-slate-400">
