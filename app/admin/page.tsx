@@ -35,6 +35,7 @@ export default function AdminDashboardPage() {
   const [showPasscode, setShowPasscode] = useState(false);
   const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'banners' | 'inquiries' | 'overview' | 'system'>('products');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [adminViewMode, setAdminViewMode] = useState<'grid' | 'table'>('grid');
 
   // Order Management State
   const [orderSearch, setOrderSearch] = useState('');
@@ -493,70 +494,122 @@ export default function AdminDashboardPage() {
     showToast(`✓ Tracking details updated for #${orderId}`);
   };
 
-  // Auth Screen (Clean & Mobile-Ready)
+  // Auth Screen (Clean & Mobile-Ready + Luxury Split for Laptop/Desktop)
   if (!isAuthenticated) {
     return (
-      <main className="min-h-screen bg-[#03090e] text-white flex flex-col justify-center px-4 py-8 relative">
-        <div className="w-full max-w-sm mx-auto">
-          <div className="text-center mb-6">
-            <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mx-auto mb-3 shadow-[0_0_20px_rgba(0,184,217,0.15)]">
-              <span className="text-3xl">🔒</span>
-            </div>
-            <h1 className="text-2xl font-semibold tracking-tight text-white">
-              Admin Portal
-            </h1>
-            <p className="text-xs text-slate-400 mt-1">
-              Marine Creatures Control Center
-            </p>
-          </div>
+      <main className="min-h-screen bg-[#02070c] text-white flex flex-col justify-center px-4 py-8 relative">
+        {/* Background glow accents */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-cyan-500/10 blur-[140px] pointer-events-none rounded-full" />
 
-          <div className="bg-[#07131d] border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-5">
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-2 uppercase tracking-wider">
-                  Admin Passcode
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPasscode ? 'text' : 'password'}
-                    placeholder="Enter secret passcode"
-                    value={passcode}
-                    onChange={(e) => setPasscode(e.target.value)}
-                    className="w-full h-14 px-4 pr-12 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder:text-slate-500 text-base focus:outline-none focus:border-cyan-400 transition-colors"
-                    autoFocus
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPasscode(!showPasscode)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400 hover:text-white p-1.5"
-                  >
-                    {showPasscode ? 'Hide' : 'Show'}
-                  </button>
+        <div className="w-full max-w-sm lg:max-w-4xl mx-auto relative z-10">
+          <div className="bg-[#07131d] border border-slate-800 rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12">
+            {/* Left Column (Desktop / Laptop Only) */}
+            <div className="hidden lg:flex lg:col-span-5 bg-gradient-to-br from-[#061824] via-[#040e16] to-[#02070c] p-8 flex-col justify-between border-r border-slate-800/80">
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-cyan-400/10 border border-cyan-400/30 flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(0,184,217,0.25)]">
+                    🌊
+                  </div>
+                  <div>
+                    <h2 className="font-bold text-white text-lg tracking-wide">Marine Creatures</h2>
+                    <span className="text-[11px] text-cyan-400 font-semibold uppercase tracking-wider">
+                      Control Center
+                    </span>
+                  </div>
                 </div>
-                {authError && (
-                  <p className="text-xs text-red-400 mt-2 font-medium flex items-center gap-1">
-                    <span>✕</span> Incorrect passcode. Please try again.
-                  </p>
-                )}
+
+                <div className="space-y-4 pt-4">
+                  <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                    Executive Operations &amp; Management
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3 text-xs text-slate-300">
+                      <span className="text-cyan-400 font-bold">✓</span>
+                      <span>Manage captive-bred marine fish, coral frags, &amp; lighting tech</span>
+                    </div>
+                    <div className="flex items-start gap-3 text-xs text-slate-300">
+                      <span className="text-cyan-400 font-bold">✓</span>
+                      <span>Amazon-style 5-stage live dispatch pipeline with AWB editing</span>
+                    </div>
+                    <div className="flex items-start gap-3 text-xs text-slate-300">
+                      <span className="text-cyan-400 font-bold">✓</span>
+                      <span>1-Tap WhatsApp dispatch notices &amp; client lead management</span>
+                    </div>
+                    <div className="flex items-start gap-3 text-xs text-slate-300">
+                      <span className="text-cyan-400 font-bold">✓</span>
+                      <span>Encrypted session authentication &amp; local JSON backups</span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <button
-                type="submit"
-                className="w-full h-14 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-sm tracking-wider uppercase transition-all active:scale-[0.98] shadow-lg flex items-center justify-center gap-2"
-              >
-                <span>Unlock Control Center</span>
-                <span>→</span>
-              </button>
-            </form>
+              <div className="pt-6 border-t border-slate-800/60 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+                <span>OPERATIONS CONSOLE</span>
+                <span>SECURE ENCRYPTED</span>
+              </div>
+            </div>
 
-            <div className="pt-3 border-t border-slate-800 text-center">
-              <Link
-                href="/"
-                className="text-xs text-slate-400 hover:text-cyan-400 transition-colors inline-flex items-center gap-1.5 py-1"
-              >
-                <span>←</span>
-                <span>Back to Customer Storefront</span>
-              </Link>
+            {/* Right Column: Passcode Form (Mobile & Laptop) */}
+            <div className="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-center">
+              <div className="text-center lg:text-left mb-6">
+                <div className="lg:hidden w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mx-auto mb-3 shadow-[0_0_20px_rgba(0,184,217,0.15)]">
+                  <span className="text-2xl">🔒</span>
+                </div>
+                <h1 className="text-2xl font-bold tracking-tight text-white">
+                  Admin Sign In
+                </h1>
+                <p className="text-xs text-slate-400 mt-1">
+                  Enter master passcode to unlock control center
+                </p>
+              </div>
+
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div>
+                  <label className="text-xs font-semibold text-slate-300 block mb-2 uppercase tracking-wider">
+                    Master Admin Passcode
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPasscode ? 'text' : 'password'}
+                      placeholder="Enter secret passcode"
+                      value={passcode}
+                      onChange={(e) => setPasscode(e.target.value)}
+                      className="w-full h-13 sm:h-14 px-4 pr-12 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder:text-slate-500 text-base focus:outline-none focus:border-cyan-400 transition-colors"
+                      autoFocus
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPasscode(!showPasscode)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400 hover:text-white p-1.5"
+                    >
+                      {showPasscode ? 'Hide' : 'Show'}
+                    </button>
+                  </div>
+                  {authError && (
+                    <p className="text-xs text-red-400 mt-2 font-medium flex items-center gap-1">
+                      <span>✕</span> Incorrect passcode. Please try again.
+                    </p>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full h-13 sm:h-14 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-sm tracking-wider uppercase transition-all active:scale-[0.98] shadow-lg flex items-center justify-center gap-2"
+                >
+                  <span>Unlock Control Center</span>
+                  <span>→</span>
+                </button>
+              </form>
+
+              <div className="pt-4 mt-6 border-t border-slate-800 text-center lg:text-left">
+                <Link
+                  href="/"
+                  className="text-xs text-slate-400 hover:text-cyan-400 transition-colors inline-flex items-center gap-1.5 py-1"
+                >
+                  <span>←</span>
+                  <span>Back to Customer Storefront</span>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -597,9 +650,9 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* Slide-over Hamburger Drawer */}
+      {/* Slide-over Hamburger Drawer (Mobile Only) */}
       {sidebarOpen && (
-        <div className="fixed inset-0 z-50 flex">
+        <div className="lg:hidden fixed inset-0 z-50 flex">
           {/* Backdrop */}
           <div
             className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
@@ -694,10 +747,106 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* Top Mobile Navbar with Big Hamburger & Current Section Title */}
-      <header className="sticky top-0 z-30 bg-[#05111a]/95 backdrop-blur-md border-b border-slate-800">
-        <div className="px-4 py-3.5 flex items-center justify-between gap-3 max-w-5xl mx-auto">
-          {/* Hamburger + Active Tab Title */}
+      {/* Permanent Desktop / Laptop Sidebar */}
+      <aside className="hidden lg:flex flex-col fixed top-0 bottom-0 left-0 w-72 xl:w-80 bg-[#05111a] border-r border-slate-800/80 z-40 p-5 xl:p-6 justify-between overflow-y-auto shadow-2xl">
+        <div className="space-y-6">
+          {/* Brand Header */}
+          <div className="flex items-center gap-3 pb-5 border-b border-slate-800">
+            <div className="w-11 h-11 rounded-2xl bg-cyan-400/10 border border-cyan-400/30 flex items-center justify-center text-xl shadow-[0_0_15px_rgba(0,184,217,0.2)]">
+              🌊
+            </div>
+            <div>
+              <h2 className="font-bold text-white text-base leading-tight tracking-wide">
+                Marine Creatures
+              </h2>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-[10px] text-emerald-400 font-semibold uppercase tracking-wider">
+                  Control Center
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation Links */}
+          <nav className="space-y-1.5">
+            <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500 block px-3 mb-2">
+              ADMIN NAVIGATION
+            </span>
+            {TAB_ITEMS.map((item) => {
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setActiveTab(item.id as any);
+                  }}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold transition-all ${
+                    isActive
+                      ? 'bg-cyan-400 text-slate-950 shadow-lg shadow-cyan-400/20 font-bold scale-[1.02]'
+                      : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">{item.icon}</span>
+                    <span>{item.label}</span>
+                  </div>
+
+                  {typeof item.count === 'number' && (
+                    <span
+                      className={`text-xs px-2.5 py-0.5 rounded-full font-bold ${
+                        isActive
+                          ? 'bg-slate-950 text-cyan-300'
+                          : 'bg-slate-800 text-slate-400'
+                      }`}
+                    >
+                      {item.count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Desktop Sidebar Bottom Controls */}
+        <div className="pt-5 border-t border-slate-800 space-y-3">
+          <Link
+            href="/marketplace"
+            target="_blank"
+            className="w-full h-11 px-4 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 border border-slate-700 transition-all shadow-sm"
+          >
+            <span>🛍️</span>
+            <span>Open Customer Storefront ↗</span>
+          </Link>
+
+          {/* Admin Profile Box */}
+          <div className="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-cyan-400/20 border border-cyan-400/30 text-cyan-300 flex items-center justify-center font-bold text-xs">
+                SS
+              </div>
+              <div className="leading-tight">
+                <span className="text-xs font-bold text-white block">Suraj Shasmal</span>
+                <span className="text-[10px] text-emerald-400 font-medium">● Online Admin</span>
+              </div>
+            </div>
+
+            <button
+              onClick={handleLogout}
+              className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold transition-colors"
+              title="Sign Out"
+            >
+              🔒
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content Area Wrapper (Offset for Desktop Sidebar) */}
+      <div className="flex-1 w-full lg:pl-72 xl:pl-80 min-h-screen flex flex-col bg-[#02070c]">
+        {/* Top Mobile Header (Phone / Tablet Only) */}
+        <header className="lg:hidden sticky top-0 z-30 bg-[#05111a]/95 backdrop-blur-md border-b border-slate-800 px-4 py-3.5 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(true)}
@@ -710,33 +859,27 @@ export default function AdminDashboardPage() {
             </button>
 
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="font-bold text-base sm:text-lg text-white capitalize">
-                  {activeTab === 'products' && 'Product Inventory'}
-                  {activeTab === 'orders' && 'Orders & Live Dispatches'}
-                  {activeTab === 'banners' && 'Announcement Slides'}
-                  {activeTab === 'inquiries' && 'Client Inquiries'}
-                  {activeTab === 'overview' && 'Store Metrics'}
-                  {activeTab === 'system' && 'System & Backup'}
-                </h1>
-              </div>
+              <h1 className="font-bold text-base text-white capitalize">
+                {activeTab === 'products' && 'Product Inventory'}
+                {activeTab === 'orders' && 'Orders & Dispatches'}
+                {activeTab === 'banners' && 'Announcement Slides'}
+                {activeTab === 'inquiries' && 'Client Inquiries'}
+                {activeTab === 'overview' && 'Store Metrics'}
+                {activeTab === 'system' && 'System & Backup'}
+              </h1>
               <p className="text-[11px] text-slate-400">Marine Creatures Admin</p>
             </div>
           </div>
 
-          {/* Right Header Controls */}
           <div className="flex items-center gap-2">
             <Link
               href="/marketplace"
               target="_blank"
               className="h-10 px-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs font-medium inline-flex items-center gap-1.5 border border-slate-700"
-              title="Open storefront in new tab"
             >
               <span>🛍️</span>
-              <span className="hidden sm:inline">Store</span>
-              <span>↗</span>
+              <span>Store ↗</span>
             </Link>
-
             <button
               onClick={handleLogout}
               className="h-10 px-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/20"
@@ -744,11 +887,52 @@ export default function AdminDashboardPage() {
               Logout
             </button>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 pb-28">
+        {/* Top Desktop Header (Laptop / Desktop Only) */}
+        <header className="hidden lg:flex sticky top-0 z-30 bg-[#05111a]/90 backdrop-blur-xl border-b border-slate-800/80 px-8 py-4 items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
+              <span>ADMIN</span>
+              <span>/</span>
+              <span className="text-cyan-400 font-bold uppercase">{activeTab}</span>
+            </div>
+            <h1 className="font-bold text-xl text-white capitalize mt-0.5">
+              {activeTab === 'products' && 'Product Catalog & Inventory Studio'}
+              {activeTab === 'orders' && 'Live Orders & Air Cargo Dispatches'}
+              {activeTab === 'banners' && 'Homepage Announcement Slides'}
+              {activeTab === 'inquiries' && 'VIP Client Consultation Leads'}
+              {activeTab === 'overview' && 'Store Operations & Analytics'}
+              {activeTab === 'system' && 'Backup, Export & Database Tools'}
+            </h1>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Catalog Synced</span>
+            </span>
+
+            <Link
+              href="/marketplace"
+              target="_blank"
+              className="h-10 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold inline-flex items-center gap-2 border border-slate-700 shadow-sm transition-all"
+            >
+              <span>🛍️</span>
+              <span>Storefront Preview ↗</span>
+            </Link>
+
+            <button
+              onClick={handleLogout}
+              className="h-10 px-4 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/30 transition-colors"
+            >
+              Sign Out
+            </button>
+          </div>
+        </header>
+
+        {/* Main Content Area */}
+        <main className="flex-1 w-full max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8 xl:p-10 pb-28 space-y-6">
         {/* =========================================================================
             TAB 1: PRODUCTS
            ========================================================================= */}
@@ -756,21 +940,51 @@ export default function AdminDashboardPage() {
           <div className="space-y-5">
             {/* Action Bar */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="min-w-0">
+              <div className="min-w-0 flex items-center gap-3">
                 <span className="text-xs text-slate-400">
                   Showing <strong className="text-white">{filteredProducts.length}</strong> of {products.length} catalog items
                 </span>
               </div>
 
-              {!isEditingProduct && (
-                <button
-                  onClick={handleNewProductClick}
-                  className="w-full sm:w-auto h-12 px-6 rounded-2xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-sm tracking-wide uppercase flex items-center justify-center gap-2 active:scale-95 shadow-lg transition-all"
-                >
-                  <span className="text-lg">+</span>
-                  <span>Add Product</span>
-                </button>
-              )}
+              <div className="flex items-center gap-2.5">
+                {/* Desktop View Mode Switcher */}
+                <div className="hidden sm:flex items-center bg-slate-900 border border-slate-800 rounded-xl p-1">
+                  <button
+                    type="button"
+                    onClick={() => setAdminViewMode('grid')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                      adminViewMode === 'grid'
+                        ? 'bg-cyan-400 text-slate-950 shadow-sm'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <span>▦</span>
+                    <span>Grid View</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAdminViewMode('table')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                      adminViewMode === 'table'
+                        ? 'bg-cyan-400 text-slate-950 shadow-sm'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <span>☰</span>
+                    <span>Table View</span>
+                  </button>
+                </div>
+
+                {!isEditingProduct && (
+                  <button
+                    onClick={handleNewProductClick}
+                    className="w-full sm:w-auto h-11 sm:h-12 px-5 sm:px-6 rounded-2xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-sm tracking-wide uppercase flex items-center justify-center gap-2 active:scale-95 shadow-lg transition-all"
+                  >
+                    <span className="text-lg">+</span>
+                    <span>Add Product</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Product Edit / Create Modal Card */}
@@ -1178,7 +1392,7 @@ export default function AdminDashboardPage() {
               ))}
             </div>
 
-            {/* Big, Clean, Spacious Product Cards */}
+            {/* Big, Clean, Spacious Product Cards / Table */}
             {filteredProducts.length === 0 ? (
               <div className="p-12 text-center bg-[#071520] rounded-3xl border border-slate-800">
                 <span className="text-4xl block mb-2">🐠</span>
@@ -1193,15 +1407,146 @@ export default function AdminDashboardPage() {
                   Reset filters
                 </button>
               </div>
+            ) : adminViewMode === 'table' ? (
+              /* Table View for Desktop / Laptop */
+              <div className="bg-[#071520] border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-800 bg-slate-950/70 text-slate-400 font-semibold uppercase tracking-wider">
+                        <th className="p-4">Specimen / Item</th>
+                        <th className="p-4">Category</th>
+                        <th className="p-4">Price</th>
+                        <th className="p-4">Stock Units</th>
+                        <th className="p-4">Status</th>
+                        <th className="p-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60">
+                      {filteredProducts.map((p) => {
+                        const isOut = !p.inStock || p.stockCount <= 0;
+                        return (
+                          <tr key={p.id} className="hover:bg-slate-900/50 transition-colors">
+                            <td className="p-4">
+                              <div className="flex items-center gap-3">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={p.images[0] || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=200&q=80'}
+                                  alt={p.name}
+                                  className="w-12 h-12 rounded-xl object-cover bg-black border border-slate-800 shrink-0"
+                                />
+                                <div className="min-w-0 max-w-xs">
+                                  <h4 className="font-bold text-white truncate text-sm">{p.name}</h4>
+                                  {p.scientificName && (
+                                    <p className="text-[11px] text-slate-400 italic truncate">{p.scientificName}</p>
+                                  )}
+                                  {p.badge && (
+                                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-300 border border-amber-400/20 inline-block mt-0.5">
+                                      {p.badge}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="p-4">
+                              <span className="text-[11px] uppercase font-bold px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 whitespace-nowrap">
+                                {p.category.replace('-', ' ')}
+                              </span>
+                            </td>
+                            <td className="p-4 whitespace-nowrap">
+                              <span className="font-extrabold text-cyan-400 font-mono text-sm">
+                                ₹{p.price.toLocaleString('en-IN')}
+                              </span>
+                              {p.originalPrice && (
+                                <span className="text-[10px] text-slate-500 line-through block">
+                                  ₹{p.originalPrice.toLocaleString('en-IN')}
+                                </span>
+                              )}
+                            </td>
+                            <td className="p-4 whitespace-nowrap">
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  onClick={() => handleQuickStockChange(p, -1)}
+                                  className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold flex items-center justify-center text-sm active:scale-90"
+                                >
+                                  −
+                                </button>
+                                <span className={`w-8 text-center font-mono font-bold text-xs ${isOut ? 'text-red-400' : 'text-white'}`}>
+                                  {p.stockCount}
+                                </span>
+                                <button
+                                  onClick={() => handleQuickStockChange(p, 1)}
+                                  className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold flex items-center justify-center text-sm active:scale-90"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </td>
+                            <td className="p-4 whitespace-nowrap">
+                              <button
+                                onClick={() => {
+                                  const newInStock = !p.inStock;
+                                  updateProduct(p.id, {
+                                    inStock: newInStock,
+                                    stockCount: newInStock && p.stockCount === 0 ? 5 : p.stockCount,
+                                  });
+                                  showToast(newInStock ? 'Marked In Stock' : 'Marked Out of Stock');
+                                }}
+                                className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors flex items-center gap-1.5 ${
+                                  p.inStock
+                                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                                    : 'bg-red-500/10 text-red-400 border-red-500/30'
+                                }`}
+                              >
+                                <span>{p.inStock ? '●' : '○'}</span>
+                                <span>{p.inStock ? 'Live' : 'Paused'}</span>
+                              </button>
+                            </td>
+                            <td className="p-4 text-right whitespace-nowrap">
+                              <div className="flex items-center justify-end gap-1.5">
+                                <Link
+                                  href={`/marketplace/${p.id}`}
+                                  target="_blank"
+                                  className="h-8 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold inline-flex items-center gap-1"
+                                >
+                                  <span>View ↗</span>
+                                </Link>
+                                <button
+                                  onClick={() => handleEditProductClick(p)}
+                                  className="h-8 px-3 rounded-lg bg-cyan-400/15 hover:bg-cyan-400/25 text-cyan-300 text-xs font-bold border border-cyan-400/30"
+                                >
+                                  Edit ✏️
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    if (confirm(`Delete "${p.name}"?`)) {
+                                      deleteProduct(p.id);
+                                      showToast('Product deleted');
+                                    }
+                                  }}
+                                  className="h-8 w-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold flex items-center justify-center border border-red-500/20"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             ) : (
-              <div className="space-y-4">
+              /* Grid View (Responsive: 1-col on mobile, 2-col on md, 3-col on xl, 4-col on 2xl) */
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
                 {filteredProducts.map((p) => {
                   const isOut = !p.inStock || p.stockCount <= 0;
 
                   return (
                     <div
                       key={p.id}
-                      className="bg-[#071520] border border-slate-800 rounded-3xl p-5 hover:border-slate-700 transition-all shadow-md space-y-4"
+                      className="bg-[#071520] border border-slate-800 rounded-3xl p-5 hover:border-slate-700 transition-all shadow-md flex flex-col justify-between gap-4"
                     >
                       {/* Top Row: Big Thumbnail + Title + Price */}
                       <div className="flex items-start gap-4">
@@ -1247,7 +1592,7 @@ export default function AdminDashboardPage() {
                         </div>
                       </div>
 
-                      {/* Stock Adjustment Bar (Extra Big Buttons for Finger Taps) */}
+                      {/* Stock Adjustment Bar */}
                       <div className="bg-slate-900/90 px-4 py-3 rounded-2xl border border-slate-800 flex items-center justify-between">
                         <div>
                           <span className="text-xs text-slate-400 block font-medium">Available Units:</span>
@@ -1260,21 +1605,21 @@ export default function AdminDashboardPage() {
                           </span>
                         </div>
 
-                        {/* Big +/- Controls */}
+                        {/* Controls */}
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleQuickStockChange(p, -1)}
-                            className="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-lg font-bold flex items-center justify-center active:scale-90 transition-transform shadow-sm"
+                            className="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-base font-bold flex items-center justify-center active:scale-90 transition-transform shadow-sm"
                             title="Minus 1"
                           >
                             −
                           </button>
-                          <span className="w-10 text-center font-mono font-bold text-base text-white">
+                          <span className="w-8 text-center font-mono font-bold text-sm text-white">
                             {p.stockCount}
                           </span>
                           <button
                             onClick={() => handleQuickStockChange(p, 1)}
-                            className="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-lg font-bold flex items-center justify-center active:scale-90 transition-transform shadow-sm"
+                            className="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-base font-bold flex items-center justify-center active:scale-90 transition-transform shadow-sm"
                             title="Plus 1"
                           >
                             +
@@ -1294,22 +1639,22 @@ export default function AdminDashboardPage() {
                             });
                             showToast(newInStock ? 'Marked In Stock' : 'Marked Out of Stock');
                           }}
-                          className={`h-10 px-4 rounded-xl text-xs font-bold border transition-colors flex items-center gap-1.5 ${
+                          className={`h-9 px-3 rounded-xl text-xs font-bold border transition-colors flex items-center gap-1.5 ${
                             p.inStock
                               ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
                               : 'bg-red-500/10 text-red-400 border-red-500/30'
                           }`}
                         >
                           <span>{p.inStock ? '●' : '○'}</span>
-                          <span>{p.inStock ? 'Live on Store' : 'Hidden / Paused'}</span>
+                          <span>{p.inStock ? 'Live' : 'Hidden'}</span>
                         </button>
 
                         {/* Action Buttons */}
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5">
                           <Link
                             href={`/marketplace/${p.id}`}
                             target="_blank"
-                            className="h-10 px-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold inline-flex items-center gap-1"
+                            className="h-9 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold inline-flex items-center gap-1"
                           >
                             <span>View</span>
                             <span>↗</span>
@@ -1317,7 +1662,7 @@ export default function AdminDashboardPage() {
 
                           <button
                             onClick={() => handleEditProductClick(p)}
-                            className="h-10 px-4 rounded-xl bg-cyan-400/15 hover:bg-cyan-400/25 text-cyan-300 text-xs font-bold border border-cyan-400/30"
+                            className="h-9 px-3 rounded-xl bg-cyan-400/15 hover:bg-cyan-400/25 text-cyan-300 text-xs font-bold border border-cyan-400/30"
                           >
                             Edit
                           </button>
@@ -1329,10 +1674,10 @@ export default function AdminDashboardPage() {
                                 showToast(`Deleted "${p.name}"`);
                               }
                             }}
-                            className="h-10 w-10 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold border border-red-500/20 flex items-center justify-center"
+                            className="h-9 w-9 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold border border-red-500/20 flex items-center justify-center"
                             title="Delete product"
                           >
-                            🗑️
+                            ✕
                           </button>
                         </div>
                       </div>
@@ -1877,8 +2222,8 @@ export default function AdminDashboardPage() {
               </form>
             )}
 
-            {/* Banner Cards */}
-            <div className="space-y-4">
+            {/* Banner Cards (Responsive 2-col on Laptop) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               {banners.map((b) => (
                 <div
                   key={b.id}
@@ -1979,7 +2324,7 @@ export default function AdminDashboardPage() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                 {inquiries.map((inq) => (
                   <div
                     key={inq.id}
@@ -2053,7 +2398,7 @@ export default function AdminDashboardPage() {
            ========================================================================= */}
         {activeTab === 'overview' && (
           <div className="space-y-5">
-            <div className="grid grid-cols-2 gap-3.5">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
               <div className="bg-[#071520] border border-slate-800 rounded-3xl p-5">
                 <span className="text-xs uppercase tracking-wider text-slate-400 font-semibold block mb-1">
                   Catalog Products
@@ -2198,7 +2543,8 @@ export default function AdminDashboardPage() {
             </div>
           </div>
         )}
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

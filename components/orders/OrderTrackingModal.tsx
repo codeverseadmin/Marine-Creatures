@@ -35,8 +35,8 @@ export function OrderTrackingModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-[99994] overflow-y-auto bg-black/85 backdrop-blur-xl p-4 sm:p-6 flex items-center justify-center" role="dialog" aria-modal="true">
-      <div className="relative w-full max-w-3xl bg-[#040C12] border border-white/15 rounded-3xl shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col">
+    <div className="fixed inset-0 z-[99994] overflow-y-auto bg-black/85 backdrop-blur-xl p-4 sm:p-6 lg:p-8 flex items-center justify-center" role="dialog" aria-modal="true">
+      <div className="relative w-full max-w-3xl lg:max-w-4xl xl:max-w-5xl bg-[#040C12] border border-white/15 rounded-3xl shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col">
         {/* Top Header */}
         <div className="p-5 sm:p-6 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-slate-950 via-[#071722] to-slate-950">
           <div className="flex items-center gap-3">

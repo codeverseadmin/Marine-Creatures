@@ -154,7 +154,7 @@ export function Navbar() {
               {/* Track Order Button */}
               <button
                 onClick={() => setIsTrackingOpen(true)}
-                className="hidden xl:flex items-center gap-1.5 h-10 px-3 rounded-xl border border-cyan-400/30 bg-cyan-400/10 hover:bg-cyan-400/20 text-cyan-300 text-xs font-semibold tracking-wider uppercase transition-all active:scale-95 shadow-sm"
+                className="hidden lg:flex items-center gap-1.5 h-10 px-3 rounded-xl border border-cyan-400/30 bg-cyan-400/10 hover:bg-cyan-400/20 text-cyan-300 text-xs font-semibold tracking-wider uppercase transition-all active:scale-95 shadow-sm"
                 title="Track Live Order Dispatch"
               >
                 <span>📦</span>
@@ -163,7 +163,7 @@ export function Navbar() {
 
               <Link
                 href="/services"
-                className="hidden 2xl:flex items-center gap-1 px-4 py-2.5 rounded-xl border border-[--color-accent] text-xs font-semibold text-[--color-accent] hover:bg-[rgba(0,184,217,0.1)] active:scale-95 transition-all whitespace-nowrap"
+                className="hidden xl:flex items-center gap-1 px-4 py-2.5 rounded-xl border border-[--color-accent] text-xs font-semibold text-[--color-accent] hover:bg-[rgba(0,184,217,0.1)] active:scale-95 transition-all whitespace-nowrap"
                 data-cursor="ENTER"
               >
                 BOOK SERVICE
