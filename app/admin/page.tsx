@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useCatalog, InquiryLead } from '@/lib/context/CatalogContext';
 import { useOrder, CustomerOrder, OrderProgressStep, TRACKING_STEPS_META } from '@/lib/context/OrderContext';
@@ -105,6 +105,51 @@ export default function AdminDashboardPage() {
     setTimeout(() => setNotification(null), 3000);
   };
 
+  // MongoDB Atlas Connection & Health State
+  const [dbStatus, setDbStatus] = useState<{
+    connected: boolean;
+    status: string;
+    cluster?: string;
+    database?: string;
+    latencyMs?: number;
+    counts?: { products: number; orders: number; inquiries: number; banners: number };
+    error?: string;
+    notice?: string;
+  } | null>(null);
+  const [checkingDb, setCheckingDb] = useState(false);
+  const [seedingDb, setSeedingDb] = useState(false);
+
+  const checkDatabaseHealth = useCallback(async () => {
+    setCheckingDb(true);
+    try {
+      const res = await fetch('/api/health');
+      const data = await res.json();
+      setDbStatus(data);
+    } catch (e: any) {
+      setDbStatus({ connected: false, status: 'error', error: e.message });
+    } finally {
+      setCheckingDb(false);
+    }
+  }, []);
+
+  const handleSeedDatabase = async () => {
+    setSeedingDb(true);
+    try {
+      const res = await fetch('/api/seed', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        showToast('✓ MongoDB Atlas successfully seeded with products & banners!');
+        checkDatabaseHealth();
+      } else {
+        alert('Seed notice: ' + (data.error || 'Check network connection'));
+      }
+    } catch (e: any) {
+      alert('Seed request error: ' + e.message);
+    } finally {
+      setSeedingDb(false);
+    }
+  };
+
   // Check session storage on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -114,6 +159,12 @@ export default function AdminDashboardPage() {
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      checkDatabaseHealth();
+    }
+  }, [isAuthenticated, checkDatabaseHealth]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -956,9 +1007,33 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Catalog Synced</span>
+            {/* MongoDB Atlas Cloud Status Pill */}
+            {dbStatus?.connected ? (
+              <span
+                className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold flex items-center gap-1.5"
+                title={`Connected to MongoDB ${dbStatus.cluster} (${dbStatus.database}) in ${dbStatus.latencyMs}ms`}
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>MongoDB Live ({dbStatus.latencyMs}ms)</span>
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('system');
+                  checkDatabaseHealth();
+                }}
+                className="px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                title="Click to view MongoDB Atlas connection settings"
+              >
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                <span>MongoDB: {checkingDb ? 'Checking...' : 'Atlas Setup'}</span>
+              </button>
+            )}
+
+            <span className="px-3 py-1.5 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-semibold flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+              <span>Catalog Active</span>
             </span>
 
             <Link
@@ -2704,6 +2779,114 @@ export default function AdminDashboardPage() {
                     </button>
                   )}
                 </div>
+              </div>
+            </div>
+
+            {/* MongoDB Atlas Cloud Database Control Card */}
+            <div className="bg-[#071520] border border-cyan-400/20 rounded-3xl p-5 sm:p-6 space-y-4 shadow-xl">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-xl">
+                    🍃
+                  </div>
+                  <div>
+                    <h4 className="text-base font-bold text-white flex items-center gap-2">
+                      <span>MongoDB Atlas Cloud Database</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-cyan-400/10 text-cyan-300 border border-cyan-400/30">
+                        CLUSTER0
+                      </span>
+                    </h4>
+                    <p className="text-xs text-slate-400">
+                      Cloud persistence for products, customer orders, tax invoices, and leads.
+                    </p>
+                  </div>
+                </div>
+
+                {dbStatus?.connected ? (
+                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs font-bold">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>Connected ({dbStatus.latencyMs}ms)</span>
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs font-bold">
+                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                    <span>Awaiting Atlas IP Access</span>
+                  </span>
+                )}
+              </div>
+
+              {/* Database Telemetry Details */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Database</span>
+                  <span className="text-xs font-mono font-bold text-white block mt-0.5">marine_creatures</span>
+                </div>
+                <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Products Cloud</span>
+                  <span className="text-xs font-mono font-bold text-cyan-400 block mt-0.5">
+                    {dbStatus?.counts?.products ?? products.length} Live
+                  </span>
+                </div>
+                <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Orders Cloud</span>
+                  <span className="text-xs font-mono font-bold text-emerald-400 block mt-0.5">
+                    {dbStatus?.counts?.orders ?? orders.length} Active
+                  </span>
+                </div>
+                <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Inquiries Cloud</span>
+                  <span className="text-xs font-mono font-bold text-purple-400 block mt-0.5">
+                    {dbStatus?.counts?.inquiries ?? inquiries.length} Leads
+                  </span>
+                </div>
+              </div>
+
+              {/* Notice when IP needs whitelisting */}
+              {!dbStatus?.connected && (
+                <div className="p-4 rounded-2xl bg-amber-950/20 border border-amber-500/30 text-amber-200 text-xs space-y-2">
+                  <div className="flex items-center gap-2 font-bold text-amber-300">
+                    <span>⚠️</span>
+                    <span>MongoDB Atlas Network Access Configuration:</span>
+                  </div>
+                  <p className="leading-relaxed text-amber-200/90 text-[11px]">
+                    MongoDB Atlas requires authorizing client IP addresses before granting connection. In your MongoDB Atlas Dashboard under <strong>Security &gt; Network Access</strong>:
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-[11px]">
+                    <span className="bg-black/50 px-2.5 py-1 rounded-lg border border-amber-500/30 text-white">
+                      Recommended: 0.0.0.0/0 (Allow Everywhere)
+                    </span>
+                    <span className="text-slate-400">or Current IP:</span>
+                    <span className="bg-black/50 px-2.5 py-1 rounded-lg border border-amber-500/30 text-cyan-300 font-bold">
+                      14.194.112.94
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-amber-400/80">
+                    * The web app is currently operating with automatic local-first fallback, so all your operations, orders, and invoices continue working smoothly!
+                  </p>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-2.5 pt-1">
+                <button
+                  type="button"
+                  onClick={checkDatabaseHealth}
+                  disabled={checkingDb}
+                  className="h-11 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold uppercase tracking-wider flex items-center gap-2 active:scale-95 transition-all border border-slate-700"
+                >
+                  <span>🔄</span>
+                  <span>{checkingDb ? 'Testing...' : 'Test Handshake & Ping'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleSeedDatabase}
+                  disabled={seedingDb}
+                  className="h-11 px-5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold uppercase tracking-wider flex items-center gap-2 active:scale-95 transition-all shadow-md"
+                >
+                  <span>🌱</span>
+                  <span>{seedingDb ? 'Seeding...' : 'Seed / Sync All Data to Atlas'}</span>
+                </button>
               </div>
             </div>
 

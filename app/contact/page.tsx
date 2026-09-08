@@ -67,6 +67,16 @@ export default function ContactPage() {
       setTextVal('');
     } else {
       setSubmitted(true);
+      fetch('/api/inquiries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: typeof answers[1] === 'string' ? answers[1] : 'VIP Client Inquiry',
+          phone: typeof answers[2] === 'string' ? answers[2] : typeof answers[3] === 'string' ? answers[3] : 'Direct Consultation',
+          serviceType: typeof answers[0] === 'string' ? answers[0] : 'Turnkey Living Reef',
+          notes: textVal || (typeof answers[5] === 'string' ? answers[5] : ''),
+        }),
+      }).catch((e) => console.warn('Inquiry cloud persist error:', e));
     }
   };
 

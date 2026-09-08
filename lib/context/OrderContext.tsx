@@ -196,6 +196,64 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // ignore
     }
+
+    // Sync latest from MongoDB Atlas in background
+    fetch('/api/orders')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          // Normalize items if needed
+          const normalized = data.data.map((o: any) => {
+            const mappedItems = Array.isArray(o.items)
+              ? o.items.map((it: any) => ({
+                  product: it.product || {
+                    id: it.id,
+                    name: it.name,
+                    price: it.price,
+                    category: it.category || 'marine-life',
+                    categoryLabel: it.category || 'Marine Life',
+                    stockCount: 10,
+                    inStock: true,
+                    images: it.image ? [it.image] : [],
+                    shortDesc: '',
+                    description: '',
+                    rating: 5,
+                    reviewsCount: 1,
+                  },
+                  quantity: it.quantity || 1,
+                }))
+              : [];
+
+            return {
+              ...o,
+              items: mappedItems,
+              statusHistory: o.statusHistory || [
+                { status: 'placed', title: 'Order Confirmed', description: 'Order confirmed', timestamp: o.createdAt || 'Done', completed: true },
+                { status: 'quarantine', title: 'Quarantine Check', description: 'Health check completed', timestamp: 'Done', completed: o.currentStep !== 'placed' },
+                { status: 'packed', title: 'Thermal Pod Packed', description: 'Packed in oxygen pod', timestamp: 'Done', completed: ['packed', 'dispatched', 'delivered'].includes(o.currentStep) },
+                { status: 'dispatched', title: 'Air Cargo Dispatched', description: 'Dispatched via express', timestamp: 'Done', completed: ['dispatched', 'delivered'].includes(o.currentStep) },
+                { status: 'delivered', title: 'Delivered Safely', description: 'Doorstep arrival', timestamp: 'Done', completed: o.currentStep === 'delivered' },
+              ],
+            };
+          });
+
+          setOrders(normalized);
+          setActiveOrder((prev) => prev || normalized[0]);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+        }
+      })
+      .catch((e) => console.warn('Could not sync orders from cloud, using local cache:', e));
+
+    // Fetch cloud owner signature
+    fetch('/api/settings?key=ownerSignature')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data) {
+          setOwnerSignatureState(data.data);
+          localStorage.setItem(SIGNATURE_STORAGE_KEY, data.data);
+        }
+      })
+      .catch((e) => console.warn('Could not sync signature from cloud:', e));
   }, []);
 
   const setOwnerSignature = (url: string | null) => {
@@ -209,6 +267,13 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // ignore
     }
+
+    // Persist to MongoDB settings collection
+    fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: 'ownerSignature', value: url }),
+    }).catch((err) => console.warn('Cloud signature save error:', err));
   };
 
   useEffect(() => {
@@ -281,6 +346,24 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
 
     setOrders((prev) => [newOrder, ...prev]);
     setActiveOrder(newOrder);
+
+    // Persist to MongoDB orders collection
+    fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...newOrder,
+        items: newOrder.items.map((it) => ({
+          id: it.product.id,
+          name: it.product.name,
+          price: it.product.price,
+          quantity: it.quantity,
+          image: it.product.images?.[0] || '',
+          category: it.product.category,
+        })),
+      }),
+    }).catch((err) => console.warn('Cloud order create error:', err));
+
     return newOrder;
   };
 
@@ -316,6 +399,12 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
         return updated;
       })
     );
+
+    fetch('/api/orders', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: orderId, currentStep: nextStep }),
+    }).catch((err) => console.warn('Cloud order step update error:', err));
   };
 
   const updateOrderTracking = (orderId: string, awbNumber: string, courierName: string) => {
@@ -329,6 +418,12 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
         return updated;
       })
     );
+
+    fetch('/api/orders', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: orderId, awbNumber, courierName }),
+    }).catch((err) => console.warn('Cloud order tracking update error:', err));
   };
 
   const approveOrder = (orderId: string, customInvoiceNum?: string) => {
@@ -340,10 +435,12 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
       minute: '2-digit',
     });
 
+    const targetOrder = orders.find((o) => o.id === orderId);
+    const invNum = customInvoiceNum || targetOrder?.invoiceNumber || `INV-${orderId}`;
+
     setOrders((prev) =>
       prev.map((order) => {
         if (order.id !== orderId) return order;
-        const invNum = customInvoiceNum || order.invoiceNumber || `INV-${order.id}`;
         const updated = {
           ...order,
           isApproved: true,
@@ -356,6 +453,17 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
         return updated;
       })
     );
+
+    fetch('/api/orders', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: orderId,
+        isApproved: true,
+        approvedAt: now,
+        invoiceNumber: invNum,
+      }),
+    }).catch((err) => console.warn('Cloud order approval error:', err));
   };
 
   const deleteOrder = (orderId: string) => {

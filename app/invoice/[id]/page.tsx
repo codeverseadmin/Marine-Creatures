@@ -2,6 +2,7 @@
 
 import React, { use, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useOrder } from '@/lib/context/OrderContext';
 import { SITE_CONFIG } from '@/lib/config';
 
@@ -143,9 +144,15 @@ export default function InvoicePage({ params }: InvoicePageProps) {
         {/* Header: Company Insignia & Registry Info */}
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 pb-6 border-b border-slate-800 print:border-black/20">
           <div className="space-y-1.5">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-cyan-400/10 border border-cyan-400/30 flex items-center justify-center text-2xl print:border-black/30">
-                🌊
+            <div className="flex items-center gap-3.5">
+              <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden border border-cyan-400/40 bg-white flex-shrink-0 shadow-lg print:border-black/30">
+                <Image
+                  src="/logo.jpg"
+                  alt="Marine Creatures Official Emblem"
+                  fill
+                  className="object-contain p-1"
+                  priority
+                />
               </div>
               <div>
                 <h1 className="text-xl sm:text-2xl font-black text-white tracking-wider print:text-black uppercase">
