@@ -30,7 +30,7 @@ export function FounderConciergePill() {
   };
 
   return (
-    <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-[99980] flex flex-col items-end">
+    <div className="hidden md:flex fixed bottom-6 right-6 z-[99980] flex-col items-end">
       {/* Expanded Luxury Concierge Card */}
       {isExpanded && (
         <div className="mb-3 w-80 sm:w-88 rounded-3xl border border-cyan-400/30 bg-[rgba(3,10,16,0.96)] backdrop-blur-2xl p-5 shadow-2xl space-y-4 animate-scale-pop select-none">

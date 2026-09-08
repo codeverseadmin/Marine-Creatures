@@ -24,7 +24,7 @@ export function Footer() {
         style={{ background: 'linear-gradient(90deg, transparent, var(--color-accent), transparent)' }}
       />
 
-      <div className="container-max pt-16 sm:pt-20 pb-28 md:pb-12">
+      <div className="container-max pt-16 sm:pt-20 pb-36 sm:pb-40 md:pb-16">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8 mb-16">
           {/* Brand column with logo */}
           <div className="md:col-span-4">
@@ -163,7 +163,7 @@ export function Footer() {
                 href={`https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent('Hi Marine Creatures! I would like to inquire about your marine life, aquarium installations and renovation services.')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-1.5 mt-4 sm:mt-6 px-3.5 py-2 rounded-xl border border-[rgba(0,184,217,0.3)] bg-[rgba(0,184,217,0.06)] hover:bg-[rgba(0,184,217,0.15)] text-[10px] sm:text-xs text-[--color-accent] font-semibold tracking-wider active:scale-95 transition-all w-full sm:w-auto"
+                className="inline-flex items-center justify-center gap-1.5 mt-4 sm:mt-6 px-3.5 py-2 rounded-xl border border-[rgba(0,184,217,0.3)] bg-[rgba(0,184,217,0.06)] hover:bg-[rgba(0,184,217,0.15)] text-[10px] sm:text-xs text-[--color-accent] font-semibold tracking-wider active:scale-95 transition-all w-fit"
                 data-cursor="CHAT"
               >
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
