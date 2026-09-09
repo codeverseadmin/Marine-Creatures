@@ -1,11 +1,15 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ScrollReveal } from '@/components/ui/ScrollReveal';
 import { CallbackForm } from '@/components/ui/CallbackForm';
 
-
 export function FinalCTA() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   return (
     <section
       className="section relative flex flex-col justify-center overflow-hidden"
@@ -32,24 +36,26 @@ export function FinalCTA() {
       </div>
 
       {/* Particles */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-1" aria-hidden="true">
-        {Array.from({ length: 30 }).map((_, i) => (
-          <div
-            key={i}
-            className="particle"
-            style={{
-              left: `${Math.random() * 100}%`,
-              bottom: `${Math.random() * 60}%`,
-              animationDuration: `${8 + Math.random() * 10}s`,
-              animationDelay: `${Math.random() * 8}s`,
-              opacity: 0,
-              animationName: 'particle-drift',
-              animationTimingFunction: 'linear',
-              animationIterationCount: 'infinite',
-            }}
-          />
-        ))}
-      </div>
+      {mounted && (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden z-1" aria-hidden="true">
+          {Array.from({ length: 30 }).map((_, i) => (
+            <div
+              key={i}
+              className="particle"
+              style={{
+                left: `${Math.random() * 100}%`,
+                bottom: `${Math.random() * 60}%`,
+                animationDuration: `${8 + Math.random() * 10}s`,
+                animationDelay: `${Math.random() * 8}s`,
+                opacity: 0,
+                animationName: 'particle-drift',
+                animationTimingFunction: 'linear',
+                animationIterationCount: 'infinite',
+              }}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Accent glow */}
       <div

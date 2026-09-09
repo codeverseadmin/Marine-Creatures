@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { OceanParticles } from '@/components/ui/OceanParticles';
 
 export default function NotFound() {
   return (
@@ -19,24 +20,7 @@ export default function NotFound() {
       </div>
 
       {/* Particles */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-1" aria-hidden="true">
-        {Array.from({ length: 25 }).map((_, i) => (
-          <div
-            key={i}
-            className="particle"
-            style={{
-              left: `${Math.random() * 100}%`,
-              bottom: `${Math.random() * 60}%`,
-              animationDuration: `${8 + Math.random() * 8}s`,
-              animationDelay: `${Math.random() * 6}s`,
-              opacity: 0,
-              animationName: 'particle-drift',
-              animationTimingFunction: 'linear',
-              animationIterationCount: 'infinite',
-            }}
-          />
-        ))}
-      </div>
+      <OceanParticles count={25} className="z-1" />
 
       <div className="relative z-10 container-max">
         <span className="text-label text-[--color-accent] tracking-[0.3em] block mb-8">404</span>
