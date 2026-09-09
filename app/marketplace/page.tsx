@@ -16,7 +16,7 @@ const CATEGORIES = [
 ];
 
 export default function MarketplacePage() {
-  const { products } = useCatalog();
+  const { products, isCloudSynced } = useCatalog();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('featured');
@@ -56,9 +56,17 @@ export default function MarketplacePage() {
               <h1 className="font-display text-2xl sm:text-4xl md:text-5xl text-white font-light tracking-tight">
                 Marine Marketplace
               </h1>
-              <p className="font-body text-xs sm:text-sm text-slate-300 font-normal mt-1 sm:mt-2 max-w-xl leading-relaxed">
-                Captive-bred livestock, NemoLight fixtures, Real Reef rock, salts &amp; precision hardware across India.
-              </p>
+              <div className="flex items-center gap-3 mt-1 sm:mt-2">
+                <p className="font-body text-xs sm:text-sm text-slate-300 font-normal max-w-xl leading-relaxed">
+                  Captive-bred livestock, NemoLight fixtures, Real Reef rock, salts &amp; precision hardware across India.
+                </p>
+                {!isCloudSynced && (
+                  <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-400/10 border border-cyan-400/20 text-[10px] font-semibold text-cyan-400 shrink-0 animate-pulse">
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+                    Syncing catalog...
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Search & Sort Controls */}

@@ -150,6 +150,12 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
     refreshFromCloud();
   }, [refreshFromCloud]);
 
+  // Admin secret header for all write operations (server validates this against ADMIN_PASSCODE)
+  const adminHeaders = () => ({
+    'Content-Type': 'application/json',
+    'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_PASSCODE || '',
+  });
+
   // Product Operations
   const addProduct = useCallback((product: Product) => {
     const updated = [product, ...products.filter((p) => p.id !== product.id)];
@@ -159,7 +165,7 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
     // Cloud persist
     fetch('/api/products', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: adminHeaders(),
       body: JSON.stringify(product),
     }).catch((err) => console.warn('Cloud sync error on addProduct:', err));
   }, [products]);
@@ -172,7 +178,7 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
     // Cloud persist
     fetch('/api/products', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: adminHeaders(),
       body: JSON.stringify({ id, ...updates }),
     }).catch((err) => console.warn('Cloud sync error on updateProduct:', err));
   }, [products]);
@@ -185,6 +191,7 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
     // Cloud persist
     fetch(`/api/products?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
+      headers: adminHeaders(),
     }).catch((err) => console.warn('Cloud sync error on deleteProduct:', err));
   }, [products]);
 
@@ -200,7 +207,7 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
 
     fetch('/api/banners', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: adminHeaders(),
       body: JSON.stringify({
         id: banner.id,
         title: banner.title,
@@ -222,7 +229,7 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
 
     fetch('/api/banners', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: adminHeaders(),
       body: JSON.stringify({ id, ...updates }),
     }).catch((err) => console.warn('Cloud sync error on updateBanner:', err));
   }, [banners]);
@@ -234,6 +241,7 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
 
     fetch(`/api/banners?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
+      headers: adminHeaders(),
     }).catch((err) => console.warn('Cloud sync error on deleteBanner:', err));
   }, [banners]);
 
@@ -285,6 +293,7 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
 
     fetch(`/api/inquiries?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
+      headers: adminHeaders(),
     }).catch((err) => console.warn('Cloud sync error on deleteInquiry:', err));
   }, [inquiries]);
 
@@ -297,7 +306,7 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem(STORAGE_KEYS.BANNERS);
     localStorage.removeItem(STORAGE_KEYS.INQUIRIES);
 
-    fetch('/api/seed', { method: 'POST' }).catch((err) =>
+    fetch('/api/seed', { method: 'POST', headers: adminHeaders() }).catch((err) =>
       console.warn('Cloud re-seed error:', err)
     );
   }, []);

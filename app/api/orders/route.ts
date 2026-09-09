@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { OrderModel } from '@/models/Order';
+import { isAdminRequest } from '@/lib/auth';
 
 const DEFAULT_ORDERS_SEED = [
   {
@@ -118,6 +119,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  // Public — customer order creation is allowed without admin auth
   try {
     await connectToDatabase();
     const body = await req.json();
@@ -137,6 +139,11 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  // Protected — only admin can update order status/tracking
+  if (!isAdminRequest(req)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     await connectToDatabase();
     const body = await req.json();
@@ -146,12 +153,39 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Order id is required' }, { status: 400 });
     }
 
+    // Prevent upsert to avoid creating phantom orders
     const updated = await OrderModel.findOneAndUpdate({ id }, updates, {
       new: true,
-      upsert: true,
+      upsert: false,
     }).lean();
 
+    if (!updated) {
+      return NextResponse.json({ success: false, error: `Order ${id} not found` }, { status: 404 });
+    }
+
     return NextResponse.json({ success: true, data: updated });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  // Protected — only admin can delete orders
+  if (!isAdminRequest(req)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    await connectToDatabase();
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ success: false, error: 'Order id parameter is required' }, { status: 400 });
+    }
+
+    await OrderModel.deleteOne({ id });
+    return NextResponse.json({ success: true, message: `Order ${id} permanently deleted` });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

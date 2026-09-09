@@ -17,6 +17,11 @@ export default function InvoicePage({ params }: InvoicePageProps) {
 
   const { orders, ownerSignature } = useOrder();
   const [copied, setCopied] = useState(false);
+  // Phone verification gate — prevents public enumeration of customer invoices
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [phoneInput, setPhoneInput] = useState('');
+  const [phoneError, setPhoneError] = useState(false);
+  const [verifyAttempts, setVerifyAttempts] = useState(0);
 
   // Find order in memory or default
   const order = orders.find(
@@ -65,6 +70,82 @@ export default function InvoicePage({ params }: InvoicePageProps) {
               className="px-5 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold"
             >
               Admin Portal
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Phone verification gate — prevents public enumeration of customer invoices
+  // Locked after 5 failed attempts to slow brute-force
+  if (!phoneVerified) {
+    const handleVerify = (e: React.FormEvent) => {
+      e.preventDefault();
+      const cleanInput = phoneInput.replace(/\D/g, '');
+      const cleanPhone = order.phone.replace(/\D/g, '');
+      // Match last 4 digits of registered phone
+      const isMatch = cleanPhone.endsWith(cleanInput) && cleanInput.length >= 4;
+      if (isMatch) {
+        setPhoneVerified(true);
+        setPhoneError(false);
+      } else {
+        setVerifyAttempts((prev) => prev + 1);
+        setPhoneError(true);
+        setPhoneInput('');
+      }
+    };
+
+    return (
+      <div className="min-h-screen bg-[#02070c] text-white flex items-center justify-center p-4">
+        <div className="max-w-sm w-full bg-[#071520] border border-slate-800 rounded-3xl p-8 space-y-6 shadow-2xl">
+          <div className="text-center space-y-2">
+            <div className="w-14 h-14 mx-auto rounded-2xl bg-cyan-400/10 border border-cyan-400/30 flex items-center justify-center text-2xl">
+              🔐
+            </div>
+            <h2 className="text-xl font-bold text-white">Verify Your Identity</h2>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              To view invoice <span className="font-mono text-cyan-400">#{orderId}</span>, enter the
+              <strong className="text-slate-200"> last 4 digits</strong> of the phone number used to place this order.
+            </p>
+          </div>
+
+          <form onSubmit={handleVerify} className="space-y-4">
+            <div>
+              <input
+                type="tel"
+                inputMode="numeric"
+                maxLength={4}
+                placeholder="e.g. 3210"
+                value={phoneInput}
+                onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                className="w-full h-13 px-5 rounded-xl bg-slate-900 border border-slate-700 text-white text-lg font-mono tracking-widest text-center placeholder:text-slate-600 focus:outline-none focus:border-cyan-400 transition-colors"
+                autoFocus
+                disabled={verifyAttempts >= 5}
+              />
+              {phoneError && verifyAttempts < 5 && (
+                <p className="text-xs text-red-400 mt-2 text-center">
+                  ✕ Digits don&apos;t match. {5 - verifyAttempts} attempt(s) remaining.
+                </p>
+              )}
+              {verifyAttempts >= 5 && (
+                <p className="text-xs text-red-400 mt-2 text-center font-semibold">
+                  Too many failed attempts. Please contact Marine Creatures support.
+                </p>
+              )}
+            </div>
+            <button
+              type="submit"
+              disabled={phoneInput.length < 4 || verifyAttempts >= 5}
+              className="w-full h-12 rounded-xl bg-cyan-400 hover:bg-cyan-300 disabled:bg-slate-700 disabled:text-slate-500 text-slate-950 font-bold text-sm tracking-wider uppercase transition-all active:scale-[0.98]"
+            >
+              Verify &amp; View Invoice →
+            </button>
+          </form>
+
+          <div className="text-center">
+            <Link href="/marketplace" className="text-xs text-slate-500 hover:text-slate-300 transition-colors">
+              ← Back to Storefront
             </Link>
           </div>
         </div>

@@ -170,8 +170,9 @@ const DEFAULT_ORDERS: CustomerOrder[] = [
 ];
 
 export function OrderProvider({ children }: { children: React.ReactNode }) {
-  const [orders, setOrders] = useState<CustomerOrder[]>(DEFAULT_ORDERS);
-  const [activeOrder, setActiveOrder] = useState<CustomerOrder | null>(DEFAULT_ORDERS[0]);
+  // Start empty — populated from localStorage/cloud to prevent demo data leaking to real customers
+  const [orders, setOrders] = useState<CustomerOrder[]>([]);
+  const [activeOrder, setActiveOrder] = useState<CustomerOrder | null>(null);
   const [isTrackingOpen, setIsTrackingOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [ownerSignature, setOwnerSignatureState] = useState<string | null>('/signature.png');
@@ -287,7 +288,8 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
   }, [orders, isMounted]);
 
   const createOrder = (orderData: Omit<CustomerOrder, 'id' | 'currentStep' | 'statusHistory' | 'createdAt'>): CustomerOrder => {
-    const id = `MC-${Math.floor(1000 + Math.random() * 9000)}`;
+    // Timestamp-based ID: last 6 digits of ms timestamp + 2 random chars = effectively collision-free
+    const id = `MC-${Date.now().toString().slice(-6)}${Math.random().toString(36).slice(2, 4).toUpperCase()}`;
     const now = new Date().toLocaleDateString('en-IN', {
       day: 'numeric',
       month: 'short',
@@ -480,6 +482,11 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     if (activeOrder?.id === orderId) {
       setActiveOrder(null);
     }
+    // Permanently remove from MongoDB so it doesn't return on next sync
+    fetch(`/api/orders?id=${encodeURIComponent(orderId)}`, {
+      method: 'DELETE',
+      headers: { 'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_PASSCODE || '' },
+    }).catch((err) => console.warn('Cloud order delete error:', err));
   };
 
   const findOrder = (query: string): CustomerOrder | undefined => {

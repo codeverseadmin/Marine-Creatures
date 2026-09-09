@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ProductModel } from '@/models/Product';
 import { PRODUCTS } from '@/lib/data/products';
+import { isAdminRequest } from '@/lib/auth';
 
 export async function GET() {
   try {
@@ -23,7 +24,6 @@ export async function GET() {
     return NextResponse.json({ success: true, count: products.length, data: products });
   } catch (error: any) {
     console.error('Failed to fetch products from MongoDB:', error.message);
-    // Fallback gracefully to bundled products if DB is unreachable
     return NextResponse.json({
       success: false,
       fallback: true,
@@ -34,6 +34,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  if (!isAdminRequest(req)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
   try {
     await connectToDatabase();
     const body = await req.json();
@@ -53,6 +56,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  if (!isAdminRequest(req)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
   try {
     await connectToDatabase();
     const body = await req.json();
@@ -64,7 +70,7 @@ export async function PUT(req: NextRequest) {
 
     const updated = await ProductModel.findOneAndUpdate({ id }, updates, {
       new: true,
-      upsert: true,
+      upsert: false,
     }).lean();
 
     return NextResponse.json({ success: true, data: updated });
@@ -74,6 +80,9 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  if (!isAdminRequest(req)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
   try {
     await connectToDatabase();
     const { searchParams } = new URL(req.url);

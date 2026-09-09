@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { BannerModel } from '@/models/Banner';
 import { DEFAULT_BANNERS } from '@/lib/data/banners';
+import { isAdminRequest } from '@/lib/auth';
 
 export async function GET() {
   try {
@@ -43,6 +44,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  if (!isAdminRequest(req)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
   try {
     await connectToDatabase();
     const body = await req.json();
@@ -57,6 +61,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  if (!isAdminRequest(req)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
   try {
     await connectToDatabase();
     const body = await req.json();
@@ -64,7 +71,7 @@ export async function PUT(req: NextRequest) {
     if (!id) {
       return NextResponse.json({ success: false, error: 'id required' }, { status: 400 });
     }
-    const updated = await BannerModel.findOneAndUpdate({ id }, updates, { new: true, upsert: true }).lean();
+    const updated = await BannerModel.findOneAndUpdate({ id }, updates, { new: true, upsert: false }).lean();
     return NextResponse.json({ success: true, data: updated });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -72,6 +79,9 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  if (!isAdminRequest(req)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
   try {
     await connectToDatabase();
     const { searchParams } = new URL(req.url);

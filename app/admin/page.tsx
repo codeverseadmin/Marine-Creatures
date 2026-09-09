@@ -8,7 +8,7 @@ import { Product, ProductMedia } from '@/lib/data/products';
 import { BannerSlide } from '@/lib/data/banners';
 import { PromoCarousel } from '@/components/ui/PromoCarousel';
 
-const ADMIN_PASSCODE = process.env.NEXT_PUBLIC_ADMIN_PASSCODE || 'mc@admin#2026!';
+// ✅ Passcode is NEVER compared client-side. Login goes through /api/admin/login (server-only).
 
 export default function AdminDashboardPage() {
   const {
@@ -166,13 +166,23 @@ export default function AdminDashboardPage() {
     }
   }, [isAuthenticated, checkDatabaseHealth]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (passcode === ADMIN_PASSCODE) {
-      setIsAuthenticated(true);
-      setAuthError(false);
-      sessionStorage.setItem('mc_admin_authenticated', 'true');
-    } else {
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ passcode }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsAuthenticated(true);
+        setAuthError(false);
+        sessionStorage.setItem('mc_admin_authenticated', 'true');
+      } else {
+        setAuthError(true);
+      }
+    } catch {
       setAuthError(true);
     }
   };
@@ -181,6 +191,8 @@ export default function AdminDashboardPage() {
     setIsAuthenticated(false);
     sessionStorage.removeItem('mc_admin_authenticated');
     setSidebarOpen(false);
+    // Clear server-side httpOnly session cookie
+    fetch('/api/admin/logout', { method: 'POST' }).catch(() => {});
   };
 
   // Product Save
