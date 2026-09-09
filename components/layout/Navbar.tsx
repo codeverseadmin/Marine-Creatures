@@ -98,32 +98,26 @@ export function Navbar() {
 
             {/* Right — Actions: Spectrum Switch + Wishlist + Cart + Track + Hamburger */}
             <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-              {/* Dual-Spectrum Lighting Switch */}
+              {/* Dual-Spectrum Lighting Switch — icon-only, no text label */}
               <button
                 onClick={toggleSpectrum}
-                className="h-10 px-2.5 sm:px-3 rounded-xl border border-white/10 bg-[rgba(7,21,28,0.75)] hover:border-cyan-400 text-xs font-semibold flex items-center gap-1.5 transition-all text-white active:scale-95 shadow-sm"
-                title={`Current spectrum: ${spectrum === 'actinic' ? 'Actinic Moonlight' : 'Sunlit Reef'}. Tap to switch.`}
+                className="h-10 w-10 rounded-xl border border-white/10 bg-[rgba(7,21,28,0.75)] hover:border-cyan-400 text-sm flex items-center justify-center transition-all active:scale-95 shadow-sm"
+                title={`Spectrum: ${spectrum === 'actinic' ? 'Actinic Moonlight' : 'Sunlit Reef'}. Tap to switch.`}
                 aria-label="Toggle reef lighting spectrum"
               >
-                <span>{spectrum === 'actinic' ? '🌙' : '☀️'}</span>
-                <span className="hidden lg:inline text-[10px] uppercase tracking-wider text-slate-300">
-                  {spectrum === 'actinic' ? 'Actinic' : 'Sunlit'}
-                </span>
+                {spectrum === 'actinic' ? '🌙' : '☀️'}
               </button>
 
-              {/* Wishlist Button */}
+              {/* Wishlist — icon only */}
               <button
                 onClick={() => setIsWishlistOpen(true)}
-                className="relative h-10 w-10 sm:w-auto sm:px-3 rounded-xl border border-white/10 bg-[rgba(7,21,28,0.75)] hover:border-rose-400 text-white flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-sm"
+                className="relative h-10 w-10 rounded-xl border border-white/10 bg-[rgba(7,21,28,0.75)] hover:border-rose-400 text-white flex items-center justify-center transition-all active:scale-95 shadow-sm"
                 aria-label={`Wishlist (${wishlistCount} items)`}
                 title="Open Wishlist"
               >
-                <span className="text-xs sm:text-sm">❤️</span>
-                <span className="hidden sm:inline text-[10px] uppercase tracking-wider text-slate-300 font-medium">
-                  SAVED
-                </span>
+                <span className="text-sm">❤️</span>
                 {wishlistCount > 0 && (
-                  <span className="w-4 h-4 rounded-full bg-rose-500 text-white font-bold text-[9px] flex items-center justify-center -mr-0.5 shadow-md">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-white font-bold text-[9px] flex items-center justify-center shadow-md">
                     {wishlistCount}
                   </span>
                 )}

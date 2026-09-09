@@ -399,56 +399,60 @@ export function ProductDetailView({ product: initialProduct, relatedProducts }: 
           </div>
         </div>
 
-        {/* Detailed Information Tabs */}
+        {/* ── Info Tabs ─────────────────────────────────────────────── */}
         <div className="mt-14 sm:mt-20 pt-10 border-t border-[rgba(255,255,255,0.08)]">
-          {/* Tab buttons */}
-          <div className="flex gap-2 sm:gap-3 border-b border-[rgba(255,255,255,0.08)] pb-4 overflow-x-auto scrollbar-none touch-momentum">
+          {/* Tab nav — underline style, icon + short label */}
+          <div className="flex gap-0 border-b border-[rgba(255,255,255,0.08)] overflow-x-auto scrollbar-none touch-momentum">
             {product.careGuide && (
               <button
                 onClick={() => setActiveTab('care')}
-                className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs font-medium tracking-wider uppercase whitespace-nowrap transition-all ${
+                className={`flex items-center gap-2 px-4 sm:px-6 py-3.5 text-xs font-semibold tracking-wider uppercase whitespace-nowrap border-b-2 transition-all duration-200 -mb-px ${
                   activeTab === 'care'
-                    ? 'bg-[--color-accent] text-[--color-primary] font-semibold shadow-lg'
-                    : 'text-[--color-muted] hover:text-white bg-[rgba(255,255,255,0.03)]'
+                    ? 'border-[--color-accent] text-[--color-accent]'
+                    : 'border-transparent text-slate-500 hover:text-slate-200'
                 }`}
               >
-                Care &amp; Husbandry
+                <span className="text-base leading-none">🌡️</span>
+                <span>Care</span>
               </button>
             )}
 
             {product.installationGuide && (
               <button
                 onClick={() => setActiveTab('installation')}
-                className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs font-medium tracking-wider uppercase whitespace-nowrap transition-all ${
+                className={`flex items-center gap-2 px-4 sm:px-6 py-3.5 text-xs font-semibold tracking-wider uppercase whitespace-nowrap border-b-2 transition-all duration-200 -mb-px ${
                   activeTab === 'installation'
-                    ? 'bg-[--color-accent] text-[--color-primary] font-semibold shadow-lg'
-                    : 'text-[--color-muted] hover:text-white bg-[rgba(255,255,255,0.03)]'
+                    ? 'border-[--color-accent] text-[--color-accent]'
+                    : 'border-transparent text-slate-500 hover:text-slate-200'
                 }`}
               >
-                Setup &amp; Installation
+                <span className="text-base leading-none">🔧</span>
+                <span>Setup</span>
               </button>
             )}
 
             <button
               onClick={() => setActiveTab('specs')}
-              className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs font-medium tracking-wider uppercase whitespace-nowrap transition-all ${
+              className={`flex items-center gap-2 px-4 sm:px-6 py-3.5 text-xs font-semibold tracking-wider uppercase whitespace-nowrap border-b-2 transition-all duration-200 -mb-px ${
                 activeTab === 'specs'
-                  ? 'bg-[--color-accent] text-[--color-primary] font-semibold shadow-lg'
-                  : 'text-[--color-muted] hover:text-white bg-[rgba(255,255,255,0.03)]'
+                  ? 'border-[--color-accent] text-[--color-accent]'
+                  : 'border-transparent text-slate-500 hover:text-slate-200'
               }`}
             >
-              Specifications
+              <span className="text-base leading-none">📋</span>
+              <span>Specs</span>
             </button>
 
             <button
               onClick={() => setActiveTab('shipping')}
-              className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs font-medium tracking-wider uppercase whitespace-nowrap transition-all ${
+              className={`flex items-center gap-2 px-4 sm:px-6 py-3.5 text-xs font-semibold tracking-wider uppercase whitespace-nowrap border-b-2 transition-all duration-200 -mb-px ${
                 activeTab === 'shipping'
-                  ? 'bg-[--color-accent] text-[--color-primary] font-semibold shadow-lg'
-                  : 'text-[--color-muted] hover:text-white bg-[rgba(255,255,255,0.03)]'
+                  ? 'border-[--color-accent] text-[--color-accent]'
+                  : 'border-transparent text-slate-500 hover:text-slate-200'
               }`}
             >
-              Shipping &amp; Guarantee
+              <span className="text-base leading-none">🚚</span>
+              <span>Shipping</span>
             </button>
           </div>
 

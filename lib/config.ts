@@ -33,17 +33,17 @@ export const STATS = [
 export const NAV_LINKS = [
   { label: 'Marketplace', href: '/marketplace' },
   { label: 'Marine Life', href: '/marine-life' },
-  { label: 'Services & Booking', href: '/services' },
-  { label: 'Our Worlds', href: '/our-worlds' },
+  { label: 'Services', href: '/services' },
+  { label: 'Portfolio', href: '/our-worlds' },
   { label: 'Materials', href: '/materials' },
 ];
 
 export const MOBILE_NAV_LINKS = [
   { label: 'Marketplace Store', href: '/marketplace' },
-  { label: 'Marine Life Species', href: '/marine-life' },
-  { label: 'Installation & Renovation', href: '/services' },
-  { label: 'Our Worlds', href: '/our-worlds' },
-  { label: 'Materials & Acrylic', href: '/materials' },
+  { label: 'Marine Life', href: '/marine-life' },
+  { label: 'Services & Installation', href: '/services' },
+  { label: 'Portfolio', href: '/our-worlds' },
+  { label: 'Materials', href: '/materials' },
   { label: 'About Us', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ];
