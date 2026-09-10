@@ -7,7 +7,6 @@ import { usePathname } from 'next/navigation';
 import { NAV_LINKS, SITE_CONFIG } from '@/lib/config';
 import { MobileMenu } from './MobileMenu';
 import { useCart } from '@/lib/context/CartContext';
-import { useTheme } from '@/lib/context/ThemeContext';
 import { useWishlist } from '@/lib/context/WishlistContext';
 import { useOrder } from '@/lib/context/OrderContext';
 
@@ -17,7 +16,6 @@ export function Navbar() {
   const pathname = usePathname();
   const navRef = useRef<HTMLElement>(null);
   const { cartCount, setIsCartOpen, cartIconBouncing } = useCart();
-  const { spectrum, toggleSpectrum } = useTheme();
   const { wishlistCount, setIsWishlistOpen } = useWishlist();
   const { setIsTrackingOpen } = useOrder();
 
@@ -96,17 +94,8 @@ export function Navbar() {
               })}
             </nav>
 
-            {/* Right — Actions: Spectrum Switch + Wishlist + Cart + Track + Hamburger */}
+            {/* Right — Actions: Wishlist + Cart + Track + Hamburger */}
             <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-              {/* Dual-Spectrum Lighting Switch — icon-only, no text label */}
-              <button
-                onClick={toggleSpectrum}
-                className="h-10 w-10 rounded-xl border border-white/10 bg-[rgba(7,21,28,0.75)] hover:border-cyan-400 text-sm flex items-center justify-center transition-all active:scale-95 shadow-sm"
-                title={`Spectrum: ${spectrum === 'actinic' ? 'Actinic Moonlight' : 'Sunlit Reef'}. Tap to switch.`}
-                aria-label="Toggle reef lighting spectrum"
-              >
-                {spectrum === 'actinic' ? '🌙' : '☀️'}
-              </button>
 
               {/* Wishlist — icon only */}
               <button
