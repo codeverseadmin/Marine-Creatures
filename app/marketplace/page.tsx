@@ -173,7 +173,10 @@ export default function MarketplacePage() {
     <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>
 
       {/* ── Marketplace Header ─────────────────────────────────────────── */}
-      <div className="pt-28 sm:pt-36 md:pt-40 pb-6 sm:pb-10 border-b border-[rgba(255,255,255,0.08)] bg-gradient-to-b from-[rgba(6,20,29,0.95)] to-[var(--color-primary)]">
+      <div
+        style={{ paddingTop: 'clamp(140px, 16vh, 180px)' }}
+        className="pb-6 sm:pb-10 border-b border-[rgba(255,255,255,0.08)] bg-gradient-to-b from-[rgba(6,20,29,0.95)] to-[var(--color-primary)]"
+      >
         <div className="container-max space-y-5 sm:space-y-6">
 
           {/* Row 1: Title + Search + Sort */}
