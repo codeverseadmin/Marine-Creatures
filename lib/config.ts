@@ -17,7 +17,7 @@ export const SITE_CONFIG = {
   googleMaps: 'https://maps.app.goo.gl/uYfMxyXqsGD8iQWz7?g_st=ac',
   nurturedBy: 'Bringing ocean at your door step',
   founder: 'Suraj Shasmal',
-  founderLink: 'https://www.facebook.com/share/19cXkY5XbV/',
+  founderLink: 'https://www.facebook.com/share/19XkubBDzW/',
   developer: 'Aritya Saha',
   developerLink: 'https://www.facebook.com/aritya.saha',
   studioTagline: 'Bringing ocean at your door step',
