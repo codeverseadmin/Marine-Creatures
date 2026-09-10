@@ -197,6 +197,17 @@ export function Footer() {
                 {SITE_CONFIG.founder}
               </a>
             </p>
+            <p className="text-[11px] text-slate-600 flex flex-wrap items-center gap-x-1.5">
+              <span>Developed by</span>
+              <a
+                href={SITE_CONFIG.developerLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-400 hover:text-white font-medium transition-colors underline underline-offset-2 decoration-slate-600 hover:decoration-white"
+              >
+                {SITE_CONFIG.developer}
+              </a>
+            </p>
           </div>
 
           {/* Right — nav links */}

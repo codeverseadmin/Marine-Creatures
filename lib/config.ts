@@ -18,6 +18,8 @@ export const SITE_CONFIG = {
   nurturedBy: 'Bringing ocean at your door step',
   founder: 'Suraj Shasmal',
   founderLink: 'https://www.facebook.com/share/19cXkY5XbV/',
+  developer: 'Aritya Saha',
+  developerLink: 'https://www.facebook.com/aritya.saha',
   studioTagline: 'Bringing ocean at your door step',
 };
 

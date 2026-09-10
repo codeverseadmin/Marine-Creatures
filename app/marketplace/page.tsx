@@ -120,7 +120,7 @@ function DrySectionBanner() {
 
 export default function MarketplacePage() {
   const { products, isCloudSynced } = useCatalog();
-  const [section, setSection] = useState<SectionType>('all');
+  const [section, setSection] = useState<SectionType>('live');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('featured');
