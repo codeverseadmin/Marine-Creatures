@@ -231,11 +231,17 @@ export default function AdminDashboardPage() {
       media: productForm.media || [],
       shortDesc: productForm.shortDesc || '',
       description: productForm.description || '',
-      deliveryInfo: {
-        estimatedDays: 'Next-Day Express Dispatch',
-        shippingMethod: 'Oxygenated Insulated Thermal Pod Courier',
-        guaranteeText: '100% Live Arrival Guaranteed',
-      },
+      deliveryInfo: (productForm.category || 'marine-life') === 'marine-life'
+        ? {
+            estimatedDays: 'Next-Day Express Dispatch Across India',
+            shippingMethod: 'Oxygenated Insulated Thermal Pod Courier',
+            guaranteeText: '100% Live Arrival Guaranteed',
+          }
+        : {
+            estimatedDays: '2–5 Business Days',
+            shippingMethod: 'Standard Tracked Courier',
+            guaranteeText: 'Safe Delivery & Damage Protection Guarantee',
+          },
       specifications: { Origin: 'Indo-Pacific', 'Care Level': 'Reef Safe' },
     };
 

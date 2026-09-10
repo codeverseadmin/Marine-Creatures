@@ -5,6 +5,7 @@ export interface IProductDocument extends Document {
   name: string;
   scientificName?: string;
   brand?: string;
+  itemType?: 'live' | 'dry';
   category: string;
   categoryLabel: string;
   price: number;
@@ -51,6 +52,7 @@ const ProductSchema = new Schema<IProductDocument>(
     name: { type: String, required: true },
     scientificName: { type: String },
     brand: { type: String, default: 'Marine Creatures' },
+    itemType: { type: String, enum: ['live', 'dry'], default: 'dry' },
     category: { type: String, required: true, index: true },
     categoryLabel: { type: String, required: true },
     price: { type: Number, required: true },

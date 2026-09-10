@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
-import { Product, ProductMedia } from '@/lib/data/products';
+import { Product, ProductMedia, isLiveProduct } from '@/lib/data/products';
 import { useCart } from '@/lib/context/CartContext';
 import { useWishlist } from '@/lib/context/WishlistContext';
 import { useCatalog } from '@/lib/context/CatalogContext';
@@ -20,6 +20,7 @@ export function ProductDetailView({ product: initialProduct, relatedProducts }: 
   const { addToCart, setIsCartOpen } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const isWished = isInWishlist(product.id);
+  const isLive = isLiveProduct(product);
 
   // Unified Media List (Photos + Videos)
   const mediaItems: ProductMedia[] = React.useMemo(() => {
@@ -265,9 +266,25 @@ export function ProductDetailView({ product: initialProduct, relatedProducts }: 
           {/* Right Column: Pricing & Purchase */}
           <div className="lg:col-span-5 space-y-5 sm:space-y-6">
             <div className="space-y-2.5">
-              <span className="inline-block text-[11px] sm:text-xs uppercase tracking-[0.25em] font-semibold text-[--color-accent] px-3 py-1 rounded-lg bg-[rgba(0,184,217,0.1)] border border-[rgba(0,184,217,0.25)]">
-                {product.scientificName || product.categoryLabel}
-              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                {isLive ? (
+                  <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs tracking-wider uppercase font-semibold text-cyan-200 bg-[rgba(0,20,30,0.85)] px-3 py-1 rounded-xl border border-cyan-400/40 shadow-[0_0_10px_rgba(0,184,217,0.3)]">
+                    <span className="relative flex h-2 w-2 shrink-0">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400" />
+                    </span>
+                    Live Animal
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs tracking-wider uppercase font-medium text-amber-200 bg-[rgba(20,12,0,0.85)] px-3 py-1 rounded-xl border border-amber-500/30">
+                    <span>📦</span>
+                    Dry Goods
+                  </span>
+                )}
+                <span className="inline-block text-[11px] sm:text-xs uppercase tracking-[0.25em] font-semibold text-[--color-accent] px-3 py-1 rounded-lg bg-[rgba(0,184,217,0.1)] border border-[rgba(0,184,217,0.25)]">
+                  {product.scientificName || product.categoryLabel}
+                </span>
+              </div>
               <h1 className="font-display text-2xl sm:text-4xl md:text-5xl text-white font-light leading-tight">
                 {product.name}
               </h1>

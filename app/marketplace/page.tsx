@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useCatalog } from '@/lib/context/CatalogContext';
+import { isLiveProduct } from '@/lib/data/products';
 import { ProductCard } from '@/components/marketplace/ProductCard';
 import { PromoCarousel } from '@/components/ui/PromoCarousel';
 
@@ -141,8 +142,9 @@ export default function MarketplacePage() {
     return products
       .filter((item) => {
         // Section filter
-        if (section === 'live' && item.itemType !== 'live') return false;
-        if (section === 'dry'  && item.itemType !== 'dry')  return false;
+        const isLive = isLiveProduct(item);
+        if (section === 'live' && !isLive) return false;
+        if (section === 'dry'  && isLive)  return false;
 
         // Category filter
         const matchesCategory =
@@ -164,8 +166,8 @@ export default function MarketplacePage() {
       });
   }, [products, section, selectedCategory, searchQuery, sortBy]);
 
-  const liveCount = products.filter((p) => p.itemType === 'live').length;
-  const dryCount  = products.filter((p) => p.itemType === 'dry').length;
+  const liveCount = products.filter(isLiveProduct).length;
+  const dryCount  = products.filter((p) => !isLiveProduct(p)).length;
 
   return (
     <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>

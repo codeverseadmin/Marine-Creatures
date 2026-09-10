@@ -53,6 +53,11 @@ export interface Product {
   recommendedPairings?: string[];
 }
 
+export function isLiveProduct(p?: { itemType?: string; category?: string } | null): boolean {
+  if (!p) return false;
+  return p.itemType === 'live' || p.category === 'marine-life';
+}
+
 export const PRODUCTS: Product[] = [
   // 1. MARINE LIFE
   {

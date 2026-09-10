@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Product } from '@/lib/data/products';
+import { Product, isLiveProduct } from '@/lib/data/products';
 import { useCart } from '@/lib/context/CartContext';
 import { useWishlist } from '@/lib/context/WishlistContext';
 
@@ -15,7 +15,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const { toggleWishlist, isInWishlist } = useWishlist();
   const [added, setAdded] = React.useState(false);
   const isWished = isInWishlist(product.id);
-  const isLive   = product.itemType === 'live';
+  const isLive   = isLiveProduct(product);
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();

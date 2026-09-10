@@ -24,7 +24,7 @@ export async function GET() {
     // Backfill itemType for any existing records that predate this field
     const normalised = products.map((p: any) => ({
       ...p,
-      itemType: p.itemType ?? (p.category === 'marine-life' ? 'live' : 'dry'),
+      itemType: (p.category === 'marine-life' || p.itemType === 'live') ? 'live' : 'dry',
     }));
 
     return NextResponse.json({ success: true, count: normalised.length, data: normalised });

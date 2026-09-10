@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { Product, PRODUCTS } from '@/lib/data/products';
+import { Product, PRODUCTS, isLiveProduct } from '@/lib/data/products';
 import { BannerSlide, DEFAULT_BANNERS } from '@/lib/data/banners';
 
 export interface InquiryLead {
@@ -67,7 +67,7 @@ const STORAGE_KEYS = {
 function backfillItemType(products: any[]): Product[] {
   return products.map((p) => ({
     ...p,
-    itemType: p.itemType ?? (p.category === 'marine-life' ? 'live' : 'dry'),
+    itemType: isLiveProduct(p) ? 'live' : 'dry',
   }));
 }
 
@@ -85,7 +85,9 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
       if (storedProducts) {
         const parsed = JSON.parse(storedProducts);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setProducts(backfillItemType(parsed));
+          const filled = backfillItemType(parsed);
+          setProducts(filled);
+          localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(filled));
         }
       }
 

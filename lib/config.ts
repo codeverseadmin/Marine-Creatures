@@ -19,7 +19,7 @@ export const SITE_CONFIG = {
   founder: 'Suraj Shasmal',
   founderLink: 'https://www.facebook.com/share/19XkubBDzW/',
   developer: 'Aritya Saha',
-  developerLink: 'https://www.facebook.com/aritya.saha',
+  developerLink: 'https://www.facebook.com/share/19cXkY5XbV/',
   studioTagline: 'Bringing ocean at your door step',
 };
 

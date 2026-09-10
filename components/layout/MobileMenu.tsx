@@ -236,18 +236,31 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             <span>{SITE_CONFIG.email}</span>
             <span className="text-[10px] uppercase tracking-widest text-[--color-accent]">BRINGING OCEAN AT YOUR DOOR STEP</span>
           </div>
-          {/* Founded by */}
-          <p className="text-[11px] text-slate-500 flex items-center gap-1">
-            <span>Founded by</span>
-            <a
-              href={SITE_CONFIG.founderLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[--color-accent] font-semibold underline underline-offset-2 decoration-[rgba(0,184,217,0.4)] hover:text-white hover:decoration-white transition-colors"
-            >
-              {SITE_CONFIG.founder}
-            </a>
-          </p>
+          {/* Credits */}
+          <div className="flex flex-col gap-1">
+            <p className="text-[11px] text-slate-500 flex items-center gap-1">
+              <span>Founded by</span>
+              <a
+                href={SITE_CONFIG.founderLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[--color-accent] font-semibold underline underline-offset-2 decoration-[rgba(0,184,217,0.4)] hover:text-white hover:decoration-white transition-colors"
+              >
+                {SITE_CONFIG.founder}
+              </a>
+            </p>
+            <p className="text-[11px] text-slate-600 flex items-center gap-1">
+              <span>Developed by</span>
+              <a
+                href={SITE_CONFIG.developerLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-400 font-semibold underline underline-offset-2 decoration-slate-600 hover:text-white hover:decoration-white transition-colors"
+              >
+                {SITE_CONFIG.developer}
+              </a>
+            </p>
+          </div>
           {/* Social quick links */}
           <div className="flex items-center gap-3">
             <a
