@@ -76,6 +76,7 @@ export default function AdminDashboardPage() {
   // Media upload input helpers
   const [newMediaUrl, setNewMediaUrl] = useState('');
   const [newMediaType, setNewMediaType] = useState<'image' | 'video'>('image');
+  const [uploadingMedia, setUploadingMedia] = useState(false);
 
   // Banner Form State
   const [isEditingBanner, setIsEditingBanner] = useState(false);
@@ -257,40 +258,67 @@ export default function AdminDashboardPage() {
     setEditingProductId(null);
   };
 
-  // Media Manager Handlers
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Media Manager Handlers (Binary Cloud & MongoDB Upload Pipeline)
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    Array.from(files).forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (uploadEvent) => {
-        const base64 = uploadEvent.target?.result as string;
-        if (!base64) return;
-        setProductForm((prev) => {
-          const currentMedia: ProductMedia[] = prev.media ? [...prev.media] : [];
-          const newMediaItem: ProductMedia = {
-            id: `media-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-            type: 'image',
-            url: base64,
-            title: file.name,
-          };
-          const updatedMedia = [...currentMedia, newMediaItem];
-          const updatedImages = updatedMedia.filter((m) => m.type === 'image').map((m) => m.url);
-          return {
-            ...prev,
-            media: updatedMedia,
-            images: updatedImages.length > 0 ? updatedImages : prev.images,
-          };
+    setUploadingMedia(true);
+    showToast(`Uploading ${files.length} photo(s) to permanent media storage...`);
+
+    try {
+      const uploadedMediaItems: ProductMedia[] = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', 'image');
+
+        const res = await fetch('/api/admin/upload', {
+          method: 'POST',
+          headers: {
+            'x-admin-passcode': passcode || '',
+          },
+          body: formData,
         });
-      };
-      reader.readAsDataURL(file);
-    });
-    showToast(`✓ Uploaded ${files.length} photo(s)`);
-    e.target.value = '';
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: 'Upload failed' }));
+          throw new Error(err.error || `Upload failed for ${file.name}`);
+        }
+
+        const data = await res.json();
+        uploadedMediaItems.push({
+          id: data.mediaId || `media-${Date.now()}-${i}`,
+          type: 'image',
+          url: data.url,
+          title: file.name,
+        });
+      }
+
+      setProductForm((prev) => {
+        const currentMedia: ProductMedia[] = prev.media ? [...prev.media] : [];
+        const updatedMedia = [...currentMedia, ...uploadedMediaItems];
+        const updatedImages = updatedMedia.filter((m) => m.type === 'image').map((m) => m.url);
+        return {
+          ...prev,
+          media: updatedMedia,
+          images: updatedImages.length > 0 ? updatedImages : prev.images,
+        };
+      });
+
+      showToast(`✓ Uploaded ${files.length} photo(s) successfully!`);
+    } catch (err: any) {
+      console.error('Photo upload error:', err);
+      alert(`Photo upload failed: ${err.message}`);
+    } finally {
+      setUploadingMedia(false);
+      e.target.value = '';
+    }
   };
 
-  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
     const file = files[0];
@@ -300,18 +328,37 @@ export default function AdminDashboardPage() {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (uploadEvent) => {
-      const videoDataUrl = uploadEvent.target?.result as string;
-      if (!videoDataUrl) return;
+    setUploadingMedia(true);
+    showToast(`Uploading specimen video "${file.name}"...`);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'video');
+
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        headers: {
+          'x-admin-passcode': passcode || '',
+        },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Upload failed' }));
+        throw new Error(err.error || `Video upload failed for ${file.name}`);
+      }
+
+      const data = await res.json();
+      const newMediaItem: ProductMedia = {
+        id: data.mediaId || `media-vid-${Date.now()}`,
+        type: 'video',
+        url: data.url,
+        title: file.name,
+      };
+
       setProductForm((prev) => {
         const currentMedia: ProductMedia[] = prev.media ? [...prev.media] : [];
-        const newMediaItem: ProductMedia = {
-          id: `media-vid-${Date.now()}`,
-          type: 'video',
-          url: videoDataUrl,
-          title: file.name,
-        };
         const updatedMedia = [...currentMedia, newMediaItem];
         const updatedVideos = updatedMedia.filter((m) => m.type === 'video').map((m) => m.url);
         return {
@@ -320,10 +367,52 @@ export default function AdminDashboardPage() {
           videos: updatedVideos,
         };
       });
-      showToast(`✓ Video "${file.name}" uploaded to slideshow`);
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
+
+      showToast(`✓ Specimen video "${file.name}" uploaded successfully!`);
+    } catch (err: any) {
+      console.error('Video upload error:', err);
+      alert(`Video upload failed: ${err.message}`);
+    } finally {
+      setUploadingMedia(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleBannerImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingMedia(true);
+    showToast(`Uploading banner visual "${file.name}"...`);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'image');
+
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        headers: {
+          'x-admin-passcode': passcode || '',
+        },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Upload failed' }));
+        throw new Error(err.error || 'Failed to upload banner');
+      }
+
+      const data = await res.json();
+      setBannerForm((prev) => ({ ...prev, image: data.url }));
+      showToast('✓ Banner background image uploaded and linked!');
+    } catch (err: any) {
+      console.error('Banner upload error:', err);
+      alert(`Banner upload failed: ${err.message}`);
+    } finally {
+      setUploadingMedia(false);
+      e.target.value = '';
+    }
   };
 
   const handleAddMediaUrl = () => {
@@ -1286,26 +1375,35 @@ export default function AdminDashboardPage() {
 
                         {/* Direct Action Upload Buttons */}
                         <div className="flex flex-wrap items-center gap-2">
+                          {uploadingMedia && (
+                            <div className="h-9 px-3.5 rounded-xl bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 text-xs font-semibold flex items-center gap-2 animate-pulse">
+                              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                              <span>Uploading to Cloud Vault...</span>
+                            </div>
+                          )}
+
                           {/* Photo File Picker */}
-                          <label className="cursor-pointer h-9 px-3.5 rounded-xl bg-cyan-400/10 hover:bg-cyan-400/20 text-cyan-300 text-xs font-semibold flex items-center gap-1.5 border border-cyan-400/30 active:scale-95 transition-all">
+                          <label className={`cursor-pointer h-9 px-3.5 rounded-xl bg-cyan-400/10 hover:bg-cyan-400/20 text-cyan-300 text-xs font-semibold flex items-center gap-1.5 border border-cyan-400/30 active:scale-95 transition-all ${uploadingMedia ? 'opacity-50 pointer-events-none' : ''}`}>
                             <span>📸</span>
                             <span>Upload Photos</span>
                             <input
                               type="file"
                               accept="image/*"
                               multiple
+                              disabled={uploadingMedia}
                               onChange={handlePhotoUpload}
                               className="hidden"
                             />
                           </label>
 
                           {/* Video File Picker */}
-                          <label className="cursor-pointer h-9 px-3.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-xs font-semibold flex items-center gap-1.5 border border-emerald-500/30 active:scale-95 transition-all">
+                          <label className={`cursor-pointer h-9 px-3.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-xs font-semibold flex items-center gap-1.5 border border-emerald-500/30 active:scale-95 transition-all ${uploadingMedia ? 'opacity-50 pointer-events-none' : ''}`}>
                             <span>🎥</span>
                             <span>Upload Video</span>
                             <input
                               type="file"
                               accept="video/mp4,video/webm,video/ogg"
+                              disabled={uploadingMedia}
                               onChange={handleVideoUpload}
                               className="hidden"
                             />
@@ -2442,13 +2540,25 @@ export default function AdminDashboardPage() {
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label className="text-xs font-semibold text-slate-300 block mb-1.5 uppercase tracking-wider">
-                      Background Image URL *
-                    </label>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                        Background Image URL *
+                      </label>
+                      <label className={`cursor-pointer text-[11px] font-semibold text-cyan-400 hover:text-cyan-300 flex items-center gap-1.5 bg-cyan-400/10 hover:bg-cyan-400/20 px-3 py-1 rounded-lg border border-cyan-400/30 transition-all active:scale-95 ${uploadingMedia ? 'opacity-50 pointer-events-none' : ''}`}>
+                        <span>📸 Upload Visual</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          disabled={uploadingMedia}
+                          onChange={handleBannerImageUpload}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
                     <input
                       type="text"
                       required
-                      placeholder="https://..."
+                      placeholder="https://... or tap 'Upload Visual' above"
                       value={bannerForm.image || ''}
                       onChange={(e) => setBannerForm({ ...bannerForm, image: e.target.value })}
                       className="w-full h-12 px-4 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-cyan-400"
