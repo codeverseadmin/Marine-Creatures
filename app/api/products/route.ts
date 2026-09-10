@@ -21,7 +21,13 @@ export async function GET() {
       }
     }
 
-    return NextResponse.json({ success: true, count: products.length, data: products });
+    // Backfill itemType for any existing records that predate this field
+    const normalised = products.map((p: any) => ({
+      ...p,
+      itemType: p.itemType ?? (p.category === 'marine-life' ? 'live' : 'dry'),
+    }));
+
+    return NextResponse.json({ success: true, count: normalised.length, data: normalised });
   } catch (error: any) {
     console.error('Failed to fetch products from MongoDB:', error.message);
     return NextResponse.json({

@@ -62,6 +62,15 @@ const STORAGE_KEYS = {
   INQUIRIES: 'mc_inquiries_v1',
 };
 
+// Backfill itemType for products loaded from localStorage or MongoDB
+// that predate the itemType field being added to the schema.
+function backfillItemType(products: any[]): Product[] {
+  return products.map((p) => ({
+    ...p,
+    itemType: p.itemType ?? (p.category === 'marine-life' ? 'live' : 'dry'),
+  }));
+}
+
 export function CatalogProvider({ children }: { children: React.ReactNode }) {
   const [products, setProducts] = useState<Product[]>(PRODUCTS);
   const [banners, setBanners] = useState<BannerSlide[]>(DEFAULT_BANNERS);
@@ -76,7 +85,7 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
       if (storedProducts) {
         const parsed = JSON.parse(storedProducts);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setProducts(parsed);
+          setProducts(backfillItemType(parsed));
         }
       }
 
@@ -110,8 +119,9 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
       if (prodRes.ok) {
         const prodData = await prodRes.json();
         if (prodData.success && Array.isArray(prodData.data) && prodData.data.length > 0) {
-          setProducts(prodData.data);
-          localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(prodData.data));
+          const filled = backfillItemType(prodData.data);
+          setProducts(filled);
+          localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(filled));
         }
       }
 
