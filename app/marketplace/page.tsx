@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useCatalog } from '@/lib/context/CatalogContext';
 import { isLiveProduct } from '@/lib/data/products';
 import { ProductCard } from '@/components/marketplace/ProductCard';
@@ -116,15 +117,26 @@ function DrySectionBanner() {
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Main Page
+// Main Content
 // ──────────────────────────────────────────────────────────────────────────────
 
-export default function MarketplacePage() {
+function MarketplaceContent() {
   const { products, isCloudSynced } = useCatalog();
+  const searchParams = useSearchParams();
+  const sectionParam = searchParams.get('section') as SectionType | null;
+
   const [section, setSection] = useState<SectionType>('live');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('featured');
+
+  // Sync section from URL query param if present
+  useEffect(() => {
+    if (sectionParam === 'live' || sectionParam === 'dry' || sectionParam === 'all') {
+      setSection(sectionParam);
+      setSelectedCategory('all');
+    }
+  }, [sectionParam]);
 
   // Derive which category tabs to show for the active section
   const activeCategories =
@@ -389,5 +401,13 @@ export default function MarketplacePage() {
       </section>
 
     </div>
+  );
+}
+
+export default function MarketplacePage() {
+  return (
+    <Suspense fallback={<div style={{ background: 'var(--color-primary)', minHeight: '100vh' }} />}>
+      <MarketplaceContent />
+    </Suspense>
   );
 }
