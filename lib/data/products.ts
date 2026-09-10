@@ -11,6 +11,8 @@ export interface Product {
   name: string;
   scientificName?: string;
   brand?: string;
+  /** Discriminates between living livestock and physical dry goods */
+  itemType: 'live' | 'dry';
   category: 'marine-life' | 'lighting-tech' | 'rock-sand' | 'salt-chemistry' | 'hardware';
   categoryLabel: string;
   price: number;
@@ -57,6 +59,7 @@ export const PRODUCTS: Product[] = [
     id: 'designer-clownfish-pair',
     name: 'Snowflake Ocellaris Clownfish (Bonded Pair)',
     scientificName: 'Amphiprion ocellaris',
+    itemType: 'live',
     category: 'marine-life',
     categoryLabel: 'Marine Life',
     price: 14999,
@@ -126,6 +129,7 @@ export const PRODUCTS: Product[] = [
     id: 'emperor-angelfish-juvenile',
     name: 'Emperor Angelfish (Show Juvenile)',
     scientificName: 'Pomacanthus imperator',
+    itemType: 'live',
     category: 'marine-life',
     categoryLabel: 'Marine Life',
     price: 19500,
@@ -193,6 +197,7 @@ export const PRODUCTS: Product[] = [
     id: 'pacific-blue-tang',
     name: 'Pacific Blue Regal Tang (Dory)',
     scientificName: 'Paracanthurus hepatus',
+    itemType: 'live',
     category: 'marine-life',
     categoryLabel: 'Marine Life',
     price: 11000,
@@ -236,6 +241,7 @@ export const PRODUCTS: Product[] = [
     id: 'rose-bubble-tip-anemone',
     name: 'Ultra Rose Bubble Tip Anemone (RBTA)',
     scientificName: 'Entacmaea quadricolor',
+    itemType: 'live',
     category: 'marine-life',
     categoryLabel: 'Marine Life',
     price: 8999,
@@ -280,6 +286,7 @@ export const PRODUCTS: Product[] = [
     id: 'nemolight-aqua-marine-led',
     name: 'NemoLight Aqua Marine Ultra-Spectral LED (72W / 90W Pro)',
     brand: 'NemoLight Professional',
+    itemType: 'dry',
     category: 'lighting-tech',
     categoryLabel: 'Lighting & Tech',
     price: 28500,
@@ -323,6 +330,7 @@ export const PRODUCTS: Product[] = [
     id: 'radion-xr30-pro-g6',
     name: 'EcoTech Radion XR30 Pro G6 Reef Fixture',
     brand: 'EcoTech Marine',
+    itemType: 'dry',
     category: 'lighting-tech',
     categoryLabel: 'Lighting & Tech',
     price: 74999,
@@ -364,6 +372,7 @@ export const PRODUCTS: Product[] = [
     id: 'real-reef-live-rock-20kg',
     name: 'Real Reef™ Biological Live Rock (20kg Box)',
     brand: 'Real Reef Aquascaping',
+    itemType: 'dry',
     category: 'rock-sand',
     categoryLabel: 'Rock & Sand',
     price: 19999,
@@ -404,6 +413,7 @@ export const PRODUCTS: Product[] = [
     id: 'bahamian-aragonite-live-sand-10kg',
     name: 'Bahamian Oolitic Aragonite Live Sand (10kg Bag)',
     brand: 'CaribSea Ocean Direct',
+    itemType: 'dry',
     category: 'rock-sand',
     categoryLabel: 'Rock & Sand',
     price: 3999,
@@ -443,6 +453,7 @@ export const PRODUCTS: Product[] = [
     id: 'red-sea-coral-pro-salt',
     name: 'Red Sea Coral Pro Salt (22kg Bucket / 660 Liters)',
     brand: 'Red Sea Marine',
+    itemType: 'dry',
     category: 'salt-chemistry',
     categoryLabel: 'Salts & Chemistry',
     price: 7200,
@@ -486,6 +497,7 @@ export const PRODUCTS: Product[] = [
     id: 'nyos-quantum-160-skimmer',
     name: 'Nyos® Quantum 160 Protein Skimmer',
     brand: 'Nyos Marine Germany',
+    itemType: 'dry',
     category: 'hardware',
     categoryLabel: 'Hardware & Skimmers',
     price: 42500,

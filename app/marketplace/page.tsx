@@ -6,8 +6,32 @@ import { useCatalog } from '@/lib/context/CatalogContext';
 import { ProductCard } from '@/components/marketplace/ProductCard';
 import { PromoCarousel } from '@/components/ui/PromoCarousel';
 
-// Icon + short label — instantly scannable on any screen size
-const CATEGORIES = [
+// ──────────────────────────────────────────────────────────────────────────────
+// Constants
+// ──────────────────────────────────────────────────────────────────────────────
+
+type SectionType = 'all' | 'live' | 'dry';
+
+const SECTIONS: { id: SectionType; label: string; icon: string; desc: string }[] = [
+  { id: 'all',  label: 'All Products',   icon: '🌊', desc: 'Browse the full catalog' },
+  { id: 'live', label: 'Live Animals',   icon: '🐟', desc: 'Shipped alive · Live arrival guarantee' },
+  { id: 'dry',  label: 'Dry Goods',      icon: '📦', desc: 'Hardware, lighting & chemicals' },
+];
+
+const LIVE_CATEGORIES = [
+  { id: 'all',         label: 'All Livestock', icon: '🌊' },
+  { id: 'marine-life', label: 'Fish & Corals', icon: '🐠' },
+];
+
+const DRY_CATEGORIES = [
+  { id: 'all',            label: 'All Gear',  icon: '🌊' },
+  { id: 'lighting-tech',  label: 'Lighting',  icon: '💡' },
+  { id: 'rock-sand',      label: 'Rock',      icon: '🪨' },
+  { id: 'salt-chemistry', label: 'Salts',     icon: '🧪' },
+  { id: 'hardware',       label: 'Gear',      icon: '⚙️' },
+];
+
+const ALL_CATEGORIES = [
   { id: 'all',            label: 'All',      icon: '🌊' },
   { id: 'marine-life',    label: 'Fish',     icon: '🐟' },
   { id: 'lighting-tech',  label: 'Lighting', icon: '💡' },
@@ -16,34 +40,136 @@ const CATEGORIES = [
   { id: 'hardware',       label: 'Gear',     icon: '⚙️' },
 ];
 
+// ──────────────────────────────────────────────────────────────────────────────
+// Section info banners (animated hero strips per section)
+// ──────────────────────────────────────────────────────────────────────────────
+
+function LiveSectionBanner() {
+  return (
+    <div
+      className="relative rounded-2xl overflow-hidden border border-cyan-400/20 bg-gradient-to-r from-[rgba(0,184,217,0.08)] via-[rgba(0,184,217,0.04)] to-transparent"
+      style={{ padding: '1px' }}
+    >
+      <div className="rounded-2xl px-5 py-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 bg-[rgba(4,18,28,0.85)] backdrop-blur-md">
+        {/* Animated heartbeat dot */}
+        <div className="flex items-center gap-2.5 shrink-0">
+          <span className="relative flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-60" />
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-400" />
+          </span>
+          <span className="text-[11px] uppercase tracking-[0.25em] font-bold text-cyan-400">Live Animals</span>
+        </div>
+
+        <div className="w-px h-8 bg-cyan-400/20 hidden sm:block shrink-0" />
+
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-[11px] sm:text-xs text-slate-400 flex-wrap">
+          <span className="flex items-center gap-1.5">
+            <span className="text-cyan-400">🚚</span>
+            <span>Next-Day Express Dispatch</span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="text-cyan-400">🫧</span>
+            <span>Oxygenated Insulated Thermal Pod</span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="text-cyan-400">✓</span>
+            <span className="font-semibold text-cyan-300">100% Live Arrival Guarantee</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DrySectionBanner() {
+  return (
+    <div
+      className="relative rounded-2xl overflow-hidden border border-amber-400/20"
+      style={{ background: 'rgba(4,18,28,0.85)' }}
+    >
+      <div className="px-5 py-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6">
+        <div className="flex items-center gap-2.5 shrink-0">
+          <span className="text-base leading-none">📦</span>
+          <span className="text-[11px] uppercase tracking-[0.25em] font-bold text-amber-400">Dry Goods</span>
+        </div>
+
+        <div className="w-px h-8 bg-amber-400/20 hidden sm:block shrink-0" />
+
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-[11px] sm:text-xs text-slate-400 flex-wrap">
+          <span className="flex items-center gap-1.5">
+            <span className="text-amber-400">🚛</span>
+            <span>Standard Tracked Courier · 2–5 Days</span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="text-amber-400">🛡️</span>
+            <span>Manufacturer Warranty Included</span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="text-amber-400">↩</span>
+            <span className="font-semibold text-amber-300">Easy 7-Day Returns</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Main Page
+// ──────────────────────────────────────────────────────────────────────────────
+
 export default function MarketplacePage() {
   const { products, isCloudSynced } = useCatalog();
+  const [section, setSection] = useState<SectionType>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('featured');
 
+  // Derive which category tabs to show for the active section
+  const activeCategories =
+    section === 'live' ? LIVE_CATEGORIES :
+    section === 'dry'  ? DRY_CATEGORIES  :
+    ALL_CATEGORIES;
+
+  // Reset category chip when switching sections
+  const handleSectionChange = (s: SectionType) => {
+    setSection(s);
+    setSelectedCategory('all');
+  };
+
   const filteredProducts = useMemo(() => {
-    return products.filter((item) => {
-      const matchesCategory =
-        selectedCategory === 'all' || item.category === selectedCategory;
-      const matchesSearch =
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (item.scientificName && item.scientificName.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (item.brand && item.brand.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        item.shortDesc.toLowerCase().includes(searchQuery.toLowerCase());
+    return products
+      .filter((item) => {
+        // Section filter
+        if (section === 'live' && item.itemType !== 'live') return false;
+        if (section === 'dry'  && item.itemType !== 'dry')  return false;
 
-      return matchesCategory && matchesSearch;
-    }).sort((a, b) => {
-      if (sortBy === 'price-asc') return a.price - b.price;
-      if (sortBy === 'price-desc') return b.price - a.price;
-      return 0;
-    });
-  }, [products, selectedCategory, searchQuery, sortBy]);
+        // Category filter
+        const matchesCategory =
+          selectedCategory === 'all' || item.category === selectedCategory;
 
-  const selectedCat = CATEGORIES.find((c) => c.id === selectedCategory);
+        // Search filter
+        const matchesSearch =
+          item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (item.scientificName && item.scientificName.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          (item.brand && item.brand.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          item.shortDesc.toLowerCase().includes(searchQuery.toLowerCase());
+
+        return matchesCategory && matchesSearch;
+      })
+      .sort((a, b) => {
+        if (sortBy === 'price-asc')  return a.price - b.price;
+        if (sortBy === 'price-desc') return b.price - a.price;
+        return 0;
+      });
+  }, [products, section, selectedCategory, searchQuery, sortBy]);
+
+  const liveCount = products.filter((p) => p.itemType === 'live').length;
+  const dryCount  = products.filter((p) => p.itemType === 'dry').length;
 
   return (
     <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>
+
       {/* ── Marketplace Header ─────────────────────────────────────────── */}
       <div className="pt-28 sm:pt-36 md:pt-40 pb-6 sm:pb-10 border-b border-[rgba(255,255,255,0.08)] bg-gradient-to-b from-[rgba(6,20,29,0.95)] to-[var(--color-primary)]">
         <div className="container-max space-y-5 sm:space-y-6">
@@ -76,8 +202,7 @@ export default function MarketplacePage() {
               <div className="relative flex-1 sm:w-72">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
                   </svg>
                 </div>
                 <input
@@ -92,9 +217,7 @@ export default function MarketplacePage() {
                   <button
                     onClick={() => setSearchQuery('')}
                     className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center text-xs text-slate-400 hover:text-white"
-                  >
-                    ✕
-                  </button>
+                  >✕</button>
                 )}
               </div>
 
@@ -115,11 +238,73 @@ export default function MarketplacePage() {
             <PromoCarousel />
           </div>
 
-          {/* Row 3: Category Chips + Item Count */}
+          {/* ── LIVE / DRY SECTION SWITCHER ─────────────────────────── */}
+          <div className="pt-1">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 p-1.5 rounded-2xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.07)]">
+              {SECTIONS.map((s) => {
+                const isActive = section === s.id;
+                const count = s.id === 'live' ? liveCount : s.id === 'dry' ? dryCount : products.length;
+
+                // Color tokens per section
+                const activeStyle =
+                  s.id === 'live'
+                    ? 'bg-gradient-to-br from-cyan-500/20 to-teal-600/20 border border-cyan-400/40 text-cyan-300 shadow-[0_0_20px_rgba(0,184,217,0.25)]'
+                    : s.id === 'dry'
+                    ? 'bg-gradient-to-br from-amber-500/20 to-orange-600/20 border border-amber-400/40 text-amber-300 shadow-[0_0_20px_rgba(251,191,36,0.2)]'
+                    : 'bg-gradient-to-br from-[rgba(0,184,217,0.12)] to-[rgba(0,184,217,0.04)] border border-[rgba(0,184,217,0.3)] text-white';
+
+                const inactiveStyle = 'border border-transparent text-slate-400 hover:text-slate-200 hover:bg-[rgba(255,255,255,0.04)]';
+
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => handleSectionChange(s.id)}
+                    className={`relative flex flex-col items-center justify-center gap-1 py-3 sm:py-4 px-2 rounded-xl text-center transition-all duration-300 active:scale-95 ${isActive ? activeStyle : inactiveStyle}`}
+                  >
+                    {/* Animated pulse ring for live tab when active */}
+                    {s.id === 'live' && isActive && (
+                      <span className="absolute top-2 right-2 flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-70" />
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400" />
+                      </span>
+                    )}
+
+                    <span className="text-xl sm:text-2xl leading-none">{s.icon}</span>
+                    <span className="font-semibold text-[11px] sm:text-xs tracking-wide leading-tight">{s.label}</span>
+                    <span className={`text-[10px] tabular-nums font-medium px-2 py-0.5 rounded-full ${
+                      isActive
+                        ? s.id === 'live'
+                          ? 'bg-cyan-400/15 text-cyan-300'
+                          : s.id === 'dry'
+                          ? 'bg-amber-400/15 text-amber-300'
+                          : 'bg-white/10 text-slate-300'
+                        : 'bg-white/5 text-slate-500'
+                    }`}>
+                      {count} items
+                    </span>
+                    <span className="hidden sm:block text-[10px] text-slate-500 leading-tight mt-0.5 line-clamp-1">{s.desc}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ── Section info banner ──────────────────────────────────── */}
+          {section === 'live' && (
+            <div className="animate-fade-in-down">
+              <LiveSectionBanner />
+            </div>
+          )}
+          {section === 'dry' && (
+            <div className="animate-fade-in-down">
+              <DrySectionBanner />
+            </div>
+          )}
+
+          {/* ── Category chips + item count ──────────────────────────── */}
           <div className="flex items-center justify-between gap-3 pt-3 border-t border-[rgba(255,255,255,0.06)]">
-            {/* Icon-pill filter tabs */}
             <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none touch-momentum py-1">
-              {CATEGORIES.map((cat) => {
+              {activeCategories.map((cat) => {
                 const isActive = selectedCategory === cat.id;
                 return (
                   <button
@@ -128,7 +313,11 @@ export default function MarketplacePage() {
                     title={cat.label}
                     className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all duration-200 active:scale-95 shrink-0 ${
                       isActive
-                        ? 'bg-[--color-accent] text-[--color-primary] shadow-[0_2px_12px_rgba(0,184,217,0.45)] font-semibold'
+                        ? section === 'live'
+                          ? 'bg-cyan-500 text-[--color-primary] shadow-[0_2px_12px_rgba(0,184,217,0.45)] font-semibold'
+                          : section === 'dry'
+                          ? 'bg-amber-400 text-[--color-primary] shadow-[0_2px_12px_rgba(251,191,36,0.35)] font-semibold'
+                          : 'bg-[--color-accent] text-[--color-primary] shadow-[0_2px_12px_rgba(0,184,217,0.45)] font-semibold'
                         : 'text-slate-300 hover:text-white bg-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.09)] border border-[rgba(255,255,255,0.08)]'
                     }`}
                   >
@@ -145,6 +334,7 @@ export default function MarketplacePage() {
               <span className="hidden sm:inline"> items</span>
             </span>
           </div>
+
         </div>
       </div>
 
@@ -158,7 +348,7 @@ export default function MarketplacePage() {
               Try a different search or browse a category above.
             </p>
             <button
-              onClick={() => { setSelectedCategory('all'); setSearchQuery(''); }}
+              onClick={() => { setSection('all'); setSelectedCategory('all'); setSearchQuery(''); }}
               className="btn-ghost text-xs px-6 py-3 rounded-2xl active:scale-95"
             >
               CLEAR FILTERS
@@ -192,6 +382,7 @@ export default function MarketplacePage() {
           </Link>
         </div>
       </section>
+
     </div>
   );
 }

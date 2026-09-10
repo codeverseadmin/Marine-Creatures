@@ -81,6 +81,10 @@ const config: Config = {
           '0%': { opacity: '0', transform: 'translateY(30px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        'fade-in-down': {
+          '0%': { opacity: '0', transform: 'translateY(-10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
         'clip-reveal': {
           '0%': { clipPath: 'inset(0 100% 0 0)' },
           '100%': { clipPath: 'inset(0 0% 0 0)' },
@@ -93,6 +97,7 @@ const config: Config = {
         'particle-drift': 'particle-drift 8s linear infinite',
         shimmer: 'shimmer 3s linear infinite',
         'fade-up': 'fade-up 0.8s ease-out forwards',
+        'fade-in-down': 'fade-in-down 0.25s ease-out forwards',
         'clip-reveal': 'clip-reveal 1s cubic-bezier(0.77, 0, 0.175, 1) forwards',
       },
       backgroundImage: {

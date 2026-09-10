@@ -214,6 +214,7 @@ export default function AdminDashboardPage() {
       name: productForm.name || 'Untitled Product',
       scientificName: productForm.scientificName || undefined,
       brand: productForm.brand || undefined,
+      itemType: (productForm.category || 'marine-life') === 'marine-life' ? 'live' : 'dry',
       category: (productForm.category as any) || 'marine-life',
       categoryLabel: categoryLabels[productForm.category || 'marine-life'] || 'Marine Store',
       price: Number(productForm.price) || 0,

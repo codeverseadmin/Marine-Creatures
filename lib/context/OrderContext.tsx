@@ -104,6 +104,7 @@ const DEFAULT_ORDERS: CustomerOrder[] = [
           id: 'designer-clownfish-pair',
           name: 'Snowflake Ocellaris Clownfish (Bonded Pair)',
           price: 14999,
+          itemType: 'live',
           category: 'marine-life',
           categoryLabel: 'Marine Life',
           stockCount: 6,
