@@ -7,6 +7,7 @@ import { useCart } from '@/lib/context/CartContext';
 import { useWishlist } from '@/lib/context/WishlistContext';
 import { useCatalog } from '@/lib/context/CatalogContext';
 import { ProductCard } from './ProductCard';
+import { ProductReviewsSection } from './ProductReviewsSection';
 import { SITE_CONFIG } from '@/lib/config';
 
 interface ProductDetailViewProps {
@@ -300,6 +301,18 @@ export function ProductDetailView({ product: initialProduct, relatedProducts }: 
                 <span className="px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs bg-emerald-500/10 text-emerald-400 font-medium border border-emerald-500/20">
                   In Stock ({product.stockCount} Available)
                 </span>
+              </div>
+
+              {/* Customer Rating Banner */}
+              <div className="pt-1">
+                <a
+                  href="#customer-reviews"
+                  className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white transition-colors bg-slate-900/60 hover:bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800"
+                >
+                  <span className="text-yellow-400 font-bold">★ {product.rating || 5.0}</span>
+                  <span className="text-slate-400">({product.reviewsCount || 24} Verified Reviews)</span>
+                  <span className="text-cyan-400 font-semibold text-[11px] ml-1">View Reviews &amp; Photos ↓</span>
+                </a>
               </div>
 
               {/* Quick Spec Badges */}
@@ -743,6 +756,11 @@ export function ProductDetailView({ product: initialProduct, relatedProducts }: 
               </div>
             )}
           </div>
+        </div>
+
+        {/* Customer Reviews & Tank Photos Section */}
+        <div id="customer-reviews">
+          <ProductReviewsSection product={product} />
         </div>
 
         {/* Frequently Paired Products */}

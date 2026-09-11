@@ -6,6 +6,18 @@ export interface ProductMedia {
   title?: string;
 }
 
+export interface ProductReview {
+  id: string;
+  author: string;
+  location?: string;
+  rating: number;
+  date: string;
+  title: string;
+  comment: string;
+  verifiedPurchase?: boolean;
+  images?: string[];
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -51,6 +63,7 @@ export interface Product {
   };
   specifications: Record<string, string>;
   recommendedPairings?: string[];
+  reviews?: ProductReview[];
 }
 
 export function isLiveProduct(p?: { itemType?: string; category?: string } | null): boolean {
