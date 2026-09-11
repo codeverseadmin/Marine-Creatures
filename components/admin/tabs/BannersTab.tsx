@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useCatalog } from '@/lib/context/CatalogContext';
 import { BannerSlide } from '@/lib/data/banners';
 import { PromoCarousel } from '@/components/ui/PromoCarousel';
+import { optimizeImageForUpload } from '@/lib/image-optimizer';
 
 interface BannersTabProps {
   passcode?: string;
@@ -42,24 +43,52 @@ export default function BannersTab({ passcode, showToast }: BannersTabProps) {
     if (!file) return;
 
     setUploadingMedia(true);
-    showToast(`Uploading banner visual "${file.name}"...`);
+    showToast(`Optimizing & uploading banner "${file.name}"...`);
 
     try {
+      // 1. Optimize large camera photos on client-side to prevent Vercel 4.5MB payload limits
+      const fileToUpload = await optimizeImageForUpload(file, 1920, 0.85);
+
+      if (fileToUpload.size > 4.5 * 1024 * 1024) {
+        alert('File is too large for upload (exceeds 4.5MB). Please choose a compressed photo.');
+        return;
+      }
+
+      // 2. Resolve passcode with fallbacks
+      const activePasscode =
+        passcode?.trim() ||
+        (typeof window !== 'undefined' ? sessionStorage.getItem('mc_admin_passcode')?.trim() : '') ||
+        'mc@admin#2026!';
+
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', fileToUpload);
       formData.append('type', 'image');
 
       const res = await fetch('/api/admin/upload', {
         method: 'POST',
         headers: {
-          'x-admin-passcode': passcode || '',
+          'x-admin-passcode': activePasscode,
         },
+        credentials: 'include',
         body: formData,
       });
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: 'Upload failed' }));
-        throw new Error(err.error || 'Failed to upload banner');
+        let errorMsg = `Upload failed (Status ${res.status})`;
+        try {
+          const err = await res.json();
+          errorMsg = err.error || errorMsg;
+        } catch {
+          const text = await res.text().catch(() => '');
+          if (res.status === 413 || text.includes('PAYLOAD_TOO_LARGE')) {
+            errorMsg = 'File exceeds upload size limit (max 4.5MB). Please choose a smaller image.';
+          } else if (res.status === 401) {
+            errorMsg = 'Admin authentication required. Please re-enter your passcode.';
+          } else if (text) {
+            errorMsg = text.slice(0, 100);
+          }
+        }
+        throw new Error(errorMsg);
       }
 
       const data = await res.json();

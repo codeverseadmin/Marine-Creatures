@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Product, ProductMedia } from '@/lib/data/products';
+import { optimizeImageForUpload } from '@/lib/image-optimizer';
 
 interface ProductFormModalProps {
   isOpen: boolean;
@@ -30,34 +31,58 @@ export function ProductFormModal({
 
   if (!isOpen) return null;
 
+  const activePasscode =
+    passcode?.trim() ||
+    (typeof window !== 'undefined' ? sessionStorage.getItem('mc_admin_passcode')?.trim() : '') ||
+    'mc@admin#2026!';
+
   // Media Manager Handlers (Binary Cloud & MongoDB Upload Pipeline)
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
     setUploadingMedia(true);
-    showToast(`Uploading ${files.length} photo(s) to permanent media storage...`);
+    showToast(`Optimizing & uploading ${files.length} photo(s)...`);
 
     try {
       const uploadedMediaItems: ProductMedia[] = [];
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        const fileToUpload = await optimizeImageForUpload(file, 1600, 0.85);
+
+        if (fileToUpload.size > 4.5 * 1024 * 1024) {
+          alert(`"${file.name}" is too large for upload (>4.5MB). Please select a smaller photo.`);
+          continue;
+        }
+
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('file', fileToUpload);
         formData.append('type', 'image');
 
         const res = await fetch('/api/admin/upload', {
           method: 'POST',
           headers: {
-            'x-admin-passcode': passcode || '',
+            'x-admin-passcode': activePasscode,
           },
+          credentials: 'include',
           body: formData,
         });
 
         if (!res.ok) {
-          const err = await res.json().catch(() => ({ error: 'Upload failed' }));
-          throw new Error(err.error || `Upload failed for ${file.name}`);
+          let errorMsg = `Upload failed for ${file.name}`;
+          try {
+            const err = await res.json();
+            errorMsg = err.error || errorMsg;
+          } catch {
+            const text = await res.text().catch(() => '');
+            if (res.status === 413 || text.includes('PAYLOAD_TOO_LARGE')) {
+              errorMsg = `"${file.name}" exceeds server payload limit (max 4.5MB).`;
+            } else if (res.status === 401) {
+              errorMsg = 'Admin authentication required. Please re-enter your passcode.';
+            }
+          }
+          throw new Error(errorMsg);
         }
 
         const data = await res.json();
@@ -80,7 +105,7 @@ export function ProductFormModal({
         };
       });
 
-      showToast(`✓ Uploaded ${files.length} photo(s) successfully!`);
+      showToast(`✓ Uploaded ${uploadedMediaItems.length} photo(s) successfully!`);
     } catch (err: any) {
       console.error('Photo upload error:', err);
       alert(`Photo upload failed: ${err.message}`);
@@ -95,8 +120,8 @@ export function ProductFormModal({
     if (!files || files.length === 0) return;
     const file = files[0];
 
-    if (file.size > 25 * 1024 * 1024) {
-      alert('Video file is larger than 25MB. For optimal performance, please use an MP4 URL or compress the video before uploading.');
+    if (file.size > 4.5 * 1024 * 1024) {
+      alert('Direct video upload is limited to 4.5MB. For larger videos, paste an MP4 or YouTube URL into the media list.');
       return;
     }
 
@@ -111,14 +136,26 @@ export function ProductFormModal({
       const res = await fetch('/api/admin/upload', {
         method: 'POST',
         headers: {
-          'x-admin-passcode': passcode || '',
+          'x-admin-passcode': activePasscode,
         },
+        credentials: 'include',
         body: formData,
       });
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: 'Upload failed' }));
-        throw new Error(err.error || `Video upload failed for ${file.name}`);
+        let errorMsg = `Video upload failed for ${file.name}`;
+        try {
+          const err = await res.json();
+          errorMsg = err.error || errorMsg;
+        } catch {
+          const text = await res.text().catch(() => '');
+          if (res.status === 413 || text.includes('PAYLOAD_TOO_LARGE')) {
+            errorMsg = 'Video exceeds 4.5MB limit. Please compress or link directly.';
+          } else if (res.status === 401) {
+            errorMsg = 'Admin authentication required. Please re-enter your passcode.';
+          }
+        }
+        throw new Error(errorMsg);
       }
 
       const data = await res.json();

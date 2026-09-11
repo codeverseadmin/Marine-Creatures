@@ -78,8 +78,12 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const auth = sessionStorage.getItem('mc_admin_authenticated');
+      const savedPasscode = sessionStorage.getItem('mc_admin_passcode');
       if (auth === 'true') {
         setIsAuthenticated(true);
+        if (savedPasscode) {
+          setPasscode(savedPasscode);
+        }
       }
     }
   }, []);
@@ -105,6 +109,7 @@ export default function AdminDashboardPage() {
         setAuthError(false);
         if (typeof window !== 'undefined') {
           sessionStorage.setItem('mc_admin_authenticated', 'true');
+          sessionStorage.setItem('mc_admin_passcode', cleanPasscode);
         }
         showToast('✓ Control Center Authenticated');
       } else {
@@ -120,6 +125,7 @@ export default function AdminDashboardPage() {
     setPasscode('');
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('mc_admin_authenticated');
+      sessionStorage.removeItem('mc_admin_passcode');
     }
   };
 
