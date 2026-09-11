@@ -357,12 +357,10 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
       minute: '2-digit',
     });
 
-    const subtotal =
-      orderData.subtotal ??
-      (orderData.items && orderData.items.length > 0
-        ? orderData.items.reduce((sum, it) => sum + (it.product?.price || 0) * (it.quantity || 1), 0)
-        : orderData.totalAmount) ||
-      orderData.totalAmount;
+    const calculatedItemsTotal = orderData.items && orderData.items.length > 0
+      ? orderData.items.reduce((sum, it) => sum + (it.product?.price || 0) * (it.quantity || 1), 0)
+      : orderData.totalAmount;
+    const subtotal = orderData.subtotal ?? (calculatedItemsTotal || orderData.totalAmount);
 
     const newOrder: CustomerOrder = {
       ...orderData,
