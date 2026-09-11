@@ -1,8 +1,6 @@
 import { MetadataRoute } from 'next';
 import { SITE_CONFIG } from '@/lib/config';
 import { PRODUCTS } from '@/lib/data/products';
-import { SPECIES } from '@/lib/data/species';
-import { PROJECTS } from '@/lib/data/projects';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ProductModel } from '@/models/Product';
 
@@ -23,12 +21,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: 'daily',
       priority: 0.95,
-    },
-    {
-      url: `${baseUrl}/marine-life`,
-      lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 0.9,
     },
     {
       url: `${baseUrl}/services`,
@@ -53,18 +45,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/our-worlds`,
-      lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/materials`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.75,
     },
     {
       url: `${baseUrl}/about`,
@@ -101,21 +81,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.85,
   }));
 
-  // 3. Dynamic Marine Life Species Encyclopedia
-  const speciesRoutes: MetadataRoute.Sitemap = SPECIES.map((s) => ({
-    url: `${baseUrl}/marine-life/${s.id}`,
-    lastModified: now,
-    changeFrequency: 'monthly',
-    priority: 0.8,
-  }));
-
-  // 4. Dynamic Portfolio Living Worlds & Architectural Commissions
-  const projectRoutes: MetadataRoute.Sitemap = PROJECTS.map((p) => ({
-    url: `${baseUrl}/our-worlds/${p.id}`,
-    lastModified: now,
-    changeFrequency: 'monthly',
-    priority: 0.75,
-  }));
-
-  return [...staticRoutes, ...productRoutes, ...speciesRoutes, ...projectRoutes];
+  return [...staticRoutes, ...productRoutes];
 }

@@ -176,8 +176,8 @@ export default function AquariumDesignPage() {
             <Link href="/contact" className="btn-primary inline-flex" data-cursor="ENTER">
               BOOK A DESIGN CONSULTATION →
             </Link>
-            <Link href="/our-worlds" className="btn-ghost inline-flex" data-cursor="VIEW">
-              EXPLORE PAST WORLDS →
+            <Link href="/services" className="btn-ghost inline-flex" data-cursor="VIEW">
+              EXPLORE SERVICES →
             </Link>
           </div>
         </div>

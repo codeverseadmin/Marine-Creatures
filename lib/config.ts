@@ -34,18 +34,14 @@ export const STATS = [
 
 export const NAV_LINKS = [
   { label: 'Marketplace', href: '/marketplace' },
-  { label: 'Marine Life', href: '/marine-life' },
   { label: 'Services', href: '/services' },
-  { label: 'Portfolio', href: '/our-worlds' },
-  { label: 'Materials', href: '/materials' },
+  { label: 'About', href: '/about' },
+  { label: 'Contact', href: '/contact' },
 ];
 
 export const MOBILE_NAV_LINKS = [
   { label: 'Marketplace Store', href: '/marketplace' },
-  { label: 'Marine Life', href: '/marine-life' },
   { label: 'Services & Installation', href: '/services' },
-  { label: 'Portfolio', href: '/our-worlds' },
-  { label: 'Materials', href: '/materials' },
   { label: 'About Us', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ];
