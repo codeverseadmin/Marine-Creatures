@@ -93,10 +93,11 @@ export default function AdminDashboardPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const cleanPasscode = passcode.trim();
       const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ passcode }),
+        body: JSON.stringify({ passcode: cleanPasscode }),
       });
       const data = await res.json();
       if (data.success) {
