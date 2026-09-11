@@ -72,7 +72,7 @@ const OrderSchema = new Schema<IOrderDocument>(
     pincode: { type: String, required: true },
     orderNotes: { type: String, default: '' },
     items: { type: [OrderItemSchema], default: [] },
-    subtotal: { type: Number, required: true },
+    subtotal: { type: Number, default: 0 },
     totalAmount: { type: Number, required: true },
     currentStep: {
       type: String,
@@ -86,7 +86,17 @@ const OrderSchema = new Schema<IOrderDocument>(
     isApproved: { type: Boolean, default: false },
     approvedAt: { type: String },
     invoiceNumber: { type: String },
-    createdAt: { type: String, required: true },
+    createdAt: {
+      type: String,
+      default: () =>
+        new Date().toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+    },
   },
   {
     timestamps: true,

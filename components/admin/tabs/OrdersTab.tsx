@@ -22,12 +22,27 @@ const ORDER_STEPS_SEQUENCE: OrderProgressStep[] = [
 ];
 
 export default function OrdersTab({ showToast }: OrdersTabProps) {
-  const { orders, updateOrderStatus, updateOrderTracking, deleteOrder, approveOrder } = useOrder();
+  const { orders, updateOrderStatus, updateOrderTracking, deleteOrder, approveOrder, refreshOrders } = useOrder();
 
   const [orderSearch, setOrderSearch] = useState('');
   const [orderStatusFilter, setOrderStatusFilter] = useState('all');
   const [editingTrackingOrderId, setEditingTrackingOrderId] = useState<string | null>(null);
   const [trackingForm, setTrackingForm] = useState({ awb: '', courier: '' });
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Re-sync from MongoDB when entering the Orders tab
+  React.useEffect(() => {
+    refreshOrders();
+  }, [refreshOrders]);
+
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true);
+    await refreshOrders();
+    setTimeout(() => {
+      setIsRefreshing(false);
+      showToast('✓ Orders synced from MongoDB Atlas');
+    }, 400);
+  };
 
   const getNextStep = (current: OrderProgressStep): OrderProgressStep | null => {
     const idx = ORDER_STEPS_SEQUENCE.indexOf(current);
@@ -94,6 +109,15 @@ export default function OrdersTab({ showToast }: OrdersTabProps) {
         </div>
 
         <div className="flex items-center gap-2 text-xs font-semibold">
+          <button
+            onClick={handleManualRefresh}
+            disabled={isRefreshing}
+            className="px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-slate-200 transition-all flex items-center gap-1.5 active:scale-95 disabled:opacity-60 cursor-pointer"
+            title="Refresh orders from MongoDB Atlas"
+          >
+            <span className={`inline-block text-sm ${isRefreshing ? 'animate-spin text-cyan-400' : ''}`}>↻</span>
+            <span>{isRefreshing ? 'Syncing...' : 'Refresh'}</span>
+          </button>
           <span className="px-3 py-1.5 rounded-xl bg-cyan-400/10 border border-cyan-400/30 text-cyan-300">
             Total Orders: {orders.length}
           </span>

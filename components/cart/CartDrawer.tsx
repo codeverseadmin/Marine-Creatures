@@ -64,6 +64,7 @@ export function CartDrawer() {
       pincode: customerPincode.trim(),
       orderNotes: orderNotes.trim() || undefined,
       items: cart.map((i) => ({ product: i.product, quantity: i.quantity })),
+      subtotal: cartTotal,
       totalAmount: cartTotal,
       estimatedDelivery: 'Tomorrow via Priority Air Cargo',
     });

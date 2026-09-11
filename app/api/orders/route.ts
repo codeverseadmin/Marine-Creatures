@@ -131,9 +131,55 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const newOrder = await OrderModel.create(body);
+    const subtotal = Number(body.subtotal ?? body.totalAmount ?? 0);
+    const totalAmount = Number(body.totalAmount ?? subtotal ?? 0);
+    const createdAt =
+      body.createdAt ||
+      new Date().toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+
+    // Map history or statusHistory
+    const history =
+      Array.isArray(body.history) && body.history.length > 0
+        ? body.history
+        : Array.isArray(body.statusHistory) && body.statusHistory.length > 0
+        ? body.statusHistory.map((s: any) => ({
+            step: s.status || s.step || 'placed',
+            timestamp: s.timestamp || 'Done',
+            note: s.description || s.title || s.note || 'Status recorded',
+          }))
+        : [
+            {
+              step: 'placed',
+              timestamp: createdAt,
+              note: 'Order confirmed by customer',
+            },
+          ];
+
+    const orderPayload = {
+      ...body,
+      subtotal,
+      totalAmount,
+      createdAt,
+      history,
+      isApproved: Boolean(body.isApproved ?? false),
+    };
+
+    // Upsert to handle idempotent creation safely
+    const newOrder = await OrderModel.findOneAndUpdate(
+      { id: body.id },
+      { $set: orderPayload },
+      { upsert: true, new: true, runValidators: true }
+    );
+
     return NextResponse.json({ success: true, data: newOrder }, { status: 201 });
   } catch (error: any) {
+    console.error('Failed to create order in MongoDB:', error.message);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

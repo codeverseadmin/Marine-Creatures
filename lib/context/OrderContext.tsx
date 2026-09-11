@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { Product } from '@/lib/data/products';
 
 export type OrderProgressStep = 'placed' | 'quarantine' | 'packed' | 'dispatched' | 'delivered';
@@ -27,6 +27,7 @@ export interface CustomerOrder {
   pincode: string;
   orderNotes?: string;
   items: OrderItem[];
+  subtotal?: number;
   totalAmount: number;
   currentStep: OrderProgressStep;
   statusHistory: StatusUpdateLog[];
@@ -51,6 +52,7 @@ interface OrderContextType {
   approveOrder: (orderId: string, customInvoiceNum?: string) => void;
   deleteOrder: (orderId: string) => void;
   findOrder: (query: string) => CustomerOrder | undefined;
+  refreshOrders: () => Promise<void>;
   ownerSignature: string | null;
   setOwnerSignature: (url: string | null) => void;
 }
@@ -180,6 +182,90 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
 
   const SIGNATURE_STORAGE_KEY = 'mc_admin_owner_signature_v1';
 
+  const normalizeCloudOrders = useCallback((cloudOrders: any[]): CustomerOrder[] => {
+    return cloudOrders.map((o: any) => {
+      const mappedItems = Array.isArray(o.items)
+        ? o.items.map((it: any) => ({
+            product: it.product || {
+              id: it.id,
+              name: it.name,
+              price: it.price,
+              category: it.category || 'marine-life',
+              categoryLabel: it.category || 'Marine Life',
+              stockCount: 10,
+              inStock: true,
+              images: it.image ? [it.image] : [],
+              shortDesc: '',
+              description: '',
+              rating: 5,
+              reviewsCount: 1,
+            },
+            quantity: it.quantity || 1,
+          }))
+        : [];
+
+      return {
+        ...o,
+        subtotal: o.subtotal ?? o.totalAmount,
+        items: mappedItems,
+        statusHistory: o.statusHistory || [
+          {
+            status: 'placed',
+            title: 'Order Confirmed',
+            description: 'Order confirmed',
+            timestamp: o.createdAt || 'Done',
+            completed: true,
+          },
+          {
+            status: 'quarantine',
+            title: 'Quarantine Check',
+            description: 'Health check completed',
+            timestamp: 'Done',
+            completed: o.currentStep !== 'placed',
+          },
+          {
+            status: 'packed',
+            title: 'Thermal Pod Packed',
+            description: 'Packed in oxygen pod',
+            timestamp: 'Done',
+            completed: ['packed', 'dispatched', 'delivered'].includes(o.currentStep),
+          },
+          {
+            status: 'dispatched',
+            title: 'Air Cargo Dispatched',
+            description: 'Dispatched via express',
+            timestamp: 'Done',
+            completed: ['dispatched', 'delivered'].includes(o.currentStep),
+          },
+          {
+            status: 'delivered',
+            title: 'Delivered Safely',
+            description: 'Doorstep arrival',
+            timestamp: 'Done',
+            completed: o.currentStep === 'delivered',
+          },
+        ],
+      };
+    });
+  }, []);
+
+  const syncOrdersFromCloud = useCallback(async () => {
+    try {
+      const res = await fetch('/api/orders');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        const normalized = normalizeCloudOrders(data.data);
+        setOrders(normalized);
+        setActiveOrder((prev) => prev || normalized[0] || null);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+        }
+      }
+    } catch (e) {
+      console.warn('Could not sync orders from cloud, using local cache:', e);
+    }
+  }, [normalizeCloudOrders]);
+
   useEffect(() => {
     setIsMounted(true);
     try {
@@ -199,52 +285,19 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
       // ignore
     }
 
-    // Sync latest from MongoDB Atlas in background
-    fetch('/api/orders')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-          // Normalize items if needed
-          const normalized = data.data.map((o: any) => {
-            const mappedItems = Array.isArray(o.items)
-              ? o.items.map((it: any) => ({
-                  product: it.product || {
-                    id: it.id,
-                    name: it.name,
-                    price: it.price,
-                    category: it.category || 'marine-life',
-                    categoryLabel: it.category || 'Marine Life',
-                    stockCount: 10,
-                    inStock: true,
-                    images: it.image ? [it.image] : [],
-                    shortDesc: '',
-                    description: '',
-                    rating: 5,
-                    reviewsCount: 1,
-                  },
-                  quantity: it.quantity || 1,
-                }))
-              : [];
+    // Initial sync from MongoDB Atlas
+    syncOrdersFromCloud();
 
-            return {
-              ...o,
-              items: mappedItems,
-              statusHistory: o.statusHistory || [
-                { status: 'placed', title: 'Order Confirmed', description: 'Order confirmed', timestamp: o.createdAt || 'Done', completed: true },
-                { status: 'quarantine', title: 'Quarantine Check', description: 'Health check completed', timestamp: 'Done', completed: o.currentStep !== 'placed' },
-                { status: 'packed', title: 'Thermal Pod Packed', description: 'Packed in oxygen pod', timestamp: 'Done', completed: ['packed', 'dispatched', 'delivered'].includes(o.currentStep) },
-                { status: 'dispatched', title: 'Air Cargo Dispatched', description: 'Dispatched via express', timestamp: 'Done', completed: ['dispatched', 'delivered'].includes(o.currentStep) },
-                { status: 'delivered', title: 'Delivered Safely', description: 'Doorstep arrival', timestamp: 'Done', completed: o.currentStep === 'delivered' },
-              ],
-            };
-          });
+    // Auto-refresh orders every 10s for real-time admin sync across tabs/devices
+    const pollTimer = setInterval(() => {
+      syncOrdersFromCloud();
+    }, 10000);
 
-          setOrders(normalized);
-          setActiveOrder((prev) => prev || normalized[0]);
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
-        }
-      })
-      .catch((e) => console.warn('Could not sync orders from cloud, using local cache:', e));
+    // Refresh immediately when window or tab gains focus
+    const handleFocus = () => {
+      syncOrdersFromCloud();
+    };
+    window.addEventListener('focus', handleFocus);
 
     // Fetch cloud owner signature
     fetch('/api/settings?key=ownerSignature')
@@ -256,7 +309,12 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
         }
       })
       .catch((e) => console.warn('Could not sync signature from cloud:', e));
-  }, []);
+
+    return () => {
+      clearInterval(pollTimer);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [syncOrdersFromCloud]);
 
   const setOwnerSignature = (url: string | null) => {
     setOwnerSignatureState(url);
@@ -299,14 +357,22 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
       minute: '2-digit',
     });
 
+    const subtotal =
+      orderData.subtotal ??
+      (orderData.items && orderData.items.length > 0
+        ? orderData.items.reduce((sum, it) => sum + (it.product?.price || 0) * (it.quantity || 1), 0)
+        : orderData.totalAmount) ||
+      orderData.totalAmount;
+
     const newOrder: CustomerOrder = {
       ...orderData,
       id,
+      subtotal,
       address: orderData.address || 'Address pending verification',
       invoiceNumber: `INV-${id}`,
       isApproved: false,
       currentStep: 'placed',
-      estimatedDelivery: '1–2 Business Days (Express Air Cargo)',
+      estimatedDelivery: orderData.estimatedDelivery || '1–2 Business Days (Express Air Cargo)',
       createdAt: now,
       statusHistory: [
         {
@@ -350,12 +416,15 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     setOrders((prev) => [newOrder, ...prev]);
     setActiveOrder(newOrder);
 
-    // Persist to MongoDB orders collection
+    // Persist to MongoDB orders collection with full schema compatibility
     fetch('/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ...newOrder,
+        subtotal,
+        totalAmount: newOrder.totalAmount,
+        createdAt: now,
         items: newOrder.items.map((it) => ({
           id: it.product.id,
           name: it.product.name,
@@ -364,8 +433,25 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
           image: it.product.images?.[0] || '',
           category: it.product.category,
         })),
+        history: [
+          {
+            step: 'placed',
+            timestamp: now,
+            note: 'Order confirmed and registered via storefront',
+          },
+        ],
       }),
-    }).catch((err) => console.warn('Cloud order create error:', err));
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.success) {
+          console.error('[OrderContext] Cloud order create error:', data.error);
+        } else {
+          console.log('[OrderContext] Order synced with MongoDB:', data.data?.id);
+          syncOrdersFromCloud();
+        }
+      })
+      .catch((err) => console.warn('Cloud order create error:', err));
 
     return newOrder;
   };
@@ -514,6 +600,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
         approveOrder,
         deleteOrder,
         findOrder,
+        refreshOrders: syncOrdersFromCloud,
         ownerSignature,
         setOwnerSignature,
       }}
