@@ -23,6 +23,16 @@ export default function InvoicePage({ params }: InvoicePageProps) {
   const [phoneError, setPhoneError] = useState(false);
   const [verifyAttempts, setVerifyAttempts] = useState(0);
 
+  // Automatically bypass verification for logged-in store managers/admins
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isAdmin = sessionStorage.getItem('mc_admin_authenticated') === 'true';
+      if (isAdmin) {
+        setPhoneVerified(true);
+      }
+    }
+  }, []);
+
   // Find order in memory or default
   const order = orders.find(
     (o) => o.id.toLowerCase() === orderId.toLowerCase() || o.id.replace('MC-', '') === rawId
