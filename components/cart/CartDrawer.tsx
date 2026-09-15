@@ -101,7 +101,7 @@ export function CartDrawer() {
       )
       .join('\n');
 
-    const message = `🌊 *NEW ORDER RECEIVED — MARINE CREATURES* 🌊\n*Order ID:* #${newOrder.id}\n\n👤 *CUSTOMER DETAILS:*\n• *Name:* ${customerName.trim()}\n• *Phone:* +91 ${cleanPhone}\n• *Delivery Address:* ${customerAddress.trim()}\n• *City & Pincode:* ${customerCity.trim()} (${customerPincode.trim()})${orderNotes.trim() ? `\n• *Special Notes:* ${orderNotes.trim()}` : ''}\n\n📦 *ORDERED SPECIMENS:*\n${itemsSummary}\n\n*Total Order Value:* ₹${cartTotal.toLocaleString('en-IN')}\n*Thermal Pod Packaging:* FREE Oxygenated Climate Pod\n\n🔗 *Review & Approve in Admin:* https://marine-creatures-sand.vercel.app/admin\nPlease verify holding tank reservation and approve to generate the Tax Invoice.`;
+    const message = `🌊 *NEW ORDER RECEIVED — MARINE CREATURES* 🌊\n*Order ID:* #${newOrder.id}\n\n👤 *CUSTOMER DETAILS:*\n• *Name:* ${customerName.trim()}\n• *Phone:* +91 ${cleanPhone}\n• *Delivery Address:* ${customerAddress.trim()}\n• *City & Pincode:* ${customerCity.trim()} (${customerPincode.trim()})${orderNotes.trim() ? `\n• *Special Notes:* ${orderNotes.trim()}` : ''}\n\n📦 *ORDERED SPECIMENS:*\n${itemsSummary}\n\n*Total Order Value:* ₹${cartTotal.toLocaleString('en-IN')}\n*Thermal Pod Packaging:* FREE Oxygenated Climate Pod`;
 
     const encoded = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encoded}`;
