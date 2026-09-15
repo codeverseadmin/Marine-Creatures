@@ -150,7 +150,7 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-6 sm:pt-8 border-t border-[rgba(255,255,255,0.06)] gap-3 sm:gap-4 pb-safe">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-6 sm:pt-8 border-t border-[rgba(255,255,255,0.06)] gap-3 sm:gap-4 pb-20 md:pb-0">
           {/* Copyright */}
           <p className="text-xs text-[--color-muted]">
             © {new Date().getFullYear()} Marine Creatures. All rights reserved.
