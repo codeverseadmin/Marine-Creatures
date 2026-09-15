@@ -1,453 +1,680 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { SITE_CONFIG } from '@/lib/config';
+import { useCatalog } from '@/lib/context/CatalogContext';
 
-// ── Step definitions ────────────────────────────────────────────────────────
-const STEPS = [
-  {
-    id: 1,
-    emoji: '🐠',
-    question: "What are you looking for?",
-    hint: 'Pick all that apply',
-    options: [
-      { label: 'New Aquarium', icon: '🪸' },
-      { label: 'Renovation', icon: '🔧' },
-      { label: 'Installation', icon: '🏗️' },
-      { label: 'Marine Life', icon: '🐡' },
-      { label: 'Materials & Equipment', icon: '🧪' },
-      { label: 'Maintenance Plan', icon: '🛠️' },
-      { label: 'Other', icon: '💬' },
-    ],
-    type: 'multi' as const,
-  },
-  {
-    id: 2,
-    emoji: '🏠',
-    question: 'What kind of space?',
-    hint: 'Choose one',
-    options: [
-      { label: 'Residential Home', icon: '🏡' },
-      { label: 'Office / Corporate', icon: '🏢' },
-      { label: 'Restaurant / Cafe', icon: '🍽️' },
-      { label: 'Hotel / Resort', icon: '🏨' },
-      { label: 'Other Commercial', icon: '🏬' },
-    ],
-    type: 'single' as const,
-  },
-  {
-    id: 3,
-    emoji: '📐',
-    question: 'Aquarium size in mind?',
-    hint: 'Approximate is fine',
-    options: [
-      { label: 'Under 1 ft', icon: '🐚' },
-      { label: '1–2 ft', icon: '🐠' },
-      { label: '2–4 ft', icon: '🦈' },
-      { label: '4 ft+', icon: '🌊' },
-      { label: 'Custom / Not sure', icon: '🤔' },
-    ],
-    type: 'single' as const,
-  },
-  {
-    id: 4,
-    emoji: '👤',
-    question: 'Your name',
-    placeholder: 'e.g. Rahul Verma',
-    type: 'text' as const,
-  },
-  {
-    id: 5,
-    emoji: '📱',
-    question: 'WhatsApp number',
-    placeholder: '10-digit mobile number',
-    type: 'phone' as const,
-  },
-  {
-    id: 6,
-    emoji: '📍',
-    question: 'Your city',
-    placeholder: 'e.g. Bengaluru, Mumbai...',
-    type: 'text' as const,
-  },
-  {
-    id: 7,
-    emoji: '✨',
-    question: 'Your vision',
-    placeholder: 'Describe your space, dream setup, or anything you want Suraj to know...',
-    type: 'textarea' as const,
-  },
+// ── Service & Space options ──────────────────────────────────────────────────
+const SERVICE_OPTIONS = [
+  { id: 'new_aquarium', label: 'New Custom Aquarium', desc: 'Bespoke turnkey living reef setup', icon: '🐠' },
+  { id: 'renovation', label: 'Tank Renovation & Care', desc: 'Revitalize an existing aquarium', icon: '🔧' },
+  { id: 'marine_life', label: 'Rare Livestock & Corals', desc: 'Acclimated fish, SPS/LPS, anemones', icon: '🐡' },
+  { id: 'installation', label: 'Turnkey Installation', desc: 'Plumbing, sumps, electrical & stands', icon: '🏗️' },
+  { id: 'maintenance', label: 'White-Glove Maintenance', desc: 'Scheduled water chemistry & upkeep', icon: '🛠️' },
+  { id: 'equipment', label: 'Equipment & Reef Salts', desc: 'Apex, skimmers, lights & dosing', icon: '🧪' },
+  { id: 'other', label: 'General Consultation', desc: 'Custom advisory or architectural survey', icon: '💬' },
+];
+
+const SPACE_OPTIONS = [
+  { id: 'residence', label: 'Private Residence / Villa', icon: '🏡' },
+  { id: 'office', label: 'Corporate Office / Boardroom', icon: '🏢' },
+  { id: 'restaurant', label: 'Restaurant / Lounge / Cafe', icon: '🍽️' },
+  { id: 'hotel', label: 'Hotel / Resort / Spa', icon: '🏨' },
+  { id: 'commercial', label: 'Other Commercial Space', icon: '🏬' },
+];
+
+const SIZE_OPTIONS = [
+  { id: 'nano', label: 'Nano (< 2 ft / < 150L)', icon: '🐚' },
+  { id: 'medium', label: 'Medium (2–4 ft / 200–600L)', icon: '🐠' },
+  { id: 'large', label: 'Large (4–6 ft / 700–1,500L)', icon: '🦈' },
+  { id: 'monumental', label: 'Monumental (6+ ft / 2,000L+)', icon: '🌊' },
+  { id: 'custom', label: 'Custom / Need Guidance', icon: '🤔' },
 ];
 
 export default function ContactPage() {
-  const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, string | string[]>>({});
-  const [textVal, setTextVal] = useState('');
-  const [submitted, setSubmitted] = useState(false);
+  const { addInquiry } = useCatalog();
+
+  // Form State
+  const [step, setStep] = useState(0); // 0: Services, 1: Space & Size, 2: Client Details
+  const [selectedServices, setSelectedServices] = useState<string[]>(['New Custom Aquarium']);
+  const [selectedSpace, setSelectedSpace] = useState<string>('Private Residence / Villa');
+  const [selectedSize, setSelectedSize] = useState<string>('Medium (2–4 ft / 200–600L)');
+
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [city, setCity] = useState('');
+  const [vision, setVision] = useState('');
+
   const [submitting, setSubmitting] = useState(false);
-  const [animDir, setAnimDir] = useState<'fwd' | 'back'>('fwd');
-  const [visible, setVisible] = useState(true);
+  const [submitted, setSubmitted] = useState(false);
+  const [inquiryId, setInquiryId] = useState('');
+  const [waUrl, setWaUrl] = useState('');
+  const [validationError, setValidationError] = useState('');
 
-  const current = STEPS[step];
-  const progress = ((step) / STEPS.length) * 100;
-
-  // Animate step transitions
-  const transitionTo = (nextStep: number, dir: 'fwd' | 'back') => {
-    setAnimDir(dir);
-    setVisible(false);
-    setTimeout(() => {
-      setStep(nextStep);
-      setTextVal('');
-      setVisible(true);
-    }, 180);
+  // Service toggle helper
+  const toggleService = (label: string) => {
+    setSelectedServices((prev) =>
+      prev.includes(label)
+        ? prev.length > 1
+          ? prev.filter((s) => s !== label)
+          : prev
+        : [...prev, label]
+    );
   };
 
-  const handleOption = (option: string) => {
-    if (!current) return;
-    if (current.type === 'multi') {
-      const prev = (answers[current.id] as string[]) || [];
-      const next = prev.includes(option) ? prev.filter((o) => o !== option) : [...prev, option];
-      setAnswers({ ...answers, [current.id]: next });
-    } else {
-      setAnswers({ ...answers, [current.id]: option });
-      setTimeout(() => transitionTo(step + 1, 'fwd'), 250);
+  // Submission handler
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+
+    const cleanName = name.trim();
+    const cleanPhone = phone.replace(/\D/g, '');
+    const cleanCity = city.trim();
+
+    if (!cleanName) {
+      setValidationError('Please enter your full name');
+      return;
     }
+
+    if (cleanPhone.length < 10) {
+      setValidationError('Please enter a valid 10-digit mobile number');
+      return;
+    }
+
+    setValidationError('');
+    setSubmitting(true);
+
+    const generatedId = `INQ-${Date.now().toString().slice(-6)}`;
+    setInquiryId(generatedId);
+
+    const serviceStr = selectedServices.join(', ');
+    const noteContent = `Space: ${selectedSpace} | Size: ${selectedSize} | Vision: ${vision.trim() || 'Turnkey luxury consultation requested'}`;
+
+    // 1. Save to context & server DB via addInquiry
+    try {
+      addInquiry({
+        type: 'custom_quote',
+        name: cleanName,
+        phone: cleanPhone,
+        serviceType: serviceStr,
+        spaceType: selectedSpace,
+        tankSize: selectedSize,
+        location: cleanCity || 'India',
+        notes: noteContent,
+      });
+    } catch (err) {
+      console.warn('Error saving inquiry:', err);
+    }
+
+    // 2. Prepare structured WhatsApp message
+    const waMessage =
+      `🌊 *NEW CONSULTATION INQUIRY — MARINE CREATURES* 🌊\n` +
+      `*Inquiry ID:* #${generatedId}\n\n` +
+      `👤 *CLIENT DETAILS:*\n` +
+      `• *Name:* ${cleanName}\n` +
+      `• *Phone:* +91 ${cleanPhone}\n` +
+      `• *City:* ${cleanCity || 'Not specified'}\n\n` +
+      `🐠 *PROJECT SCOPE:*\n` +
+      `• *Requirements:* ${serviceStr}\n` +
+      `• *Space Type:* ${selectedSpace}\n` +
+      `• *Aquarium Scale:* ${selectedSize}\n\n` +
+      `✨ *VISION & NOTES:*\n` +
+      `${vision.trim() || 'Turnkey advisory requested'}\n\n` +
+      `📍 _Submitted via Marine Creatures Mobile Portal_`;
+
+    const cleanAdminPhone = SITE_CONFIG.whatsapp.replace(/\D/g, '');
+    const targetWaUrl = `https://wa.me/${cleanAdminPhone}?text=${encodeURIComponent(waMessage)}`;
+    setWaUrl(targetWaUrl);
+
+    // 3. Open WhatsApp in new window/tab
+    try {
+      window.open(targetWaUrl, '_blank');
+    } catch {
+      // Fallback handled in success screen
+    }
+
+    setSubmitting(false);
+    setSubmitted(true);
   };
 
-  const canProceed = () => {
-    if (!current) return false;
-    if (current.type === 'multi') {
-      return ((answers[current.id] as string[]) || []).length > 0;
-    }
-    if (current.type === 'text' || current.type === 'phone') {
-      return textVal.trim().length > 0;
-    }
-    if (current.type === 'textarea') return true; // optional
-    return !!answers[current.id];
-  };
-
-  const handleNext = async () => {
-    if (!current) return;
-    const updated = { ...answers, [current.id]: textVal || answers[current.id] || '' };
-    setAnswers(updated);
-
-    if (step < STEPS.length - 1) {
-      transitionTo(step + 1, 'fwd');
-    } else {
-      // Submit
-      setSubmitting(true);
-      const services = Array.isArray(updated[1]) ? (updated[1] as string[]).join(', ') : String(updated[1] || '');
-      const space = String(updated[2] || '');
-      const size = String(updated[3] || '');
-      const name = String(updated[4] || '');
-      const phone = String(updated[5] || '').replace(/\D/g, '');
-      const city = String(updated[6] || '');
-      const vision = String(updated[7] || textVal || '');
-
-      // Save to DB
-      fetch('/api/inquiries', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: name || 'VIP Client Inquiry',
-          phone: phone || 'Not provided',
-          serviceType: services || 'General Inquiry',
-          notes: `Space: ${space} | Size: ${size} | City: ${city} | Vision: ${vision}`,
-        }),
-      }).catch((e) => console.warn('Inquiry save error:', e));
-
-      // Also open WhatsApp to Suraj
-      const waMessage = `🌊 *NEW PROJECT INQUIRY — MARINE CREATURES*\n\n👤 *Name:* ${name}\n📱 *Phone:* +91 ${phone}\n📍 *City:* ${city}\n\n🐠 *Services Needed:* ${services}\n🏠 *Space Type:* ${space}\n📐 *Tank Size:* ${size}\n\n✨ *Vision / Notes:*\n${vision || 'Not specified'}`;
-      const waUrl = `https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(waMessage)}`;
-      window.open(waUrl, '_blank');
-
-      setSubmitting(false);
-      setSubmitted(true);
-    }
-  };
-
-  // ── Success Screen ───────────────────────────────────────────────────────
+  // ── Success State Screen ──────────────────────────────────────────────────
   if (submitted) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center text-center px-6 pb-24 md:pb-0" style={{ background: 'var(--color-primary)' }}>
-        {/* Animated success circle */}
-        <div className="relative mb-8">
-          <div className="w-28 h-28 rounded-full bg-emerald-500/15 border-2 border-emerald-400/40 flex items-center justify-center">
-            <span className="text-5xl">🐠</span>
+      <div className="min-h-screen pt-24 pb-36 px-4 sm:px-6 flex flex-col items-center justify-center text-center bg-[#02070b]">
+        <div className="max-w-lg w-full rounded-3xl border border-emerald-400/30 bg-[rgba(3,13,20,0.95)] backdrop-blur-2xl p-6 sm:p-10 shadow-2xl space-y-6">
+          {/* Animated Success Badge */}
+          <div className="relative mx-auto w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-emerald-500/15 border-2 border-emerald-400/50 flex items-center justify-center">
+            <span className="text-4xl sm:text-5xl animate-bounce">🐠</span>
+            <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-emerald-500 border-2 border-[#02070b] flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
           </div>
-          <div className="absolute -bottom-1 -right-1 w-10 h-10 rounded-full bg-emerald-500 border-4 border-[var(--color-primary)] flex items-center justify-center">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
+
+          <div>
+            <span className="text-[11px] uppercase tracking-[0.25em] text-emerald-400 font-semibold block mb-2">
+              Inquiry Registered • #{inquiryId}
+            </span>
+            <h1 className="font-display text-2xl sm:text-4xl text-white font-light mb-3">
+              Your Consultation<br />Has Begun.
+            </h1>
+            <p className="font-body text-xs sm:text-sm text-[--color-muted] leading-relaxed">
+              Founder <strong className="text-white">Suraj Shasmal</strong> has received your project parameters. Direct WhatsApp conversation should open automatically.
+            </p>
+          </div>
+
+          {/* Quick Details Recap */}
+          <div className="p-4 rounded-2xl border border-white/10 bg-white/[0.03] text-left text-xs space-y-2">
+            <div className="flex justify-between items-center text-slate-300">
+              <span className="text-[--color-muted]">Client:</span>
+              <span className="font-semibold text-white">{name} (+91 {phone})</span>
+            </div>
+            <div className="flex justify-between items-center text-slate-300">
+              <span className="text-[--color-muted]">Location:</span>
+              <span className="text-slate-200">{city || 'India'}</span>
+            </div>
+            <div className="flex justify-between items-center text-slate-300">
+              <span className="text-[--color-muted]">Services:</span>
+              <span className="text-cyan-300 truncate max-w-[200px]">{selectedServices.join(', ')}</span>
+            </div>
+          </div>
+
+          {/* WhatsApp Action Buttons */}
+          <div className="space-y-3 pt-2">
+            {waUrl && (
+              <a
+                href={waUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
+              >
+                <span>💬</span>
+                <span>OPEN WHATSAPP CHAT AGAIN</span>
+              </a>
+            )}
+
+            <Link
+              href="/"
+              className="w-full inline-flex items-center justify-center py-3.5 px-6 rounded-2xl border border-white/15 bg-white/5 hover:bg-white/10 text-white font-semibold text-xs tracking-wider uppercase transition-all"
+            >
+              ← RETURN TO STORE
+            </Link>
           </div>
         </div>
-
-        <span className="text-[11px] uppercase tracking-[0.3em] text-emerald-400 font-semibold mb-4 block">Inquiry Received</span>
-        <h1 className="font-display text-3xl sm:text-5xl text-[--color-text] font-light mb-4 leading-tight">
-          Your Conversation<br />Has Begun.
-        </h1>
-        <p className="font-body font-light text-[--color-muted] max-w-sm leading-relaxed mb-4 text-sm">
-          Suraj will connect with you on WhatsApp shortly. Expect a reply within a few hours.
-        </p>
-
-        {/* Pulsing WhatsApp indicator */}
-        <div className="flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-400/25 mb-10">
-          <span className="relative flex-shrink-0">
-            <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-emerald-400 opacity-75 top-0 left-0"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-400"></span>
-          </span>
-          <span className="text-sm font-semibold text-emerald-300">WhatsApp opening now…</span>
-        </div>
-
-        <Link href="/" className="btn-primary inline-flex text-xs py-3.5 px-8 rounded-2xl">
-          BACK TO HOME →
-        </Link>
       </div>
     );
   }
 
-  const selectedMulti = (answers[current?.id || 0] as string[]) || [];
-  const isMultiStep = current?.type === 'multi';
-  const isTextStep = current?.type === 'text' || current?.type === 'phone' || current?.type === 'textarea';
-  const isLastStep = step === STEPS.length - 1;
-
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: 'var(--color-primary)' }}>
-
-      {/* Subtle ocean bg */}
-      <div className="fixed inset-0 pointer-events-none z-0" aria-hidden="true">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1920&q=60"
-          alt=""
-          className="w-full h-full object-cover opacity-[0.04]"
-        />
+    <div className="min-h-screen bg-[#02070b] text-[--color-text]">
+      {/* Background Ambience */}
+      <div className="fixed inset-0 pointer-events-none z-0 opacity-20">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative z-10 flex flex-col min-h-screen">
-
-        {/* ── Sticky Top Progress Bar ────────────────────────────────────── */}
-        <div className="sticky top-0 z-30 bg-[rgba(2,7,11,0.92)] backdrop-blur-md border-b border-[rgba(255,255,255,0.07)]">
-          {/* Thin progress line */}
-          <div className="h-0.5 w-full bg-[rgba(255,255,255,0.07)]">
-            <div
-              className="h-full bg-[--color-accent] transition-all duration-500 ease-out"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-
-          <div className="flex items-center justify-between px-5 sm:px-8 py-3.5">
-            <div className="flex items-center gap-3">
-              {/* Step dots */}
-              <div className="flex items-center gap-1">
-                {STEPS.map((_, i) => (
-                  <div
-                    key={i}
-                    className={`rounded-full transition-all duration-300 ${
-                      i < step
-                        ? 'w-2 h-2 bg-emerald-500'
-                        : i === step
-                        ? 'w-3 h-2 bg-[--color-accent]'
-                        : 'w-2 h-2 bg-[rgba(255,255,255,0.15)]'
-                    }`}
-                  />
-                ))}
-              </div>
-              <span className="text-[10px] text-[--color-muted] font-semibold uppercase tracking-wider">
-                {step + 1} / {STEPS.length}
-              </span>
-            </div>
-
-            {/* Back button in header on mobile */}
-            {step > 0 && (
-              <button
-                onClick={() => transitionTo(step - 1, 'back')}
-                className="flex items-center gap-1.5 text-[11px] text-[--color-muted] hover:text-white active:scale-95 transition-all py-1 px-2 rounded-lg"
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="15 18 9 12 15 6" />
-                </svg>
-                Back
-              </button>
-            )}
-          </div>
+      <div className="relative z-10 pt-20 sm:pt-24 md:pt-28 pb-32 sm:pb-36 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* ── Page Header ─────────────────────────────────────────────────── */}
+        <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-10">
+          <span className="text-[11px] sm:text-xs uppercase tracking-[0.3em] font-semibold text-[--color-accent] block mb-2">
+            BESPOKE AQUARIUM CONCIERGE
+          </span>
+          <h1 className="font-display text-3xl sm:text-5xl font-light text-white leading-tight mb-3">
+            Connect with the Curators.
+          </h1>
+          <p className="font-body text-xs sm:text-sm text-[--color-muted] leading-relaxed">
+            Direct access to Founder <strong className="text-slate-200">Suraj Shasmal</strong> for living reef commissions, tank renovations, rare marine livestock, and white-glove maintenance.
+          </p>
         </div>
 
-        {/* ── Main Content ────────────────────────────────────────────────── */}
-        <div
-          className={`flex-1 px-5 sm:px-8 pt-8 pb-36 md:pb-16 transition-all duration-180 ${
-            visible ? 'opacity-100 translate-y-0' : animDir === 'fwd' ? 'opacity-0 translate-y-4' : 'opacity-0 -translate-y-4'
-          }`}
-          style={{ maxWidth: '640px', margin: '0 auto', width: '100%' }}
-        >
-          {current && (
-            <div>
-              {/* Step emoji + question */}
-              <div className="mb-7">
-                <span className="text-4xl block mb-4">{current.emoji}</span>
-                <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-[--color-text] font-light leading-tight mb-1.5">
-                  {current.question}
-                </h2>
-                {'hint' in current && current.hint && (
-                  <p className="text-[11px] text-[--color-muted] uppercase tracking-wider font-semibold">
-                    {current.hint}
+        {/* ── Mobile Instant Action Strip ─────────────────────────────────── */}
+        <div className="md:hidden grid grid-cols-2 gap-2.5 mb-6">
+          <a
+            href={`https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent('Hi Suraj! I would like to consult with you regarding a marine aquarium project.')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2.5 p-3 rounded-2xl bg-emerald-500/10 border border-emerald-400/30 text-emerald-300 text-xs font-semibold active:scale-95 transition-transform"
+          >
+            <span className="text-xl">💬</span>
+            <div className="text-left">
+              <span className="block text-[10px] text-emerald-400/80 font-mono uppercase tracking-wider">Fastest Reply</span>
+              <span>WhatsApp Suraj</span>
+            </div>
+          </a>
+
+          <a
+            href={`tel:${SITE_CONFIG.phone}`}
+            className="flex items-center gap-2.5 p-3 rounded-2xl bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 text-xs font-semibold active:scale-95 transition-transform"
+          >
+            <span className="text-xl">📞</span>
+            <div className="text-left">
+              <span className="block text-[10px] text-cyan-400/80 font-mono uppercase tracking-wider">Direct Studio</span>
+              <span>Call +91 93304</span>
+            </div>
+          </a>
+        </div>
+
+        {/* ── Main 2-Column Grid (Laptop) / Single Card (Mobile) ───────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* ── Left Column: Founder Concierge Card (Desktop & Tablet) ────── */}
+          <div className="hidden lg:block lg:col-span-4 sticky top-28 space-y-6">
+            <div className="rounded-3xl border border-white/10 bg-[rgba(3,10,16,0.8)] backdrop-blur-xl p-6 space-y-6 shadow-xl">
+              {/* Founder Header */}
+              <div className="flex items-center gap-4 border-b border-white/10 pb-5">
+                <div className="relative w-16 h-16 rounded-2xl overflow-hidden border border-cyan-400/40 bg-white/95 shrink-0 shadow-md">
+                  <Image
+                    src="/logo.jpg"
+                    alt="Suraj Shasmal — Marine Creatures"
+                    width={64}
+                    height={64}
+                    className="w-full h-full object-contain p-1"
+                  />
+                  <span className="absolute bottom-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-slate-950 animate-pulse" />
+                </div>
+                <div>
+                  <span className="text-[10px] text-cyan-400 uppercase tracking-widest font-mono font-semibold block">
+                    FOUNDER &amp; AQUARIST
+                  </span>
+                  <h3 className="font-display text-xl text-white font-medium">
+                    Suraj Shasmal
+                  </h3>
+                  <p className="text-xs text-emerald-400 flex items-center gap-1.5 mt-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    <span>Online Now • Replies in ~5 mins</span>
                   </p>
-                )}
+                </div>
               </div>
 
-              {/* ── Options (single / multi) ──────────────────────────── */}
-              {(current.type === 'single' || current.type === 'multi') && current.options && (
-                <div className="grid grid-cols-2 gap-3 mb-8">
-                  {current.options.map((opt) => {
-                    const isSelected =
-                      current.type === 'multi'
-                        ? selectedMulti.includes(opt.label)
-                        : answers[current.id] === opt.label;
-                    return (
+              {/* Studio Info Details */}
+              <div className="space-y-3.5 text-xs text-slate-300">
+                <div className="flex items-start gap-3">
+                  <span className="text-base text-cyan-400">📍</span>
+                  <div>
+                    <span className="text-[11px] text-[--color-muted] block">Aquaculture Studio</span>
+                    <a
+                      href={SITE_CONFIG.googleMaps}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white hover:text-cyan-300 transition-colors inline-flex items-center gap-1"
+                    >
+                      {SITE_CONFIG.address} <span className="text-cyan-400">↗</span>
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <span className="text-base text-emerald-400">💬</span>
+                  <div>
+                    <span className="text-[11px] text-[--color-muted] block">WhatsApp Concierge</span>
+                    <a
+                      href={`https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-400 hover:text-emerald-300 font-mono font-medium"
+                    >
+                      +91 93304 36603
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <span className="text-base text-cyan-400">✉️</span>
+                  <div>
+                    <span className="text-[11px] text-[--color-muted] block">Email Inquiries</span>
+                    <a
+                      href={`mailto:${SITE_CONFIG.email}`}
+                      className="text-slate-200 hover:text-white transition-colors"
+                    >
+                      {SITE_CONFIG.email}
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <span className="text-base text-amber-400">⏰</span>
+                  <div>
+                    <span className="text-[11px] text-[--color-muted] block">Studio Operating Hours</span>
+                    <span className="text-slate-300">Mon – Sun: 10:00 AM – 9:00 PM IST</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Guarantees */}
+              <div className="p-4 rounded-2xl bg-cyan-500/5 border border-cyan-400/20 text-[11px] text-slate-300 space-y-2">
+                <div className="flex items-center gap-2 text-cyan-300 font-semibold">
+                  <span>🛡️</span>
+                  <span>Marine Creatures Assurance</span>
+                </div>
+                <ul className="space-y-1 text-slate-400 list-disc list-inside">
+                  <li>Personally curated by Suraj Shasmal</li>
+                  <li>30-day biological quarantine protocols</li>
+                  <li>Nationwide climate-controlled logistics</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Right Column: Interactive Consultation Builder ─────────────── */}
+          <div className="lg:col-span-8">
+            <div className="rounded-3xl border border-white/10 bg-[rgba(3,10,16,0.85)] backdrop-blur-xl shadow-2xl overflow-hidden">
+              
+              {/* Sticky Step Header on Mobile/Desktop */}
+              <div className="sticky top-16 md:top-20 z-20 bg-[rgba(3,10,16,0.95)] backdrop-blur-md border-b border-white/10 px-5 sm:px-8 py-4">
+                {/* Progress bar */}
+                <div className="h-1 w-full bg-white/10 rounded-full overflow-hidden mb-3">
+                  <div
+                    className="h-full bg-gradient-to-r from-cyan-400 to-emerald-400 transition-all duration-300"
+                    style={{ width: `${((step + 1) / 3) * 100}%` }}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-300 text-[11px] font-bold flex items-center justify-center border border-cyan-400/30">
+                      {step + 1}
+                    </span>
+                    <span className="text-[11px] uppercase tracking-wider font-semibold text-slate-300">
+                      {step === 0 && 'Select Requirements'}
+                      {step === 1 && 'Space & Scale'}
+                      {step === 2 && 'Your Details & WhatsApp'}
+                    </span>
+                  </div>
+
+                  {step > 0 && (
+                    <button
+                      onClick={() => setStep((s) => s - 1)}
+                      className="flex items-center gap-1 text-xs text-[--color-muted] hover:text-white transition-colors py-1 px-2.5 rounded-lg active:scale-95"
+                    >
+                      <span>← Back</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Step Content Container */}
+              <div className="p-5 sm:p-8">
+                
+                {/* ── STEP 1: Services Selection ───────────────────────────── */}
+                {step === 0 && (
+                  <div className="space-y-6">
+                    <div>
+                      <h2 className="font-display text-xl sm:text-2xl text-white font-light mb-1">
+                        What can we craft for you?
+                      </h2>
+                      <p className="text-xs text-[--color-muted]">
+                        Select one or more services you are considering.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {SERVICE_OPTIONS.map((opt) => {
+                        const isSelected = selectedServices.includes(opt.label);
+                        return (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => toggleService(opt.label)}
+                            className={`p-4 rounded-2xl border text-left transition-all duration-200 active:scale-[0.98] flex items-start gap-3 relative ${
+                              isSelected
+                                ? 'border-cyan-400 bg-cyan-500/15 shadow-[0_0_20px_rgba(0,184,217,0.2)]'
+                                : 'border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.05]'
+                            }`}
+                          >
+                            <span className="text-2xl shrink-0 mt-0.5">{opt.icon}</span>
+                            <div className="flex-1 pr-6">
+                              <span className={`text-sm font-semibold block ${isSelected ? 'text-cyan-300' : 'text-white'}`}>
+                                {opt.label}
+                              </span>
+                              <span className="text-[11px] text-[--color-muted] leading-tight block mt-0.5">
+                                {opt.desc}
+                              </span>
+                            </div>
+                            {isSelected && (
+                              <div className="absolute top-3.5 right-3.5 w-5 h-5 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center font-bold text-xs">
+                                ✓
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Step 1 Next Button (In-Flow) */}
+                    <div className="pt-2">
                       <button
-                        key={opt.label}
-                        onClick={() => handleOption(opt.label)}
-                        className={`relative flex flex-col items-start gap-2 p-4 rounded-2xl border text-left transition-all duration-200 active:scale-95 ${
-                          isSelected
-                            ? 'border-[--color-accent] bg-[rgba(0,184,217,0.12)] shadow-[0_0_20px_rgba(0,184,217,0.2)]'
-                            : 'border-[rgba(255,255,255,0.1)] bg-[rgba(7,21,28,0.5)] hover:border-[rgba(255,255,255,0.25)] hover:bg-[rgba(7,21,28,0.8)]'
+                        type="button"
+                        onClick={() => setStep(1)}
+                        disabled={selectedServices.length === 0}
+                        className={`w-full py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all active:scale-[0.98] shadow-xl ${
+                          selectedServices.length > 0
+                            ? 'btn-primary'
+                            : 'bg-white/10 text-slate-500 cursor-not-allowed'
                         }`}
                       >
-                        <span className="text-2xl">{opt.icon}</span>
-                        <span className={`text-xs font-semibold leading-snug ${isSelected ? 'text-[--color-accent]' : 'text-slate-200'}`}>
-                          {opt.label}
-                        </span>
-                        {isSelected && (
-                          <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-[--color-accent] flex items-center justify-center">
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                              <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                          </div>
+                        NEXT: SPACE &amp; DIMENSIONS →
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* ── STEP 2: Space & Size Selection ───────────────────────── */}
+                {step === 1 && (
+                  <div className="space-y-6">
+                    <div>
+                      <h2 className="font-display text-xl sm:text-2xl text-white font-light mb-1">
+                        Where will this ecosystem live?
+                      </h2>
+                      <p className="text-xs text-[--color-muted]">
+                        Select property type and intended scale.
+                      </p>
+                    </div>
+
+                    {/* Space Type Selector */}
+                    <div>
+                      <label className="text-[11px] uppercase tracking-wider font-semibold text-slate-300 block mb-2.5">
+                        Property / Setting
+                      </label>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {SPACE_OPTIONS.map((sp) => {
+                          const isSelected = selectedSpace === sp.label;
+                          return (
+                            <button
+                              key={sp.id}
+                              type="button"
+                              onClick={() => setSelectedSpace(sp.label)}
+                              className={`p-3.5 rounded-2xl border text-left transition-all active:scale-[0.98] flex items-center gap-3 ${
+                                isSelected
+                                  ? 'border-cyan-400 bg-cyan-500/15 text-cyan-300 font-semibold'
+                                  : 'border-white/10 bg-white/[0.02] text-slate-300 hover:bg-white/[0.05]'
+                              }`}
+                            >
+                              <span className="text-xl">{sp.icon}</span>
+                              <span className="text-xs">{sp.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Aquarium Scale Selector */}
+                    <div>
+                      <label className="text-[11px] uppercase tracking-wider font-semibold text-slate-300 block mb-2.5">
+                        Aquarium Scale / Dimensions
+                      </label>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {SIZE_OPTIONS.map((sz) => {
+                          const isSelected = selectedSize === sz.label;
+                          return (
+                            <button
+                              key={sz.id}
+                              type="button"
+                              onClick={() => setSelectedSize(sz.label)}
+                              className={`p-3.5 rounded-2xl border text-left transition-all active:scale-[0.98] flex items-center gap-3 ${
+                                isSelected
+                                  ? 'border-emerald-400 bg-emerald-500/15 text-emerald-300 font-semibold'
+                                  : 'border-white/10 bg-white/[0.02] text-slate-300 hover:bg-white/[0.05]'
+                              }`}
+                            >
+                              <span className="text-xl">{sz.icon}</span>
+                              <span className="text-xs">{sz.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Step 2 Navigation (In-Flow) */}
+                    <div className="pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setStep(2)}
+                        className="btn-primary w-full py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all active:scale-[0.98] shadow-xl"
+                      >
+                        NEXT: YOUR DETAILS &amp; WHATSAPP →
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* ── STEP 3: Client Details & WhatsApp Consultation ───────── */}
+                {step === 2 && (
+                  <form onSubmit={handleSubmit} className="space-y-5">
+                    <div>
+                      <h2 className="font-display text-xl sm:text-2xl text-white font-light mb-1">
+                        Direct Concierge Dispatch
+                      </h2>
+                      <p className="text-xs text-[--color-muted]">
+                        Founder Suraj Shasmal will receive your inquiry and connect with you on WhatsApp.
+                      </p>
+                    </div>
+
+                    {validationError && (
+                      <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-400/40 text-rose-300 text-xs flex items-center gap-2">
+                        <span>⚠️</span>
+                        <span>{validationError}</span>
+                      </div>
+                    )}
+
+                    {/* Name */}
+                    <div>
+                      <label className="text-[11px] uppercase tracking-wider font-semibold text-slate-300 block mb-1.5">
+                        Your Full Name <span className="text-rose-400">*</span>
+                      </label>
+                      <div className="flex items-center rounded-2xl border border-white/15 bg-white/[0.04] focus-within:border-cyan-400 transition-colors px-4 py-3">
+                        <span className="text-slate-400 text-base mr-3">👤</span>
+                        <input
+                          type="text"
+                          required
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder="e.g. Rahul Verma"
+                          className="w-full bg-transparent text-white text-sm placeholder:text-slate-500 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    {/* WhatsApp Number */}
+                    <div>
+                      <label className="text-[11px] uppercase tracking-wider font-semibold text-slate-300 block mb-1.5">
+                        WhatsApp Phone Number <span className="text-rose-400">*</span>
+                      </label>
+                      <div className="flex items-center rounded-2xl border border-white/15 bg-white/[0.04] focus-within:border-emerald-400 transition-colors overflow-hidden">
+                        <div className="flex items-center gap-1.5 px-3.5 py-3 bg-white/5 border-r border-white/10 shrink-0">
+                          <span className="text-base">🇮🇳</span>
+                          <span className="text-xs text-slate-300 font-mono font-medium">+91</span>
+                        </div>
+                        <input
+                          type="tel"
+                          required
+                          maxLength={10}
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                          placeholder="10-digit mobile number"
+                          className="w-full px-4 py-3 bg-transparent text-white text-sm font-mono placeholder:text-slate-500 focus:outline-none"
+                        />
+                      </div>
+                      <p className="text-[10px] text-emerald-400/90 mt-1.5 px-1 flex items-center gap-1">
+                        <span>💬</span>
+                        <span>Suraj will connect directly to this number via WhatsApp</span>
+                      </p>
+                    </div>
+
+                    {/* City */}
+                    <div>
+                      <label className="text-[11px] uppercase tracking-wider font-semibold text-slate-300 block mb-1.5">
+                        City / Location
+                      </label>
+                      <div className="flex items-center rounded-2xl border border-white/15 bg-white/[0.04] focus-within:border-cyan-400 transition-colors px-4 py-3">
+                        <span className="text-slate-400 text-base mr-3">📍</span>
+                        <input
+                          type="text"
+                          value={city}
+                          onChange={(e) => setCity(e.target.value)}
+                          placeholder="e.g. Kolkata, Bengaluru, Mumbai..."
+                          className="w-full bg-transparent text-white text-sm placeholder:text-slate-500 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Vision / Notes */}
+                    <div>
+                      <label className="text-[11px] uppercase tracking-wider font-semibold text-slate-300 block mb-1.5">
+                        Project Vision / Specific Species <span className="text-[--color-muted] font-normal">(Optional)</span>
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={vision}
+                        onChange={(e) => setVision(e.target.value)}
+                        placeholder="Tell us about your room layout, desired coral styles, favorite fish, or target timeline..."
+                        className="w-full rounded-2xl border border-white/15 bg-white/[0.04] p-3.5 text-white text-xs placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 transition-colors resize-none leading-relaxed"
+                      />
+                    </div>
+
+                    {/* Recap Box */}
+                    <div className="p-3.5 rounded-2xl bg-cyan-500/10 border border-cyan-400/20 text-xs text-slate-300 space-y-1">
+                      <div className="font-semibold text-cyan-300 flex items-center gap-1.5">
+                        <span>📋</span>
+                        <span>Consultation Summary:</span>
+                      </div>
+                      <div className="text-[11px] text-slate-300">
+                        {selectedServices.join(', ')} • {selectedSpace} • {selectedSize}
+                      </div>
+                    </div>
+
+                    {/* Final Action Button (In-Flow) */}
+                    <div className="pt-2">
+                      <button
+                        type="submit"
+                        disabled={submitting}
+                        className="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-bold text-xs uppercase tracking-widest transition-all shadow-xl shadow-emerald-500/20 active:scale-[0.98]"
+                      >
+                        {submitting ? (
+                          <>
+                            <span className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                            <span>CONNECTING TO SURAJ…</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-base">💬</span>
+                            <span>SUBMIT &amp; START WHATSAPP CONSULTATION →</span>
+                          </>
                         )}
                       </button>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* ── Text input ───────────────────────────────────────── */}
-              {current.type === 'text' && (
-                <div className="mb-8">
-                  <input
-                    type="text"
-                    value={textVal}
-                    onChange={(e) => setTextVal(e.target.value)}
-                    placeholder={current.placeholder}
-                    autoFocus
-                    className="w-full h-14 px-4 rounded-2xl bg-[rgba(7,21,28,0.7)] border border-[rgba(255,255,255,0.12)] text-white text-base placeholder:text-slate-500 focus:outline-none focus:border-[--color-accent] transition-colors"
-                    onKeyDown={(e) => e.key === 'Enter' && canProceed() && handleNext()}
-                  />
-                </div>
-              )}
-
-              {/* ── Phone input ──────────────────────────────────────── */}
-              {current.type === 'phone' && (
-                <div className="mb-8">
-                  <div className="flex items-center gap-0 rounded-2xl overflow-hidden border border-[rgba(255,255,255,0.12)] bg-[rgba(7,21,28,0.7)] focus-within:border-[--color-accent] transition-colors">
-                    <div className="flex items-center gap-2 px-4 py-4 border-r border-[rgba(255,255,255,0.1)] shrink-0">
-                      <span className="text-base">🇮🇳</span>
-                      <span className="text-sm text-[--color-muted] font-mono">+91</span>
+                      <p className="text-[10px] text-[--color-muted] text-center mt-2.5">
+                        Records inquiry &amp; directly opens WhatsApp with Founder Suraj Shasmal
+                      </p>
                     </div>
-                    <input
-                      type="tel"
-                      value={textVal}
-                      onChange={(e) => setTextVal(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                      placeholder={current.placeholder}
-                      autoFocus
-                      maxLength={10}
-                      className="flex-1 h-14 px-4 bg-transparent text-white text-base placeholder:text-slate-500 focus:outline-none font-mono"
-                      onKeyDown={(e) => e.key === 'Enter' && canProceed() && handleNext()}
-                    />
-                  </div>
-                  <p className="text-[11px] text-[--color-muted] mt-2 px-1">
-                    💬 Suraj will reply on WhatsApp at this number
-                  </p>
-                </div>
-              )}
+                  </form>
+                )}
 
-              {/* ── Textarea ─────────────────────────────────────────── */}
-              {current.type === 'textarea' && (
-                <div className="mb-8">
-                  <textarea
-                    value={textVal}
-                    onChange={(e) => setTextVal(e.target.value)}
-                    placeholder={current.placeholder}
-                    rows={5}
-                    autoFocus
-                    className="w-full px-4 py-4 rounded-2xl bg-[rgba(7,21,28,0.7)] border border-[rgba(255,255,255,0.12)] text-white text-sm placeholder:text-slate-500 focus:outline-none focus:border-[--color-accent] transition-colors resize-none leading-relaxed"
-                  />
-                  <p className="text-[11px] text-[--color-muted] mt-2 px-1 italic">
-                    Optional — skip if you'd rather talk directly
-                  </p>
-                </div>
-              )}
-
-              {/* Continue button (multi-select only — single auto-advances) */}
-              {isMultiStep && (
-                <button
-                  onClick={handleNext}
-                  disabled={!canProceed()}
-                  className={`w-full py-4 rounded-2xl text-sm font-bold tracking-wider uppercase transition-all active:scale-[0.98] ${
-                    canProceed()
-                      ? 'btn-primary shadow-xl'
-                      : 'bg-[rgba(255,255,255,0.06)] text-[--color-muted] border border-[rgba(255,255,255,0.08)] cursor-not-allowed'
-                  }`}
-                >
-                  CONTINUE →
-                </button>
-              )}
+              </div>
             </div>
-          )}
-        </div>
-
-        {/* ── Fixed Bottom CTA (text / phone / textarea steps) ──────────── */}
-        {isTextStep && (
-          <div className="fixed bottom-0 left-0 right-0 z-40 px-5 pb-6 pt-3 bg-gradient-to-t from-[rgba(2,7,11,1)] via-[rgba(2,7,11,0.95)] to-transparent md:relative md:bg-none md:px-8 md:pb-10">
-            <button
-              onClick={handleNext}
-              disabled={submitting || (!canProceed() && !isLastStep)}
-              className={`w-full max-w-[640px] mx-auto flex items-center justify-center gap-2.5 py-4 rounded-2xl text-sm font-bold tracking-wider uppercase transition-all active:scale-[0.98] shadow-2xl ${
-                canProceed() || isLastStep
-                  ? 'btn-primary'
-                  : 'bg-[rgba(255,255,255,0.06)] text-[--color-muted] border border-[rgba(255,255,255,0.08)] cursor-not-allowed'
-              }`}
-            >
-              {submitting ? (
-                <>
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>Sending…</span>
-                </>
-              ) : isLastStep ? (
-                <>
-                  <span>💬</span>
-                  <span>SEND & OPEN WHATSAPP →</span>
-                </>
-              ) : (
-                <span>CONTINUE →</span>
-              )}
-            </button>
           </div>
-        )}
 
-        {/* ── Quick contact strip (bottom of scrollable area) ──────────── */}
-        <div className="relative z-10 border-t border-[rgba(255,255,255,0.06)] px-5 sm:px-8 py-5 pb-24 md:pb-6 bg-[rgba(2,7,11,0.5)]">
-          <p className="text-[11px] text-[--color-muted] text-center">
-            Prefer instant contact?{' '}
-            <a
-              href={`https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent('Hi Suraj! I would like to discuss a marine aquarium project.')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-emerald-400 font-semibold hover:text-emerald-300 transition-colors"
-            >
-              WhatsApp Suraj directly →
-            </a>
-          </p>
         </div>
 
       </div>
