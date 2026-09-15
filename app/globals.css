@@ -78,6 +78,7 @@ body {
   overflow-x: hidden;
 }
 
+
 /* Hide native cursor only when custom fish cursor is actively detected and running */
 html.has-custom-cursor,
 html.has-custom-cursor body,

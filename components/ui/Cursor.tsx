@@ -231,6 +231,7 @@ export function CustomCursor() {
           height: '38px',
           marginLeft: '-13px', // Snout aligned with mouse click coordinates
           marginTop: '-19px',
+          transform: 'translate3d(-200px, -200px, 0)', // Start off-screen until first mouse move
         }}
         aria-hidden="true"
       >
