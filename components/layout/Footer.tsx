@@ -24,7 +24,7 @@ export function Footer() {
         style={{ background: 'linear-gradient(90deg, transparent, var(--color-accent), transparent)' }}
       />
 
-      <div className="container-max pt-14 sm:pt-20 pb-44 sm:pb-48 md:pb-16">
+      <div className="container-max pt-14 sm:pt-20 pb-24 sm:pb-28 md:pb-16">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8 mb-12 sm:mb-16">
           {/* Brand column with logo */}
           <div className="md:col-span-4">
