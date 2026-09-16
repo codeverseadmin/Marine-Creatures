@@ -15,7 +15,7 @@ export function Footer() {
 
   return (
     <footer
-      className="relative overflow-hidden mt-20 border-t border-[rgba(255,255,255,0.1)] bg-[#010508]"
+      className="relative overflow-hidden mt-12 sm:mt-20 border-t border-[rgba(255,255,255,0.1)] bg-gradient-to-b from-[#02070c] via-[#010508] to-[#000305]"
       aria-label="Site footer"
     >
       {/* Luminous accent line */}
@@ -24,11 +24,38 @@ export function Footer() {
         style={{ background: 'linear-gradient(90deg, transparent, var(--color-accent), transparent)' }}
       />
 
-      <div className="container-max pt-14 sm:pt-20 pb-24 sm:pb-28 md:pb-16">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8 mb-12 sm:mb-16">
+      {/* ── Luxury Trust Assurance Strip ───────────────────────────── */}
+      <div className="border-b border-white/[0.06] bg-white/[0.01]">
+        <div className="container-max py-6 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center sm:text-left">
+          <div className="flex items-center justify-center sm:justify-start gap-3 px-2">
+            <span className="text-2xl">🛡️</span>
+            <div>
+              <span className="text-xs font-bold text-white block">100% Live Arrival Guarantee</span>
+              <span className="text-[11px] text-slate-400 block">30-day biological quarantine protocols</span>
+            </div>
+          </div>
+          <div className="flex items-center justify-center sm:justify-start gap-3 px-2">
+            <span className="text-2xl">🌊</span>
+            <div>
+              <span className="text-xs font-bold text-white block">Bespoke Marine Architecture</span>
+              <span className="text-[11px] text-slate-400 block">Handcrafted by Founder Suraj Shasmal</span>
+            </div>
+          </div>
+          <div className="flex items-center justify-center sm:justify-start gap-3 px-2">
+            <span className="text-2xl">✈️</span>
+            <div>
+              <span className="text-xs font-bold text-white block">Pan-India Priority Logistics</span>
+              <span className="text-[11px] text-slate-400 block">Oxygen-injected climate crates to your door</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container-max pt-10 sm:pt-16 pb-36 sm:pb-40 md:pb-16">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8 mb-10 sm:mb-14">
           {/* Brand column with logo */}
           <div className="md:col-span-4">
-            <Link href="/" className="flex items-center gap-3 mb-5 sm:mb-6 group" aria-label="Marine Creatures Home">
+            <Link href="/" className="flex items-center gap-3 mb-4 group" aria-label="Marine Creatures Home">
               <div className="w-12 h-12 rounded-xl overflow-hidden border border-[rgba(255,255,255,0.12)] bg-white flex-shrink-0 group-hover:border-[--color-accent] transition-all shadow-md">
                 <Image
                   src="/logo.jpg"
@@ -47,7 +74,7 @@ export function Footer() {
                 </span>
               </div>
             </Link>
-            <p className="font-body font-light text-[--color-muted] text-xs sm:text-sm leading-relaxed mb-5 sm:mb-6 max-w-xs">
+            <p className="font-body font-light text-[--color-muted] text-xs sm:text-sm leading-relaxed mb-5 max-w-xs">
               A premium marine design house creating living underwater environments for extraordinary spaces across India.
             </p>
             {/* Social / Location links */}
@@ -95,13 +122,13 @@ export function Footer() {
           <div className="grid grid-cols-2 gap-5 sm:gap-8 md:col-span-8 lg:col-span-7 lg:col-start-6">
             {/* Navigation (Explore) */}
             <div>
-              <h3 className="text-label text-[--color-accent] mb-4 sm:mb-6">EXPLORE</h3>
-              <ul className="space-y-2.5 sm:space-y-3">
+              <h3 className="text-label text-[--color-accent] mb-3 sm:mb-5 tracking-widest font-semibold">EXPLORE</h3>
+              <ul className="space-y-2 sm:space-y-2.5">
                 {NAV_LINKS.map((link) => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="font-body font-light text-[--color-muted] text-xs sm:text-sm hover:text-[--color-text] transition-colors duration-300 block"
+                      className="font-body font-light text-slate-400 text-xs sm:text-sm hover:text-white transition-colors duration-300 block py-0.5"
                     >
                       {link.label}
                     </Link>
@@ -112,22 +139,22 @@ export function Footer() {
 
             {/* Contact (Get In Touch) */}
             <div>
-              <h3 className="text-label text-[--color-accent] mb-4 sm:mb-6">GET IN TOUCH</h3>
-              <div className="space-y-3 text-xs sm:text-sm">
+              <h3 className="text-label text-[--color-accent] mb-3 sm:mb-5 tracking-widest font-semibold">GET IN TOUCH</h3>
+              <div className="space-y-2.5 text-xs sm:text-sm">
                 <a
                   href={`mailto:${SITE_CONFIG.email}`}
-                  className="font-body font-light text-[--color-muted] hover:text-[--color-text] transition-colors flex items-start gap-1.5 sm:gap-2 group break-all text-[11px] sm:text-xs"
+                  className="font-body font-light text-slate-400 hover:text-white transition-colors flex items-start gap-1.5 sm:gap-2 group break-all text-[11px] sm:text-xs py-0.5"
                 >
-                  <svg className="mt-0.5 flex-shrink-0 group-hover:text-[--color-accent] transition-colors" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="mt-0.5 flex-shrink-0 group-hover:text-cyan-400 transition-colors" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
                   </svg>
                   <span>{SITE_CONFIG.email}</span>
                 </a>
                 <a
                   href={`tel:${SITE_CONFIG.phone}`}
-                  className="font-body font-light text-[--color-muted] hover:text-[--color-text] transition-colors flex items-start gap-1.5 sm:gap-2 group text-[11px] sm:text-xs whitespace-nowrap"
+                  className="font-body font-light text-slate-400 hover:text-white transition-colors flex items-start gap-1.5 sm:gap-2 group text-[11px] sm:text-xs whitespace-nowrap py-0.5"
                 >
-                  <svg className="mt-0.5 flex-shrink-0 group-hover:text-[--color-accent] transition-colors" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="mt-0.5 flex-shrink-0 group-hover:text-cyan-400 transition-colors" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.7A2 2 0 012 1h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
                   </svg>
                   <span>{SITE_CONFIG.phone}</span>
@@ -137,40 +164,40 @@ export function Footer() {
                   href={SITE_CONFIG.googleMaps}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-body font-light text-[--color-muted] hover:text-[--color-accent] transition-colors flex items-start gap-1.5 sm:gap-2 group text-[11px] sm:text-xs"
+                  className="font-body font-light text-slate-400 hover:text-cyan-300 transition-colors flex items-start gap-1.5 sm:gap-2 group text-[11px] sm:text-xs py-0.5"
                 >
-                  <svg className="mt-0.5 flex-shrink-0 group-hover:text-[--color-accent] transition-colors" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                  <svg className="mt-0.5 flex-shrink-0 group-hover:text-cyan-400 transition-colors" width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                   </svg>
-                  <span>{SITE_CONFIG.address} <span className="text-[--color-accent]">↗</span></span>
+                  <span>{SITE_CONFIG.address} <span className="text-cyan-400 font-semibold">↗</span></span>
                 </a>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-6 sm:pt-8 border-t border-[rgba(255,255,255,0.06)] gap-3 sm:gap-4 pb-20 md:pb-0">
+        {/* ── Bottom Bar: Copyright, Credits & Back-To-Top ─────────── */}
+        <div className="flex flex-col sm:flex-row items-center justify-between pt-6 sm:pt-8 border-t border-white/[0.08] gap-4 text-center sm:text-left">
           {/* Copyright */}
-          <p className="text-xs text-[--color-muted]">
+          <p className="text-xs text-slate-400 order-2 sm:order-1">
             © {new Date().getFullYear()} Marine Creatures. All rights reserved.
           </p>
 
           {/* Attribution credits */}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-            <span className="text-slate-500">
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs order-1 sm:order-2">
+            <span className="text-slate-400">
               Founded by{' '}
               <a
                 href={SITE_CONFIG.founderLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[--color-accent] hover:text-white font-medium transition-colors underline underline-offset-2 decoration-[rgba(0,184,217,0.4)] hover:decoration-white"
+                className="text-cyan-400 hover:text-white font-medium transition-colors underline underline-offset-2 decoration-cyan-500/40 hover:decoration-white"
               >
                 {SITE_CONFIG.founder}
               </a>
             </span>
-            <span className="text-slate-700 hidden sm:inline">•</span>
-            <span className="text-slate-500">
+            <span className="text-slate-600 hidden sm:inline">•</span>
+            <span className="text-slate-400">
               Developed by{' '}
               <a
                 href={SITE_CONFIG.developerLink}
@@ -182,6 +209,17 @@ export function Footer() {
               </a>
             </span>
           </div>
+
+          {/* Back to Top */}
+          <button
+            type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="text-xs text-slate-400 hover:text-cyan-300 transition-colors flex items-center gap-1.5 order-3 active:scale-95 py-1 px-2 rounded-lg hover:bg-white/5"
+            aria-label="Scroll back to top"
+          >
+            <span>Back to top</span>
+            <span className="text-cyan-400">↑</span>
+          </button>
         </div>
       </div>
     </footer>

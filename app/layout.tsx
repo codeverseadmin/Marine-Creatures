@@ -163,7 +163,7 @@ export default function RootLayout({
                     <WishlistDrawer />
                     <OrderTrackingModal />
                     <Navbar />
-                    <main className="min-h-screen pb-16 md:pb-0">{children}</main>
+                    <main className="min-h-screen">{children}</main>
                     <FounderConciergePill />
                     <MobileBottomNav />
                     <Footer />
