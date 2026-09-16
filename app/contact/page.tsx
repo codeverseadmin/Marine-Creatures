@@ -362,10 +362,10 @@ export default function ContactPage() {
           <div className="lg:col-span-8">
             <div className="rounded-3xl border border-white/10 bg-[rgba(3,10,16,0.85)] backdrop-blur-xl shadow-2xl overflow-hidden">
               
-              {/* Sticky Step Header on Mobile/Desktop */}
-              <div className="sticky top-16 md:top-20 z-20 bg-[rgba(3,10,16,0.95)] backdrop-blur-md border-b border-white/10 px-5 sm:px-8 py-4">
+              {/* Step Header */}
+              <div className="border-b border-white/10 px-5 sm:px-8 py-4 bg-white/[0.02]">
                 {/* Progress bar */}
-                <div className="h-1 w-full bg-white/10 rounded-full overflow-hidden mb-3">
+                <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden mb-3">
                   <div
                     className="h-full bg-gradient-to-r from-cyan-400 to-emerald-400 transition-all duration-300"
                     style={{ width: `${((step + 1) / 3) * 100}%` }}
