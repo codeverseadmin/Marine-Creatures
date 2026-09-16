@@ -59,7 +59,7 @@ export default function AdminDashboardPage() {
   const handleSeedDatabase = async () => {
     setSeedingDb(true);
     try {
-      const res = await fetch('/api/seed', { method: 'POST' });
+      const res = await fetch('/api/seed', { method: 'POST', credentials: 'include' });
       const data = await res.json();
       if (data.success) {
         showToast('✓ MongoDB Atlas successfully seeded with products & banners!');
@@ -78,12 +78,8 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const auth = sessionStorage.getItem('mc_admin_authenticated');
-      const savedPasscode = sessionStorage.getItem('mc_admin_passcode');
       if (auth === 'true') {
         setIsAuthenticated(true);
-        if (savedPasscode) {
-          setPasscode(savedPasscode);
-        }
       }
     }
   }, []);
@@ -101,6 +97,7 @@ export default function AdminDashboardPage() {
       const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ passcode: cleanPasscode }),
       });
       const data = await res.json();
@@ -109,7 +106,6 @@ export default function AdminDashboardPage() {
         setAuthError(false);
         if (typeof window !== 'undefined') {
           sessionStorage.setItem('mc_admin_authenticated', 'true');
-          sessionStorage.setItem('mc_admin_passcode', cleanPasscode);
         }
         showToast('✓ Control Center Authenticated');
       } else {
@@ -120,12 +116,16 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setIsAuthenticated(false);
     setPasscode('');
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('mc_admin_authenticated');
-      sessionStorage.removeItem('mc_admin_passcode');
+    }
+    try {
+      await fetch('/api/admin/logout', { method: 'POST', credentials: 'include' });
+    } catch {
+      // ignore
     }
   };
 

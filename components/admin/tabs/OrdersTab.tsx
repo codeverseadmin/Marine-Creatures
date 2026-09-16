@@ -53,7 +53,7 @@ export default function OrdersTab({ showToast }: OrdersTabProps) {
   };
 
   const handleSendCustomerWhatsApp = (order: CustomerOrder) => {
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://marine-creatures-sand.vercel.app';
+    const origin = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || 'https://marinecreatures.com');
     const invoiceUrl = `${origin}/invoice/${order.id}`;
     const stepMeta = TRACKING_STEPS_META[order.currentStep];
     const itemsList = order.items.map((i) => `• ${i.product.name} (x${i.quantity})`).join('\n');

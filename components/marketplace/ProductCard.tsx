@@ -14,16 +14,23 @@ export function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const [added, setAdded] = React.useState(false);
+  const [imageLoaded, setImageLoaded] = React.useState(false);
   const isWished = isInWishlist(product.id);
   const isLive = isLiveProduct(product);
+  const isOutOfStock = !product.inStock || product.stockCount <= 0;
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isOutOfStock) return;
     addToCart(product, 1, e);
     setAdded(true);
     setTimeout(() => setAdded(false), 1200);
   };
+
+  const waitlistUrl = `https://wa.me/919330436603?text=${encodeURIComponent(
+    `Hello Suraj, I am interested in ${product.name} (₹${product.price.toLocaleString('en-IN')}). Please notify me when it is back in stock at Marine Creatures!`
+  )}`;
 
   return (
     <div className="group rounded-2xl border border-slate-800/80 bg-[#06131d]/90 hover:border-cyan-500/40 hover:shadow-xl hover:shadow-cyan-950/20 transition-all duration-300 flex flex-col h-full overflow-hidden">
@@ -32,15 +39,25 @@ export function ProductCard({ product }: ProductCardProps) {
         href={`/marketplace/${product.id}`}
         className="block relative overflow-hidden bg-slate-950 aspect-[4/3]"
       >
+        {/* Shimmer loading skeleton */}
+        {!imageLoaded && (
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 animate-pulse flex items-center justify-center">
+            <span className="text-2xl opacity-30 animate-bounce">🌊</span>
+          </div>
+        )}
+
         <img
           src={product.images[0] || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&q=80'}
           alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-105 ${
+            imageLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
+          onLoad={() => setImageLoaded(true)}
           loading="lazy"
         />
 
         {/* Subtle Category Badge (Top Left) */}
-        <div className="absolute top-3 left-3">
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
           {isLive ? (
             <span className="text-[11px] font-semibold text-cyan-300 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded-lg border border-cyan-400/30">
               Live Specimen
@@ -48,6 +65,12 @@ export function ProductCard({ product }: ProductCardProps) {
           ) : (
             <span className="text-[11px] font-medium text-amber-300 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded-lg border border-amber-400/30">
               Dry Goods
+            </span>
+          )}
+
+          {isOutOfStock && (
+            <span className="text-[10px] font-bold uppercase tracking-wider text-rose-300 bg-rose-950/80 backdrop-blur-md px-2.5 py-0.5 rounded-md border border-rose-500/40">
+              Out of Stock
             </span>
           )}
         </div>
@@ -96,7 +119,7 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
 
-        {/* ── Price & Add to Bag ───────────────────────────────────── */}
+        {/* ── Price & Add to Bag / Waitlist ────────────────────────── */}
         <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-3">
           <div className="flex flex-col">
             <span className="text-base sm:text-lg font-bold text-white font-mono">
@@ -109,18 +132,32 @@ export function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
 
-          <button
-            onClick={handleAdd}
-            className={`h-10 px-4 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-1.5 shadow-sm active:scale-95 shrink-0 ${
-              added
-                ? 'bg-emerald-500 text-slate-950 font-bold'
-                : 'bg-cyan-400 hover:bg-cyan-300 text-slate-950 hover:shadow-cyan-400/20'
-            }`}
-            aria-label={`Add ${product.name} to bag`}
-          >
-            <span>{added ? '✓' : '+'}</span>
-            <span>{added ? 'Added' : 'Add to Bag'}</span>
-          </button>
+          {isOutOfStock ? (
+            <a
+              href={waitlistUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="h-10 px-3.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 hover:text-amber-200 text-xs font-bold transition-all duration-200 flex items-center gap-1.5 shrink-0 shadow-sm active:scale-95"
+              title="Click to request notification via WhatsApp when restocked"
+            >
+              <span>💬</span>
+              <span>Waitlist</span>
+            </a>
+          ) : (
+            <button
+              onClick={handleAdd}
+              className={`h-10 px-4 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-1.5 shadow-sm active:scale-95 shrink-0 ${
+                added
+                  ? 'bg-emerald-500 text-slate-950 font-bold'
+                  : 'bg-cyan-400 hover:bg-cyan-300 text-slate-950 hover:shadow-cyan-400/20'
+              }`}
+              aria-label={`Add ${product.name} to bag`}
+            >
+              <span>{added ? '✓' : '+'}</span>
+              <span>{added ? 'Added' : 'Add to Bag'}</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

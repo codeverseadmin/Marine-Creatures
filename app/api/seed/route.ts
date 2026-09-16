@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ProductModel } from '@/models/Product';
 import { OrderModel } from '@/models/Order';
@@ -6,8 +6,13 @@ import { BannerModel } from '@/models/Banner';
 import { SettingModel } from '@/models/Setting';
 import { PRODUCTS } from '@/lib/data/products';
 import { DEFAULT_BANNERS } from '@/lib/data/banners';
+import { isAdminRequest } from '@/lib/auth';
 
-export async function POST() {
+export async function POST(req: NextRequest) {
+  if (!isAdminRequest(req)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized: Admin authentication required' }, { status: 401 });
+  }
+
   try {
     await connectToDatabase();
 

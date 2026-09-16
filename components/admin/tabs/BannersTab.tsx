@@ -54,21 +54,18 @@ export default function BannersTab({ passcode, showToast }: BannersTabProps) {
         return;
       }
 
-      // 2. Resolve passcode with fallbacks
-      const activePasscode =
-        passcode?.trim() ||
-        (typeof window !== 'undefined' ? sessionStorage.getItem('mc_admin_passcode')?.trim() : '') ||
-        'mc@admin#2026!';
-
       const formData = new FormData();
       formData.append('file', fileToUpload);
       formData.append('type', 'image');
 
+      const uploadHeaders: Record<string, string> = {};
+      if (passcode?.trim()) {
+        uploadHeaders['x-admin-passcode'] = passcode.trim();
+      }
+
       const res = await fetch('/api/admin/upload', {
         method: 'POST',
-        headers: {
-          'x-admin-passcode': activePasscode,
-        },
+        headers: uploadHeaders,
         credentials: 'include',
         body: formData,
       });

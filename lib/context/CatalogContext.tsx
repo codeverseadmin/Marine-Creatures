@@ -141,8 +141,8 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      // 3. Fetch Inquiries
-      const inqRes = await fetch('/api/inquiries');
+      // 3. Fetch Inquiries (Only succeeds if admin session cookie is active)
+      const inqRes = await fetch('/api/inquiries', { credentials: 'include' });
       if (inqRes.ok) {
         const inqData = await inqRes.json();
         if (inqData.success && Array.isArray(inqData.data)) {
@@ -153,7 +153,9 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
 
       setIsCloudSynced(true);
     } catch (e) {
-      console.warn('MongoDB cloud sync skipped or timed out; using local cache.', e);
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('MongoDB cloud sync skipped or timed out; using local cache.', e);
+      }
       setIsCloudSynced(false);
     }
   }, []);
@@ -162,10 +164,9 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
     refreshFromCloud();
   }, [refreshFromCloud]);
 
-  // Admin secret header for all write operations (server validates this against ADMIN_PASSCODE)
+  // Standard JSON headers for admin mutations (authenticated via httpOnly session cookie)
   const adminHeaders = () => ({
     'Content-Type': 'application/json',
-    'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_PASSCODE || '',
   });
 
   // Product Operations
@@ -178,8 +179,11 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
     fetch('/api/products', {
       method: 'POST',
       headers: adminHeaders(),
+      credentials: 'include',
       body: JSON.stringify(product),
-    }).catch((err) => console.warn('Cloud sync error on addProduct:', err));
+    }).catch((err) => {
+      if (process.env.NODE_ENV === 'development') console.warn('Cloud sync error on addProduct:', err);
+    });
   }, [products]);
 
   const updateProduct = useCallback((id: string, updates: Partial<Product>) => {
@@ -191,8 +195,11 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
     fetch('/api/products', {
       method: 'PUT',
       headers: adminHeaders(),
+      credentials: 'include',
       body: JSON.stringify({ id, ...updates }),
-    }).catch((err) => console.warn('Cloud sync error on updateProduct:', err));
+    }).catch((err) => {
+      if (process.env.NODE_ENV === 'development') console.warn('Cloud sync error on updateProduct:', err);
+    });
   }, [products]);
 
   const deleteProduct = useCallback((id: string) => {
@@ -204,7 +211,10 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
     fetch(`/api/products?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
       headers: adminHeaders(),
-    }).catch((err) => console.warn('Cloud sync error on deleteProduct:', err));
+      credentials: 'include',
+    }).catch((err) => {
+      if (process.env.NODE_ENV === 'development') console.warn('Cloud sync error on deleteProduct:', err);
+    });
   }, [products]);
 
   const getProduct = useCallback((id: string) => {
@@ -220,6 +230,7 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
     fetch('/api/banners', {
       method: 'POST',
       headers: adminHeaders(),
+      credentials: 'include',
       body: JSON.stringify({
         id: banner.id,
         title: banner.title,
@@ -231,7 +242,9 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
         image: banner.image,
         active: banner.isActive,
       }),
-    }).catch((err) => console.warn('Cloud sync error on addBanner:', err));
+    }).catch((err) => {
+      if (process.env.NODE_ENV === 'development') console.warn('Cloud sync error on addBanner:', err);
+    });
   }, [banners]);
 
   const updateBanner = useCallback((id: string, updates: Partial<BannerSlide>) => {
@@ -242,8 +255,11 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
     fetch('/api/banners', {
       method: 'PUT',
       headers: adminHeaders(),
+      credentials: 'include',
       body: JSON.stringify({ id, ...updates }),
-    }).catch((err) => console.warn('Cloud sync error on updateBanner:', err));
+    }).catch((err) => {
+      if (process.env.NODE_ENV === 'development') console.warn('Cloud sync error on updateBanner:', err);
+    });
   }, [banners]);
 
   const deleteBanner = useCallback((id: string) => {
@@ -254,7 +270,10 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
     fetch(`/api/banners?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
       headers: adminHeaders(),
-    }).catch((err) => console.warn('Cloud sync error on deleteBanner:', err));
+      credentials: 'include',
+    }).catch((err) => {
+      if (process.env.NODE_ENV === 'development') console.warn('Cloud sync error on deleteBanner:', err);
+    });
   }, [banners]);
 
   const reorderBanners = useCallback((reordered: BannerSlide[]) => {
@@ -283,7 +302,9 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newInquiry),
-    }).catch((err) => console.warn('Cloud sync error on addInquiry:', err));
+    }).catch((err) => {
+      if (process.env.NODE_ENV === 'development') console.warn('Cloud sync error on addInquiry:', err);
+    });
   }, [inquiries]);
 
   const updateInquiryStatus = useCallback((id: string, status: InquiryLead['status']) => {
@@ -293,9 +314,12 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
 
     fetch('/api/inquiries', {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: adminHeaders(),
+      credentials: 'include',
       body: JSON.stringify({ id, status }),
-    }).catch((err) => console.warn('Cloud sync error on updateInquiryStatus:', err));
+    }).catch((err) => {
+      if (process.env.NODE_ENV === 'development') console.warn('Cloud sync error on updateInquiryStatus:', err);
+    });
   }, [inquiries]);
 
   const deleteInquiry = useCallback((id: string) => {
@@ -306,7 +330,10 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
     fetch(`/api/inquiries?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
       headers: adminHeaders(),
-    }).catch((err) => console.warn('Cloud sync error on deleteInquiry:', err));
+      credentials: 'include',
+    }).catch((err) => {
+      if (process.env.NODE_ENV === 'development') console.warn('Cloud sync error on deleteInquiry:', err);
+    });
   }, [inquiries]);
 
   // System Actions
@@ -318,9 +345,13 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem(STORAGE_KEYS.BANNERS);
     localStorage.removeItem(STORAGE_KEYS.INQUIRIES);
 
-    fetch('/api/seed', { method: 'POST', headers: adminHeaders() }).catch((err) =>
-      console.warn('Cloud re-seed error:', err)
-    );
+    fetch('/api/seed', {
+      method: 'POST',
+      headers: adminHeaders(),
+      credentials: 'include',
+    }).catch((err) => {
+      if (process.env.NODE_ENV === 'development') console.warn('Cloud re-seed error:', err);
+    });
   }, []);
 
   const exportDataJson = useCallback(() => {

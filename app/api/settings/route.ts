@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { SettingModel } from '@/models/Setting';
+import { isAdminRequest } from '@/lib/auth';
 
 export async function GET(req: NextRequest) {
   try {
@@ -26,17 +27,21 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  if (!isAdminRequest(req)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized: Admin authentication required' }, { status: 401 });
+  }
+
   try {
     await connectToDatabase();
     const body = await req.json();
     const { key, value } = body;
 
-    if (!key) {
-      return NextResponse.json({ success: false, error: 'Setting key is required' }, { status: 400 });
+    if (!key || typeof key !== 'string' || key.trim().length === 0 || key.length > 100) {
+      return NextResponse.json({ success: false, error: 'Valid setting key is required (max 100 characters)' }, { status: 400 });
     }
 
     const updated = await SettingModel.findOneAndUpdate(
-      { key },
+      { key: key.trim() },
       { value },
       { new: true, upsert: true }
     ).lean();

@@ -35,8 +35,115 @@ export default function SystemTab({
   const { products, banners, inquiries, resetToDefaults, exportDataJson, importDataJson } = useCatalog();
   const { orders, ownerSignature, setOwnerSignature } = useOrder();
 
+  interface CloudSnapshotSummary {
+    id: string;
+    label: string;
+    source: 'automated_cron' | 'admin_manual' | 'system_seed';
+    counts: { products: number; orders: number; banners: number; inquiries: number };
+    sizeBytes: number;
+    checksum: string;
+    createdAt: string;
+  }
+
+  const [cloudSnapshots, setCloudSnapshots] = useState<CloudSnapshotSummary[]>([]);
+  const [loadingSnapshots, setLoadingSnapshots] = useState(false);
+  const [capturingSnapshot, setCapturingSnapshot] = useState(false);
+  const [restoringSnapshotId, setRestoringSnapshotId] = useState<string | null>(null);
+
   const [importJsonText, setImportJsonText] = useState('');
   const [importStatus, setImportStatus] = useState<string | null>(null);
+
+  const fetchCloudSnapshots = React.useCallback(async () => {
+    setLoadingSnapshots(true);
+    try {
+      const res = await fetch('/api/admin/backup', { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data)) {
+          setCloudSnapshots(data.data);
+        }
+      }
+    } catch {
+      // ignore
+    } finally {
+      setLoadingSnapshots(false);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    fetchCloudSnapshots();
+  }, [fetchCloudSnapshots]);
+
+  const handleCaptureSnapshot = async () => {
+    setCapturingSnapshot(true);
+    try {
+      const res = await fetch('/api/admin/backup', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('✓ Cloud snapshot secured in MongoDB Atlas!');
+        fetchCloudSnapshots();
+      } else {
+        alert('Snapshot error: ' + (data.error || 'Failed'));
+      }
+    } catch (e: any) {
+      alert('Snapshot request error: ' + e.message);
+    } finally {
+      setCapturingSnapshot(false);
+    }
+  };
+
+  const handleRestoreCloudSnapshot = async (snapshotId: string) => {
+    if (
+      !confirm(
+        `Restore MongoDB Atlas to snapshot #${snapshotId}? This will overwrite active products, orders, and banners with the snapshot's state.`
+      )
+    ) {
+      return;
+    }
+    setRestoringSnapshotId(snapshotId);
+    try {
+      const res = await fetch('/api/admin/backup', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ snapshotId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('✓ Database successfully restored from cloud snapshot!');
+        checkDatabaseHealth();
+      } else {
+        alert('Restore notice: ' + (data.error || 'Failed'));
+      }
+    } catch (e: any) {
+      alert('Restore request error: ' + e.message);
+    } finally {
+      setRestoringSnapshotId(null);
+    }
+  };
+
+  const handleDownloadCloudSnapshot = async (snapshotId: string) => {
+    try {
+      const res = await fetch(`/api/admin/backup?id=${encodeURIComponent(snapshotId)}`, { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to fetch snapshot data');
+      const data = await res.json();
+      if (data.success && data.data) {
+        const blob = new Blob([JSON.stringify(data.data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `marine_creatures_${snapshotId}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('✓ Snapshot downloaded');
+      }
+    } catch (e: any) {
+      alert('Download error: ' + e.message);
+    }
+  };
 
   const handleDownloadBackup = () => {
     const data = exportDataJson();
@@ -243,6 +350,96 @@ export default function SystemTab({
             <span>🌱</span>
             <span>{seedingDb ? 'Seeding...' : 'Seed / Sync All Data to Atlas'}</span>
           </button>
+        </div>
+      </div>
+
+      {/* Automated Cloud Database Snapshots Card */}
+      <div className="bg-[#071520] border border-cyan-500/30 rounded-3xl p-5 space-y-4 shadow-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+          <div>
+            <h4 className="text-base font-bold text-white flex items-center gap-2">
+              <span>🛡️</span>
+              <span>Automated Cloud Database Snapshots</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                CRON ACTIVE
+              </span>
+            </h4>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Scheduled nightly snapshots run at 02:00 UTC (07:30 AM IST). You can also capture an instant snapshot anytime.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleCaptureSnapshot}
+            disabled={capturingSnapshot}
+            className="h-11 px-5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs uppercase tracking-wider flex items-center gap-2 active:scale-95 shadow-md transition-all shrink-0"
+          >
+            <span>⚡</span>
+            <span>{capturingSnapshot ? 'Capturing...' : 'Capture Snapshot Now'}</span>
+          </button>
+        </div>
+
+        {/* Snapshot History Table / List */}
+        <div className="space-y-2">
+          <span className="text-[11px] uppercase font-bold tracking-wider text-slate-400 block">
+            Recent Cloud Snapshots ({cloudSnapshots.length}):
+          </span>
+
+          {loadingSnapshots ? (
+            <div className="p-4 text-center text-xs text-slate-500">Loading snapshots from MongoDB Atlas...</div>
+          ) : cloudSnapshots.length === 0 ? (
+            <div className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800 text-center text-xs text-slate-400">
+              No cloud snapshots recorded yet. Click <strong>Capture Snapshot Now</strong> above to generate your first point-in-time cloud backup.
+            </div>
+          ) : (
+            <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+              {cloudSnapshots.map((snap) => (
+                <div
+                  key={snap.id}
+                  className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs"
+                >
+                  <div className="space-y-1">
+                    <div className="font-bold text-white flex items-center gap-2">
+                      <span>{snap.label}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">
+                        {(snap.sizeBytes / 1024).toFixed(1)} KB
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-slate-400 flex flex-wrap gap-2">
+                      <span className="text-cyan-400">{snap.counts.products} Products</span>
+                      <span>•</span>
+                      <span className="text-emerald-400">{snap.counts.orders} Orders</span>
+                      <span>•</span>
+                      <span className="text-purple-400">{snap.counts.banners} Banners</span>
+                      <span>•</span>
+                      <span className="text-amber-400">{snap.counts.inquiries} Leads</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <button
+                      type="button"
+                      onClick={() => handleDownloadCloudSnapshot(snap.id)}
+                      className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-[11px] font-semibold transition-colors"
+                      title="Download JSON Snapshot"
+                    >
+                      ⬇ Download
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleRestoreCloudSnapshot(snap.id)}
+                      disabled={restoringSnapshotId === snap.id}
+                      className="px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[11px] font-bold transition-colors"
+                      title="Restore database to this point in time"
+                    >
+                      {restoringSnapshotId === snap.id ? 'Restoring...' : '↺ Restore'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

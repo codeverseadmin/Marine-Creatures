@@ -124,31 +124,40 @@ export async function POST(req: NextRequest) {
     await connectToDatabase();
     const body = await req.json();
 
-    if (!body.id || !body.customerName || !body.phone || !body.address) {
+    const id = typeof body.id === 'string' ? body.id.trim().slice(0, 50) : '';
+    const customerName = typeof body.customerName === 'string' ? body.customerName.trim().slice(0, 200) : '';
+    const phone = typeof body.phone === 'string' ? body.phone.trim().slice(0, 25) : '';
+    const address = typeof body.address === 'string' ? body.address.trim().slice(0, 1000) : '';
+
+    if (!id || !customerName || !phone || !address) {
       return NextResponse.json(
         { success: false, error: 'Missing required order fields (id, customerName, phone, address)' },
         { status: 400 }
       );
     }
 
-    const subtotal = Number(body.subtotal ?? body.totalAmount ?? 0);
-    const totalAmount = Number(body.totalAmount ?? subtotal ?? 0);
+    const subtotal = Math.max(0, Number(body.subtotal ?? body.totalAmount ?? 0));
+    const totalAmount = Math.max(0, Number(body.totalAmount ?? subtotal ?? 0));
+    const city = typeof body.city === 'string' ? body.city.trim().slice(0, 100) : '';
+    const pincode = typeof body.pincode === 'string' ? body.pincode.trim().slice(0, 20) : '';
+    const orderNotes = typeof body.orderNotes === 'string' ? body.orderNotes.trim().slice(0, 2000) : undefined;
     const createdAt =
-      body.createdAt ||
-      new Date().toLocaleDateString('en-IN', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
+      typeof body.createdAt === 'string' && body.createdAt.length < 100
+        ? body.createdAt
+        : new Date().toLocaleDateString('en-IN', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          });
 
     // Map history or statusHistory
     const history =
       Array.isArray(body.history) && body.history.length > 0
-        ? body.history
+        ? body.history.slice(0, 20)
         : Array.isArray(body.statusHistory) && body.statusHistory.length > 0
-        ? body.statusHistory.map((s: any) => ({
+        ? body.statusHistory.slice(0, 20).map((s: any) => ({
             step: s.status || s.step || 'placed',
             timestamp: s.timestamp || 'Done',
             note: s.description || s.title || s.note || 'Status recorded',
@@ -161,18 +170,28 @@ export async function POST(req: NextRequest) {
             },
           ];
 
+    // Only authenticated admins can create pre-approved orders; public orders are strictly unapproved
+    const isApproved = isAdminRequest(req) ? Boolean(body.isApproved ?? false) : false;
+
     const orderPayload = {
       ...body,
+      id,
+      customerName,
+      phone,
+      address,
+      city,
+      pincode,
+      orderNotes,
       subtotal,
       totalAmount,
       createdAt,
       history,
-      isApproved: Boolean(body.isApproved ?? false),
+      isApproved,
     };
 
     // Upsert to handle idempotent creation safely
     const newOrder = await OrderModel.findOneAndUpdate(
-      { id: body.id },
+      { id },
       { $set: orderPayload },
       { upsert: true, new: true, runValidators: true }
     );

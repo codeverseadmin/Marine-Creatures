@@ -44,7 +44,8 @@ export default function InvoicePage({ params }: InvoicePageProps) {
 
   const handleShareWhatsApp = () => {
     if (!order) return;
-    const invoiceUrl = typeof window !== 'undefined' ? window.location.href : `https://marine-creatures-sand.vercel.app/invoice/${order.id}`;
+    const origin = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || 'https://marinecreatures.com');
+    const invoiceUrl = `${origin}/invoice/${order.id}`;
     const text = `🌊 *MARINE CREATURES — OFFICIAL TAX INVOICE & DISPATCH MANIFEST* 🌊\n\nDear *${order.customerName}*,\nYour order *#${order.id}* has been verified & approved.\n\n🧾 *Invoice No:* ${order.invoiceNumber || `INV-${order.id}`}\n📅 *Date:* ${order.approvedAt || order.createdAt}\n📦 *Total Amount:* ₹${order.totalAmount.toLocaleString('en-IN')} (All-inclusive)\n📍 *Delivery Address:* ${order.address}, ${order.city} (${order.pincode})\n✈️ *Carrier:* ${order.courierName || 'Priority Air Cargo Express'} ${order.awbNumber ? `(AWB: ${order.awbNumber})` : ''}\n\n📄 *View / Download Your Official Invoice:* \n${invoiceUrl}\n\nThank you for trusting Marine Creatures — Bringing ocean at your door step!`;
     const phone = order.phone ? order.phone.replace(/\D/g, '') : '';
     const url = phone ? `https://wa.me/91${phone}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text)}`;

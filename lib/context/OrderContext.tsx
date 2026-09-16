@@ -89,89 +89,6 @@ export const TRACKING_STEPS_META: Record<OrderProgressStep, { label: string; ico
   },
 };
 
-const DEFAULT_ORDERS: CustomerOrder[] = [
-  {
-    id: 'MC-8921',
-    customerName: 'Rahul Verma',
-    phone: '9876543210',
-    address: 'Flat 402, Coral Heights, 100ft Road, Indiranagar',
-    city: 'Bengaluru',
-    pincode: '560001',
-    isApproved: true,
-    approvedAt: '2026-09-08 08:45 AM',
-    invoiceNumber: 'INV-MC-8921',
-    items: [
-      {
-        product: {
-          id: 'designer-clownfish-pair',
-          name: 'Snowflake Ocellaris Clownfish (Bonded Pair)',
-          price: 14999,
-          itemType: 'live',
-          category: 'marine-life',
-          categoryLabel: 'Marine Life',
-          stockCount: 6,
-          inStock: true,
-          rating: 4.9,
-          reviewsCount: 38,
-          images: ['https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1000&q=85'],
-          shortDesc: 'Captive-bred bonded pair with vivid white patterns.',
-          description: 'Our Snowflake Ocellaris Clownfish pairs are captive-bred in closed-loop aquaculture systems.',
-          deliveryInfo: {
-            estimatedDays: 'Tomorrow Morning',
-            shippingMethod: 'Express Air Cargo',
-            guaranteeText: '100% Live Arrival Guaranteed',
-          },
-          specifications: { Origin: 'Indo-Pacific' },
-        },
-        quantity: 1,
-      },
-    ],
-    totalAmount: 14999,
-    currentStep: 'dispatched',
-    awbNumber: 'BLR-AIR-892144',
-    courierName: 'IndiGo CarGo Priority Express',
-    estimatedDelivery: 'Tomorrow, 10:30 AM',
-    createdAt: '2026-09-08 08:30 AM',
-    statusHistory: [
-      {
-        status: 'placed',
-        title: 'Order Verified',
-        description: 'Payment verified and reservation confirmed in livestock holding facility.',
-        timestamp: '08:30 AM',
-        completed: true,
-      },
-      {
-        status: 'quarantine',
-        title: 'Quarantine & Feeding Assessment',
-        description: 'Specimen checked under actinic LED; active mysis feeding approved by marine biologist.',
-        timestamp: '10:15 AM',
-        completed: true,
-      },
-      {
-        status: 'packed',
-        title: 'Oxygen Thermal Pod Sealed',
-        description: 'Pure medical-grade oxygen added with heat/cool thermal pack in high-density EPS pod.',
-        timestamp: '01:45 PM',
-        completed: true,
-      },
-      {
-        status: 'dispatched',
-        title: 'Dispatched via Air Cargo',
-        description: 'Flight 6E-204 departed Kolkata CCU bound for BLR.',
-        timestamp: '04:10 PM',
-        completed: true,
-      },
-      {
-        status: 'delivered',
-        title: 'Doorstep Handover',
-        description: 'Delivery agent will hand over insulated pod for immediate drip acclimation.',
-        timestamp: 'Pending Handover',
-        completed: false,
-      },
-    ],
-  },
-];
-
 export function OrderProvider({ children }: { children: React.ReactNode }) {
   // Start empty — populated from localStorage/cloud to prevent demo data leaking to real customers
   const [orders, setOrders] = useState<CustomerOrder[]>([]);
@@ -262,7 +179,9 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
         }
       }
     } catch (e) {
-      console.warn('Could not sync orders from cloud, using local cache:', e);
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Could not sync orders from cloud, using local cache:', e);
+      }
     }
   }, [normalizeCloudOrders]);
 
@@ -288,14 +207,14 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     // Initial sync from MongoDB Atlas
     syncOrdersFromCloud();
 
-    // Auto-refresh orders every 10s for real-time admin sync across tabs/devices
-    const pollTimer = setInterval(() => {
-      syncOrdersFromCloud();
-    }, 10000);
-
-    // Refresh immediately when window or tab gains focus
+    // Refresh when window or tab gains focus (with 15s throttle)
+    let lastFocusSync = Date.now();
     const handleFocus = () => {
-      syncOrdersFromCloud();
+      const now = Date.now();
+      if (now - lastFocusSync > 15000) {
+        lastFocusSync = now;
+        syncOrdersFromCloud();
+      }
     };
     window.addEventListener('focus', handleFocus);
 
@@ -308,10 +227,11 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
           localStorage.setItem(SIGNATURE_STORAGE_KEY, data.data);
         }
       })
-      .catch((e) => console.warn('Could not sync signature from cloud:', e));
+      .catch((e) => {
+        if (process.env.NODE_ENV === 'development') console.warn('Could not sync signature from cloud:', e);
+      });
 
     return () => {
-      clearInterval(pollTimer);
       window.removeEventListener('focus', handleFocus);
     };
   }, [syncOrdersFromCloud]);
@@ -490,8 +410,11 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     fetch('/api/orders', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ id: orderId, currentStep: nextStep }),
-    }).catch((err) => console.warn('Cloud order step update error:', err));
+    }).catch((err) => {
+      if (process.env.NODE_ENV === 'development') console.warn('Cloud order step update error:', err);
+    });
   };
 
   const updateOrderTracking = (orderId: string, awbNumber: string, courierName: string) => {
@@ -509,8 +432,11 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     fetch('/api/orders', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ id: orderId, awbNumber, courierName }),
-    }).catch((err) => console.warn('Cloud order tracking update error:', err));
+    }).catch((err) => {
+      if (process.env.NODE_ENV === 'development') console.warn('Cloud order tracking update error:', err);
+    });
   };
 
   const approveOrder = (orderId: string, customInvoiceNum?: string) => {
@@ -520,7 +446,9 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     // Strict Packaging Protocol: Invoices are strictly released only once order is marked as Packed or later
     const isPackedOrLater = ['packed', 'dispatched', 'delivered'].includes(targetOrder.currentStep);
     if (!isPackedOrLater) {
-      console.warn(`[Marine Protocol] Order #${orderId} cannot be approved/invoiced prior to Step 3: Packed.`);
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`[Marine Protocol] Order #${orderId} cannot be approved/invoiced prior to Step 3: Packed.`);
+      }
       return;
     }
 
@@ -553,13 +481,16 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     fetch('/api/orders', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({
         id: orderId,
         isApproved: true,
         approvedAt: now,
         invoiceNumber: invNum,
       }),
-    }).catch((err) => console.warn('Cloud order approval error:', err));
+    }).catch((err) => {
+      if (process.env.NODE_ENV === 'development') console.warn('Cloud order approval error:', err);
+    });
   };
 
   const deleteOrder = (orderId: string) => {
@@ -570,8 +501,11 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     // Permanently remove from MongoDB so it doesn't return on next sync
     fetch(`/api/orders?id=${encodeURIComponent(orderId)}`, {
       method: 'DELETE',
-      headers: { 'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_PASSCODE || '' },
-    }).catch((err) => console.warn('Cloud order delete error:', err));
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    }).catch((err) => {
+      if (process.env.NODE_ENV === 'development') console.warn('Cloud order delete error:', err);
+    });
   };
 
   const findOrder = (query: string): CustomerOrder | undefined => {

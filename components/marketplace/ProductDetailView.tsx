@@ -298,9 +298,15 @@ export function ProductDetailView({ product: initialProduct, relatedProducts }: 
                     ₹{product.originalPrice.toLocaleString('en-IN')}
                   </span>
                 )}
-                <span className="px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs bg-emerald-500/10 text-emerald-400 font-medium border border-emerald-500/20">
-                  In Stock ({product.stockCount} Available)
-                </span>
+                {product.inStock && product.stockCount > 0 ? (
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs bg-emerald-500/10 text-emerald-400 font-medium border border-emerald-500/20">
+                    In Stock ({product.stockCount} Available)
+                  </span>
+                ) : (
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs bg-rose-500/10 text-rose-400 font-medium border border-rose-500/20">
+                    Currently Out of Stock
+                  </span>
+                )}
               </div>
 
               {/* Customer Rating Banner */}
@@ -378,36 +384,52 @@ export function ProductDetailView({ product: initialProduct, relatedProducts }: 
             {/* Quantity and Add to Bag */}
             <div className="space-y-3.5 pt-1">
               <div className="flex items-center gap-3 sm:gap-4">
-                <div className="flex items-center border border-[rgba(255,255,255,0.15)] bg-[rgba(255,255,255,0.03)] rounded-xl h-12 sm:h-14 px-2">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-8 sm:w-10 h-10 flex items-center justify-center text-base text-[--color-muted] hover:text-white transition-colors"
-                    aria-label="Decrease quantity"
-                  >
-                    −
-                  </button>
-                  <span className="w-8 sm:w-10 text-center text-xs sm:text-sm font-semibold text-white">
-                    {quantity}
-                  </span>
-                  <button
-                    onClick={() => setQuantity(Math.min(product.stockCount, quantity + 1))}
-                    className="w-8 sm:w-10 h-10 flex items-center justify-center text-base text-[--color-muted] hover:text-white transition-colors"
-                    aria-label="Increase quantity"
-                  >
-                    +
-                  </button>
-                </div>
+                {product.inStock && product.stockCount > 0 ? (
+                  <>
+                    <div className="flex items-center border border-[rgba(255,255,255,0.15)] bg-[rgba(255,255,255,0.03)] rounded-xl h-12 sm:h-14 px-2">
+                      <button
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        className="w-8 sm:w-10 h-10 flex items-center justify-center text-base text-[--color-muted] hover:text-white transition-colors"
+                        aria-label="Decrease quantity"
+                      >
+                        −
+                      </button>
+                      <span className="w-8 sm:w-10 text-center text-xs sm:text-sm font-semibold text-white">
+                        {quantity}
+                      </span>
+                      <button
+                        onClick={() => setQuantity(Math.min(product.stockCount, quantity + 1))}
+                        className="w-8 sm:w-10 h-10 flex items-center justify-center text-base text-[--color-muted] hover:text-white transition-colors"
+                        aria-label="Increase quantity"
+                      >
+                        +
+                      </button>
+                    </div>
 
-                <button
-                  onClick={handleAddToCart}
-                  className={`flex-1 h-12 sm:h-14 px-4 sm:px-8 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all duration-300 shadow-xl active:scale-95 ${
-                    added
-                      ? 'bg-emerald-500 text-white'
-                      : 'bg-[--color-accent] text-[--color-primary] hover:bg-white'
-                  }`}
-                >
-                  {added ? 'ADDED TO BAG ✓' : `ADD TO BAG — ₹${(product.price * quantity).toLocaleString('en-IN')}`}
-                </button>
+                    <button
+                      onClick={handleAddToCart}
+                      className={`flex-1 h-12 sm:h-14 px-4 sm:px-8 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all duration-300 shadow-xl active:scale-95 ${
+                        added
+                          ? 'bg-emerald-500 text-white'
+                          : 'bg-[--color-accent] text-[--color-primary] hover:bg-white'
+                      }`}
+                    >
+                      {added ? 'ADDED TO BAG ✓' : `ADD TO BAG — ₹${(product.price * quantity).toLocaleString('en-IN')}`}
+                    </button>
+                  </>
+                ) : (
+                  <a
+                    href={`https://wa.me/919330436603?text=${encodeURIComponent(
+                      `Hello Suraj, I am interested in ${product.name} (₹${product.price.toLocaleString('en-IN')}). Please notify me when it is back in stock at Marine Creatures!`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 h-12 sm:h-14 px-4 sm:px-8 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all duration-300 shadow-xl active:scale-95 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 hover:text-amber-200 flex items-center justify-center gap-2"
+                  >
+                    <span>💬</span>
+                    <span>JOIN RESTOCK WAITLIST (WHATSAPP)</span>
+                  </a>
+                )}
 
                 {/* Wishlist Toggle Button */}
                 <button

@@ -31,11 +31,6 @@ export function ProductFormModal({
 
   if (!isOpen) return null;
 
-  const activePasscode =
-    passcode?.trim() ||
-    (typeof window !== 'undefined' ? sessionStorage.getItem('mc_admin_passcode')?.trim() : '') ||
-    'mc@admin#2026!';
-
   // Media Manager Handlers (Binary Cloud & MongoDB Upload Pipeline)
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -60,11 +55,14 @@ export function ProductFormModal({
         formData.append('file', fileToUpload);
         formData.append('type', 'image');
 
+        const uploadHeaders: Record<string, string> = {};
+        if (passcode?.trim()) {
+          uploadHeaders['x-admin-passcode'] = passcode.trim();
+        }
+
         const res = await fetch('/api/admin/upload', {
           method: 'POST',
-          headers: {
-            'x-admin-passcode': activePasscode,
-          },
+          headers: uploadHeaders,
           credentials: 'include',
           body: formData,
         });
@@ -133,11 +131,14 @@ export function ProductFormModal({
       formData.append('file', file);
       formData.append('type', 'video');
 
+      const uploadHeaders: Record<string, string> = {};
+      if (passcode?.trim()) {
+        uploadHeaders['x-admin-passcode'] = passcode.trim();
+      }
+
       const res = await fetch('/api/admin/upload', {
         method: 'POST',
-        headers: {
-          'x-admin-passcode': activePasscode,
-        },
+        headers: uploadHeaders,
         credentials: 'include',
         body: formData,
       });
