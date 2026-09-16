@@ -215,44 +215,44 @@ export default function ContactPage() {
         <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative z-10 pt-20 sm:pt-24 md:pt-28 pb-32 sm:pb-36 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 pt-24 sm:pt-28 pb-12 sm:pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* ── Page Header ─────────────────────────────────────────────────── */}
-        <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-10">
-          <span className="text-[11px] sm:text-xs uppercase tracking-[0.3em] font-semibold text-[--color-accent] block mb-2">
+        <div className="text-center max-w-2xl mx-auto mb-5 sm:mb-8">
+          <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] font-semibold text-[--color-accent] block mb-1.5">
             BESPOKE AQUARIUM CONCIERGE
           </span>
-          <h1 className="font-display text-3xl sm:text-5xl font-light text-white leading-tight mb-3">
+          <h1 className="font-display text-2xl sm:text-4xl md:text-5xl font-light text-white leading-tight mb-2">
             Connect with the Curators.
           </h1>
-          <p className="font-body text-xs sm:text-sm text-[--color-muted] leading-relaxed">
+          <p className="font-body text-xs sm:text-sm text-[--color-muted] leading-relaxed max-w-lg mx-auto">
             Direct access to Founder <strong className="text-slate-200">Suraj Shasmal</strong> for living reef commissions, tank renovations, rare marine livestock, and white-glove maintenance.
           </p>
         </div>
 
         {/* ── Mobile Instant Action Strip ─────────────────────────────────── */}
-        <div className="md:hidden grid grid-cols-2 gap-2.5 mb-6">
+        <div className="md:hidden grid grid-cols-2 gap-2 mb-5">
           <a
             href={`https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent('Hi Suraj! I would like to consult with you regarding a marine aquarium project.')}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2.5 p-3 rounded-2xl bg-emerald-500/10 border border-emerald-400/30 text-emerald-300 text-xs font-semibold active:scale-95 transition-transform"
+            className="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-400/30 text-emerald-300 text-xs font-semibold active:scale-95 transition-transform"
           >
-            <span className="text-xl">💬</span>
+            <span className="text-lg">💬</span>
             <div className="text-left">
-              <span className="block text-[10px] text-emerald-400/80 font-mono uppercase tracking-wider">Fastest Reply</span>
-              <span>WhatsApp Suraj</span>
+              <span className="block text-[9px] text-emerald-400/80 font-mono uppercase tracking-wider">Fastest Reply</span>
+              <span className="text-xs">WhatsApp Suraj</span>
             </div>
           </a>
 
           <a
             href={`tel:${SITE_CONFIG.phone}`}
-            className="flex items-center gap-2.5 p-3 rounded-2xl bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 text-xs font-semibold active:scale-95 transition-transform"
+            className="flex items-center gap-2 p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 text-xs font-semibold active:scale-95 transition-transform"
           >
-            <span className="text-xl">📞</span>
+            <span className="text-lg">📞</span>
             <div className="text-left">
-              <span className="block text-[10px] text-cyan-400/80 font-mono uppercase tracking-wider">Direct Studio</span>
-              <span>Call +91 93304</span>
+              <span className="block text-[9px] text-cyan-400/80 font-mono uppercase tracking-wider">Direct Studio</span>
+              <span className="text-xs">Call +91 93304</span>
             </div>
           </a>
         </div>
@@ -396,13 +396,13 @@ export default function ContactPage() {
               </div>
 
               {/* Step Content Container */}
-              <div className="p-5 sm:p-8">
+              <div className="p-4 sm:p-6 md:p-8">
                 
                 {/* ── STEP 1: Services Selection ───────────────────────────── */}
                 {step === 0 && (
-                  <div className="space-y-6">
+                  <div className="space-y-4 sm:space-y-6">
                     <div>
-                      <h2 className="font-display text-xl sm:text-2xl text-white font-light mb-1">
+                      <h2 className="font-display text-lg sm:text-2xl text-white font-light mb-1">
                         What can we craft for you?
                       </h2>
                       <p className="text-xs text-[--color-muted]">
@@ -410,7 +410,7 @@ export default function ContactPage() {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                       {SERVICE_OPTIONS.map((opt) => {
                         const isSelected = selectedServices.includes(opt.label);
                         return (
@@ -418,23 +418,23 @@ export default function ContactPage() {
                             key={opt.id}
                             type="button"
                             onClick={() => toggleService(opt.label)}
-                            className={`p-4 rounded-2xl border text-left transition-all duration-200 active:scale-[0.98] flex items-start gap-3 relative ${
+                            className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl border text-left transition-all duration-200 active:scale-[0.98] flex items-center sm:items-start gap-2.5 sm:gap-3 relative ${
                               isSelected
                                 ? 'border-cyan-400 bg-cyan-500/15 shadow-[0_0_20px_rgba(0,184,217,0.2)]'
                                 : 'border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.05]'
                             }`}
                           >
-                            <span className="text-2xl shrink-0 mt-0.5">{opt.icon}</span>
-                            <div className="flex-1 pr-6">
-                              <span className={`text-sm font-semibold block ${isSelected ? 'text-cyan-300' : 'text-white'}`}>
+                            <span className="text-xl sm:text-2xl shrink-0">{opt.icon}</span>
+                            <div className="flex-1 pr-5">
+                              <span className={`text-xs sm:text-sm font-semibold block ${isSelected ? 'text-cyan-300' : 'text-white'}`}>
                                 {opt.label}
                               </span>
-                              <span className="text-[11px] text-[--color-muted] leading-tight block mt-0.5">
+                              <span className="text-[10px] sm:text-[11px] text-[--color-muted] leading-tight block mt-0.5">
                                 {opt.desc}
                               </span>
                             </div>
                             {isSelected && (
-                              <div className="absolute top-3.5 right-3.5 w-5 h-5 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center font-bold text-xs">
+                              <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center font-bold text-[10px]">
                                 ✓
                               </div>
                             )}
@@ -449,7 +449,7 @@ export default function ContactPage() {
                         type="button"
                         onClick={() => setStep(1)}
                         disabled={selectedServices.length === 0}
-                        className={`w-full py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all active:scale-[0.98] shadow-xl ${
+                        className={`w-full py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-xs uppercase tracking-widest transition-all active:scale-[0.98] shadow-xl ${
                           selectedServices.length > 0
                             ? 'btn-primary'
                             : 'bg-white/10 text-slate-500 cursor-not-allowed'
