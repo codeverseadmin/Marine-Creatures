@@ -86,38 +86,95 @@ function MarketplaceContent() {
             </div>
 
             {/* Search & Sort Controls */}
-            <div className="flex items-center gap-2.5 w-full md:w-auto">
-              <div className="relative flex-1 md:w-72">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">
-                  🔍
-                </span>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto">
+              <div className="relative flex-1 md:w-80 group">
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-cyan-400 group-focus-within:text-cyan-300 transition-colors pointer-events-none flex items-center justify-center">
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2.2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                </div>
                 <input
                   type="text"
-                  placeholder="Search fish, corals, pumps..."
+                  placeholder="Search fish, corals, gear..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-11 pl-10 pr-9 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 transition-colors"
+                  className="w-full h-12 pl-10 pr-20 rounded-2xl bg-[rgba(6,18,28,0.7)] backdrop-blur-xl border border-white/10 text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 focus:shadow-[0_0_24px_rgba(6,182,212,0.25)] transition-all shadow-inner"
                 />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white p-1"
-                  >
-                    ✕
-                  </button>
-                )}
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                  {searchQuery ? (
+                    <>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-cyan-500/20 text-cyan-300 border border-cyan-400/30">
+                        {filteredProducts.length}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setSearchQuery('')}
+                        aria-label="Clear search"
+                        className="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center text-xs transition-all active:scale-90"
+                      >
+                        ✕
+                      </button>
+                    </>
+                  ) : (
+                    <span className="hidden md:inline-block text-[10px] font-mono text-slate-500 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded">
+                      ESC
+                    </span>
+                  )}
+                </div>
               </div>
 
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="h-11 px-3 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-200 focus:outline-none focus:border-cyan-400 cursor-pointer shrink-0"
-              >
-                <option value="featured">Featured</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-              </select>
+              {/* Custom Styled Sort Dropdown */}
+              <div className="relative shrink-0">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full sm:w-auto h-12 pl-4 pr-10 rounded-2xl bg-[rgba(6,18,28,0.7)] backdrop-blur-xl border border-white/10 text-xs font-semibold text-slate-200 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 transition-all cursor-pointer appearance-none shadow-inner"
+                >
+                  <option value="featured" className="bg-[#071520] text-white">Featured</option>
+                  <option value="price-asc" className="bg-[#071520] text-white">Price: Low to High</option>
+                  <option value="price-desc" className="bg-[#071520] text-white">Price: High to Low</option>
+                </select>
+                <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
             </div>
+          </div>
+
+          {/* Quick Search Chips */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-[11px] pt-1">
+            <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider shrink-0 flex items-center gap-1">
+              <span className="text-cyan-400">⚡</span> Quick:
+            </span>
+            {['Clownfish', 'Angelfish', 'Blue Tang', 'Anemone', 'Apex', 'LED'].map((tag) => {
+              const isCurrent = searchQuery.toLowerCase() === tag.toLowerCase();
+              return (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => setSearchQuery(isCurrent ? '' : tag)}
+                  className={`px-3 py-1 rounded-full text-xs transition-all shrink-0 border ${
+                    isCurrent
+                      ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 font-semibold shadow-[0_0_12px_rgba(6,182,212,0.3)]'
+                      : 'bg-white/[0.03] hover:bg-white/[0.08] border-white/10 text-slate-300 hover:text-white'
+                  }`}
+                >
+                  {tag}
+                </button>
+              );
+            })}
           </div>
 
           {/* Promotional Carousel */}
