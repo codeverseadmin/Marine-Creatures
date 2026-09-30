@@ -8,6 +8,7 @@ import {
   generateProductJsonLd,
   generateBreadcrumbJsonLd,
 } from '@/lib/seo/structuredData';
+import { CATALOG_SEO_MAP } from '@/lib/seo/catalogSeoData';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -87,18 +88,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!product) return {};
 
+  const seoData = CATALOG_SEO_MAP[product.id];
+
   const title =
     customTitle ||
-    `${product.name} — ${product.categoryLabel || 'Marine Equipment'}`;
+    (seoData ? seoData.seoTitle : `${product.name} — ${product.categoryLabel || 'Marine Equipment'}`);
   const description =
     customDesc ||
-    `${product.shortDesc} Inquire directly for verified specifications, tank pairing, and live dispatch at Marine Creatures.`;
+    (seoData
+      ? seoData.metaDescription
+      : `${product.shortDesc} Inquire directly for verified specifications, tank pairing, and live dispatch at Marine Creatures.`);
 
   const canonicalUrl = `${SITE_CONFIG.url}/marketplace/${canonicalSlug}`;
   const primaryImage =
     product.images?.[0] && product.images[0].startsWith('http')
       ? product.images[0]
       : `${SITE_CONFIG.url}${product.images?.[0] || '/og-image.jpg'}`;
+
+  const imageAlt = seoData ? seoData.imageAlt : product.name;
 
   return {
     title,
@@ -118,7 +125,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           url: primaryImage,
           width: 1200,
           height: 800,
-          alt: product.name,
+          alt: imageAlt,
         },
       ],
     },
@@ -139,6 +146,7 @@ export default async function ProductDetailPage({ params }: Props) {
   if (!product) notFound();
 
   const canonicalUrl = `${SITE_CONFIG.url}/marketplace/${canonicalSlug}`;
+  const seoData = CATALOG_SEO_MAP[product.id];
 
   // Structured Data (Product + Breadcrumbs)
   const productJsonLd = generateProductJsonLd(product, canonicalUrl, variantId);
@@ -167,13 +175,22 @@ export default async function ProductDetailPage({ params }: Props) {
 
   const breadcrumbJsonLd = generateBreadcrumbJsonLd(breadcrumbs);
 
-  // Related products
-  const relatedProducts = PRODUCTS.filter(
-    (p) =>
-      p.id !== product.id &&
-      (product.recommendedPairings?.includes(p.id) ||
-        p.category === product.category)
-  ).slice(0, 4);
+  // Deterministic Related products via SEO map or curated pairings
+  const relatedProducts =
+    seoData && seoData.relatedProductIds?.length > 0
+      ? (seoData.relatedProductIds
+          .map((rid) => PRODUCTS.find((p) => p.id === rid))
+          .filter(Boolean) as Product[])
+      : PRODUCTS.filter(
+          (p) =>
+            p.id !== product.id &&
+            (product.recommendedPairings?.includes(p.id) ||
+              p.category === product.category)
+        ).slice(0, 4);
+
+  const serviceConnection = seoData?.serviceLink
+    ? { link: seoData.serviceLink, text: seoData.serviceText }
+    : undefined;
 
   return (
     <>
@@ -216,27 +233,56 @@ export default async function ProductDetailPage({ params }: Props) {
         ))}
       </nav>
 
-      {/* 3. Server-Rendered Crawler Summary (Accessible SSR content) */}
-      <div className="sr-only" aria-hidden="false">
-        <h1>{customTitle || product.name}</h1>
+      {/* 3. Server-Rendered Crawler Dossier (Accessible SSR content - avoids duplicate H1) */}
+      <article className="sr-only" aria-label={`${product.name} Technical Dossier`}>
+        <h2>{customTitle || (seoData ? seoData.h1 : product.name)}</h2>
         <p>{product.description || product.shortDesc}</p>
-        {product.brand && <p>Brand: {product.brand}</p>}
-        {product.specifications && (
-          <ul>
-            {Object.entries(product.specifications).map(([key, val]) => (
-              <li key={key}>
-                {key}: {val}
-              </li>
-            ))}
-          </ul>
+        {product.scientificName && <p>Scientific Name: {product.scientificName}</p>}
+        {product.brand && <p>Brand Provenance: {product.brand}</p>}
+        {seoData?.serviceLink && (
+          <p>
+            Recommended Marine Service:{' '}
+            <Link href={seoData.serviceLink}>{seoData.serviceText}</Link>
+          </p>
         )}
-      </div>
+        {product.specifications && (
+          <div>
+            <h3>Technical Specifications</h3>
+            <ul>
+              {Object.entries(product.specifications).map(([key, val]) => (
+                <li key={key}>
+                  {key}: {val}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {product.careGuide && (
+          <div>
+            <h3>Water Quality &amp; Biological Care Parameters</h3>
+            <ul>
+              <li>Water Temperature: {product.careGuide.temperature}</li>
+              <li>Specific Gravity / Salinity: {product.careGuide.salinity}</li>
+              <li>pH Level: {product.careGuide.ph}</li>
+              {product.careGuide.minimumTankSize && (
+                <li>Minimum Aquarium Volume: {product.careGuide.minimumTankSize}</li>
+              )}
+              {product.careGuide.diet && <li>Dietary Profile: {product.careGuide.diet}</li>}
+              {product.careGuide.temperament && (
+                <li>Temperament: {product.careGuide.temperament}</li>
+              )}
+            </ul>
+          </div>
+        )}
+      </article>
 
       {/* 4. Client Interactive Experience */}
       <ProductDetailView
         product={product}
         relatedProducts={relatedProducts}
         initialVariantId={variantId}
+        imageAlt={seoData?.imageAlt}
+        serviceConnection={serviceConnection}
       />
     </>
   );

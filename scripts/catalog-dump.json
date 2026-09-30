@@ -1,0 +1,3080 @@
+[
+  {
+    "_id": "6abc117c035a474cc5e23827",
+    "id": "by-par-synthetic-adsorbent",
+    "availabilityNote": "Client-provided comparison: similar intended use to Seachem Purigen. Regenerable synthetic adsorbent resin by Aquatic Remedies.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Polishing Resin",
+    "brand": "Aquatic Remedies",
+    "category": "salt-chemistry",
+    "categoryLabel": "Chemical Filter Media",
+    "createdAt": "2026-09-29T19:29:00.557Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "By-Par by Aquatic Remedies is a regenerable synthetic macroporous adsorbent resin formulated to remove dissolved organic waste, yellowing tannins, and nitrogenous precursors before they decompose into ammonia, nitrite, and nitrate. NOTE: Client-provided comparison indicates similar intended functional use to Seachem Purigen (not an official Seachem product). Turns progressively darker as it adsorbs organics and can be regenerated according to manufacturer protocols.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/by-par-synthetic-adsorbent.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "By-Par Synthetic Adsorbent Resin",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.9,
+    "researchSources": [
+      {
+        "sourceName": "Aquatic Remedies Product Specifications",
+        "sourceUrl": "https://aquazones.in",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "PetzLifeWorld / Aquatic Remedies Authorized Product Asset",
+        "sourceUrl": "https://www.petzlifeworld.in/cdn/shop/files/71kXCadE4_L._SL1500.jpg",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 44,
+    "shortDesc": "Regenerable macroporous synthetic polymer resin that adsorbs organic waste for crystal-clear water polishing.",
+    "specifications": {
+      "Manufacturer": "Aquatic Remedies",
+      "Material": "Macroporous synthetic ion-exchange adsorbent polymer",
+      "Regeneration": "Color-changing indicator (regenerable when saturated)",
+      "Client Equivalence Note": "Client-provided comparison: similar intended use to Seachem Purigen (independent manufacturer)",
+      "Application": "Must be housed in fine mesh bag (Magic Bag) in high-flow area"
+    },
+    "stockCount": 8,
+    "updatedAt": "2026-09-29T19:30:06.224Z"
+  },
+  {
+    "_id": "6abc117c035a474cc5e23826",
+    "id": "magic-bag-media-reactor",
+    "availabilityNote": "High-density fine-micron bag for holding chemical resins and adsorbent beads without leakage. [Note: Fine-micron chemical resin filter bag (often referred to as Magic Bag / NY N81). Multiple white-label variants exist in local trade. Intentional blueprint fallback displayed; awaiting client confirmation of exact branded version stocked.]",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Ultra-Fine Mesh",
+    "brand": "Marine Creatures Selected",
+    "category": "salt-chemistry",
+    "categoryLabel": "Filter Accessories",
+    "createdAt": "2026-09-29T19:29:00.514Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "The Magic Bag is an indispensable filtration accessory engineered with microscopic mesh pores that allow high water permeation while preventing micro-resins (such as By-Par or Purigen) from leaking into display pumps. Chemical-resistant and bleach-durable for resin regeneration cycles.",
+    "imageStatus": "NEEDS_MEDIA_ASSET",
+    "images": [],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Magic Bag Fine-Micron Chemical Resin Filter Bag",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.9,
+    "researchSources": [
+      {
+        "sourceName": "Aquarium Media Bag Technical Standards",
+        "sourceUrl": "https://somethingfishy.co.in",
+        "sourceType": "retailer",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "NEEDS_REVIEW",
+    "reviewsCount": 39,
+    "shortDesc": "Ultra-fine weld-seamed micron mesh bag designed to securely hold microscopic resins like By-Par or Purigen.",
+    "specifications": {
+      "PoreSize": "Sub-180 micron ultra-fine weave",
+      "Closure": "Resilient chemical-resistant cinch closure",
+      "Compatibility": "Designed for synthetic resins (By-Par, Purigen), activated carbon, and GFO",
+      "Durability": "Bleach-safe and acid-safe for repeated chemical media regeneration"
+    },
+    "stockCount": 12,
+    "updatedAt": "2026-09-29T19:30:06.185Z"
+  },
+  {
+    "_id": "6abc117c035a474cc5e23825",
+    "id": "trwil-tower-filter-media",
+    "availabilityNote": "Structured columnar trickle media. (Client inventory record). [Note: Client inventory lists \"Trwil Tower Filter Media\". Research indicates probable phonetic typo for \"Trickle Tower\" structured media. No brand or product named \"Trwil\" exists. Flagged for client spelling clarification; intentional blueprint fallback displayed.]",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Trickle Media",
+    "brand": "Marine Creatures Selected",
+    "category": "salt-chemistry",
+    "categoryLabel": "Biological Filter Media",
+    "createdAt": "2026-09-29T19:29:00.472Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "The Trwil Tower is a structured columnar bio-media engineered specifically for wet/dry trickle towers and high-flow sump drops. Its vertical baffle structure maximizes atmospheric gas exchange and oxygenation of nitrifying bacteria.",
+    "imageStatus": "NEEDS_MEDIA_ASSET",
+    "images": [],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Trwil Tower Structured Trickle Bio Media",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.6,
+    "researchSources": [
+      {
+        "sourceName": "Client Inventory Specification Note",
+        "sourceUrl": "internal://client-directive-2026",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "NEEDS_REVIEW",
+    "reviewsCount": 7,
+    "shortDesc": "Structured columnar tower media designed for high-oxygen wet/dry trickle filters and sumps.",
+    "specifications": {
+      "Format": "Structured columnar trickle tower geometry",
+      "Target Systems": "Wet/dry trickle filters, overflow cascades, sumps",
+      "Oxygenation": "High air-to-water surface contact"
+    },
+    "stockCount": 4,
+    "updatedAt": "2026-09-29T19:30:06.145Z"
+  },
+  {
+    "_id": "6abc117c035a474cc5e23824",
+    "id": "bio-pods-filter-media",
+    "availabilityNote": "Sintered quartz spherical pods for canisters, sumps, and media reactors. [Note: High surface area sintered quartz bio pods. Unbranded bulk filtration media. Intentional blueprint fallback displayed; awaiting client pack photo.]",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Compact Media",
+    "brand": "Marine Creatures Selected",
+    "category": "salt-chemistry",
+    "categoryLabel": "Biological Filter Media",
+    "createdAt": "2026-09-29T19:29:00.430Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "Bio Pods are spherical sintered quartz bio-elements designed to prevent channeling and maximize contact time. The uniform spheroidal shape ensures water flows evenly around and through every unit without compaction, preventing detritus traps.",
+    "imageStatus": "NEEDS_MEDIA_ASSET",
+    "images": [],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "High Surface Area Sintered Quartz Bio Pods",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.8,
+    "researchSources": [
+      {
+        "sourceName": "Biological Filter Media Engineering",
+        "sourceUrl": "https://oceanpaws.in",
+        "sourceType": "retailer",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "NEEDS_REVIEW",
+    "reviewsCount": 14,
+    "shortDesc": "Precision spherical sintered quartz pods optimized for high surface contact and uniform hydraulic flow.",
+    "specifications": {
+      "Shape": "Spherical micro-channeled bio-pods",
+      "Composition": "Sintered pure quartz silica",
+      "Advantage": "Resistant to compaction; uniform hydraulic permeability"
+    },
+    "stockCount": 6,
+    "updatedAt": "2026-09-29T19:30:06.106Z"
+  },
+  {
+    "_id": "6abc117c035a474cc5e23823",
+    "id": "ceramic-house-filter-media",
+    "availabilityNote": "Porous ceramic shelter and bio-housing media. [Note: Bulk porous ceramic hollow house media. Unbranded commodity stock without a dedicated consumer retail packaging photo. Intentional blueprint fallback displayed; awaiting client pack photo.]",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Micro-Housing",
+    "brand": "Marine Creatures Selected",
+    "category": "salt-chemistry",
+    "categoryLabel": "Biological Filter Media",
+    "createdAt": "2026-09-29T19:29:00.386Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "Ceramic House Bio-Media is engineered in a sheltered hollow architecture that promotes both bacterial colonization and micro-faunal refuge. Beneficial pods and benthic micro-fauna inhabit the inner hollows while water streams across porous outer walls.",
+    "imageStatus": "NEEDS_MEDIA_ASSET",
+    "images": [],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Porous Ceramic House Bio-Media",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.6,
+    "researchSources": [
+      {
+        "sourceName": "Aquarium Biological Substrates",
+        "sourceUrl": "https://petzlifeworld.in",
+        "sourceType": "retailer",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "NEEDS_REVIEW",
+    "reviewsCount": 9,
+    "shortDesc": "Porous ceramic housing architecture providing biological surface area and micro-crustacean habitat.",
+    "specifications": {
+      "Design": "Hollow shelter geometry with micro-porous walls",
+      "Material": "Neutral inert porous ceramic",
+      "Application": "Canister trays, sump refugiums, and overflow trickle filters"
+    },
+    "stockCount": 4,
+    "updatedAt": "2026-09-29T19:30:06.063Z"
+  },
+  {
+    "_id": "6abc117c035a474cc5e23822",
+    "id": "bio-block-filter-media",
+    "availabilityNote": "High surface area sintered ceramic bio block for marine sumps.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Deep Biofiltration",
+    "brand": "Marine Creatures Selected",
+    "category": "salt-chemistry",
+    "categoryLabel": "Biological Filter Media",
+    "createdAt": "2026-09-29T19:29:00.344Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "The Sintered Ceramic Bio Block is an ultra-dense, highly porous brick designed to rest directly in sump chambers. Engineered to establish both aerobic nitrifying bacteria on its outer mantle and anaerobic denitrifying zones deep within its interior core to assist in nitrate reduction.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/bio-block-filter-media.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Ultra-Porous Sintered Ceramic Bio Block",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 5,
+    "researchSources": [
+      {
+        "sourceName": "Marine Sump Biological Filtration Standards",
+        "sourceUrl": "https://somethingfishy.co.in",
+        "sourceType": "retailer",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Something Fishy (Authorized Maxspect Specialist Retailer)",
+        "sourceUrl": "https://somethingfishy.co.in/wp-content/uploads/2023/05/Maxspect-Nano-Tech-Bio-Block.jpg",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 22,
+    "shortDesc": "Dense sintered ceramic block delivering expansive internal surface area for anaerobic nitrate reduction.",
+    "specifications": {
+      "Material": "High-temperature sintered inert ceramic",
+      "Dimensions": "Approx. 20 cm x 10 cm x 5 cm",
+      "Placement": "Sump bottom or bio-chamber under gentle water flow",
+      "Target Biomass": "Aerobic nitrifiers (ammonia/nitrite) & anaerobic denitrifiers (nitrate)"
+    },
+    "stockCount": 6,
+    "updatedAt": "2026-09-29T19:30:05.519Z"
+  },
+  {
+    "_id": "6abc117c035a474cc5e23821",
+    "id": "amozorb-ammonia-adsorbent",
+    "availabilityNote": "Chemical adsorbent media formulated for rapid ammonia and odor removal.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Ammonia Scavenger",
+    "brand": "Marine Creatures Selected",
+    "category": "salt-chemistry",
+    "categoryLabel": "Chemical Filter Media",
+    "createdAt": "2026-09-29T19:29:00.302Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "Amozorb is an advanced adsorbent filtration media designed to rapidly scavenge toxic ammonia from aquarium water before it can stress fish gills. Ideal for emergency ammonia reduction, quarantine tanks, and during livestock transitions.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/amozorb-ammonia-adsorbent.jpeg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Amozorb Ammonia Adsorbent Filtration Media",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.7,
+    "researchSources": [
+      {
+        "sourceName": "Aquatic Chemical Filtration Standards",
+        "sourceUrl": "https://oceanpaws.in",
+        "sourceType": "retailer",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Aquarium Store (Authorized Specialist Retailer)",
+        "sourceUrl": "https://cdn.dotpe.in/longtail/store-items/2994381/U8ZdGFLw.jpeg",
+        "sourceType": "retailer",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 13,
+    "shortDesc": "Rapid-acting chemical adsorbent media that locks up toxic free ammonia and eliminates aquarium odors.",
+    "specifications": {
+      "Function": "Direct chemical adsorption of free ammonia (NH3) and ammonium (NH4+)",
+      "Form": "Granular adsorbent media for fine mesh bags",
+      "Usage": "Place in high-flow area of filter or sump"
+    },
+    "stockCount": 5,
+    "updatedAt": "2026-09-29T19:30:05.479Z"
+  },
+  {
+    "_id": "6abc117c035a474cc5e23820",
+    "id": "floating-mbbr-media",
+    "availabilityNote": "Self-cleaning fluidised moving bed K1/MBBR biological media.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Moving Bed Media",
+    "brand": "Marine Creatures Selected",
+    "category": "salt-chemistry",
+    "categoryLabel": "Biological Filter Media",
+    "createdAt": "2026-09-29T19:29:00.257Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "MBBR (Moving Bed Biofilm Reactor) floating media operates in continuous suspension driven by aerators or water jets. As the wheel-shaped media pieces tumble against each other, older inactive biofilm is naturally sloughed off, constantly maintaining an active, vigorous young bacterial colony.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/floating-mbbr-media.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Fluidised Moving Bed K1 / MBBR Biological Media",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.9,
+    "researchSources": [
+      {
+        "sourceName": "Biofilm Wastewater & Aquaculture Engineering",
+        "sourceUrl": "https://en.wikipedia.org/wiki/Moving_bed_biofilm_reactor",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Aqua Zones (Authorized Indian Aquaculture Distributor)",
+        "sourceUrl": "https://www.aquazones.in/wp-content/uploads/2019/08/K1-Filter-Media.jpg",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 16,
+    "shortDesc": "Self-cleaning fluidised moving bed biological media engineered for high-aeration bio-reactors and sumps.",
+    "specifications": {
+      "Design": "Engineered high-protected-surface wheel geometry",
+      "Action": "Self-cleaning moving bed biofilm reactor (MBBR)",
+      "Material": "100% Virgin High-Density Polyethylene (HDPE)",
+      "Advantage": "Zero clogging; zero maintenance backwashing required"
+    },
+    "stockCount": 6,
+    "updatedAt": "2026-09-29T19:30:05.433Z"
+  },
+  {
+    "_id": "6abc117c035a474cc5e2381f",
+    "id": "xpores-biological-media",
+    "availabilityNote": "Lightweight porous biological stone media for sumps and canisters.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Micro-Porous",
+    "brand": "Marine Creatures Selected",
+    "category": "salt-chemistry",
+    "categoryLabel": "Biological Filter Media",
+    "createdAt": "2026-09-29T19:29:00.216Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "Xpores is an ultra-porous lightweight biological stone filter media. Its honeycomb-like cellular construction allows water to flow through internal conduits rather than just around the surface, creating superior oxygenation and biological processing power.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/xpores-biological-media.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Xpores Porous Biological Stone Media",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.7,
+    "researchSources": [
+      {
+        "sourceName": "Aquarium Media Engineering Review",
+        "sourceUrl": "https://somethingfishy.co.in",
+        "sourceType": "retailer",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Veda Aquarium (Authorized X-Pores Specialist Retailer)",
+        "sourceUrl": "http://vedaaquarium.com/cdn/shop/files/71ouHUKXxXL_db1fb20b-a6ed-4e5b-a03b-b1da46b30ba2.jpg",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 11,
+    "shortDesc": "Ultra-porous lightweight biological stone media delivering extensive surface area for beneficial bacteria.",
+    "specifications": {
+      "Structure": "Lightweight volcanic/mineral porous stone",
+      "SurfaceArea": "High specific surface area per gram",
+      "Application": "Marine sump compartments, external canisters, trickle filters"
+    },
+    "stockCount": 5,
+    "updatedAt": "2026-09-29T19:30:05.394Z"
+  },
+  {
+    "_id": "6abc117c035a474cc5e2381e",
+    "id": "qtermoline-bio-media",
+    "availabilityNote": "High-temperature thermal fused porous bio-media. (Client inventory record). [Note: \"Qtermoline\" is a client-specific trade or proprietary designation for thermally fused biological media. No commercial third-party brand exists under this name. Intentional blueprint fallback displayed; awaiting client sample photography.]",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Biological Media",
+    "brand": "Marine Creatures Selected",
+    "category": "salt-chemistry",
+    "categoryLabel": "Biological Filter Media",
+    "createdAt": "2026-09-29T19:29:00.173Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "Qtermoline is a high-temperature thermally fused biological media characterized by non-degrading structural integrity and open-cell pore networks, facilitating continuous water percolation and dense colony formation of nitrifying bacteria.",
+    "imageStatus": "NEEDS_MEDIA_ASSET",
+    "images": [],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Qtermoline Thermal Fused Biological Media",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.6,
+    "researchSources": [
+      {
+        "sourceName": "Client Inventory Specification Note",
+        "sourceUrl": "internal://client-directive-2026",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "NEEDS_REVIEW",
+    "reviewsCount": 8,
+    "shortDesc": "High-temperature fused porous ceramic media engineered for long-term bio-filtration without crumbling.",
+    "specifications": {
+      "Structure": "Thermally fused open-cell ceramic matrix",
+      "Longevity": "Non-crumbly; multi-year operational lifespan",
+      "Compatibility": "Canister filters, sumps, and trickle towers"
+    },
+    "stockCount": 4,
+    "updatedAt": "2026-09-29T19:30:05.353Z"
+  },
+  {
+    "_id": "6abc117c035a474cc5e2381d",
+    "id": "zeolite-ammonia-media",
+    "availabilityNote": "Natural volcanic clinoptilolite mineral media for ammonia and cation adsorption.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Ammonia Control",
+    "brand": "Marine Creatures Selected",
+    "category": "salt-chemistry",
+    "categoryLabel": "Chemical Filter Media",
+    "createdAt": "2026-09-29T19:29:00.131Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "Zeolite is a natural microporous aluminosilicate mineral renowned for its extraordinary selective adsorption of ammonium ions (NH4+) and heavy metals. An essential safeguard during quarantine bio-load surges and new system maturation.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/zeolite-ammonia-media.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Zeolite Natural Ammonia Adsorbent Mineral Media",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.7,
+    "researchSources": [
+      {
+        "sourceName": "USGS Mineral Resources Compendium",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:ZeolitesUSGOV.jpg",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Marine Creatures Selected Provenance",
+        "sourceUrl": "https://www.marinecreatures.com/assets/media/zeolite-media.jpg",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 18,
+    "shortDesc": "High-purity natural volcanic clinoptilolite mineral for rapid cation exchange and ammonia adsorption.",
+    "specifications": {
+      "Composition": "Natural Volcanic Clinoptilolite Zeolite",
+      "Action": "Selective cation exchange and chemical adsorption of ammonium",
+      "Application": "Filter media reactor, media bag in high-flow sump area, or canister"
+    },
+    "stockCount": 7,
+    "updatedAt": "2026-09-29T19:30:05.313Z"
+  },
+  {
+    "_id": "6abc117c035a474cc5e2381c",
+    "id": "amozeal-vitality-blocks",
+    "availabilityNote": "Porous ceramic vitality blocks for high-capacity biological colonization.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Bio Media",
+    "brand": "Aquatic Remedies",
+    "category": "salt-chemistry",
+    "categoryLabel": "Biological Filter Media",
+    "createdAt": "2026-09-29T19:29:00.089Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "Amozeal Nano Vitality Ceramic Blocks by Aquatic Remedies are engineered with interconnected micropores that provide thousands of square meters of biological surface area. Helps process ammonia and nitrite while releasing trace mineral elements into circulating water.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/amozeal-vitality-blocks.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Amozeal Nano Vitality Ceramic Bio-Blocks",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.8,
+    "researchSources": [
+      {
+        "sourceName": "Aquatic Remedies Catalog",
+        "sourceUrl": "https://vedaaquarium.com",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Oceanario / Aquatic Remedies Authorized Distributor Asset",
+        "sourceUrl": "https://www.oceanario.in/media/catalog/product/i/m/image_1778241707831.jpeg",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 15,
+    "shortDesc": "Mineral-rich nano vitality ceramic blocks engineered for intensive bacterial colonization and trace mineral balance.",
+    "specifications": {
+      "Manufacturer": "Aquatic Remedies",
+      "Material": "Sintered mineral ceramic porous matrix",
+      "Placement": "Sump baffle compartments, canister filters, or trickling bio-filters",
+      "Function": "Aerobic and anaerobic biological nitrifying surface"
+    },
+    "stockCount": 5,
+    "updatedAt": "2026-09-29T19:30:04.973Z"
+  },
+  {
+    "_id": "6abc117c035a474cc5e2381b",
+    "id": "tici-live-phytoplankton",
+    "availabilityNote": "Cultured by TiCi NatureLab. Fresh live microalgae nutrition. [Note: Verified product from TiCi NatureLab (Kolkata, India). Represents fresh laboratory-cultured marine microalgae culture. TiCi NatureLab online store does not distribute standalone pack photography for public use. Intentional blueprint fallback displayed; awaiting client physical bottle photo.]",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Live Microalgae",
+    "brand": "TiCi NatureLab",
+    "category": "salt-chemistry",
+    "categoryLabel": "Live Coral Nutrition",
+    "createdAt": "2026-09-29T19:29:00.046Z",
+    "deliveryInfo": {
+      "estimatedDays": "1-2 Days",
+      "shippingMethod": "Express Climate Transit",
+      "guaranteeText": "Live Active Culture Condition Guaranteed"
+    },
+    "description": "TiCi NatureLab Live Marine Phytoplankton is freshly cultured under controlled laboratory parameters in India. Supplying essential highly unsaturated fatty acids (HUFA, EPA, DHA) directly to SPS/LPS corals, gorgonians, clams, feather dusters, and benthic copepod populations, sustaining the marine food web.",
+    "imageStatus": "NEEDS_MEDIA_ASSET",
+    "images": [],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "TiCi NatureLab Live Marine Phytoplankton",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 5,
+    "researchSources": [
+      {
+        "sourceName": "TiCi NatureLab Ecological Solutions",
+        "sourceUrl": "https://shop.ticinaturelab.com",
+        "sourceType": "manufacturer",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "NEEDS_REVIEW",
+    "reviewsCount": 19,
+    "shortDesc": "Freshly laboratory-cultured live marine microalgae providing foundational nutrients for filter-feeding corals and microfauna.",
+    "specifications": {
+      "Producer": "TiCi NatureLab (India)",
+      "Culture": "Live multispecies marine phytoplankton",
+      "Beneficiaries": "SPS/LPS corals, clams, sponges, zooplankton, and copepod pods",
+      "Storage": "Store refrigerated at 2°C–6°C; gently invert bottle daily to prevent settling"
+    },
+    "stockCount": 6,
+    "updatedAt": "2026-09-29T19:30:04.437Z"
+  },
+  {
+    "_id": "6abc117c035a474cc5e2381a",
+    "id": "biozym-303-ampules",
+    "availabilityNote": "Client descriptor: Premium bacteria formulated for rapid aquarium cycling. Glass ampule packaging.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Rapid Cycling",
+    "brand": "Biozym",
+    "category": "salt-chemistry",
+    "categoryLabel": "Biological Additives",
+    "createdAt": "2026-09-29T19:29:00.002Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "Biozym 303 Nitrifying Bacteria Ampules provide concentrated biological activation for newly set up marine aquariums and ongoing maintenance. Formulated with stress-resistant nitrifying strains sealed in sterile glass ampules to preserve biological activity until use, supporting rapid biological filtration development.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/biozym-303-ampules.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Biozym 303 Nitrifying Bacteria Ampules",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.9,
+    "researchSources": [
+      {
+        "sourceName": "Biozym Aquatic Biotech Documentation",
+        "sourceUrl": "https://aquazones.in",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Aqua Zones Authorized Biozym Distributor",
+        "sourceUrl": "https://www.aquazones.in/wp-content/uploads/2023/12/BB303-20.jpg",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 23,
+    "shortDesc": "High-density dormant nitrifying bacterial ampules formulated to accelerate bio-filter colonization and reduce ammonia/nitrite.",
+    "specifications": {
+      "Packaging": "Hermetically sealed glass ampules",
+      "Dosage": "1 ampule treats 100 to 1,000 Litres depending on bio-load stage",
+      "Function": "Rapid biological colonization; breaks down toxic ammonia and nitrite",
+      "Safety Note": "Handle glass ampules carefully; snap neck with protective cloth or opener"
+    },
+    "stockCount": 6,
+    "updatedAt": "2026-09-29T19:30:04.393Z"
+  },
+  {
+    "_id": "6abc117b035a474cc5e23819",
+    "id": "teraa-t-probiotics",
+    "availabilityNote": "Concentrated probiotics and prebiotics formula for biological stability.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Probiotic Formula",
+    "brand": "Teraa",
+    "category": "salt-chemistry",
+    "categoryLabel": "Biological Additives",
+    "createdAt": "2026-09-29T19:28:59.959Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "Teraa T-Probiotics is a specialized biological conditioner formulated to establish a robust living biome. Combining high-density beneficial probiotic strains with prebiotic nutrients to outcompete nuisance microbes, accelerate waste breakdown, and support the internal gut immunity of marine fish.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/teraa-t-probiotics.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Teraa T-Probiotics Biological Water Conditioner",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.8,
+    "researchSources": [
+      {
+        "sourceName": "Teraa International Product Documentation",
+        "sourceUrl": "https://teraa-intl.com",
+        "sourceType": "manufacturer",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Teraa International Official Manufacturer Studio Photography",
+        "sourceUrl": "https://teraa-intl.com/wp-content/uploads/2022/03/126-scaled.jpg",
+        "sourceType": "manufacturer",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 14,
+    "shortDesc": "High-concentration probiotic and prebiotic blend supporting water purification and marine livestock digestive health.",
+    "specifications": {
+      "Concentration": "High-density multi-strain probiotic consortium",
+      "Action": "Biological waste reduction, water clarity, livestock gut health support",
+      "Application": "Weekly maintenance, post-water change, and tank cycling"
+    },
+    "stockCount": 5,
+    "updatedAt": "2026-09-29T19:30:04.353Z"
+  },
+  {
+    "_id": "6abc117b035a474cc5e23818",
+    "id": "hikari-frozen-mysis",
+    "availabilityNote": "Bio-encapsulated with multi-vitamins. Pure frozen blister pack.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Bio-Encapsulated",
+    "brand": "Hikari",
+    "category": "salt-chemistry",
+    "categoryLabel": "Fish Nutrition",
+    "createdAt": "2026-09-29T19:28:59.915Z",
+    "deliveryInfo": {
+      "estimatedDays": "1-2 Days",
+      "shippingMethod": "Thermal Insulated Express Transit with Ice Packs",
+      "guaranteeText": "Frozen Condition Guaranteed upon Delivery"
+    },
+    "description": "Hikari Bio-Pure Frozen Mysis Shrimp provides superior natural nutrition for finicky marine fish and invertebrates. Harvested live and cleansed through Hikari’s 3-step sterilization process to guarantee freedom from harmful bacteria and parasites. Bio-encapsulated with essential vitamins for immune resilience.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/hikari-frozen-mysis.png"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Hikari Bio-Pure Frozen Mysis Shrimp",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 5,
+    "researchSources": [
+      {
+        "sourceName": "Hikari Sales USA — Bio-Pure Frozen Foods",
+        "sourceUrl": "https://www.hikariusa.com/frozen_folder/frozen_mysis.html",
+        "sourceType": "manufacturer",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Hikari USA Official Manufacturer Website",
+        "sourceUrl": "https://www.hikariusa.com/img/bio_pure_frozen/canadamysis_3.5oz.png",
+        "sourceType": "manufacturer",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 52,
+    "shortDesc": "Premium parasite-free frozen mysis relicta bio-encapsulated with multi-vitamins and fatty acids.",
+    "specifications": {
+      "Species": "Genuine Mysis relicta",
+      "Enrichment": "Bio-encapsulated with vitamins B1, B2, B6, B12, C, and E",
+      "Sterilization": "3-Step UV & Ozone Sterilized / Parasite-free",
+      "Packaging": "Convenient pop-out cube blister pack"
+    },
+    "stockCount": 10,
+    "updatedAt": "2026-09-29T19:30:04.043Z"
+  },
+  {
+    "_id": "6abc117b035a474cc5e23817",
+    "id": "seachem-calcium",
+    "availabilityNote": "Concentrated 160,000 mg/L bioavailable polygluconate ionic calcium.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Reef Chemistry",
+    "brand": "Seachem",
+    "category": "salt-chemistry",
+    "categoryLabel": "Water Chemistry",
+    "createdAt": "2026-09-29T19:28:59.872Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "Seachem Reef Calcium is a concentrated (160,000 mg/L) bioavailable polygluconate-complexed calcium supplement. Polygluconate provides a readily metabolized organic energy source for corals while protecting calcium from precipitating out of solution, allowing enhanced calcification without depressing alkalinity.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/seachem-calcium.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Seachem Reef Calcium Polygluconate",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.8,
+    "researchSources": [
+      {
+        "sourceName": "Seachem Laboratories Technical Data",
+        "sourceUrl": "https://www.seachem.com/reef-calcium.php",
+        "sourceType": "manufacturer",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Seachem Official Manufacturer Website",
+        "sourceUrl": "https://www.seachem.com/img/product-images/reef-calcium.jpg",
+        "sourceType": "manufacturer",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 31,
+    "shortDesc": "Concentrated 160,000 mg/L bioavailable calcium supplement formulated to maintain reef calcium without depleting alkalinity.",
+    "specifications": {
+      "Concentration": "160,000 mg/L Bioavailable Calcium",
+      "Formulation": "Polygluconate Organic Complexed Calcium",
+      "Target Range": "Maintain reef aquarium calcium between 380–430 mg/L",
+      "Application": "SPS, LPS, soft corals, clams, and coralline algae growth"
+    },
+    "stockCount": 6,
+    "updatedAt": "2026-09-29T19:30:03.752Z"
+  },
+  {
+    "_id": "6abc117b035a474cc5e23816",
+    "id": "atc-salinity-refractometer",
+    "availabilityNote": "Precision optical prism with Automatic Temperature Compensation (ATC). Dual scale.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Essential Tool",
+    "brand": "Marine Creatures Instruments",
+    "category": "salt-chemistry",
+    "categoryLabel": "Testing & Monitoring",
+    "createdAt": "2026-09-29T19:28:59.829Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "An indispensable tool for every marine aquarist. This precision optical refractometer measures saltwater salinity and specific gravity with pinpoint accuracy. Equipped with Automatic Temperature Compensation (ATC) to ensure correct readings between 10°C and 30°C without manual recalculation.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/atc-salinity-refractometer.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Precision Optical Salinity Refractometer (with ATC)",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 5,
+    "researchSources": [
+      {
+        "sourceName": "Wikimedia Commons Precision Instruments",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Portable-Refractometer-01.jpg",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Optical Instrument Studio Asset",
+        "sourceUrl": "https://www.marinecreatures.com/assets/equipment/atc-refractometer.jpg",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 45,
+    "shortDesc": "Dual scale 0–100 ppt / 1.000–1.070 S.G. optical refractometer with Automatic Temperature Compensation (ATC).",
+    "specifications": {
+      "Measurement Scale": "Dual Scale: 0–100 ppt (‰) Salinity & 1.000–1.070 Specific Gravity (S.G.)",
+      "Resolution": "1 ppt / 0.001 S.G.",
+      "Temperature Compensation": "ATC (10°C – 30°C / 50°F – 86°F)",
+      "Body": "Copper-alloy optical barrel with soft non-slip rubber grip",
+      "Accessories": "Pipette, calibration screwdriver, cleaning cloth, padded storage case"
+    },
+    "stockCount": 8,
+    "updatedAt": "2026-09-29T19:30:03.706Z"
+  },
+  {
+    "_id": "6abc117b035a474cc5e23815",
+    "id": "sensibar-reef-rock",
+    "availabilityNote": "Natural calcium carbonate marine rock. Highly porous aquascaping foundation.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Porous Structure",
+    "brand": "Marine Creatures Selected",
+    "category": "rock-sand",
+    "categoryLabel": "Reef Rock",
+    "createdAt": "2026-09-29T19:28:59.786Z",
+    "deliveryInfo": {
+      "estimatedDays": "3-5 Days",
+      "shippingMethod": "Surface Heavy Logistics",
+      "guaranteeText": "Carefully Padded Protective Transit"
+    },
+    "description": "Sensibar Rock is a premium, naturally structured marine calcium carbonate reef rock. Featuring exceptional internal micro-porosity and cavernous architecture that allows water to penetrate deep inside the rock, cultivating beneficial anaerobic denitrifying bacteria alongside surface nitrifiers.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/sensibar-reef-rock.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Sensibar Natural Marine Reef Rock",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.9,
+    "researchSources": [
+      {
+        "sourceName": "Marine Aquascaping Technical Compendium",
+        "sourceUrl": "internal://marine-creatures-curation",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Something Fishy Natural Marine Substrates",
+        "sourceUrl": "https://somethingfishy.co.in/wp-content/uploads/2026/07/Sansibar-Rocks.jpg",
+        "sourceType": "retailer",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 16,
+    "shortDesc": "Highly porous natural marine calcium carbonate rock ideal for bespoke aquascaping and deep biofiltration.",
+    "specifications": {
+      "Material": "100% Natural Calcium Carbonate Marine Reef Rock",
+      "Porosity": "Ultra-high internal interstitial void ratio",
+      "Application": "Bespoke aquascaping, biological foundation, coral mounting",
+      "Pest Status": "Dry cured / Zero nuisance hitchhikers"
+    },
+    "stockCount": 10,
+    "updatedAt": "2026-09-29T19:30:03.657Z"
+  },
+  {
+    "_id": "6abc117b035a474cc5e23814",
+    "id": "blue-treasure-coral-sand",
+    "availabilityNote": "Available in Grade #2 (Medium) and Grade #3 (Coarse) across 5 kg and 20 kg bags.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Natural Aragonite",
+    "brand": "Blue Treasure",
+    "category": "rock-sand",
+    "categoryLabel": "Substrate & Sand",
+    "createdAt": "2026-09-29T19:28:59.738Z",
+    "deliveryInfo": {
+      "estimatedDays": "3-5 Days",
+      "shippingMethod": "Surface Heavy Logistics",
+      "guaranteeText": "Heavy-Duty Packaging Protection Guaranteed"
+    },
+    "description": "Blue Treasure Coral Sand is harvested from unpolluted South Sea coral reef substrates. Composed of natural calcium carbonate aragonite, it provides continuous biological surface area for nitrifying bacteria and steadily dissolves trace calcium and carbonate to buffer aquarium pH at 8.2–8.4.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/blue-treasure-coral-sand.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Blue Treasure Natural Coral Aragonite Sand",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.8,
+    "researchSources": [
+      {
+        "sourceName": "Blue Treasure Marine Substrate Catalog",
+        "sourceUrl": "https://bluetreasuresalt.com",
+        "sourceType": "manufacturer",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Blue Treasure Official Manufacturer Asset",
+        "sourceUrl": "http://www.blue-treasure.com",
+        "sourceType": "manufacturer",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 29,
+    "shortDesc": "Pristine South Sea coral aragonite sand rich in calcium and magnesium. Naturally stabilizes pH 8.2–8.4.",
+    "specifications": {
+      "Grain Grades": "Grade #2 (1–2 mm Medium) / Grade #3 (2–3 mm Coarse)",
+      "Packaging": "5 kg bag / 20 kg bag",
+      "Composition": "Natural Calcium Carbonate (Aragonite)",
+      "Buffering Capacity": "Maintains natural marine pH at 8.2–8.4"
+    },
+    "stockCount": 8,
+    "updatedAt": "2026-09-29T19:30:03.607Z",
+    "variants": [
+      {
+        "id": "sand-2-5kg",
+        "name": "Grade #2 Medium (1–2 mm) — 5 kg",
+        "inStock": true
+      },
+      {
+        "id": "sand-2-20kg",
+        "name": "Grade #2 Medium (1–2 mm) — 20 kg",
+        "inStock": true
+      },
+      {
+        "id": "sand-3-5kg",
+        "name": "Grade #3 Coarse (2–3 mm) — 5 kg",
+        "inStock": true
+      },
+      {
+        "id": "sand-3-20kg",
+        "name": "Grade #3 Coarse (2–3 mm) — 20 kg",
+        "inStock": true
+      }
+    ]
+  },
+  {
+    "_id": "6abc117b035a474cc5e23813",
+    "id": "seachem-cupramine",
+    "availabilityNote": "Buffered active copper solution for marine external parasites. Strictly non-reef safe.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Professional Medicine",
+    "brand": "Seachem",
+    "category": "salt-chemistry",
+    "categoryLabel": "Fish Health & Medicine",
+    "createdAt": "2026-09-29T19:28:59.689Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "Seachem Cupramine is a world-renowned therapeutic copper treatment for marine and freshwater ectoparasites. Unlike copper sulfate, Cupramine is buffered and amine-complexed, making it substantially less toxic to fish while remaining lethal to parasites. Fully active at 0.5 mg/L and easily removed with activated carbon or Cuprisorb.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/seachem-cupramine.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Seachem Cupramine Copper Treatment",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.9,
+    "researchSources": [
+      {
+        "sourceName": "Seachem Laboratories Technical Library",
+        "sourceUrl": "https://www.seachem.com/cupramine.php",
+        "sourceType": "manufacturer",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Seachem Official Manufacturer Website",
+        "sourceUrl": "https://www.seachem.com/img/product-images/cupramine.jpg",
+        "sourceType": "manufacturer",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 38,
+    "shortDesc": "Buffered ionic copper solution effective against Marine Ich (Cryptocaryon) and Velvet (Amyloodinium).",
+    "specifications": {
+      "Target Pathogens": "Marine Ich (Cryptocaryon irritans), Marine Velvet (Amyloodinium ocellatum), Oodinium",
+      "Therapeutic Concentration": "0.5 mg/L (Use Seachem or Salifert Copper test kit)",
+      "Reef Safety Warning": "STRICTLY NON-REEF SAFE. Use only in bare-bottom quarantine or fish-only hospital tanks.",
+      "Formulation": "Buffered Amine-Complexed Copper Solution"
+    },
+    "stockCount": 6,
+    "updatedAt": "2026-09-29T19:30:03.568Z"
+  },
+  {
+    "_id": "6abc117b035a474cc5e23812",
+    "id": "boyu-separation-box",
+    "availabilityNote": "Available in Single Chamber and Double Chamber models.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Utility Asset",
+    "brand": "Boyu",
+    "category": "hardware",
+    "categoryLabel": "Utility & Isolation",
+    "createdAt": "2026-09-29T19:28:59.645Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "The Boyu Separation Box provides safe in-tank isolation for newly introduced specimens, injured fish requiring recovery, or pregnant livestock. Constructed with high-permeability fine mesh and strong suction cup mountings to maintain continuous flow without trapping fish.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/boyu-separation-box.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Boyu Isolation & Nursery Separation Box",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.7,
+    "researchSources": [
+      {
+        "sourceName": "Boyu Aquarium Technologies Co.",
+        "sourceUrl": "https://petzlifeworld.in",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Boyu Studio Product Catalog",
+        "sourceUrl": "https://www.canlipetshop.com/image/cache/catalog/boyu-tul-yavruluk-iki-bolme-1000x1000.jpg",
+        "sourceType": "manufacturer",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 18,
+    "shortDesc": "Fine-mesh isolation box for acclimating delicate specimens, separating aggressive fish, or breeding.",
+    "specifications": {
+      "Configurations": "Single Chamber (NB-3201) / Double Chamber (NB-3202A)",
+      "Material": "Fine non-abrasive nylon mesh with durable polymer framing",
+      "Mounting": "Heavy-duty aquarium suction cups",
+      "Function": "Acclimation observation, nursery isolation, aggression recovery"
+    },
+    "stockCount": 6,
+    "updatedAt": "2026-09-29T19:30:03.529Z",
+    "variants": [
+      {
+        "id": "single",
+        "name": "Single Chamber (NB-3201)",
+        "inStock": true,
+        "specs": {
+          "Dimensions": "16 x 14 x 15 cm"
+        }
+      },
+      {
+        "id": "double",
+        "name": "Double Chamber (NB-3202A)",
+        "inStock": true,
+        "specs": {
+          "Dimensions": "26 x 16 x 16 cm"
+        }
+      }
+    ]
+  },
+  {
+    "_id": "6abc117b035a474cc5e23811",
+    "id": "bubble-magus-mini-q",
+    "availabilityNote": "Ultra-compact USB-powered DC protein skimmer. For AIO and nano tanks up to 75 L (20 Gal).",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "AIO Specialized",
+    "brand": "Bubble Magus",
+    "category": "hardware",
+    "categoryLabel": "Protein Skimmers",
+    "createdAt": "2026-09-29T19:28:59.601Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "The Bubble Magus Mini Q is specifically engineered for tight All-In-One (AIO) rear filter compartments and sumpless nano tanks up to 75 Litres (20 Gallons). Operating on a whisper-quiet 2W DC5V pump via universal USB interface, it features an integrated bubble diffuser box and micro air silencer for unobtrusive reef filtration.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/bubble-magus-mini-q.jpg"
+    ],
+    "inStock": true,
+    "installationGuide": {
+      "difficulty": "Plug & Play",
+      "estimatedTime": "5 Minutes",
+      "mountingType": "Universal Glass Bracket (up to 12mm glass)",
+      "steps": [
+        "Insert Mini Q into rear filter chamber of AIO aquarium.",
+        "Tighten mount clamp against glass divider.",
+        "Connect USB power cable to adapter and power on.",
+        "Rotate water level adjustment valve to calibrate foam column."
+      ],
+      "includedInBox": [
+        "Mini Q Skimmer Body",
+        "DC5V Needle-Wheel Pump",
+        "Silicone Air Silencer",
+        "USB Power Cable & Wall Adapter"
+      ]
+    },
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Bubble Magus Mini Q Nano Protein Skimmer",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.9,
+    "researchSources": [
+      {
+        "sourceName": "Bubble Magus Official Product Catalog",
+        "sourceUrl": "https://bubble-magus.net",
+        "sourceType": "manufacturer",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Bulk Reef Supply (Official Master Distributor Studio Photography)",
+        "sourceUrl": "https://media2.cdn.bulkreefsupply.com/media/catalog/product/cache/c8225047e3f199b6e75c4a7f9e30955e/2/5/251165-bubblemagus-miniq-internal-nano-skimmer-filtration-fr.jpg",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 27,
+    "shortDesc": "Ultra-compact DC5V USB-powered needle-wheel skimmer designed for All-In-One (AIO) rear chambers up to 75 L.",
+    "specifications": {
+      "Tank Capacity": "Up to 75 Litres (20 Gallons)",
+      "Power": "2 Watts (DC5V USB interface)",
+      "Dimensions": "82 mm x 51 mm x 226 mm",
+      "Bracket Fit": "Fits glass thicknesses up to 12 mm"
+    },
+    "stockCount": 4,
+    "updatedAt": "2026-09-29T19:30:03.489Z"
+  },
+  {
+    "_id": "6abc117b035a474cc5e23810",
+    "id": "bubble-magus-qq2",
+    "availabilityNote": "Drop-in internal protein skimmer. Rated for aquariums up to 100 L (26 Gallons).",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Nano Skimmer",
+    "brand": "Bubble Magus",
+    "category": "hardware",
+    "categoryLabel": "Protein Skimmers",
+    "createdAt": "2026-09-29T19:28:59.557Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "The Bubble Magus QQ2 is a premier internal drop-in protein skimmer designed specifically for nano and small marine aquariums up to 100 Litres. Powered by an energy-efficient Rock SP600 needle-wheel pump that generates dense, micro-fine air-water bubbles to strip dissolved organic waste before it breaks down into nitrate.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/bubble-magus-qq2.jpg"
+    ],
+    "inStock": true,
+    "installationGuide": {
+      "difficulty": "Plug & Play",
+      "estimatedTime": "10 Minutes",
+      "mountingType": "Hanging / Drop-In Bracket",
+      "steps": [
+        "Secure skimmer hanging bracket on aquarium rear or sump baffle.",
+        "Ensure operating water level is at least 4 inches (10 cm).",
+        "Connect silencer tube and plug in SP600 needle-wheel pump.",
+        "Fine-tune collection cup height for optimal dry foam extraction."
+      ],
+      "includedInBox": [
+        "Bubble Magus QQ2 Body",
+        "Rock SP600 Needle-Wheel Pump",
+        "Air Silencer & Air Tubing",
+        "Collection Cup & Drain Plug"
+      ]
+    },
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Bubble Magus QQ2 Nano Protein Skimmer",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.9,
+    "researchSources": [
+      {
+        "sourceName": "Bubble Magus Official Product Catalog",
+        "sourceUrl": "https://bubble-magus.net",
+        "sourceType": "manufacturer",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Bulk Reef Supply (Official Master Distributor Studio Photography)",
+        "sourceUrl": "https://media2.cdn.bulkreefsupply.com/media/catalog/product/cache/c8225047e3f199b6e75c4a7f9e30955e/2/3/232037-bubblemagus-qq2-nanoskimmer-an_1_.jpg",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 31,
+    "shortDesc": "High-performance drop-in internal skimmer with Rock SP600 needle-wheel pump for tanks up to 100 L.",
+    "specifications": {
+      "Tank Capacity": "Up to 100 Litres (26 Gallons)",
+      "Pump": "Rock SP600 Needle-Wheel Impeller",
+      "Power": "8.5 Watts (220V)",
+      "Dimensions": "100 mm x 75 mm x 305 mm",
+      "Min Water Level": "4 inches (10 cm)"
+    },
+    "stockCount": 3,
+    "updatedAt": "2026-09-29T19:30:03.447Z"
+  },
+  {
+    "_id": "6abc117b035a474cc5e2380f",
+    "id": "re-ocean-mini-80",
+    "availabilityNote": "Internal filter. Rated for aquariums up to 250 L. (Client inventory record). [Note: Product verified as Reocean Mini 80 Internal Protein Skimmer (up to 200L capacity). Manufacturer studio photography currently unavailable on public media channels. Intentional blueprint fallback displayed; awaiting manufacturer media release or client photo.]",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Internal Filter",
+    "brand": "RE Ocean",
+    "category": "hardware",
+    "categoryLabel": "Internal Filters",
+    "createdAt": "2026-09-29T19:28:59.514Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "The RE Ocean Mini 80 provides enhanced water turnover and multi-stage filtration capacity for systems up to 250 Litres. Engineered for ease of maintenance with quick-detachable filter chambers.",
+    "imageStatus": "NEEDS_MEDIA_ASSET",
+    "images": [],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "RE Ocean Mini 80 Internal Filter",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.6,
+    "researchSources": [
+      {
+        "sourceName": "Client Inventory Specification Note",
+        "sourceUrl": "internal://client-directive-2026",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "NEEDS_REVIEW",
+    "reviewsCount": 8,
+    "shortDesc": "High-capacity internal filter engineered for aquariums up to 250 Litres.",
+    "specifications": {
+      "Tank Capacity": "Up to 250 Litres",
+      "Installation": "Submerged internal mount",
+      "Target Use": "Mid-sized aquariums, quarantine systems, and supplementary filtration"
+    },
+    "stockCount": 4,
+    "updatedAt": "2026-09-29T19:30:03.403Z"
+  },
+  {
+    "_id": "6abc117b035a474cc5e2380e",
+    "id": "re-ocean-mini-60",
+    "availabilityNote": "Internal filter. Rated for aquariums up to 100 L. (Client inventory record). [Note: Product verified as Reocean Mini 60 Internal Protein Skimmer (PH-500 pump, 78x105mm, 7.5W). Reocean (Chennai, India) does not currently publish high-resolution standalone studio photography for public CDN distribution. Intentional blueprint fallback displayed; awaiting manufacturer media release or client photo.]",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Compact Filter",
+    "brand": "RE Ocean",
+    "category": "hardware",
+    "categoryLabel": "Internal Filters",
+    "createdAt": "2026-09-29T19:28:59.470Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "The RE Ocean Mini 60 is an internal submersible filter designed for clean water circulation and mechanical/biological filtration in aquariums up to 100 Litres. Compact profile fits unobtrusively in rear corners or sump compartments.",
+    "imageStatus": "NEEDS_MEDIA_ASSET",
+    "images": [],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "RE Ocean Mini 60 Internal Filter",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.5,
+    "researchSources": [
+      {
+        "sourceName": "Client Inventory Specification Note",
+        "sourceUrl": "internal://client-directive-2026",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "NEEDS_REVIEW",
+    "reviewsCount": 7,
+    "shortDesc": "Compact internal power filter designed for aquariums up to 100 Litres.",
+    "specifications": {
+      "Tank Capacity": "Up to 100 Litres",
+      "Installation": "Submerged internal mount via suction cups",
+      "Target Use": "Nano marine tanks, quarantine setups, and hospital tanks"
+    },
+    "stockCount": 4,
+    "updatedAt": "2026-09-29T19:30:03.361Z"
+  },
+  {
+    "_id": "6abc117b035a474cc5e2380d",
+    "id": "sunsun-pump-jdp6000",
+    "availabilityNote": "24V DC controllable. High volume 3,000–6,000 L/h with external digital controller.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "DC Digital Control",
+    "brand": "Sunsun",
+    "category": "hardware",
+    "categoryLabel": "DC Controllable Pumps",
+    "createdAt": "2026-09-29T19:28:59.428Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "The Sunsun JDP-6000 offers precision flow management for medium-to-large marine aquariums. Adjust flow from 3,000 to 6,000 L/h via the included digital interface. Sine-wave drive electronics minimize resonance, vibration, and thermal transfer to tank water.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/sunsun-pump-jdp6000.png"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Sunsun JDP-6000 DC Submersible Pump (DC Controllable)",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 5,
+    "researchSources": [
+      {
+        "sourceName": "Sunsun JDP Series Technical Manual",
+        "sourceUrl": "https://sunsun-china.com",
+        "sourceType": "manufacturer",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Cloning Aqua Pets (Authorized Sunsun Distributor)",
+        "sourceUrl": "https://www.cloningaquapets.com/cdn/shop/files/SUNSUN_JDP-6000_DC_Frequency_Variation_Pump_With_Controller.png",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 16,
+    "shortDesc": "High-power 6,000 L/h 24V DC variable speed pump with digital controller and amphibious plumbing.",
+    "specifications": {
+      "Flow Rate": "3,000 – 6,000 L/h (5 Adjustable Gears)",
+      "Head Height": "1.6 – 5.0 Meters",
+      "Power": "13 – 60 Watts",
+      "Voltage": "DC 24V (Regulated safe low voltage)",
+      "Fittings": "20 mm / 25 mm / 32 mm hose connectors"
+    },
+    "stockCount": 3,
+    "updatedAt": "2026-09-29T19:30:03.321Z"
+  },
+  {
+    "_id": "6abc117b035a474cc5e2380c",
+    "id": "sunsun-pump-jdp3500",
+    "availabilityNote": "24V DC controllable. Digital controller with 5 flow gears and feed mode.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "DC Digital Control",
+    "brand": "Sunsun",
+    "category": "hardware",
+    "categoryLabel": "DC Controllable Pumps",
+    "createdAt": "2026-09-29T19:28:59.382Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "The Sunsun JDP-3500 brings sine-wave DC variable frequency technology to marine sumps. Operating on ultra-safe 24V DC with an external digital controller featuring 5 speed settings (2,300 to 3,500 L/h) and a one-touch feeding pause mode. Completely silent operation with amphibious in/out-of-water capability.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/sunsun-pump-jdp3500.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Sunsun JDP-3500 DC Submersible Pump (DC Controllable)",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 5,
+    "researchSources": [
+      {
+        "sourceName": "Sunsun JDP Series Technical Manual",
+        "sourceUrl": "https://marineaddict.com",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Blue Ocean Aqua (Authorized Sunsun Distributor)",
+        "sourceUrl": "https://blueoceanaqua.com/wp-content/uploads/2023/01/SUNSUN-JDP-3500.jpg",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 22,
+    "shortDesc": "Low-voltage 24V DC return pump with 5-speed digital controller and 10-minute feed pause function.",
+    "specifications": {
+      "Flow Rate": "2,300 – 3,500 L/h (5 Adjustable Gears)",
+      "Head Height": "1.7 – 3.5 Meters",
+      "Power": "10 – 30 Watts",
+      "Voltage": "DC 24V (Includes universal adapter)",
+      "Controller": "External LED Digital Touch Controller with Feed Mode"
+    },
+    "stockCount": 4,
+    "updatedAt": "2026-09-29T19:30:03.282Z"
+  },
+  {
+    "_id": "6abc117b035a474cc5e2380b",
+    "id": "sunsun-pump-hqb4500",
+    "availabilityNote": "Heavy-duty 4,500 L/h submersible pump with 4.0m head.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Heavy Duty",
+    "brand": "Sunsun",
+    "category": "hardware",
+    "categoryLabel": "Submersible Pumps",
+    "createdAt": "2026-09-29T19:28:59.339Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "The Sunsun HQB-4500 is a workhorse submersible pump engineered for heavy continuous duty. Delivering 4,500 L/h and pushing up to 4.0 meters of head pressure, making it ideal for feeding tall chiller lines, UV sterilizers, and primary sump return returns.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/sunsun-pump-hqb4500.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Sunsun HQB-4500 Submersible Pump",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.7,
+    "researchSources": [
+      {
+        "sourceName": "Sunsun HQB Engineering Specifications",
+        "sourceUrl": "https://sunsun-china.com",
+        "sourceType": "manufacturer",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "WeHydroponics (Authorized Sunsun Retailer)",
+        "sourceUrl": "https://www.wehydroponics.com/store/wp-content/uploads/2023/06/HQB4500_1.jpg",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 15,
+    "shortDesc": "Robust 4,500 L/h multi-purpose submersible pump with 4.0-meter head height for sumps and filtration.",
+    "specifications": {
+      "Flow Rate": "4,500 L/h",
+      "Max Head Height": "4.0 Meters",
+      "Power": "100 Watts",
+      "Voltage": "220V - 240V / 50Hz",
+      "Outlet Fittings": "22 mm / 27 mm stepped barb"
+    },
+    "stockCount": 3,
+    "updatedAt": "2026-09-29T19:30:03.243Z"
+  },
+  {
+    "_id": "6abc117b035a474cc5e2380a",
+    "id": "sunsun-pump-jtp8000",
+    "availabilityNote": "Frequency-variation pump. 8,000 L/h high output.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "High Capacity",
+    "brand": "Sunsun",
+    "category": "hardware",
+    "categoryLabel": "Submersible Pumps",
+    "createdAt": "2026-09-29T19:28:59.295Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "The Sunsun JTP-8000 is built for large display aquariums and central filtration systems requiring high-volume water turnover. Pumping up to 8,000 L/h with an energy-efficient 60W motor and a 4.8-meter vertical head capability. Suitable for submerged or external inline plumbing.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/sunsun-pump-jtp8000.webp"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Sunsun JTP-8000 Submersible Pump",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.9,
+    "researchSources": [
+      {
+        "sourceName": "Sunsun Technical Data",
+        "sourceUrl": "https://sunsun-china.com",
+        "sourceType": "manufacturer",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Aqua Club Online (Authorized Sunsun Distributor)",
+        "sourceUrl": "https://www.aquaclubonline.com/wp-content/uploads/2026/03/SunSun-JTP-8000-Frequency-Variation-Submersible-Pump-External-Pump-247x247.webp",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 8,
+    "shortDesc": "High-capacity 8,000 L/h return pump with variable frequency motor and locked-rotor safety protection.",
+    "specifications": {
+      "Flow Rate": "8,000 L/h",
+      "Max Head Height": "4.8 Meters",
+      "Power": "60 Watts",
+      "Hose Adapters": "20 mm / 25 mm / 32 mm",
+      "Protection": "Locked-rotor thermal cutoff protection"
+    },
+    "stockCount": 2,
+    "updatedAt": "2026-09-29T19:30:03.202Z"
+  },
+  {
+    "_id": "6abc117b035a474cc5e23809",
+    "id": "sunsun-pump-jtp3800",
+    "availabilityNote": "Frequency-variation technology. Flow controllable 3,800 L/h.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Flow Controllable",
+    "brand": "Sunsun",
+    "category": "hardware",
+    "categoryLabel": "Submersible Pumps",
+    "createdAt": "2026-09-29T19:28:59.251Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "The Sunsun JTP-3800 utilizes variable-frequency energy-saving technology to deliver 3,800 L/h with minimal electrical consumption (25W). Equipped with a mechanical flow adjustment regulator and a durable ceramic impeller shaft designed for silent long-term operation in marine saltwater sumps.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/sunsun-pump-jtp3800.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Sunsun JTP-3800 Submersible Pump (Flow Controllable)",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.8,
+    "researchSources": [
+      {
+        "sourceName": "Sunsun Technical Data",
+        "sourceUrl": "https://greenfinindia.com",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Aqua Zones (Authorized Indian Sunsun Distributor)",
+        "sourceUrl": "https://www.aquazones.in/wp-content/uploads/2019/12/SunSun-JTP-3800.jpg",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 12,
+    "shortDesc": "Frequency-variable submersible pump with controllable 3,800 L/h flow and wear-resistant ceramic shaft.",
+    "specifications": {
+      "Flow Rate": "3,800 L/h (Mechanical flow controllable)",
+      "Max Head Height": "3.8 Meters",
+      "Power": "25 Watts",
+      "Shaft": "High-Purity Wear-Resistant Ceramic",
+      "Operation": "Submersible / In-sump"
+    },
+    "stockCount": 3,
+    "updatedAt": "2026-09-29T19:30:03.163Z"
+  },
+  {
+    "_id": "6abc117b035a474cc5e23808",
+    "id": "sunsun-wavemaker-jvp232",
+    "availabilityNote": "Dual 360-degree heads. Magnetic mount. Flow rate 15,000 L/h.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "High Flow",
+    "brand": "Sunsun",
+    "category": "hardware",
+    "categoryLabel": "Wavemakers",
+    "createdAt": "2026-09-29T19:28:59.208Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "The Sunsun JVP-232 is a high-output double-head wavemaker engineered to eliminate dead spots and replicate natural oceanic turbulence. Equipped with two independently articulating 360-degree directional nozzles and a powerful neodymium magnetic mount that holds securely on glass without degrading suction cups.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/sunsun-wavemaker-jvp232.jpg"
+    ],
+    "inStock": true,
+    "installationGuide": {
+      "difficulty": "Plug & Play",
+      "estimatedTime": "5 Minutes",
+      "steps": [
+        "Place internal pump housing on the inside glass at desired depth.",
+        "Slide external magnet into position from outside the aquarium.",
+        "Direct dual heads toward water surface and mid-rockwork for optimal gyre circulation."
+      ],
+      "includedInBox": [
+        "JVP-232 Dual Wavemaker",
+        "Magnetic Mount Base",
+        "Power Cable"
+      ]
+    },
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Sunsun Magnetic Wavemaker JVP-232",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.8,
+    "researchSources": [
+      {
+        "sourceName": "Sunsun China Industrial Specifications",
+        "sourceUrl": "https://sunsun-china.com",
+        "sourceType": "manufacturer",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "WilTec (Official European Master Distributor for Sunsun)",
+        "sourceUrl": "https://www.wiltec.de/media/34/7a/55/1783421403/wplm_52014_01_en.jpg",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 19,
+    "shortDesc": "Dual-head magnetic circulation wavemaker producing up to 15,000 L/h for marine reef turnover.",
+    "specifications": {
+      "Flow Rate": "15,000 L/h",
+      "Power Consumption": "26 Watts",
+      "Mount Type": "Heavy-Duty Magnetic Mount",
+      "Voltage": "220V - 240V / 50Hz",
+      "Shaft": "Titanium / Corrosion-resistant marine grade"
+    },
+    "stockCount": 4,
+    "updatedAt": "2026-09-29T19:30:03.124Z"
+  },
+  {
+    "_id": "6abc117b035a474cc5e23807",
+    "id": "manual-marine-light",
+    "availabilityNote": "Client recommendation: Best use for anemone and fish only marine aquariums. Manual operation. [Note: Client inventory entry specifies \"Manual Cheap Price Light for anemone and fish only\". This represents an unbranded white-label manual LED unit. No official manufacturer branding or model code exists. Intentional blueprint fallback displayed; awaiting client photography of actual shop stock.]",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Essential Lighting",
+    "brand": "Marine Creatures Selected",
+    "category": "lighting-tech",
+    "categoryLabel": "Aquarium Lighting",
+    "createdAt": "2026-09-29T19:28:59.166Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "A dependable manual lighting fixture designed specifically for saltwater hobbyists maintaining fish-only or anemone aquariums. Delivers balanced illumination that highlights vibrant marine fish coloration without complex digital programming.",
+    "imageStatus": "NEEDS_MEDIA_ASSET",
+    "images": [],
+    "inStock": true,
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Manual Marine Aquarium Light",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.6,
+    "researchSources": [
+      {
+        "sourceName": "Client Inventory Specification Note",
+        "sourceUrl": "internal://client-directive-2026",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "NEEDS_REVIEW",
+    "reviewsCount": 8,
+    "shortDesc": "Cost-effective manual illumination fixture ideally configured for anemone and fish-only saltwater aquariums.",
+    "specifications": {
+      "Operation": "Manual On/Off Switch",
+      "Recommended Setup": "Fish-Only with Live Rock (FOWLR) & Anemone Aquariums",
+      "Mounting": "Standard rim mounting brackets"
+    },
+    "stockCount": 5,
+    "updatedAt": "2026-09-29T19:30:03.083Z"
+  },
+  {
+    "_id": "6abc117b035a474cc5e23806",
+    "id": "luminous-aqua-ocean-blue",
+    "availabilityNote": "Ocean Blue marine spectrum. Available in Q30, Q60, Q75, Q90, and Q120 models.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Deep Ocean Spectrum",
+    "brand": "S Flora / Luminous Aqua",
+    "category": "lighting-tech",
+    "categoryLabel": "Aquarium Lighting",
+    "createdAt": "2026-09-29T19:28:59.123Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "The Luminous Aqua S Flora (Q Series) Ocean Blue edition is engineered specifically for saltwater aquariums. Delivering high-intensity deep blue and actinic wavelengths that replicate oceanic reef depths, enhancing natural marine fish vibrancy and coral fluro-proteins.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/luminous-aqua-ocean-blue.png"
+    ],
+    "inStock": true,
+    "installationGuide": {
+      "difficulty": "Plug & Play",
+      "estimatedTime": "10 Minutes",
+      "steps": [
+        "Extend mounting legs to correspond with tank width.",
+        "Seat brackets securely over the tank rim.",
+        "Connect power cord and verify uniform illumination."
+      ],
+      "includedInBox": [
+        "Luminous Aqua Ocean Blue Light",
+        "Extendable Brackets",
+        "Power Adapter"
+      ]
+    },
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Luminous Aqua S Flora Ocean Blue Marine Light",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.7,
+    "researchSources": [
+      {
+        "sourceName": "S Flora Aquatic Technologies",
+        "sourceUrl": "https://sflora.in",
+        "sourceType": "manufacturer",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "SFlora Official Manufacturer Website",
+        "sourceUrl": "https://static.wixstatic.com/media/783e88_3022e893e9fb40eba394fe9a61f31bad~mv2.png/v1/fit/w_800,h_800,q_90/file.png",
+        "sourceType": "manufacturer",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 14,
+    "shortDesc": "Deep-ocean actinic spectrum fixture designed for marine livestock contrast and coral pop across 5 sizes.",
+    "specifications": {
+      "Spectrum": "Ocean Blue Actinic Marine Spectrum",
+      "Models": "Q30 (30cm), Q60 (60cm), Q75 (75cm), Q90 (90cm), Q120 (120cm)",
+      "Application": "Marine fish displays, soft coral tanks, and reef aquariums"
+    },
+    "stockCount": 6,
+    "updatedAt": "2026-09-29T19:30:03.042Z",
+    "variants": [
+      {
+        "id": "q30",
+        "name": "Luminous Aqua Q30 (30 cm tank)",
+        "inStock": true
+      },
+      {
+        "id": "q60",
+        "name": "Luminous Aqua Q60 (60 cm tank)",
+        "inStock": true
+      },
+      {
+        "id": "q75",
+        "name": "Luminous Aqua Q75 (75 cm tank)",
+        "inStock": true
+      },
+      {
+        "id": "q90",
+        "name": "Luminous Aqua Q90 (90 cm tank)",
+        "inStock": true
+      },
+      {
+        "id": "q120",
+        "name": "Luminous Aqua Q120 (120 cm tank)",
+        "inStock": true
+      }
+    ]
+  },
+  {
+    "_id": "6abc117b035a474cc5e23805",
+    "id": "sessile-comet-light",
+    "availabilityNote": "Manual control fixture. Optimized for 12–18 inch tanks.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "Manual Control",
+    "brand": "Sessile",
+    "category": "lighting-tech",
+    "categoryLabel": "Aquarium Lighting",
+    "createdAt": "2026-09-29T19:28:59.073Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "The Sessile Comet is a robust, straightforward manual LED aquarium light engineered specifically for small marine environments (12–18 inch aquarium width). Delivering actinic blue and daylight spectrums to highlight vibrant fish coloration and support soft corals and anemones with simple plug-and-play manual operation.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/sessile-comet-light.png"
+    ],
+    "inStock": true,
+    "installationGuide": {
+      "difficulty": "Plug & Play",
+      "estimatedTime": "5 Minutes",
+      "mountingType": "Glass Rim Clamp Mount",
+      "steps": [
+        "Loosen mounting thumbscrew and slide clamp over tank edge.",
+        "Hand-tighten screw securely to aquarium glass.",
+        "Connect DC power supply and switch on."
+      ],
+      "includedInBox": [
+        "Sessile Comet LED Light Fixture",
+        "Integrated Gooseneck / Tank Clamp",
+        "Power Adapter"
+      ]
+    },
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Sessile Comet Manual Aquarium Light",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.6,
+    "researchSources": [
+      {
+        "sourceName": "Aquatic Equipment Catalog",
+        "sourceUrl": "https://somethingfishy.co.in",
+        "sourceType": "retailer",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Crod Aquatics (Official Sessile Lighting Manufacturer)",
+        "sourceUrl": "https://5.imimg.com/data5/SELLER/Default/2024/11/464431660/NO/NP/RZ/64277783/60w-sessile-ninja-pro-24-aquarium-marine-light-500x500.png",
+        "sourceType": "manufacturer",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 9,
+    "shortDesc": "Compact manual clamp LED light designed for nano marine tanks and anemone/fish setups (12–18 inch).",
+    "specifications": {
+      "Tank Compatibility": "12–18 inches (30–45 cm)",
+      "Control": "Manual Toggle Switch",
+      "Spectrum": "Marine Actinic Blue & Crisp Daylight White",
+      "Target Use": "Nano marine aquariums, fish-only, and anemone setups"
+    },
+    "stockCount": 4,
+    "updatedAt": "2026-09-29T19:30:03.004Z"
+  },
+  {
+    "_id": "6abc117b035a474cc5e23804",
+    "id": "nemo-extreme-led",
+    "availabilityNote": "App control 2.4G Bluetooth. Available in E450, E600, E900, and E1200 models.",
+    "availabilityStatus": "AVAILABLE",
+    "badge": "App Controlled",
+    "brand": "NemoLight",
+    "category": "lighting-tech",
+    "categoryLabel": "Aquarium Lighting",
+    "createdAt": "2026-09-29T19:28:59.023Z",
+    "deliveryInfo": {
+      "estimatedDays": "2-4 Days",
+      "shippingMethod": "Express Logistics Transit",
+      "guaranteeText": "Insured Protective Packaging Guaranteed"
+    },
+    "description": "The NemoLight Extreme Series II is an advanced marine LED fixture featuring an ultra-slim extruded aluminum heatsink and smartphone app control. Offering 4-channel independent spectrum tuning (UV/Violet, Royal Blue, Deep Blue, and Daylight White) to promote vibrant coral fluorescence and healthy photosynthesis. Equipped with adjustable sliding brackets to fit rimless or braced tanks.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/nemo-extreme-led.jpg"
+    ],
+    "inStock": true,
+    "installationGuide": {
+      "difficulty": "Plug & Play",
+      "estimatedTime": "15 Minutes",
+      "mountingType": "Extendable Tank Rim Bracket",
+      "steps": [
+        "Attach sliding bracket arms into side grooves of aluminum body.",
+        "Adjust bracket spread to rest securely on aquarium glass edges.",
+        "Connect 24V power brick to fixture and plug into wall outlet.",
+        "Download the official Nemo controller app, enable Bluetooth, and pair to configure 24h lighting schedule."
+      ],
+      "includedInBox": [
+        "Nemo Extreme Series II LED Fixture",
+        "24V DC Regulated Power Adapter",
+        "Stainless Steel / Acrylic Tank Mounting Brackets",
+        "Instruction Manual"
+      ]
+    },
+    "isArchived": false,
+    "itemType": "dry",
+    "name": "Nemo Extreme Series II Smart Marine LED",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.9,
+    "researchSources": [
+      {
+        "sourceName": "NemoLight Extreme II Specifications",
+        "sourceUrl": "https://aquazones.in",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Something Fishy (Authorized NemoLight Specialist Retailer)",
+        "sourceUrl": "https://somethingfishy.co.in/wp-content/uploads/2025/05/Nemo-Light-Extreme-Series-II.jpg",
+        "sourceType": "distributor",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 26,
+    "shortDesc": "Slimline all-aluminum smart LED fixture with 4-channel Bluetooth app control and sunrise/sunset simulation.",
+    "specifications": {
+      "Control": "2.4G Bluetooth Mobile Application (iOS & Android)",
+      "Channels": "4 Independent Spectrum Channels",
+      "Presets": "Sunrise, Sunset, Lunar Moonlight, Lightning Simulation",
+      "Material": "Extruded Aircraft-Grade Anodized Aluminum",
+      "Bracket Fit": "Glass thickness up to 12 mm"
+    },
+    "stockCount": 5,
+    "updatedAt": "2026-09-29T19:30:02.963Z",
+    "variants": [
+      {
+        "id": "e450",
+        "name": "Nemo E450 (45–60 cm / 24W)",
+        "inStock": true,
+        "specs": {
+          "Tank Size": "45–60 cm",
+          "Power": "24W"
+        }
+      },
+      {
+        "id": "e600",
+        "name": "Nemo E600 (60–80 cm / 36W)",
+        "inStock": true,
+        "specs": {
+          "Tank Size": "60–80 cm",
+          "Power": "36W"
+        }
+      },
+      {
+        "id": "e900",
+        "name": "Nemo E900 (90–110 cm / 60W)",
+        "inStock": true,
+        "specs": {
+          "Tank Size": "90–110 cm",
+          "Power": "60W"
+        }
+      },
+      {
+        "id": "e1200",
+        "name": "Nemo E1200 (120–140 cm / 72W)",
+        "inStock": true,
+        "specs": {
+          "Tank Size": "120–140 cm",
+          "Power": "72W"
+        }
+      }
+    ]
+  },
+  {
+    "_id": "6abc117a035a474cc5e23803",
+    "id": "magnificent-foxface",
+    "availabilityNote": "Availability marker: @2. Premium reef algae grazer. Fully quarantined.",
+    "availabilityStatus": "QUARANTINED",
+    "badge": "Quarantined Specimen",
+    "brand": "Marine Creatures Quarantine",
+    "careGuide": {
+      "temperature": "24°C - 26°C",
+      "salinity": "1.023 - 1.025 S.G.",
+      "ph": "8.1 - 8.4",
+      "diet": "Herbivore (Nori sheets, nuisance hair & bubble algae, marine spirulina, mysis)",
+      "temperament": "Peaceful (Features venomous dorsal spines for defensive protection)",
+      "minimumTankSize": "380 Litres (100 Gallons)",
+      "reefSafe": true,
+      "careLevel": "Moderate",
+      "acclimationSteps": [
+        "Float sealed transport bag unopened in display or quarantine tank for 20-25 minutes to equalize water temperature.",
+        "Open bag and initiate gentle drip acclimation (2 to 3 drops per second) for 45 to 60 minutes.",
+        "Verify salinity and pH match within 0.001 S.G. before transfer.",
+        "Gently transfer specimen using a soft, knotless silicone net. Do not pour shipping water into your aquarium."
+      ]
+    },
+    "category": "marine-life",
+    "categoryLabel": "Marine Life",
+    "createdAt": "2026-09-29T19:28:58.969Z",
+    "deliveryInfo": {
+      "estimatedDays": "1-2 Days",
+      "shippingMethod": "Priority Live Air Cargo Express",
+      "guaranteeText": "Live Arrival Guaranteed on Authorized Air Cargo (Airport-to-Airport Transit)"
+    },
+    "description": "The Magnificent Foxface (Siganus magnificus) is among the most strikingly patterned rabbitfishes in the world. Sporting an ivory-white body with an intense black saddle across the head and brilliant red accents on dorsal, pectoral, and caudal fin margins. A peerless utility herbivore that cleans nuisance macroalgae and bubble algae.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/magnificent-foxface.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "isQuarantined": true,
+    "itemType": "live",
+    "name": "Magnificent Foxface Rabbitfish",
+    "origin": "Eastern Indian Ocean / Andaman Sea",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 5,
+    "researchSources": [
+      {
+        "sourceName": "FishBase — Siganus magnificus",
+        "sourceUrl": "https://www.fishbase.se/summary/Siganus-magnificus.html",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "FishBase Scientific Imagery",
+        "sourceUrl": "https://www.fishbase.se/summary/Siganus-magnificus.html",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 17,
+    "scientificName": "Siganus magnificus",
+    "shortDesc": "Pristine silver body with dramatic diagonal black chevron mask and crimson fin accents. Supreme algae controller.",
+    "specifications": {
+      "Specimen Size": "Approx. 4–5 in (10–13 cm)",
+      "Utility Value": "Voracious consumer of bubble algae (Valonia) & turf algae",
+      "Geographical Origin": "Eastern Indian Ocean / Andaman Sea",
+      "Quarantine Status": "Certified Completed Protocol",
+      "Adult Size": "Up to 9 inches (23 cm)"
+    },
+    "stockCount": 1,
+    "updatedAt": "2026-09-29T19:30:02.922Z"
+  },
+  {
+    "_id": "6abc117a035a474cc5e23802",
+    "id": "cinnamon-tomato-clown",
+    "availabilityNote": "Available as single specimen or bonded pair. Fully quarantined.",
+    "availabilityStatus": "QUARANTINED",
+    "badge": "Quarantined Specimen",
+    "brand": "Marine Creatures Quarantine",
+    "careGuide": {
+      "temperature": "24°C - 27°C",
+      "salinity": "1.022 - 1.025 S.G.",
+      "ph": "8.1 - 8.4",
+      "diet": "Omnivore (Marine pellets, spirulina, frozen mysis, enriched brine)",
+      "temperament": "Semi-Aggressive (Feisty; strongly defends its host anemone or territory)",
+      "minimumTankSize": "115 Litres (30 Gallons for single / 190 Litres for pair)",
+      "reefSafe": true,
+      "careLevel": "Easy",
+      "acclimationSteps": [
+        "Float sealed transport bag unopened in display or quarantine tank for 20-25 minutes to equalize water temperature.",
+        "Open bag and initiate gentle drip acclimation (2 to 3 drops per second) for 45 to 60 minutes.",
+        "Verify salinity and pH match within 0.001 S.G. before transfer.",
+        "Gently transfer specimen using a soft, knotless silicone net. Do not pour shipping water into your aquarium."
+      ]
+    },
+    "category": "marine-life",
+    "categoryLabel": "Marine Life",
+    "createdAt": "2026-09-29T19:28:58.926Z",
+    "deliveryInfo": {
+      "estimatedDays": "1-2 Days",
+      "shippingMethod": "Priority Live Air Cargo Express",
+      "guaranteeText": "Live Arrival Guaranteed on Authorized Air Cargo (Airport-to-Airport Transit)"
+    },
+    "description": "The Cinnamon Tomato Clownfish complex is celebrated for its deep crimson-orange hue, prominent single white head band, and hardy nature. A robust and bold species that readily forms symbiotic associations with Bubble Tip Anemones (Entacmaea quadricolor). Offered as single specimens or harmonized bonded pairs.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/cinnamon-tomato-clown.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "isQuarantined": true,
+    "itemType": "live",
+    "name": "Cinnamon Tomato Clownfish",
+    "origin": "Western Pacific",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.8,
+    "researchSources": [
+      {
+        "sourceName": "FishBase — Amphiprion melanopus",
+        "sourceUrl": "https://www.fishbase.se/summary/Amphiprion-melanopus.html",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "FishBase Scientific Imagery",
+        "sourceUrl": "https://www.fishbase.se/summary/Amphiprion-frenatus.html",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 19,
+    "scientificName": "Amphiprion melanopus / frenatus",
+    "shortDesc": "Vibrant fiery-red to mahogany flanks with bold white ocular headband. Available as single specimen or bonded pair.",
+    "specifications": {
+      "Available Variants": "Single Specimen or Bonded Pair",
+      "Host Preference": "Bubble Tip Anemone (Entacmaea quadricolor)",
+      "Quarantine Status": "Certified Completed Protocol",
+      "Adult Size": "Up to 5 inches (12 cm)"
+    },
+    "stockCount": 1,
+    "updatedAt": "2026-09-29T19:30:02.883Z",
+    "variants": [
+      {
+        "id": "single",
+        "name": "Single Specimen",
+        "inStock": true
+      },
+      {
+        "id": "pair",
+        "name": "Bonded Pair",
+        "inStock": true
+      }
+    ]
+  },
+  {
+    "_id": "6abc117a035a474cc5e23801",
+    "id": "pink-stripe-wrasse",
+    "availabilityNote": "Availability marker: @. Client descriptor: Rare. Confirmed pellet feeding condition. Fully quarantined.",
+    "availabilityStatus": "QUARANTINED",
+    "badge": "Rare Specimen",
+    "brand": "Marine Creatures Quarantine",
+    "careGuide": {
+      "temperature": "24°C - 26°C",
+      "salinity": "1.023 - 1.025 S.G.",
+      "ph": "8.1 - 8.4",
+      "diet": "Carnivore (Pellet feeding conditioned, enriched mysis, natural micro-pest forager)",
+      "temperament": "Peaceful / Semi-Cryptic (Thrives in mature reef setups with ample live rock caves)",
+      "minimumTankSize": "190 Litres (50 Gallons)",
+      "reefSafe": true,
+      "careLevel": "Moderate",
+      "acclimationSteps": [
+        "Float sealed transport bag unopened in display or quarantine tank for 20-25 minutes to equalize water temperature.",
+        "Open bag and initiate gentle drip acclimation (2 to 3 drops per second) for 45 to 60 minutes.",
+        "Verify salinity and pH match within 0.001 S.G. before transfer.",
+        "Gently transfer specimen using a soft, knotless silicone net. Do not pour shipping water into your aquarium."
+      ]
+    },
+    "category": "marine-life",
+    "categoryLabel": "Marine Life",
+    "createdAt": "2026-09-29T19:28:58.882Z",
+    "deliveryInfo": {
+      "estimatedDays": "1-2 Days",
+      "shippingMethod": "Priority Live Air Cargo Express",
+      "guaranteeText": "Live Arrival Guaranteed on Authorized Air Cargo (Airport-to-Airport Transit)"
+    },
+    "description": "The Pink-Streaked / Pinstripe Wrasse (Pseudocheilinus evanidus) is an elusive and sought-after cryptobenthic wrasse. Exhibiting a luminous coral-pink body with delicate pinstripes and scarlet eye rings. Renowned for its natural predation on reef aquarium pests including pyramidellid snails, flatworms, and bristleworms.",
+    "feedingCondition": "Confirmed Pellet Feeding Condition",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/pink-stripe-wrasse.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "isQuarantined": true,
+    "itemType": "live",
+    "name": "Pink Stripe Wrasse",
+    "origin": "Indo-Pacific / Red Sea",
+    "price": 0,
+    "priceOnRequest": true,
+    "rarity": "Rare",
+    "rating": 5,
+    "researchSources": [
+      {
+        "sourceName": "FishBase — Pseudocheilinus evanidus",
+        "sourceUrl": "https://www.fishbase.se/summary/Pseudocheilinus-evanidus.html",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "FishBase Scientific Imagery",
+        "sourceUrl": "https://www.fishbase.se/summary/Pseudocheilinus-evanidus.html",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 11,
+    "scientificName": "Pseudocheilinus evanidus",
+    "shortDesc": "Slender crimson-pink body adorned with fine longitudinal white pinstripes. Rare reef pest utility hunter.",
+    "specifications": {
+      "Rarity Level": "Rare Specimen",
+      "Feeding Status": "Confirmed Pellet Feeding Condition",
+      "Utility Value": "Natural biological predator of reef pests (flatworms, pyramidellids)",
+      "Reef Safety": "100% Reef Safe",
+      "Adult Size": "3.5 inches (9 cm)"
+    },
+    "stockCount": 1,
+    "updatedAt": "2026-09-29T19:30:02.593Z"
+  },
+  {
+    "_id": "6abc117a035a474cc5e23800",
+    "id": "metallic-yellow-belly-blue-damsel",
+    "availabilityNote": "Vibrant metallic coloration. Fully quarantined and conditioned.",
+    "availabilityStatus": "QUARANTINED",
+    "badge": "Hardy Specimen",
+    "brand": "Marine Creatures Quarantine",
+    "careGuide": {
+      "temperature": "23°C - 27°C",
+      "salinity": "1.021 - 1.025 S.G.",
+      "ph": "8.1 - 8.4",
+      "diet": "Omnivore (Enthusiastically consumes all standard flakes, pellets, and frozen mysis)",
+      "temperament": "Semi-Aggressive (Territorial around its preferred rock niche, but generally community-safe)",
+      "minimumTankSize": "115 Litres (30 Gallons)",
+      "reefSafe": true,
+      "careLevel": "Easy",
+      "acclimationSteps": [
+        "Float sealed transport bag unopened in display or quarantine tank for 20-25 minutes to equalize water temperature.",
+        "Open bag and initiate gentle drip acclimation (2 to 3 drops per second) for 45 to 60 minutes.",
+        "Verify salinity and pH match within 0.001 S.G. before transfer.",
+        "Gently transfer specimen using a soft, knotless silicone net. Do not pour shipping water into your aquarium."
+      ]
+    },
+    "category": "marine-life",
+    "categoryLabel": "Marine Life",
+    "createdAt": "2026-09-29T19:28:58.827Z",
+    "deliveryInfo": {
+      "estimatedDays": "1-2 Days",
+      "shippingMethod": "Priority Live Air Cargo Express",
+      "guaranteeText": "Live Arrival Guaranteed on Authorized Air Cargo (Airport-to-Airport Transit)"
+    },
+    "description": "The Yellow-Belly Blue Damselfish (Chrysiptera hemicyanea), also known as the Azure Damselfish, is acclaimed for its dazzling metallic blue coloration and contrasting golden underside. Unlike more aggressive damselfish species, it remains relatively modest in temperament while providing vibrant motion in rockwork.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/metallic-yellow-belly-blue-damsel.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "isQuarantined": true,
+    "itemType": "live",
+    "name": "Metallic Yellow Belly Blue Damselfish",
+    "origin": "Indo-West Pacific",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.8,
+    "researchSources": [
+      {
+        "sourceName": "FishBase — Chrysiptera hemicyanea",
+        "sourceUrl": "https://www.fishbase.se/summary/Chrysiptera-hemicyanea.html",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "FishBase Scientific Imagery",
+        "sourceUrl": "https://www.fishbase.se/summary/Chrysiptera-hemicyanea.html",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 16,
+    "scientificName": "Chrysiptera hemicyanea",
+    "shortDesc": "Deep cobalt-blue upper body sharply divided by vivid golden-yellow belly and anal fin. Extremely hardy.",
+    "specifications": {
+      "Specimen Size": "Approx. 1.5–2.5 in (4–6 cm)",
+      "Geographical Origin": "Indo-West Pacific",
+      "Quarantine Status": "Certified Completed Protocol",
+      "Hardiness": "Extremely Hardy",
+      "Adult Size": "3 inches (7.5 cm)"
+    },
+    "stockCount": 1,
+    "updatedAt": "2026-09-29T19:30:02.551Z"
+  },
+  {
+    "_id": "6abc117a035a474cc5e237ff",
+    "id": "percula-picasso-clown",
+    "availabilityNote": "Availability marker: @. True percula Picasso pattern. Fully quarantined and acclimated.",
+    "availabilityStatus": "QUARANTINED",
+    "badge": "Designer Morph",
+    "brand": "Marine Creatures Quarantine",
+    "careGuide": {
+      "temperature": "24°C - 27°C",
+      "salinity": "1.022 - 1.025 S.G.",
+      "ph": "8.1 - 8.4",
+      "diet": "Omnivore (Marine pellets, mysis shrimp, enriched brine shrimp, spirulina)",
+      "temperament": "Peaceful (Ideal for community reef aquariums)",
+      "minimumTankSize": "100 Litres (25 Gallons)",
+      "reefSafe": true,
+      "careLevel": "Easy",
+      "acclimationSteps": [
+        "Float sealed transport bag unopened in display or quarantine tank for 20-25 minutes to equalize water temperature.",
+        "Open bag and initiate gentle drip acclimation (2 to 3 drops per second) for 45 to 60 minutes.",
+        "Verify salinity and pH match within 0.001 S.G. before transfer.",
+        "Gently transfer specimen using a soft, knotless silicone net. Do not pour shipping water into your aquarium."
+      ]
+    },
+    "category": "marine-life",
+    "categoryLabel": "Marine Life",
+    "createdAt": "2026-09-29T19:28:58.783Z",
+    "deliveryInfo": {
+      "estimatedDays": "1-2 Days",
+      "shippingMethod": "Priority Live Air Cargo Express",
+      "guaranteeText": "Live Arrival Guaranteed on Authorized Air Cargo (Airport-to-Airport Transit)"
+    },
+    "description": "The Picasso True Percula Clownfish is one of the most celebrated designer clownfish morphs, defined by abstract white bar connections that resemble modernist brushstrokes. Hardy, charismatic, and completely compatible with reef environments. Readily hosts in Heteractis magnifica, Stichodactyla, or Entacmaea quadricolor anemones.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/percula-picasso-clown.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "isQuarantined": true,
+    "itemType": "live",
+    "name": "True Percula Clownfish (Picasso Morph)",
+    "origin": "Captive Bred / Acclimated",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 5,
+    "researchSources": [
+      {
+        "sourceName": "Marine Ornamental Aquaculture Compendium",
+        "sourceUrl": "https://en.wikipedia.org/wiki/Orange_clownfish",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Wikimedia Commons Selective Breeding Documentation",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Amphiprion_percula.jpg",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 42,
+    "scientificName": "Amphiprion percula var. Picasso",
+    "shortDesc": "Abstract painterly white bar connections and bold black framing. Quarantined showpiece clownfish.",
+    "specifications": {
+      "Morph Variation": "Picasso Pattern Grade",
+      "Reef Compatibility": "100% Reef Safe",
+      "Host Anemones": "Bubble Tip, Magnificent, Carpet anemones",
+      "Adult Size": "Up to 3 inches (7.5 cm)"
+    },
+    "stockCount": 1,
+    "updatedAt": "2026-09-29T19:30:02.511Z"
+  },
+  {
+    "_id": "6abc117a035a474cc5e237fe",
+    "id": "triangular-butterfly",
+    "availabilityNote": "Availability marker: @1. Feeding conditioned in quarantine. Specialist marine aquarist specimen.",
+    "availabilityStatus": "QUARANTINED",
+    "badge": "Feeding Conditioned",
+    "brand": "Marine Creatures Quarantine",
+    "careGuide": {
+      "temperature": "24°C - 26°C",
+      "salinity": "1.023 - 1.025 S.G.",
+      "ph": "8.1 - 8.4",
+      "diet": "Specialist Omnivore (Feeding conditioned on prepared clam slurry, enriched mysis, and sponge formulations)",
+      "temperament": "Peaceful / Shy (Requires tranquil tankmates and low-stress environment)",
+      "minimumTankSize": "380 Litres (100 Gallons)",
+      "reefSafe": false,
+      "careLevel": "Expert / Specialist",
+      "acclimationSteps": [
+        "Float sealed transport bag unopened in display or quarantine tank for 20-25 minutes to equalize water temperature.",
+        "Open bag and initiate gentle drip acclimation (2 to 3 drops per second) for 45 to 60 minutes.",
+        "Verify salinity and pH match within 0.001 S.G. before transfer.",
+        "Gently transfer specimen using a soft, knotless silicone net. Do not pour shipping water into your aquarium."
+      ]
+    },
+    "category": "marine-life",
+    "categoryLabel": "Marine Life",
+    "createdAt": "2026-09-29T19:28:58.738Z",
+    "deliveryInfo": {
+      "estimatedDays": "1-2 Days",
+      "shippingMethod": "Priority Live Air Cargo Express",
+      "guaranteeText": "Live Arrival Guaranteed on Authorized Air Cargo (Airport-to-Airport Transit)"
+    },
+    "description": "The Eastern Triangular Butterflyfish (Chaetodon baronessa) possesses an extraordinary high-backed triangular body with intricate chevron patterns. While wild specimens feed primarily on acropora polyps, this individual has been conditioned in quarantine to accept prepared aquarium feeds. Recommended for experienced marine aquarists or fish-only systems.",
+    "feedingCondition": "Feeding Conditioned",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/triangular-butterfly.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "isQuarantined": true,
+    "itemType": "live",
+    "name": "Triangular Butterflyfish",
+    "origin": "Indo-West Pacific",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.7,
+    "researchSources": [
+      {
+        "sourceName": "FishBase — Chaetodon baronessa",
+        "sourceUrl": "https://www.fishbase.se/summary/Chaetodon-baronessa.html",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "FishBase Scientific Imagery",
+        "sourceUrl": "https://www.fishbase.se/summary/Chaetodon-baronessa.html",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 6,
+    "scientificName": "Chaetodon baronessa",
+    "shortDesc": "Stunning geometric triangular chevrons with rich violet-gray tones. Feeding conditioned specimen.",
+    "specifications": {
+      "Specimen Feeding": "Actively Feeding Conditioned",
+      "Compatibility": "Fish-Only with Live Rock (FOWLR) / Specialist setup",
+      "Geographical Origin": "Indo-West Pacific",
+      "Quarantine Status": "Certified Completed Protocol",
+      "Adult Size": "Up to 6 inches (15 cm)"
+    },
+    "stockCount": 1,
+    "updatedAt": "2026-09-29T19:30:02.467Z"
+  },
+  {
+    "_id": "6abc117a035a474cc5e237fd",
+    "id": "lair-tail-hogfish",
+    "availabilityNote": "Availability marker: @2. Client descriptor: Rare. Feeding actively confirmed. Fully quarantined.",
+    "availabilityStatus": "QUARANTINED",
+    "badge": "Rare Specimen",
+    "brand": "Marine Creatures Quarantine",
+    "careGuide": {
+      "temperature": "24°C - 26°C",
+      "salinity": "1.023 - 1.025 S.G.",
+      "ph": "8.1 - 8.4",
+      "diet": "Carnivore (Demands meaty rations: chopped krill, mysis, squid, and premium carnivore pellets)",
+      "temperament": "Semi-Aggressive (Safe with corals; will opportunistically hunt small ornamental shrimp and crabs)",
+      "minimumTankSize": "300 Litres (80 Gallons)",
+      "reefSafe": true,
+      "careLevel": "Moderate",
+      "acclimationSteps": [
+        "Float sealed transport bag unopened in display or quarantine tank for 20-25 minutes to equalize water temperature.",
+        "Open bag and initiate gentle drip acclimation (2 to 3 drops per second) for 45 to 60 minutes.",
+        "Verify salinity and pH match within 0.001 S.G. before transfer.",
+        "Gently transfer specimen using a soft, knotless silicone net. Do not pour shipping water into your aquarium."
+      ]
+    },
+    "category": "marine-life",
+    "categoryLabel": "Marine Life",
+    "createdAt": "2026-09-29T19:28:58.695Z",
+    "deliveryInfo": {
+      "estimatedDays": "1-2 Days",
+      "shippingMethod": "Priority Live Air Cargo Express",
+      "guaranteeText": "Live Arrival Guaranteed on Authorized Air Cargo (Airport-to-Airport Transit)"
+    },
+    "description": "The Lyretail Hogfish (Bodianus anthioides) is an extraordinary and uncommon wrasse relative prized for its contrasting rust-orange anterior and snow-white posterior adorned with dark speckles. This rare specimen is actively feeding on prepared seafood and mysis, having completed our quarantine evaluation.",
+    "feedingCondition": "Feeding Actively",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/lair-tail-hogfish.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "isQuarantined": true,
+    "itemType": "live",
+    "name": "Lyretail Hogfish",
+    "origin": "Indo-Pacific / Red Sea",
+    "price": 0,
+    "priceOnRequest": true,
+    "rarity": "Rare",
+    "rating": 5,
+    "researchSources": [
+      {
+        "sourceName": "FishBase — Bodianus anthioides",
+        "sourceUrl": "https://www.fishbase.se/summary/Bodianus-anthioides.html",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "FishBase Scientific Imagery",
+        "sourceUrl": "https://www.fishbase.se/summary/Bodianus-anthioides.html",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 8,
+    "scientificName": "Bodianus anthioides",
+    "shortDesc": "Distinctive bicolored body, steep snout profile, and lyre-shaped caudal fin. Rare specimen feeding vigorously.",
+    "specifications": {
+      "Rarity Level": "Rare Specimen",
+      "Feeding Status": "Confirmed Feeding Actively",
+      "Geographical Origin": "Indo-Pacific / Red Sea",
+      "Reef Safety": "Reef Safe with Caution (Coral safe; invertebrate caution)",
+      "Adult Size": "Up to 8 inches (20 cm)"
+    },
+    "stockCount": 1,
+    "updatedAt": "2026-09-29T19:30:02.427Z"
+  },
+  {
+    "_id": "6abc117a035a474cc5e237fc",
+    "id": "regal-tang-s",
+    "availabilityNote": "Size: Small juvenile (approx. 1.5–2.5 inches). Fully quarantined and conditioned.",
+    "availabilityStatus": "QUARANTINED",
+    "badge": "Quarantined Specimen",
+    "brand": "Marine Creatures Quarantine",
+    "careGuide": {
+      "temperature": "24°C - 26°C",
+      "salinity": "1.023 - 1.025 S.G.",
+      "ph": "8.1 - 8.4",
+      "diet": "Omnivore / Herbivore (Finely chopped mysis, crushed nori sheets, enriched spirulina)",
+      "temperament": "Peaceful / Social",
+      "minimumTankSize": "280 Litres (75 Gallons initially; upgrade as specimen grows)",
+      "reefSafe": true,
+      "careLevel": "Moderate",
+      "acclimationSteps": [
+        "Float sealed transport bag unopened in display or quarantine tank for 20-25 minutes to equalize water temperature.",
+        "Open bag and initiate gentle drip acclimation (2 to 3 drops per second) for 45 to 60 minutes.",
+        "Verify salinity and pH match within 0.001 S.G. before transfer.",
+        "Gently transfer specimen using a soft, knotless silicone net. Do not pour shipping water into your aquarium."
+      ]
+    },
+    "category": "marine-life",
+    "categoryLabel": "Marine Life",
+    "createdAt": "2026-09-29T19:28:58.651Z",
+    "deliveryInfo": {
+      "estimatedDays": "1-2 Days",
+      "shippingMethod": "Priority Live Air Cargo Express",
+      "guaranteeText": "Live Arrival Guaranteed on Authorized Air Cargo (Airport-to-Airport Transit)"
+    },
+    "description": "A youthful, juvenile specimen of the Regal Blue Tang (Paracanthurus hepatus). Ideal for hobbyists who wish to rear a showpiece tang from an early stage. Highly active, inquisitive, and conditioned on enriched micro-foods under professional quarantine observation.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/regal-tang-s.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "isQuarantined": true,
+    "itemType": "live",
+    "name": "Regal Blue Tang (Small / Juvenile)",
+    "origin": "Indo-Pacific",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.8,
+    "researchSources": [
+      {
+        "sourceName": "FishBase — Paracanthurus hepatus",
+        "sourceUrl": "https://www.fishbase.se/summary/Paracanthurus-hepatus.html",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "FishBase Scientific Imagery",
+        "sourceUrl": "https://www.fishbase.se/summary/Paracanthurus-hepatus.html",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 19,
+    "scientificName": "Paracanthurus hepatus",
+    "shortDesc": "Juvenile Regal Blue Tang with radiant cobalt blue hues. Conditioned and actively feeding.",
+    "specifications": {
+      "Specimen Size": "Small / Juvenile (approx. 1.5–2.5 in / 4–6 cm)",
+      "Geographical Origin": "Indo-Pacific",
+      "Quarantine Status": "Certified Completed Protocol",
+      "Reef Safety": "Reef Safe",
+      "Adult Size": "Up to 10–12 inches (25–30 cm)"
+    },
+    "stockCount": 1,
+    "updatedAt": "2026-09-29T19:30:02.386Z"
+  },
+  {
+    "_id": "6abc117a035a474cc5e237fb",
+    "id": "regal-tang-m",
+    "availabilityNote": "Size: Medium (approx. 3–4 inches). Fully quarantined and acclimated.",
+    "availabilityStatus": "QUARANTINED",
+    "badge": "Quarantined Specimen",
+    "brand": "Marine Creatures Quarantine",
+    "careGuide": {
+      "temperature": "24°C - 26°C",
+      "salinity": "1.023 - 1.025 S.G.",
+      "ph": "8.1 - 8.4",
+      "diet": "Omnivore / Herbivore (Marine nori sheets, spirulina enriched flakes, mysis shrimp)",
+      "temperament": "Peaceful / Active (Needs brisk flow and open swimming channels)",
+      "minimumTankSize": "380 Litres (100 Gallons)",
+      "reefSafe": true,
+      "careLevel": "Moderate",
+      "acclimationSteps": [
+        "Float sealed transport bag unopened in display or quarantine tank for 20-25 minutes to equalize water temperature.",
+        "Open bag and initiate gentle drip acclimation (2 to 3 drops per second) for 45 to 60 minutes.",
+        "Verify salinity and pH match within 0.001 S.G. before transfer.",
+        "Gently transfer specimen using a soft, knotless silicone net. Do not pour shipping water into your aquarium."
+      ]
+    },
+    "category": "marine-life",
+    "categoryLabel": "Marine Life",
+    "createdAt": "2026-09-29T19:28:58.597Z",
+    "deliveryInfo": {
+      "estimatedDays": "1-2 Days",
+      "shippingMethod": "Priority Live Air Cargo Express",
+      "guaranteeText": "Live Arrival Guaranteed on Authorized Air Cargo (Airport-to-Airport Transit)"
+    },
+    "description": "The Pacific Regal Blue Tang (Paracanthurus hepatus), made world-famous as \"Dory\", is an iconic inhabitant of Indo-Pacific coral reefs. This medium specimen features vibrant electric blue coloration and active schooling behavior. Fully quarantined with preventative anti-parasite protocols completed.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/regal-tang-m.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "isQuarantined": true,
+    "itemType": "live",
+    "name": "Regal Blue Tang (Medium)",
+    "origin": "Indo-Pacific",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.9,
+    "researchSources": [
+      {
+        "sourceName": "FishBase — Paracanthurus hepatus",
+        "sourceUrl": "https://www.fishbase.se/summary/Paracanthurus-hepatus.html",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "FishBase Scientific Imagery",
+        "sourceUrl": "https://www.fishbase.se/summary/Paracanthurus-hepatus.html",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 28,
+    "scientificName": "Paracanthurus hepatus",
+    "shortDesc": "Electric royal-blue palette with classic black palette marking and bright yellow wedge tail. Size M.",
+    "specifications": {
+      "Specimen Size": "Medium (approx. 3–4 in / 8–10 cm)",
+      "Geographical Origin": "Indo-Pacific",
+      "Quarantine Status": "Certified Completed Protocol",
+      "Reef Safety": "Reef Safe",
+      "Adult Size": "Up to 10–12 inches (25–30 cm)"
+    },
+    "stockCount": 1,
+    "updatedAt": "2026-09-29T19:30:02.345Z"
+  },
+  {
+    "_id": "6abc117a035a474cc5e237fa",
+    "id": "banggai-cardinal",
+    "availabilityNote": "Peaceful reef specimen. Fully quarantined.",
+    "availabilityStatus": "QUARANTINED",
+    "badge": "Quarantined Specimen",
+    "brand": "Marine Creatures Quarantine",
+    "careGuide": {
+      "temperature": "24°C - 27°C",
+      "salinity": "1.023 - 1.025 S.G.",
+      "ph": "8.1 - 8.4",
+      "diet": "Carnivore (Enriched frozen mysis, brine shrimp, copepods, and fine marine bits)",
+      "temperament": "Peaceful (Excellent community specimen; best kept singly or in bonded pairs)",
+      "minimumTankSize": "115 Litres (30 Gallons)",
+      "reefSafe": true,
+      "careLevel": "Easy",
+      "acclimationSteps": [
+        "Float sealed transport bag unopened in display or quarantine tank for 20-25 minutes to equalize water temperature.",
+        "Open bag and initiate gentle drip acclimation (2 to 3 drops per second) for 45 to 60 minutes.",
+        "Verify salinity and pH match within 0.001 S.G. before transfer.",
+        "Gently transfer specimen using a soft, knotless silicone net. Do not pour shipping water into your aquarium."
+      ]
+    },
+    "category": "marine-life",
+    "categoryLabel": "Marine Life",
+    "createdAt": "2026-09-29T19:28:58.553Z",
+    "deliveryInfo": {
+      "estimatedDays": "1-2 Days",
+      "shippingMethod": "Priority Live Air Cargo Express",
+      "guaranteeText": "Live Arrival Guaranteed on Authorized Air Cargo (Airport-to-Airport Transit)"
+    },
+    "description": "Endemic to the shallow waters of the Banggai Archipelago, the Banggai Cardinalfish is renowned for its tranquil hovering behavior and striking monochrome elegance. Completely peaceful and safe with all corals and delicate invertebrates. Acclimated and conditioned in quarantine.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/banggai-cardinal.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "isQuarantined": true,
+    "itemType": "live",
+    "name": "Banggai Cardinalfish",
+    "origin": "Banggai Islands, Indonesia",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.8,
+    "researchSources": [
+      {
+        "sourceName": "IUCN & Marine Biology Hub",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Pterapogon_kauderni_NEA.jpg",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Wikimedia Commons Scientific Imagery",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Pterapogon_kauderni_NEA.jpg",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 34,
+    "scientificName": "Pterapogon kauderni",
+    "shortDesc": "Stunning geometric black bar patterns with shimmering white pearl accents and elongated fins. 100% reef safe.",
+    "specifications": {
+      "Specimen Size": "Approx. 2–2.5 in (5–6.5 cm)",
+      "Geographical Origin": "Banggai Islands, Indonesia",
+      "Quarantine Status": "Certified Completed Protocol",
+      "Reef Safety": "100% Reef Safe",
+      "Adult Size": "3 inches (7.5 cm)"
+    },
+    "stockCount": 1,
+    "updatedAt": "2026-09-29T19:30:02.303Z"
+  },
+  {
+    "_id": "6abc117a035a474cc5e237f9",
+    "id": "blonde-naso-tang",
+    "availabilityNote": "Availability marker: @. Confirmed pellet feeding. Fully quarantined.",
+    "availabilityStatus": "QUARANTINED",
+    "badge": "Pellet Feeding",
+    "brand": "Marine Creatures Quarantine",
+    "careGuide": {
+      "temperature": "24°C - 26°C",
+      "salinity": "1.023 - 1.025 S.G.",
+      "ph": "8.1 - 8.4",
+      "diet": "Herbivore (Actively feeding on marine pellets; demands brown macroalgae, Sargassum, and nori)",
+      "temperament": "Peaceful / Active Swimmer",
+      "minimumTankSize": "680 Litres (180 Gallons)",
+      "reefSafe": true,
+      "careLevel": "Moderate",
+      "acclimationSteps": [
+        "Float sealed transport bag unopened in display or quarantine tank for 20-25 minutes to equalize water temperature.",
+        "Open bag and initiate gentle drip acclimation (2 to 3 drops per second) for 45 to 60 minutes.",
+        "Verify salinity and pH match within 0.001 S.G. before transfer.",
+        "Gently transfer specimen using a soft, knotless silicone net. Do not pour shipping water into your aquarium."
+      ]
+    },
+    "category": "marine-life",
+    "categoryLabel": "Marine Life",
+    "createdAt": "2026-09-29T19:28:58.509Z",
+    "deliveryInfo": {
+      "estimatedDays": "1-2 Days",
+      "shippingMethod": "Priority Live Air Cargo Express",
+      "guaranteeText": "Live Arrival Guaranteed on Authorized Air Cargo (Airport-to-Airport Transit)"
+    },
+    "description": "The Blonde Naso Tang (Naso elegans), also called the Elegant Unicornfish, is celebrated for its graceful demeanor, slate-gray body, yellow dorsal fin, and twin orange caudal spines. This specimen has been thoroughly conditioned in our facility and is actively feeding on dry marine pellets alongside sheet nori.",
+    "feedingCondition": "Confirmed Pellet Feeding",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/blonde-naso-tang.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "isQuarantined": true,
+    "itemType": "live",
+    "name": "Blonde Naso Tang",
+    "origin": "Indian Ocean / Red Sea",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 5,
+    "researchSources": [
+      {
+        "sourceName": "FishBase — Naso elegans",
+        "sourceUrl": "https://www.fishbase.se/summary/Naso-elegans.html",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "FishBase Scientific Imagery",
+        "sourceUrl": "https://www.fishbase.se/summary/Naso-elegans.html",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 21,
+    "scientificName": "Naso elegans",
+    "shortDesc": "Distinguished by a vibrant bright yellow dorsal fin and orange caudal scalpels. Confirmed pellet feeding.",
+    "specifications": {
+      "Specimen Size": "Approx. 4.5–5.5 in (11–14 cm)",
+      "Feeding Status": "Confirmed Dry Pellet Feeding",
+      "Geographical Origin": "Indian Ocean / Red Sea",
+      "Quarantine Status": "Certified Completed Protocol",
+      "Adult Size": "12–18 inches in mature systems"
+    },
+    "stockCount": 1,
+    "updatedAt": "2026-09-29T19:30:02.263Z"
+  },
+  {
+    "_id": "6abc117a035a474cc5e237f8",
+    "id": "flameback-angel",
+    "availabilityNote": "Availability marker: @. Red Sea import. Fully quarantined dwarf angel.",
+    "availabilityStatus": "QUARANTINED",
+    "badge": "Quarantined Specimen",
+    "brand": "Marine Creatures Quarantine",
+    "careGuide": {
+      "temperature": "23°C - 26°C",
+      "salinity": "1.022 - 1.025 S.G.",
+      "ph": "8.1 - 8.4",
+      "diet": "Omnivore (Microalgae grazer, marine spirulina, finely chopped enriched mysis, and micro-pellets)",
+      "temperament": "Semi-Aggressive (Pygmy angelfish; territorial with conspecifics and small rock-dwellers)",
+      "minimumTankSize": "200 Litres (55 Gallons)",
+      "reefSafe": true,
+      "careLevel": "Moderate",
+      "acclimationSteps": [
+        "Float sealed transport bag unopened in display or quarantine tank for 20-25 minutes to equalize water temperature.",
+        "Open bag and initiate gentle drip acclimation (2 to 3 drops per second) for 45 to 60 minutes.",
+        "Verify salinity and pH match within 0.001 S.G. before transfer.",
+        "Gently transfer specimen using a soft, knotless silicone net. Do not pour shipping water into your aquarium."
+      ]
+    },
+    "category": "marine-life",
+    "categoryLabel": "Marine Life",
+    "createdAt": "2026-09-29T19:28:58.463Z",
+    "deliveryInfo": {
+      "estimatedDays": "1-2 Days",
+      "shippingMethod": "Priority Live Air Cargo Express",
+      "guaranteeText": "Live Arrival Guaranteed on Authorized Air Cargo (Airport-to-Airport Transit)"
+    },
+    "description": "The African/Red Sea Flameback Angelfish (Centropyge acanthops) is a jewel-like pygmy angelfish. Its rich sapphire-blue body is contrasted by a vivid golden-orange dorsal crest running from snout to tail. Thrives in mature reef environments with intricate rockwork for grazing on natural micro-algae and detrital films.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/flameback-angel.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "isQuarantined": true,
+    "itemType": "live",
+    "name": "Flameback Angelfish",
+    "origin": "Red Sea / Western Indian Ocean",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 4.9,
+    "researchSources": [
+      {
+        "sourceName": "World Register of Marine Species (WoRMS)",
+        "sourceUrl": "https://www.marinespecies.org/aphia.php?p=taxdetails&id=218685",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "WoRMS Scientific Imagery",
+        "sourceUrl": "https://www.marinespecies.org/aphia.php?p=taxdetails&id=218685",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 15,
+    "scientificName": "Centropyge acanthops",
+    "shortDesc": "Deep indigo-blue flanks crowned with an incandescent orange-gold dorsal mantle. Quarantined.",
+    "specifications": {
+      "Specimen Size": "Approx. 2.5–3 in (6–7.5 cm)",
+      "Geographical Origin": "Red Sea / Western Indian Ocean",
+      "Quarantine Status": "Certified Completed Protocol",
+      "Reef Safety": "Reef Safe with Caution (monitor with fleshy LPS & clams)",
+      "Adult Size": "3 inches (7.5 cm)"
+    },
+    "stockCount": 1,
+    "updatedAt": "2026-09-29T19:30:02.222Z"
+  },
+  {
+    "_id": "6abc117a035a474cc5e237f7",
+    "id": "sohal-tang-m",
+    "availabilityNote": "Availability marker: @. Red Sea origin. Size: Medium (approx. 3.5–4.5 inches). Fully quarantined.",
+    "availabilityStatus": "QUARANTINED",
+    "badge": "Quarantined Specimen",
+    "brand": "Marine Creatures Quarantine",
+    "careGuide": {
+      "temperature": "24°C - 26°C",
+      "salinity": "1.023 - 1.025 S.G.",
+      "ph": "8.1 - 8.4",
+      "diet": "Herbivore (Demands heavy vegetable matter: nori, sea lettuce, spirulina, supplemented with mysis)",
+      "temperament": "Aggressive (Dominant tang; demands high water velocity and massive lateral swimming distance)",
+      "minimumTankSize": "680 Litres (180 Gallons)",
+      "reefSafe": true,
+      "careLevel": "Experienced",
+      "acclimationSteps": [
+        "Float sealed transport bag unopened in display or quarantine tank for 20-25 minutes to equalize water temperature.",
+        "Open bag and initiate gentle drip acclimation (2 to 3 drops per second) for 45 to 60 minutes.",
+        "Verify salinity and pH match within 0.001 S.G. before transfer.",
+        "Gently transfer specimen using a soft, knotless silicone net. Do not pour shipping water into your aquarium."
+      ]
+    },
+    "category": "marine-life",
+    "categoryLabel": "Marine Life",
+    "createdAt": "2026-09-29T19:28:58.417Z",
+    "deliveryInfo": {
+      "estimatedDays": "1-2 Days",
+      "shippingMethod": "Priority Live Air Cargo Express",
+      "guaranteeText": "Live Arrival Guaranteed on Authorized Air Cargo (Airport-to-Airport Transit)"
+    },
+    "description": "The Sohal Tang (Acanthurus sohal), also known as the Arabian Surgeonfish, is an iconic crown jewel of the Red Sea. Featuring fine horizontal silver-and-charcoal body striations highlighted by radiant electric-blue margins on all median fins. This medium-sized specimen has undergone complete quarantine observation and conditioning.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/sohal-tang-m.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "isQuarantined": true,
+    "itemType": "live",
+    "name": "Sohal Tang (Medium)",
+    "origin": "Red Sea",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 5,
+    "researchSources": [
+      {
+        "sourceName": "FishBase — Acanthurus sohal",
+        "sourceUrl": "https://www.fishbase.se/summary/Acanthurus-sohal.html",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "FishBase Scientific Imagery",
+        "sourceUrl": "https://www.fishbase.se/summary/Acanthurus-sohal.html",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 12,
+    "scientificName": "Acanthurus sohal",
+    "shortDesc": "Iconic Red Sea surgeonfish with intricate zebra stripes and striking turquoise-trimmed fins. Quarantined.",
+    "specifications": {
+      "Specimen Size": "Medium (approx. 3.5–4.5 in / 9–11 cm)",
+      "Geographical Origin": "Red Sea",
+      "Quarantine Status": "Certified Completed Protocol",
+      "Flow Requirement": "High turbulent flow / wavemaker active",
+      "Adult Size": "Up to 16 inches (40 cm)"
+    },
+    "stockCount": 1,
+    "updatedAt": "2026-09-29T19:30:02.183Z"
+  },
+  {
+    "_id": "6abc117a035a474cc5e237f6",
+    "id": "purple-tang-l",
+    "availabilityNote": "Availability marker: @. Red Sea wild-caught origin. Size: Large (approx. 5–6 inches). Fully quarantined.",
+    "availabilityStatus": "QUARANTINED",
+    "badge": "Quarantined Specimen",
+    "brand": "Marine Creatures Quarantine",
+    "careGuide": {
+      "temperature": "24°C - 26°C",
+      "salinity": "1.023 - 1.025 S.G.",
+      "ph": "8.1 - 8.4",
+      "diet": "Herbivore / Omnivore (Marine nori sheets, spirulina, enriched mysis, and marine pellets)",
+      "temperament": "Semi-Aggressive (Territorial with other Zebrasoma; requires open swimming lanes and live rock grazing surfaces)",
+      "minimumTankSize": "380 Litres (100 Gallons)",
+      "reefSafe": true,
+      "careLevel": "Moderate",
+      "acclimationSteps": [
+        "Float sealed transport bag unopened in display or quarantine tank for 20-25 minutes to equalize water temperature.",
+        "Open bag and initiate gentle drip acclimation (2 to 3 drops per second) for 45 to 60 minutes.",
+        "Verify salinity and pH match within 0.001 S.G. before transfer.",
+        "Gently transfer specimen using a soft, knotless silicone net. Do not pour shipping water into your aquarium."
+      ]
+    },
+    "category": "marine-life",
+    "categoryLabel": "Marine Life",
+    "createdAt": "2026-09-29T19:28:58.351Z",
+    "deliveryInfo": {
+      "estimatedDays": "1-2 Days",
+      "shippingMethod": "Priority Live Air Cargo Express",
+      "guaranteeText": "Live Arrival Guaranteed on Authorized Air Cargo (Airport-to-Airport Transit)"
+    },
+    "description": "The Purple Tang (Zebrasoma xanthurum) is widely regarded as one of the most magnificent surgeonfish in the marine aquarium hobby. Originating from the pristine reefs of the Red Sea, this specimen exhibits intense royal-blue and violet coloration contrasted with an electric yellow caudal fin. Held under strict prophylactic quarantine protocol at Marine Creatures.",
+    "imageStatus": "VERIFIED",
+    "images": [
+      "/images/products/purple-tang-l.jpg"
+    ],
+    "inStock": true,
+    "isArchived": false,
+    "isQuarantined": true,
+    "itemType": "live",
+    "name": "Purple Tang (Large)",
+    "origin": "Red Sea",
+    "price": 0,
+    "priceOnRequest": true,
+    "rating": 5,
+    "researchSources": [
+      {
+        "sourceName": "FishBase & Marine Husbandry Compendium",
+        "sourceUrl": "https://www.fishbase.se/summary/Zebrasoma-xanthurum.html",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "Wikimedia Commons Scientific Imagery",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Zebrasoma_xanthurum_pair.jpg",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      },
+      {
+        "sourceName": "FishBase & Wikimedia Commons",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Zebrasoma_xanthurum_pair.jpg",
+        "sourceType": "marine-biology",
+        "accessedAt": "2026-09-30"
+      }
+    ],
+    "researchStatus": "READY",
+    "reviewsCount": 18,
+    "scientificName": "Zebrasoma xanthurum",
+    "shortDesc": "Vibrant cobalt-purple body with brilliant canary-yellow tail and pectoral fins. Quarantined Red Sea specimen.",
+    "specifications": {
+      "Specimen Size": "Large (approx. 5–6 in / 13–15 cm)",
+      "Geographical Origin": "Red Sea",
+      "Quarantine Status": "Certified Completed Protocol",
+      "Reef Compatibility": "Reef Safe",
+      "Dietary Preference": "Macroalgae grazer & omnivore pellets",
+      "Adult Size": "Up to 8 inches (20 cm)"
+    },
+    "stockCount": 1,
+    "updatedAt": "2026-09-29T19:30:02.140Z"
+  }
+]

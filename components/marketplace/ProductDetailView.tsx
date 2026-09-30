@@ -14,9 +14,17 @@ interface ProductDetailViewProps {
   product: Product;
   relatedProducts: Product[];
   initialVariantId?: string;
+  imageAlt?: string;
+  serviceConnection?: { link: string; text: string };
 }
 
-export function ProductDetailView({ product: initialProduct, relatedProducts, initialVariantId }: ProductDetailViewProps) {
+export function ProductDetailView({
+  product: initialProduct,
+  relatedProducts,
+  initialVariantId,
+  imageAlt,
+  serviceConnection,
+}: ProductDetailViewProps) {
   const { getProduct } = useCatalog();
   const product = getProduct(initialProduct.id) || initialProduct;
   const { addToCart, setIsCartOpen } = useCart();
@@ -199,7 +207,12 @@ export function ProductDetailView({ product: initialProduct, relatedProducts, in
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   src={currentMedia.url}
-                  alt={product.name}
+                  alt={
+                    imageAlt ||
+                    (product.scientificName
+                      ? `${product.name} (${product.scientificName}) marine specimen`
+                      : `${product.name} — ${product.categoryLabel}`)
+                  }
                   className="w-full h-full object-cover transition-opacity duration-300"
                 />
               ) : (
@@ -677,14 +690,14 @@ export function ProductDetailView({ product: initialProduct, relatedProducts, in
 
             <div className="pt-1">
               <Link
-                href="/services"
+                href={serviceConnection?.link || '/services'}
                 className="text-xs text-[--color-muted] hover:text-[--color-accent] flex items-center gap-1.5 transition-colors"
               >
-                <svg className="w-3.5 h-3.5 text-[--color-accent]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <svg className="w-3.5 h-3.5 text-[--color-accent] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                <span>Need complete on-site installation or plumbing setup? Book a consultation →</span>
+                <span>{serviceConnection?.text || 'Need complete on-site installation or plumbing setup? Book a consultation →'}</span>
               </Link>
             </div>
           </div>
