@@ -79,6 +79,20 @@ export function MarketplaceShowcase() {
 
         {/* Products Grid */}
         <ScrollReveal delay={0.15}>
+          {activeFilter === 'lighting-tech' && (
+            <div className="mb-6 p-4 rounded-2xl border border-cyan-500/30 bg-cyan-500/10 flex items-center justify-between gap-4 flex-wrap text-xs text-slate-300">
+              <span>
+                Comparing Nemo E450, E600, E900, or E1200 fixtures? View our comprehensive specification &amp; tank-fit guide.
+              </span>
+              <Link
+                href="/marketplace/lighting"
+                className="font-semibold text-cyan-400 hover:text-cyan-300 underline inline-flex items-center gap-1"
+              >
+                Explore Dedicated Lighting Hub &rarr;
+              </Link>
+            </div>
+          )}
+
           {displayedProducts.length === 0 ? (
             <div className="text-center py-16 border border-[rgba(255,255,255,0.08)] rounded-3xl p-8 bg-[var(--color-secondary)] max-w-md mx-auto">
               <p className="text-sm text-[var(--color-muted)]">No specimens currently available in this category.</p>

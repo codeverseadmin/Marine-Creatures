@@ -13,9 +13,10 @@ import { SITE_CONFIG } from '@/lib/config';
 interface ProductDetailViewProps {
   product: Product;
   relatedProducts: Product[];
+  initialVariantId?: string;
 }
 
-export function ProductDetailView({ product: initialProduct, relatedProducts }: ProductDetailViewProps) {
+export function ProductDetailView({ product: initialProduct, relatedProducts, initialVariantId }: ProductDetailViewProps) {
   const { getProduct } = useCatalog();
   const product = getProduct(initialProduct.id) || initialProduct;
   const { addToCart, setIsCartOpen } = useCart();
@@ -24,7 +25,7 @@ export function ProductDetailView({ product: initialProduct, relatedProducts }: 
   const isLive = isLiveProduct(product);
 
   // Selected variant state
-  const [selectedVariant, setSelectedVariant] = useState<string>(product.variants?.[0]?.id || '');
+  const [selectedVariant, setSelectedVariant] = useState<string>(initialVariantId || product.variants?.[0]?.id || '');
 
   // Unified Media List (Photos + Videos)
   const mediaItems: ProductMedia[] = React.useMemo(() => {

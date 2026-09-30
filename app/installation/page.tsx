@@ -1,11 +1,42 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
+import { SITE_CONFIG } from '@/lib/config';
+import { generateBreadcrumbJsonLd, generateServiceJsonLd } from '@/lib/seo/structuredData';
+
 export const metadata: Metadata = {
-  title: 'Installation — Professional Aquarium Installation',
+  title: 'Turnkey Marine Aquarium Installation & Commissioning',
   description:
-    'Expert aquarium installation by Marine Creatures. Precision engineering for residential, commercial and hospitality environments.',
+    'Professional marine aquarium installation by Marine Creatures. Structural floor load assessment, Schedule 80 plumbing, automated cycling, and livestock acclimation.',
+  alternates: {
+    canonical: `${SITE_CONFIG.url}/installation`,
+  },
+  openGraph: {
+    title: 'Turnkey Marine Aquarium Installation & Commissioning | Marine Creatures',
+    description:
+      'Precision architectural aquarium engineering from site assessment to biological handover.',
+    url: `${SITE_CONFIG.url}/installation`,
+    siteName: SITE_CONFIG.name,
+    locale: 'en_IN',
+    type: 'website',
+    images: [
+      {
+        url: `${SITE_CONFIG.url}/og-image.jpg`,
+        width: 1024,
+        height: 1024,
+        alt: 'Aquarium Installation — Marine Creatures',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Turnkey Marine Aquarium Installation | Marine Creatures',
+    description:
+      'Professional marine aquarium installation and life-support commissioning.',
+    images: [`${SITE_CONFIG.url}/og-image.jpg`],
+  },
 };
+
 const STAGES = [
   {
     step: '01',
@@ -40,8 +71,47 @@ const STAGES = [
 ];
 
 export default function InstallationPage() {
+  const breadcrumbs = [
+    { name: 'Home', url: '/' },
+    { name: 'Installation', url: '/installation' },
+  ];
+
+  const breadcrumbJsonLd = generateBreadcrumbJsonLd(breadcrumbs);
+  const serviceJsonLd = generateServiceJsonLd({
+    name: 'Turnkey Marine Aquarium Installation & Life Support Commissioning',
+    description:
+      'Complete architectural marine aquarium installation including Schedule 80 plumbing, OptiWhite glass placement, automated cycling, and biological introduction.',
+    url: '/installation',
+    serviceType: 'AquariumInstallationService',
+  });
+
   return (
     <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
+      />
+
+      {/* Visual Breadcrumbs */}
+      <div className="container-max pt-24 sm:pt-28 pb-3">
+        <nav
+          aria-label="Breadcrumb"
+          className="flex items-center gap-2 text-xs text-slate-400"
+        >
+          <Link href="/" className="hover:text-cyan-400 transition-colors">
+            Home
+          </Link>
+          <span className="opacity-40">/</span>
+          <span className="text-cyan-400 font-medium" aria-current="page">
+            Installation
+          </span>
+        </nav>
+      </div>
+
       {/* Hero */}
       <div
         className="relative flex items-end overflow-hidden"

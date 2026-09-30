@@ -152,6 +152,14 @@ export function Footer() {
                 ))}
                 <li>
                   <Link
+                    href="/marketplace/lighting"
+                    className="font-body font-light text-slate-400 text-xs sm:text-sm hover:text-white transition-colors duration-300 block py-0.5"
+                  >
+                    Aquarium Lighting &amp; Nemo LEDs
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     href="/shipping-policy"
                     className="font-body font-light text-slate-400 text-xs sm:text-sm hover:text-white transition-colors duration-300 block py-0.5"
                   >

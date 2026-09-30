@@ -1,17 +1,73 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { SERVICES_DATA } from '@/lib/data/services';
 import { BookingForm } from '@/components/services/BookingForm';
 import { SITE_CONFIG } from '@/lib/config';
+import { generateBreadcrumbJsonLd } from '@/lib/seo/structuredData';
 
 export const metadata: Metadata = {
-  title: 'Services & Booking — Aquarium Installation & Renovation',
+  title: 'Marine Aquarium Services, Installation & Maintenance',
   description:
-    'Book bespoke luxury aquarium installation, living coral reef renovation, and white-glove marine concierge services with Marine Creatures.',
+    'Comprehensive marine aquarium engineering services: turnkey installations, living coral reef renovations, and white-glove biological concierge maintenance by certified marine curators.',
+  alternates: {
+    canonical: `${SITE_CONFIG.url}/services`,
+  },
+  openGraph: {
+    title: 'Marine Aquarium Services, Installation & Maintenance | Marine Creatures',
+    description:
+      'Turnkey luxury aquarium installation, biological renovation, and ongoing marine concierge maintenance.',
+    url: `${SITE_CONFIG.url}/services`,
+    siteName: SITE_CONFIG.name,
+    locale: 'en_IN',
+    type: 'website',
+    images: [
+      {
+        url: `${SITE_CONFIG.url}/og-image.jpg`,
+        width: 1024,
+        height: 1024,
+        alt: 'Marine Aquarium Services — Marine Creatures',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Marine Aquarium Services | Marine Creatures',
+    description:
+      'Turnkey luxury aquarium installation, biological renovation, and ongoing marine concierge maintenance.',
+    images: [`${SITE_CONFIG.url}/og-image.jpg`],
+  },
 };
 
 export default function ServicesPage() {
+  const breadcrumbs = [
+    { name: 'Home', url: '/' },
+    { name: 'Services', url: '/services' },
+  ];
+
+  const breadcrumbJsonLd = generateBreadcrumbJsonLd(breadcrumbs);
+
   return (
     <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+
+      {/* Visual Breadcrumbs */}
+      <div className="container-max pt-24 sm:pt-28 pb-2">
+        <nav
+          aria-label="Breadcrumb"
+          className="flex items-center gap-2 text-xs text-slate-400"
+        >
+          <Link href="/" className="hover:text-cyan-400 transition-colors">
+            Home
+          </Link>
+          <span className="opacity-40">/</span>
+          <span className="text-cyan-400 font-medium" aria-current="page">
+            Services
+          </span>
+        </nav>
+      </div>
       {/* Hero Header */}
       <div className="relative pt-28 sm:pt-36 md:pt-44 pb-12 sm:pb-20 border-b border-[rgba(255,255,255,0.06)] overflow-hidden">
         <div

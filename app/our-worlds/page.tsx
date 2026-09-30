@@ -1,11 +1,39 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SITE_CONFIG } from '@/lib/config';
+import { generateBreadcrumbJsonLd } from '@/lib/seo/structuredData';
 
 export const metadata: Metadata = {
-  title: 'Our Worlds — Architectural Case Studies | Marine Creatures',
+  title: 'Our Worlds — Architectural Living Reef Case Studies',
   description:
-    'Explore completed bespoke marine environments by Marine Creatures. Architectural living reefs, custom acrylic monoliths, and turnkey engineering for private residences and corporate spaces.',
+    'Explore completed bespoke marine environments by Marine Creatures. Architectural living reefs, custom acrylic monoliths, and turnkey engineering for private penthouses and estates.',
+  alternates: {
+    canonical: `${SITE_CONFIG.url}/our-worlds`,
+  },
+  openGraph: {
+    title: 'Our Worlds — Architectural Living Reef Case Studies | Marine Creatures',
+    description:
+      'Completed luxury marine aquariums, dual-sided living partitions, and bespoke coral reef monoliths across India.',
+    url: `${SITE_CONFIG.url}/our-worlds`,
+    siteName: SITE_CONFIG.name,
+    locale: 'en_IN',
+    type: 'website',
+    images: [
+      {
+        url: `${SITE_CONFIG.url}/og-image.jpg`,
+        width: 1024,
+        height: 1024,
+        alt: 'Our Worlds Architectural Case Studies — Marine Creatures',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Our Worlds — Architectural Case Studies | Marine Creatures',
+    description:
+      'Completed bespoke marine sanctuaries and custom living coral reef installations.',
+    images: [`${SITE_CONFIG.url}/og-image.jpg`],
+  },
 };
 
 interface CaseStudy {
@@ -125,8 +153,36 @@ export default function OurWorldsPage() {
     'Hello Marine Creatures, I would like to consult on commissioning an architectural aquarium project similar to your case studies.'
   )}`;
 
+  const breadcrumbs = [
+    { name: 'Home', url: '/' },
+    { name: 'Our Worlds', url: '/our-worlds' },
+  ];
+
+  const breadcrumbJsonLd = generateBreadcrumbJsonLd(breadcrumbs);
+
   return (
     <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+
+      {/* Visual Breadcrumbs */}
+      <div className="container-max pt-24 sm:pt-28 pb-3">
+        <nav
+          aria-label="Breadcrumb"
+          className="flex items-center gap-2 text-xs text-slate-400"
+        >
+          <Link href="/" className="hover:text-cyan-400 transition-colors">
+            Home
+          </Link>
+          <span className="opacity-40">/</span>
+          <span className="text-cyan-400 font-medium" aria-current="page">
+            Our Worlds
+          </span>
+        </nav>
+      </div>
+
       {/* ── Hero Section ────────────────────────────────────────────────────── */}
       <div
         className="relative flex items-end overflow-hidden"

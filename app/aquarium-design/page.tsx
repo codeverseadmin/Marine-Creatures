@@ -2,10 +2,40 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { AquariumEstimator } from '@/components/services/AquariumEstimator';
 
+import { SITE_CONFIG } from '@/lib/config';
+import { generateBreadcrumbJsonLd, generateServiceJsonLd } from '@/lib/seo/structuredData';
+
 export const metadata: Metadata = {
-  title: 'Aquarium Design — Bespoke Marine Environments',
+  title: 'Bespoke Aquarium Design & Engineering',
   description:
-    'Bespoke aquarium design for residential and commercial spaces. Marine Creatures creates living underwater environments tailored to your architecture and vision.',
+    'Custom architectural marine aquarium design for luxury residences and commercial spaces. Structural OptiWhite glass, acrylic monoliths, and closed-loop filtration.',
+  alternates: {
+    canonical: `${SITE_CONFIG.url}/aquarium-design`,
+  },
+  openGraph: {
+    title: 'Bespoke Aquarium Design & Engineering | Marine Creatures',
+    description:
+      'Living architectural sanctuaries tailored to your interior architecture. Custom glass & acrylic marine aquariums with turnkey life-support engineering.',
+    url: `${SITE_CONFIG.url}/aquarium-design`,
+    siteName: SITE_CONFIG.name,
+    locale: 'en_IN',
+    type: 'website',
+    images: [
+      {
+        url: `${SITE_CONFIG.url}/og-image.jpg`,
+        width: 1024,
+        height: 1024,
+        alt: 'Bespoke Aquarium Design — Marine Creatures',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Bespoke Aquarium Design & Engineering | Marine Creatures',
+    description:
+      'Architectural marine aquariums for private estates and luxury interiors.',
+    images: [`${SITE_CONFIG.url}/og-image.jpg`],
+  },
 };
 
 const DESIGN_PILLARS = [
@@ -56,8 +86,47 @@ const SPECIFICATIONS = [
 ];
 
 export default function AquariumDesignPage() {
+  const breadcrumbs = [
+    { name: 'Home', url: '/' },
+    { name: 'Aquarium Design', url: '/aquarium-design' },
+  ];
+
+  const breadcrumbJsonLd = generateBreadcrumbJsonLd(breadcrumbs);
+  const serviceJsonLd = generateServiceJsonLd({
+    name: 'Bespoke Architectural Aquarium Design & Engineering',
+    description:
+      'Turnkey custom marine aquarium design integrating structural OptiWhite glass, acrylic monoliths, and automated life-support systems.',
+    url: '/aquarium-design',
+    serviceType: 'AquariumDesignService',
+  });
+
   return (
     <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
+      />
+
+      {/* Visual Breadcrumbs */}
+      <div className="container-max pt-24 sm:pt-28 pb-3">
+        <nav
+          aria-label="Breadcrumb"
+          className="flex items-center gap-2 text-xs text-slate-400"
+        >
+          <Link href="/" className="hover:text-cyan-400 transition-colors">
+            Home
+          </Link>
+          <span className="opacity-40">/</span>
+          <span className="text-cyan-400 font-medium" aria-current="page">
+            Aquarium Design
+          </span>
+        </nav>
+      </div>
+
       {/* Hero */}
       <div
         className="relative flex items-end overflow-hidden"

@@ -2,11 +2,39 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { BeforeAfterSlider } from '@/components/ui/BeforeAfterSlider';
 import { SITE_CONFIG } from '@/lib/config';
+import { generateBreadcrumbJsonLd, generateServiceJsonLd } from '@/lib/seo/structuredData';
 
 export const metadata: Metadata = {
-  title: 'Aquarium Renovation & Restoration — Marine Creatures',
+  title: 'Aquarium Renovation & Biological Restoration',
   description:
-    "We take existing, troubled aquariums and transform them into living architectural centerpieces. Comprehensive life-support overhaul, biological restoration, and aquascape redesign without tearing down cabinetry.",
+    'Turn troubled, scratched, or algae-covered aquariums into pristine living centerpieces. Glass scratch removal, silent DC pump & NemoLight LED retrofits, and zero-livestock-loss protocol.',
+  alternates: {
+    canonical: `${SITE_CONFIG.url}/renovation`,
+  },
+  openGraph: {
+    title: 'Aquarium Renovation & Biological Restoration | Marine Creatures',
+    description:
+      'Revive your existing aquarium without tearing down cabinetry. Optical glass polishing, nitrogen recycling, and Nemo LED retrofitting.',
+    url: `${SITE_CONFIG.url}/renovation`,
+    siteName: SITE_CONFIG.name,
+    locale: 'en_IN',
+    type: 'website',
+    images: [
+      {
+        url: `${SITE_CONFIG.url}/og-image.jpg`,
+        width: 1024,
+        height: 1024,
+        alt: 'Aquarium Renovation & Restoration — Marine Creatures',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Aquarium Renovation & Restoration | Marine Creatures',
+    description:
+      'Transform troubled aquariums into pristine marine centerpieces without tearing down cabinetry.',
+    images: [`${SITE_CONFIG.url}/og-image.jpg`],
+  },
 };
 
 const PILLARS = [
@@ -114,8 +142,47 @@ export default function RenovationPage() {
     'Hello Marine Creatures, I would like to consult on an aquarium renovation for my existing tank.'
   )}`;
 
+  const breadcrumbs = [
+    { name: 'Home', url: '/' },
+    { name: 'Renovation', url: '/renovation' },
+  ];
+
+  const breadcrumbJsonLd = generateBreadcrumbJsonLd(breadcrumbs);
+  const serviceJsonLd = generateServiceJsonLd({
+    name: 'Aquarium Renovation & Biological Ecosystem Revival',
+    description:
+      'Comprehensive restoration of existing troubled marine aquariums. Glass polishing, algae eradication, silent DC pump and NemoLight LED retrofits.',
+    url: '/renovation',
+    serviceType: 'AquariumRenovationService',
+  });
+
   return (
     <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
+      />
+
+      {/* Visual Breadcrumbs */}
+      <div className="container-max pt-24 sm:pt-28 pb-3">
+        <nav
+          aria-label="Breadcrumb"
+          className="flex items-center gap-2 text-xs text-slate-400"
+        >
+          <Link href="/" className="hover:text-cyan-400 transition-colors">
+            Home
+          </Link>
+          <span className="opacity-40">/</span>
+          <span className="text-cyan-400 font-medium" aria-current="page">
+            Renovation
+          </span>
+        </nav>
+      </div>
+
       {/* ── Hero Section ────────────────────────────────────────────────────── */}
       <div
         className="relative flex items-end overflow-hidden"

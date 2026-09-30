@@ -5,7 +5,12 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { ProductModel } from '@/models/Product';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || SITE_CONFIG.url || 'https://marinecreatures.com').replace(/\/$/, '');
+  const baseUrl = (
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    SITE_CONFIG.url ||
+    'https://marine-creatures-krgsrl5sn-codeverse1.vercel.app'
+  ).replace(/\/$/, '');
+
   const now = new Date();
 
   // 1. Core Marketing & Public Discovery Routes
@@ -23,25 +28,37 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.95,
     },
     {
-      url: `${baseUrl}/services`,
+      url: `${baseUrl}/marketplace/lighting`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/aquarium-design`,
       lastModified: now,
       changeFrequency: 'weekly',
       priority: 0.85,
     },
     {
-      url: `${baseUrl}/aquarium-design`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
       url: `${baseUrl}/installation`,
       lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.8,
+      changeFrequency: 'weekly',
+      priority: 0.85,
     },
     {
       url: `${baseUrl}/renovation`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.85,
+    },
+    {
+      url: `${baseUrl}/services`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/our-worlds`,
       lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.8,
@@ -58,10 +75,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly',
       priority: 0.7,
     },
+    {
+      url: `${baseUrl}/shipping-policy`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
   ];
 
   // 2. Dynamic Marketplace Products (Hybrid: MongoDB Atlas + fallback static catalog)
   const productIds = new Set<string>(PRODUCTS.map((p) => p.id));
+
+  // Add individual Nemo high-intent alias routes
+  productIds.add('nemo-e450');
+  productIds.add('nemo-e600');
+  productIds.add('nemo-e900');
+  productIds.add('nemo-e1200');
+
   try {
     await connectToDatabase();
     const dbProducts = await ProductModel.find({}, 'id updatedAt').lean();
@@ -74,12 +104,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Database connection fallback to static inventory
   }
 
-  const productRoutes: MetadataRoute.Sitemap = Array.from(productIds).map((id) => ({
-    url: `${baseUrl}/marketplace/${id}`,
-    lastModified: now,
-    changeFrequency: 'weekly',
-    priority: 0.85,
-  }));
+  const productRoutes: MetadataRoute.Sitemap = Array.from(productIds).map(
+    (id) => ({
+      url: `${baseUrl}/marketplace/${id}`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: id.startsWith('nemo-') ? 0.9 : 0.85,
+    })
+  );
 
   return [...staticRoutes, ...productRoutes];
 }

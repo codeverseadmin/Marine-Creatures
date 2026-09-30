@@ -1,10 +1,40 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
+import { SITE_CONFIG } from '@/lib/config';
+import { generateBreadcrumbJsonLd } from '@/lib/seo/structuredData';
+
 export const metadata: Metadata = {
-  title: 'About — Beyond The Glass',
+  title: 'About Our Studio — Marine Biology & Architectural Aquariums',
   description:
-    'Marine Creatures is a premium marine design house creating extraordinary living underwater environments. Our story, philosophy and expertise.',
+    'Marine Creatures is a luxury marine design house in Kolkata creating living underwater environments. Our story, philosophy, marine biological expertise, and master craftsmanship.',
+  alternates: {
+    canonical: `${SITE_CONFIG.url}/about`,
+  },
+  openGraph: {
+    title: 'About Our Studio — Marine Biology & Architectural Aquariums | Marine Creatures',
+    description:
+      'Where architectural ambition meets marine science. Discover the ethos and expertise behind Marine Creatures.',
+    url: `${SITE_CONFIG.url}/about`,
+    siteName: SITE_CONFIG.name,
+    locale: 'en_IN',
+    type: 'website',
+    images: [
+      {
+        url: `${SITE_CONFIG.url}/og-image.jpg`,
+        width: 1024,
+        height: 1024,
+        alt: 'About Marine Creatures Studio',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'About Marine Creatures Studio',
+    description:
+      'Luxury marine design house creating living underwater environments.',
+    images: [`${SITE_CONFIG.url}/og-image.jpg`],
+  },
 };
 
 const VALUES = [
@@ -15,8 +45,36 @@ const VALUES = [
 ];
 
 export default function AboutPage() {
+  const breadcrumbs = [
+    { name: 'Home', url: '/' },
+    { name: 'About', url: '/about' },
+  ];
+
+  const breadcrumbJsonLd = generateBreadcrumbJsonLd(breadcrumbs);
+
   return (
     <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+
+      {/* Visual Breadcrumbs */}
+      <div className="container-max pt-24 sm:pt-28 pb-3">
+        <nav
+          aria-label="Breadcrumb"
+          className="flex items-center gap-2 text-xs text-slate-400"
+        >
+          <Link href="/" className="hover:text-cyan-400 transition-colors">
+            Home
+          </Link>
+          <span className="opacity-40">/</span>
+          <span className="text-cyan-400 font-medium" aria-current="page">
+            About
+          </span>
+        </nav>
+      </div>
+
       {/* Hero */}
       <div
         className="relative flex items-end overflow-hidden"

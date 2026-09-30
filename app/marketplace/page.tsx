@@ -281,6 +281,21 @@ function MarketplaceContent() {
               Showing <strong className="text-[var(--color-text)]">{filteredProducts.length}</strong> items
             </span>
           </div>
+
+          {selectedCategory === 'lighting-tech' && (
+            <div className="mt-4 p-4 rounded-2xl border border-cyan-500/30 bg-cyan-500/10 flex items-center justify-between gap-4 flex-wrap text-xs text-slate-300">
+              <div className="space-y-0.5">
+                <span className="font-semibold text-white block">Dedicated Nemo Lighting Hub Available</span>
+                <span className="text-slate-400">Comparing Nemo E450, E600, E900, or E1200 models with verified tank-fit specs?</span>
+              </div>
+              <Link
+                href="/marketplace/lighting"
+                className="font-semibold text-cyan-400 hover:text-cyan-300 underline inline-flex items-center gap-1"
+              >
+                View Nemo Comparison Matrix &rarr;
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 

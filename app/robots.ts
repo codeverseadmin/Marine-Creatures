@@ -2,7 +2,11 @@ import { MetadataRoute } from 'next';
 import { SITE_CONFIG } from '@/lib/config';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || SITE_CONFIG.url || 'https://marinecreatures.com').replace(/\/$/, '');
+  const baseUrl = (
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    SITE_CONFIG.url ||
+    'https://marine-creatures-krgsrl5sn-codeverse1.vercel.app'
+  ).replace(/\/$/, '');
 
   return {
     rules: [

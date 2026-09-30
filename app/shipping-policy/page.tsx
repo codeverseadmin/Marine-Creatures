@@ -1,20 +1,51 @@
 import React from 'react';
-import Link from 'next/link';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { SITE_CONFIG } from '@/lib/config';
+import { generateBreadcrumbJsonLd } from '@/lib/seo/structuredData';
 
 export const metadata: Metadata = {
-  title: 'Shipping & Purchase Policy | Marine Creatures',
+  title: 'Shipping & Purchase Policy',
   description:
-    'Authoritative shipping terms, live transit conditions, advance booking rules, and dispatch protocols for Marine Creatures livestock and equipment.',
+    'Authoritative shipping terms, live transit conditions, airport-to-airport cargo dispatch, and DOA guarantee protocols for Marine Creatures livestock and equipment.',
+  alternates: {
+    canonical: `${SITE_CONFIG.url}/shipping-policy`,
+  },
+  openGraph: {
+    title: 'Shipping & Purchase Policy | Marine Creatures',
+    description:
+      'Authoritative transit conditions, live cargo dispatch protocols, and live arrival guarantee terms.',
+    url: `${SITE_CONFIG.url}/shipping-policy`,
+    siteName: SITE_CONFIG.name,
+    locale: 'en_IN',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Shipping & Purchase Policy | Marine Creatures',
+    description:
+      'Live cargo transit terms, packaging protocols, and arrival guarantee.',
+  },
 };
 
 export default function ShippingPolicyPage() {
+  const breadcrumbs = [
+    { name: 'Home', url: '/' },
+    { name: 'Marketplace', url: '/marketplace' },
+    { name: 'Shipping Policy', url: '/shipping-policy' },
+  ];
+
+  const breadcrumbJsonLd = generateBreadcrumbJsonLd(breadcrumbs);
+
   return (
     <div
       style={{ background: 'var(--color-primary)', minHeight: '100vh', paddingTop: '130px' }}
       className="pb-24"
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <div className="container-max">
         {/* Navigation Breadcrumbs */}
         <div className="flex items-center gap-2 pb-6 mb-8 border-b border-white/10 text-xs text-slate-400">

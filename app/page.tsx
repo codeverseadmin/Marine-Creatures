@@ -7,12 +7,23 @@ import { DesignSection } from '@/components/home/DesignSection';
 import { TestimonialsSection } from '@/components/home/TestimonialsSection';
 import { FinalCTA } from '@/components/home/FinalCTA';
 
+import { SITE_CONFIG } from '@/lib/config';
+
 export const metadata: Metadata = {
   title: 'Marine Creatures — Luxury Marine Marketplace & Bespoke Services',
   description:
     'Official marketplace for captive-bred marine life, NemoLight LED fixtures, Real Reef rock, Red Sea salt, and bespoke aquarium installation & renovation services.',
   alternates: {
-    canonical: '/',
+    canonical: SITE_CONFIG.url,
+  },
+  openGraph: {
+    title: 'Marine Creatures — Luxury Marine Marketplace & Bespoke Services',
+    description:
+      'Official marketplace for captive-bred marine life, NemoLight LED fixtures, Real Reef rock, and bespoke architectural aquarium services.',
+    url: SITE_CONFIG.url,
+    siteName: SITE_CONFIG.name,
+    locale: 'en_IN',
+    type: 'website',
   },
 };
 
