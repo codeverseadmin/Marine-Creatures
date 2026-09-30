@@ -720,3 +720,36 @@ body:has(.marine-invoice-view) .grain-overlay {
   }
 }
 
+/* ============================================================================
+   Marketplace mobile spacing
+   ============================================================================ */
+
+/**
+ * Clear the fixed MobileBottomNav on mobile.
+ * MobileBottomNav = bottom-2.5 (10px) + inner nav ~68px = 78px total.
+ * On md+ the nav is hidden (md:hidden), so revert to standard 4rem.
+ */
+.marketplace-bottom-spacing {
+  padding-bottom: calc(78px + env(safe-area-inset-bottom, 0px) + 24px);
+}
+
+@media (min-width: 768px) {
+  .marketplace-bottom-spacing {
+    padding-bottom: 4rem;
+  }
+}
+
+/**
+ * Top padding that clears the fixed navbar correctly on all viewports.
+ * Mobile: h-16 (64px) + safe-area-inset-top + 20px breathing room.
+ * Desktop (md+): h-20 (80px) + 28px.
+ */
+.marketplace-top-padding {
+  padding-top: calc(4rem + env(safe-area-inset-top, 0px) + 20px);
+}
+
+@media (min-width: 768px) {
+  .marketplace-top-padding {
+    padding-top: calc(5rem + 28px);
+  }
+}

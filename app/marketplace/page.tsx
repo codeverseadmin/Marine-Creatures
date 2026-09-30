@@ -116,9 +116,17 @@ function MarketplaceContent() {
   }, [products, selectedCategory, searchQuery, sortBy]);
 
   return (
-    <div className="bg-[var(--color-primary)] min-h-screen text-[var(--color-text)]">
+    <div className="bg-[var(--color-primary)] min-h-screen text-[var(--color-text)] overflow-x-hidden">
       {/* ── Marketplace Top Header ──────────────────────────────────────── */}
-      <div className="pt-24 sm:pt-28 pb-6 border-b border-[rgba(255,255,255,0.08)] bg-gradient-to-b from-[var(--color-deep)] to-[var(--color-primary)]">
+      {/*
+        Top padding must clear the fixed navbar:
+          - Mobile   h-16 (64 px) + safe-area-inset-top + 20px breathing room = ~84px+
+          - Desktop  h-20 (80 px) + extra = ~108px+
+        Using CSS calc so it works with env() on iOS Safari.
+      */}
+      <div
+        className="marketplace-top-padding pb-6 border-b border-[rgba(255,255,255,0.08)] bg-gradient-to-b from-[var(--color-deep)] to-[var(--color-primary)]"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5">
           {/* Title & Search/Sort Bar */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -241,8 +249,14 @@ function MarketplaceContent() {
           </div>
 
           {/* ── Single Clean Category Bar ───────────────────────────────── */}
-          <div className="flex items-center justify-between gap-4 pt-2 border-t border-[rgba(255,255,255,0.08)]">
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          {/*
+            On mobile the count text is hidden so the scrollable row has full width.
+            The outer div uses flex-col on mobile and flex-row on sm+ so there is
+            never any horizontal squeeze that clips category buttons.
+          */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2 border-t border-[rgba(255,255,255,0.08)]">
+            {/* Scrollable category buttons */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none touch-momentum">
               {CATEGORIES.map((cat) => {
                 const isActive = selectedCategory === cat.id;
                 return (
@@ -262,6 +276,7 @@ function MarketplaceContent() {
               })}
             </div>
 
+            {/* Item count — hidden on mobile to avoid squeezing the scroll row */}
             <span className="text-xs text-[var(--color-muted)] shrink-0 hidden sm:inline">
               Showing <strong className="text-[var(--color-text)]">{filteredProducts.length}</strong> items
             </span>
@@ -318,7 +333,15 @@ function MarketplaceContent() {
       </section>
 
       {/* ── Bottom Service Consultation Banner ──────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 md:pb-16">
+      {/*
+        Bottom padding must account for the fixed MobileBottomNav:
+          - MobileBottomNav sits at bottom-2.5 (10px) with ~68px inner nav height
+          - Total clearance needed on mobile: ~78px + env(safe-area-inset-bottom) + 24px breathing
+          - md+: no bottom nav, 4rem is sufficient
+      */}
+      <section
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 marketplace-bottom-spacing"
+      >
         <div className="rounded-2xl p-6 sm:p-8 border border-[rgba(255,255,255,0.08)] bg-[var(--color-secondary)] flex flex-col md:flex-row items-center justify-between gap-6 glass-card-hover">
           <div className="space-y-1.5">
             <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--color-accent)]">

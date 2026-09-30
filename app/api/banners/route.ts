@@ -43,6 +43,64 @@ export async function GET() {
   }
 }
 
+/**
+ * PATCH /api/banners
+ * Removes any banners whose title or subtitle contains known test/placeholder
+ * strings. If all banners are removed, re-seeds from DEFAULT_BANNERS.
+ * Requires admin authentication.
+ */
+export async function PATCH(req: NextRequest) {
+  if (!isAdminRequest(req)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+  try {
+    await connectToDatabase();
+
+    // Known invalid patterns (case-insensitive)
+    const invalidPatterns = ['jni na', 'hi bro'];
+    const regexParts = invalidPatterns.map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+    const invalidRegex = new RegExp(regexParts, 'i');
+
+    const deleted = await BannerModel.deleteMany({
+      $or: [
+        { title: { $regex: invalidRegex } },
+        { subtitle: { $regex: invalidRegex } },
+      ],
+    });
+
+    // If no valid banners remain, re-seed from DEFAULT_BANNERS
+    const remaining = await BannerModel.countDocuments();
+    let seeded = 0;
+    if (remaining === 0) {
+      const mapped = DEFAULT_BANNERS.map((b, idx) => ({
+        id: b.id,
+        title: b.title,
+        subtitle: b.subtitle,
+        badge: b.badge,
+        badgeColor: b.badgeColor,
+        ctaText: b.ctaText,
+        ctaLink: b.ctaLink,
+        image: b.image,
+        active: b.isActive,
+        order: idx,
+      }));
+      await BannerModel.insertMany(mapped, { ordered: false });
+      seeded = mapped.length;
+    }
+
+    return NextResponse.json({
+      success: true,
+      removed: deleted.deletedCount,
+      seeded,
+      message: `Removed ${deleted.deletedCount} invalid banner(s).${
+        seeded > 0 ? ` Re-seeded ${seeded} default banners.` : ''
+      }`,
+    });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
 export async function POST(req: NextRequest) {
   if (!isAdminRequest(req)) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });

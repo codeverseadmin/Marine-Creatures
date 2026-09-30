@@ -4,6 +4,36 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 import { Product, PRODUCTS, isLiveProduct } from '@/lib/data/products';
 import { BannerSlide, DEFAULT_BANNERS } from '@/lib/data/banners';
 
+// ── Banner content validation ────────────────────────────────────────────────
+// Known test/placeholder strings that must never appear in production banners.
+const INVALID_BANNER_STRINGS: string[] = [
+  'jni na',
+  'hi bro',
+];
+
+/**
+ * Returns true if the banner has a valid, non-placeholder title and subtitle.
+ * Strips any entry containing known test strings or empty content.
+ */
+function isBannerContentValid(banner: BannerSlide): boolean {
+  const title = (banner.title ?? '').trim();
+  const subtitle = (banner.subtitle ?? '').trim();
+
+  if (!title || !subtitle) return false;
+
+  const combined = (title + ' ' + subtitle).toLowerCase();
+  return !INVALID_BANNER_STRINGS.some((bad) => combined.includes(bad));
+}
+
+/**
+ * Filter an array of banners, removing any with invalid/test content.
+ * Falls back to DEFAULT_BANNERS if the filtered list is empty.
+ */
+function sanitizeBanners(banners: BannerSlide[]): BannerSlide[] {
+  const clean = banners.filter(isBannerContentValid);
+  return clean.length > 0 ? clean : DEFAULT_BANNERS;
+}
+
 export interface InquiryLead {
   id: string;
   type: 'callback' | 'service_booking' | 'custom_quote' | 'whatsapp_order' | 'estimator_lead';
@@ -95,7 +125,10 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
       if (storedBanners) {
         const parsedBanners = JSON.parse(storedBanners);
         if (Array.isArray(parsedBanners) && parsedBanners.length > 0) {
-          setBanners(parsedBanners);
+          const cleanBanners = sanitizeBanners(parsedBanners);
+          setBanners(cleanBanners);
+          // If we sanitized anything, persist the clean version back to storage
+          localStorage.setItem(STORAGE_KEYS.BANNERS, JSON.stringify(cleanBanners));
         }
       }
 
@@ -132,12 +165,14 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
       if (bannerRes.ok) {
         const bannerData = await bannerRes.json();
         if (bannerData.success && Array.isArray(bannerData.data) && bannerData.data.length > 0) {
-          const mapped = bannerData.data.map((b: any) => ({
+          const mapped: BannerSlide[] = bannerData.data.map((b: any) => ({
             ...b,
             isActive: b.active !== undefined ? b.active : true,
           }));
-          setBanners(mapped);
-          localStorage.setItem(STORAGE_KEYS.BANNERS, JSON.stringify(mapped));
+          // Strip any banners with test/placeholder content from the DB response
+          const cleanMapped = sanitizeBanners(mapped);
+          setBanners(cleanMapped);
+          localStorage.setItem(STORAGE_KEYS.BANNERS, JSON.stringify(cleanMapped));
         }
       }
 

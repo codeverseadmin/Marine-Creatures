@@ -7,7 +7,16 @@ import { BannerSlide } from '@/lib/data/banners';
 
 export function PromoCarousel() {
   const { banners } = useCatalog();
-  const activeBanners = banners.filter((b) => b.isActive);
+
+  // Guard: filter out any banner with known test/placeholder content before rendering.
+  // This is a last-resort safety net independent of CatalogContext validation.
+  const INVALID_STRINGS = ['jni na', 'hi bro'];
+  const validBanners = banners.filter((b) => {
+    const combined = ((b.title ?? '') + ' ' + (b.subtitle ?? '')).toLowerCase();
+    return !INVALID_STRINGS.some((bad) => combined.includes(bad));
+  });
+
+  const activeBanners = validBanners.filter((b) => b.isActive);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const touchStartXRef = useRef<number | null>(null);
