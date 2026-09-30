@@ -1,0 +1,412 @@
+{
+  "Nemo E450": {
+    "url": "http://localhost:3000/marketplace/nemo-e450",
+    "httpStatus": 200,
+    "hasProductSchema": true,
+    "productSchema": {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "Nemo Extreme Series II Smart Marine LED — Nemo E450 (45–60 cm / 24W)",
+      "description": "The NemoLight Extreme Series II is an advanced marine LED fixture featuring an ultra-slim extruded aluminum heatsink and smartphone app control. Offering 4-channel independent spectrum tuning (UV/Violet, Royal Blue, Deep Blue, and Daylight White) to promote vibrant coral fluorescence and healthy photosynthesis. Equipped with adjustable sliding brackets to fit rimless or braced tanks.",
+      "image": [
+        "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/images/products/nemo-extreme-led.jpg"
+      ],
+      "url": "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/marketplace/nemo-e450",
+      "category": "Aquarium Lighting",
+      "brand": {
+        "@type": "Brand",
+        "name": "NemoLight"
+      },
+      "sku": "nemo-extreme-led-e450",
+      "offers": {
+        "@type": "Offer",
+        "url": "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/marketplace/nemo-e450",
+        "priceCurrency": "INR",
+        "priceSpecification": {
+          "@type": "PriceSpecification",
+          "priceCurrency": "INR",
+          "description": "Price on Request via Direct Marine Concierge Quotation"
+        },
+        "availability": "https://schema.org/InStock",
+        "itemCondition": "https://schema.org/NewCondition",
+        "seller": {
+          "@type": "Organization",
+          "name": "Marine Creatures",
+          "url": "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app"
+        }
+      },
+      "additionalProperty": [
+        {
+          "@type": "PropertyValue",
+          "name": "Control",
+          "value": "2.4G Bluetooth Mobile Application (iOS & Android)"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Channels",
+          "value": "4 Independent Spectrum Channels"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Presets",
+          "value": "Sunrise, Sunset, Lunar Moonlight, Lightning Simulation"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Material",
+          "value": "Extruded Aircraft-Grade Anodized Aluminum"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Bracket Fit",
+          "value": "Glass thickness up to 12 mm"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Tank Size",
+          "value": "45–60 cm"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Power",
+          "value": "24W"
+        }
+      ]
+    }
+  },
+  "Nemo E600": {
+    "url": "http://localhost:3000/marketplace/nemo-e600",
+    "httpStatus": 200,
+    "hasProductSchema": true,
+    "productSchema": {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "Nemo Extreme Series II Smart Marine LED — Nemo E600 (60–80 cm / 36W)",
+      "description": "The NemoLight Extreme Series II is an advanced marine LED fixture featuring an ultra-slim extruded aluminum heatsink and smartphone app control. Offering 4-channel independent spectrum tuning (UV/Violet, Royal Blue, Deep Blue, and Daylight White) to promote vibrant coral fluorescence and healthy photosynthesis. Equipped with adjustable sliding brackets to fit rimless or braced tanks.",
+      "image": [
+        "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/images/products/nemo-extreme-led.jpg"
+      ],
+      "url": "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/marketplace/nemo-e600",
+      "category": "Aquarium Lighting",
+      "brand": {
+        "@type": "Brand",
+        "name": "NemoLight"
+      },
+      "sku": "nemo-extreme-led-e600",
+      "offers": {
+        "@type": "Offer",
+        "url": "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/marketplace/nemo-e600",
+        "priceCurrency": "INR",
+        "priceSpecification": {
+          "@type": "PriceSpecification",
+          "priceCurrency": "INR",
+          "description": "Price on Request via Direct Marine Concierge Quotation"
+        },
+        "availability": "https://schema.org/InStock",
+        "itemCondition": "https://schema.org/NewCondition",
+        "seller": {
+          "@type": "Organization",
+          "name": "Marine Creatures",
+          "url": "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app"
+        }
+      },
+      "additionalProperty": [
+        {
+          "@type": "PropertyValue",
+          "name": "Control",
+          "value": "2.4G Bluetooth Mobile Application (iOS & Android)"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Channels",
+          "value": "4 Independent Spectrum Channels"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Presets",
+          "value": "Sunrise, Sunset, Lunar Moonlight, Lightning Simulation"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Material",
+          "value": "Extruded Aircraft-Grade Anodized Aluminum"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Bracket Fit",
+          "value": "Glass thickness up to 12 mm"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Tank Size",
+          "value": "60–80 cm"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Power",
+          "value": "36W"
+        }
+      ]
+    }
+  },
+  "Purple Tang": {
+    "url": "http://localhost:3000/marketplace/purple-tang-l",
+    "httpStatus": 200,
+    "hasProductSchema": true,
+    "productSchema": {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "Purple Tang (Large)",
+      "description": "The Purple Tang (Zebrasoma xanthurum) is widely regarded as one of the most magnificent surgeonfish in the marine aquarium hobby. Originating from the pristine reefs of the Red Sea, this specimen exhibits intense royal-blue and violet coloration contrasted with an electric yellow caudal fin. Held under strict prophylactic quarantine protocol at Marine Creatures.",
+      "image": [
+        "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/images/products/purple-tang-l.jpg"
+      ],
+      "url": "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/marketplace/purple-tang-l",
+      "category": "Marine Life",
+      "brand": {
+        "@type": "Brand",
+        "name": "Marine Creatures Quarantine"
+      },
+      "sku": "purple-tang-l",
+      "offers": {
+        "@type": "Offer",
+        "url": "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/marketplace/purple-tang-l",
+        "priceCurrency": "INR",
+        "priceSpecification": {
+          "@type": "PriceSpecification",
+          "priceCurrency": "INR",
+          "description": "Price on Request via Direct Marine Concierge Quotation"
+        },
+        "availability": "https://schema.org/InStock",
+        "itemCondition": "https://schema.org/NewCondition",
+        "seller": {
+          "@type": "Organization",
+          "name": "Marine Creatures",
+          "url": "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app"
+        }
+      },
+      "additionalProperty": [
+        {
+          "@type": "PropertyValue",
+          "name": "Specimen Size",
+          "value": "Large (approx. 5–6 in / 13–15 cm)"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Geographical Origin",
+          "value": "Red Sea"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Quarantine Status",
+          "value": "Certified Completed Protocol"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Reef Compatibility",
+          "value": "Reef Safe"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Dietary Preference",
+          "value": "Macroalgae grazer & omnivore pellets"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Adult Size",
+          "value": "Up to 8 inches (20 cm)"
+        }
+      ]
+    }
+  },
+  "Sunsun JTP-3800": {
+    "url": "http://localhost:3000/marketplace/sunsun-pump-jtp3800",
+    "httpStatus": 200,
+    "hasProductSchema": true,
+    "productSchema": {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "Sunsun JTP-3800 Submersible Pump (Flow Controllable)",
+      "description": "The Sunsun JTP-3800 utilizes variable-frequency energy-saving technology to deliver 3,800 L/h with minimal electrical consumption (25W). Equipped with a mechanical flow adjustment regulator and a durable ceramic impeller shaft designed for silent long-term operation in marine saltwater sumps.",
+      "image": [
+        "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/images/products/sunsun-pump-jtp3800.jpg"
+      ],
+      "url": "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/marketplace/sunsun-pump-jtp3800",
+      "category": "Submersible Pumps",
+      "brand": {
+        "@type": "Brand",
+        "name": "Sunsun"
+      },
+      "sku": "sunsun-pump-jtp3800",
+      "offers": {
+        "@type": "Offer",
+        "url": "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/marketplace/sunsun-pump-jtp3800",
+        "priceCurrency": "INR",
+        "priceSpecification": {
+          "@type": "PriceSpecification",
+          "priceCurrency": "INR",
+          "description": "Price on Request via Direct Marine Concierge Quotation"
+        },
+        "availability": "https://schema.org/InStock",
+        "itemCondition": "https://schema.org/NewCondition",
+        "seller": {
+          "@type": "Organization",
+          "name": "Marine Creatures",
+          "url": "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app"
+        }
+      },
+      "additionalProperty": [
+        {
+          "@type": "PropertyValue",
+          "name": "Flow Rate",
+          "value": "3,800 L/h (Mechanical flow controllable)"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Max Head Height",
+          "value": "3.8 Meters"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Power",
+          "value": "25 Watts"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Shaft",
+          "value": "High-Purity Wear-Resistant Ceramic"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Operation",
+          "value": "Submersible / In-sump"
+        }
+      ]
+    }
+  },
+  "Bubble Magus QQ2": {
+    "url": "http://localhost:3000/marketplace/bubble-magus-qq2",
+    "httpStatus": 200,
+    "hasProductSchema": true,
+    "productSchema": {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "Bubble Magus QQ2 Nano Protein Skimmer",
+      "description": "The Bubble Magus QQ2 is a premier internal drop-in protein skimmer designed specifically for nano and small marine aquariums up to 100 Litres. Powered by an energy-efficient Rock SP600 needle-wheel pump that generates dense, micro-fine air-water bubbles to strip dissolved organic waste before it breaks down into nitrate.",
+      "image": [
+        "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/images/products/bubble-magus-qq2.jpg"
+      ],
+      "url": "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/marketplace/bubble-magus-qq2",
+      "category": "Protein Skimmers",
+      "brand": {
+        "@type": "Brand",
+        "name": "Bubble Magus"
+      },
+      "sku": "bubble-magus-qq2",
+      "offers": {
+        "@type": "Offer",
+        "url": "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/marketplace/bubble-magus-qq2",
+        "priceCurrency": "INR",
+        "priceSpecification": {
+          "@type": "PriceSpecification",
+          "priceCurrency": "INR",
+          "description": "Price on Request via Direct Marine Concierge Quotation"
+        },
+        "availability": "https://schema.org/InStock",
+        "itemCondition": "https://schema.org/NewCondition",
+        "seller": {
+          "@type": "Organization",
+          "name": "Marine Creatures",
+          "url": "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app"
+        }
+      },
+      "additionalProperty": [
+        {
+          "@type": "PropertyValue",
+          "name": "Tank Capacity",
+          "value": "Up to 100 Litres (26 Gallons)"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Pump",
+          "value": "Rock SP600 Needle-Wheel Impeller"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Power",
+          "value": "8.5 Watts (220V)"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Dimensions",
+          "value": "100 mm x 75 mm x 305 mm"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Min Water Level",
+          "value": "4 inches (10 cm)"
+        }
+      ]
+    }
+  },
+  "Hikari Mysis Shrimp": {
+    "url": "http://localhost:3000/marketplace/hikari-frozen-mysis",
+    "httpStatus": 200,
+    "hasProductSchema": true,
+    "productSchema": {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "Hikari Bio-Pure Frozen Mysis Shrimp",
+      "description": "Hikari Bio-Pure Frozen Mysis Shrimp provides superior natural nutrition for finicky marine fish and invertebrates. Harvested live and cleansed through Hikari’s 3-step sterilization process to guarantee freedom from harmful bacteria and parasites. Bio-encapsulated with essential vitamins for immune resilience.",
+      "image": [
+        "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/images/products/hikari-frozen-mysis.png"
+      ],
+      "url": "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/marketplace/hikari-frozen-mysis",
+      "category": "Fish Nutrition",
+      "brand": {
+        "@type": "Brand",
+        "name": "Hikari"
+      },
+      "sku": "hikari-frozen-mysis",
+      "offers": {
+        "@type": "Offer",
+        "url": "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/marketplace/hikari-frozen-mysis",
+        "priceCurrency": "INR",
+        "priceSpecification": {
+          "@type": "PriceSpecification",
+          "priceCurrency": "INR",
+          "description": "Price on Request via Direct Marine Concierge Quotation"
+        },
+        "availability": "https://schema.org/InStock",
+        "itemCondition": "https://schema.org/NewCondition",
+        "seller": {
+          "@type": "Organization",
+          "name": "Marine Creatures",
+          "url": "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app"
+        }
+      },
+      "additionalProperty": [
+        {
+          "@type": "PropertyValue",
+          "name": "Species",
+          "value": "Genuine Mysis relicta"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Enrichment",
+          "value": "Bio-encapsulated with vitamins B1, B2, B6, B12, C, and E"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Sterilization",
+          "value": "3-Step UV & Ozone Sterilized / Parasite-free"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Packaging",
+          "value": "Convenient pop-out cube blister pack"
+        }
+      ]
+    }
+  }
+}

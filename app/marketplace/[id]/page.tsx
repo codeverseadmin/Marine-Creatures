@@ -233,50 +233,7 @@ export default async function ProductDetailPage({ params }: Props) {
         ))}
       </nav>
 
-      {/* 3. Server-Rendered Crawler Dossier (Accessible SSR content - avoids duplicate H1) */}
-      <article className="sr-only" aria-label={`${product.name} Technical Dossier`}>
-        <h2>{customTitle || (seoData ? seoData.h1 : product.name)}</h2>
-        <p>{product.description || product.shortDesc}</p>
-        {product.scientificName && <p>Scientific Name: {product.scientificName}</p>}
-        {product.brand && <p>Brand Provenance: {product.brand}</p>}
-        {seoData?.serviceLink && (
-          <p>
-            Recommended Marine Service:{' '}
-            <Link href={seoData.serviceLink}>{seoData.serviceText}</Link>
-          </p>
-        )}
-        {product.specifications && (
-          <div>
-            <h3>Technical Specifications</h3>
-            <ul>
-              {Object.entries(product.specifications).map(([key, val]) => (
-                <li key={key}>
-                  {key}: {val}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-        {product.careGuide && (
-          <div>
-            <h3>Water Quality &amp; Biological Care Parameters</h3>
-            <ul>
-              <li>Water Temperature: {product.careGuide.temperature}</li>
-              <li>Specific Gravity / Salinity: {product.careGuide.salinity}</li>
-              <li>pH Level: {product.careGuide.ph}</li>
-              {product.careGuide.minimumTankSize && (
-                <li>Minimum Aquarium Volume: {product.careGuide.minimumTankSize}</li>
-              )}
-              {product.careGuide.diet && <li>Dietary Profile: {product.careGuide.diet}</li>}
-              {product.careGuide.temperament && (
-                <li>Temperament: {product.careGuide.temperament}</li>
-              )}
-            </ul>
-          </div>
-        )}
-      </article>
-
-      {/* 4. Client Interactive Experience */}
+      {/* 3. Client Interactive Experience (Prerendered via SSR/SSG with full semantic content) */}
       <ProductDetailView
         product={product}
         relatedProducts={relatedProducts}

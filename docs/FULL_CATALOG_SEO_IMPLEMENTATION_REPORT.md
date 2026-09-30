@@ -148,6 +148,32 @@ $ npm run build
 
 ---
 
+## 6B. Verification Boundaries: Technical Architecture vs. Search Engine Performance
+
+To prevent ungrounded claims regarding site authority or search engine rankings, the implementation distinguishes strictly between what has been empirically verified locally/at the server level versus what can only be measured post-indexing via Google Search Console:
+
+### VERIFIED (Locally & at Server Response Level):
+- **Crawlability:** All 50 active routes return clean HTTP 200 responses to crawlers with zero blocking directives in `robots.txt`.
+- **HTTP Response & SSR Delivery:** Initial server-rendered HTML contains 100% of title, meta description, canonical, single H1, full product description, care guides, and technical specifications.
+- **Metadata Uniqueness:** 50/50 unique `<title>` and `<meta name="description">` tags with zero duplication.
+- **Canonical Configuration:** Precise canonical links declared via `<link rel="canonical">` matching production URLs.
+- **Structured Data Syntax:** Valid `Product` and `BreadcrumbList` JSON-LD schemas adhering to schema.org; truthful handling of Price on Request with zero fake ₹0 values or unearned reviews.
+- **Sitemap Inclusion:** Complete inclusion of canonical catalog routes in `app/sitemap.ts`.
+- **Internal Linking:** Bidirectional links between products, category hubs, and specialized service offerings.
+- **Rendered Content Accessibility:** All product content is directly visible to users in the rendered UI.
+
+### NOT VERIFIED (Requires Live Search Engine Telemetry):
+- **Google Ranking:** Search engine position for target keywords cannot be established through local route testing.
+- **Google Indexing:** Indexation status requires verification via Google Search Console URL Inspection API.
+- **Search Position:** Organic keyword rank must be tracked via live SERP monitoring.
+- **Authority:** Domain or page authority is an external calculation that cannot be claimed or simulated internally.
+- **Impressions & Clicks:** Actual search demand capture requires Google Search Console Performance reporting.
+- **Organic Traffic:** Measured exclusively via Google Analytics (GA4) or production telemetry post-indexing.
+
+*No ranking improvement or authoritative dominance is claimed without empirical Google Search Console and analytics data.*
+
+---
+
 ## 7. Deliverables Index
 
 - Audit Report: [docs/FULL_CATALOG_SEO_AUDIT.md](file:///c:/Users/User/OneDrive/Desktop/Marine%20Creatures/marine-creatures/docs/FULL_CATALOG_SEO_AUDIT.md)

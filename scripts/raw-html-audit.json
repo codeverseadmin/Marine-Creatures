@@ -1,0 +1,107 @@
+{
+  "Nemo E450": {
+    "url": "http://localhost:3000/marketplace/nemo-e450",
+    "httpStatus": 200,
+    "title": "Nemo E450 Aquarium Light — 24W App-Controlled Marine LED (45–60 cm)",
+    "metaDescription": "Official Nemo E450 smart marine aquarium LED light for 45–60 cm tanks. 24W output, 4-channel Bluetooth app control, sunrise/sunset scheduling, and coral fluorescence.",
+    "canonical": "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/marketplace/nemo-e450",
+    "h1Count": 1,
+    "h1Text": "Nemo Extreme Series II Smart Marine LED",
+    "hasProductName": true,
+    "hasMeaningfulDesc": true,
+    "hasSpecs": true,
+    "jsonLdCount": 3,
+    "jsonLdTypes": [
+      null,
+      "Product",
+      "BreadcrumbList"
+    ],
+    "hasImageUrl": true,
+    "hasInternalLinks": true,
+    "rawHtmlLength": 124865
+  },
+  "Nemo E600": {
+    "url": "http://localhost:3000/marketplace/nemo-e600",
+    "httpStatus": 200,
+    "title": "Nemo E600 Aquarium Light — 36W App-Controlled Marine LED (60–80 cm)",
+    "metaDescription": "Official Nemo E600 marine aquarium light for 60–80 cm tanks. 36W power, aircraft-grade aluminum heatsink, sliding brackets, and 4-channel spectrum control.",
+    "canonical": "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/marketplace/nemo-e600",
+    "h1Count": 1,
+    "h1Text": "Nemo Extreme Series II Smart Marine LED",
+    "hasProductName": true,
+    "hasMeaningfulDesc": true,
+    "hasSpecs": true,
+    "jsonLdCount": 3,
+    "jsonLdTypes": [
+      null,
+      "Product",
+      "BreadcrumbList"
+    ],
+    "hasImageUrl": true,
+    "hasInternalLinks": true,
+    "rawHtmlLength": 124799
+  },
+  "Purple Tang (Large)": {
+    "url": "http://localhost:3000/marketplace/purple-tang-l",
+    "httpStatus": 200,
+    "title": "Purple Tang (Large) | Marine Aquarium Fish",
+    "metaDescription": "Certified quarantined Purple Tang (Large) (Zebrasoma xanthurum) from the Red Sea. Requires a 380 Litres (100 Gallons). Conditioned for herbivore / omnivore (marine nori sheets, spi at Marine Creatures.",
+    "canonical": "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/marketplace/purple-tang-l",
+    "h1Count": 1,
+    "h1Text": "Purple Tang (Large)",
+    "hasProductName": true,
+    "hasMeaningfulDesc": true,
+    "hasSpecs": true,
+    "jsonLdCount": 3,
+    "jsonLdTypes": [
+      null,
+      "Product",
+      "BreadcrumbList"
+    ],
+    "hasImageUrl": true,
+    "hasInternalLinks": true,
+    "rawHtmlLength": 135865
+  },
+  "Sunsun JTP-3800 (Official Slug)": {
+    "url": "http://localhost:3000/marketplace/sunsun-pump-jtp3800",
+    "httpStatus": 200,
+    "title": "Sunsun JTP-3800 Submersible Pump (F | Controllable Aquarium Pump",
+    "metaDescription": "Sunsun JTP-3800 Submersible Pump (Flow Controllable) delivering 3,800 L/h (Mechanical flow controllable) with energy-efficient DC motor. Ideal for marine sumps, closed loops, and silent return plumbing at Marine Creatures.",
+    "canonical": "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/marketplace/sunsun-pump-jtp3800",
+    "h1Count": 1,
+    "h1Text": "Sunsun JTP-3800 Submersible Pump (Flow Controllable)",
+    "hasProductName": true,
+    "hasMeaningfulDesc": true,
+    "hasSpecs": true,
+    "jsonLdCount": 3,
+    "jsonLdTypes": [
+      null,
+      "Product",
+      "BreadcrumbList"
+    ],
+    "hasImageUrl": true,
+    "hasInternalLinks": true,
+    "rawHtmlLength": 122761
+  },
+  "Bubble Magus QQ2": {
+    "url": "http://localhost:3000/marketplace/bubble-magus-qq2",
+    "httpStatus": 200,
+    "title": "Bubble Magus QQ2 Nano Protein Skimmer | Protein Skimmer",
+    "metaDescription": "Bubble Magus QQ2 Nano Protein Skimmer engineered for nano marine aquariums. Features precision micro-bubble contact for organic waste removal in nano reefs at Marine Creatures.",
+    "canonical": "https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/marketplace/bubble-magus-qq2",
+    "h1Count": 1,
+    "h1Text": "Bubble Magus QQ2 Nano Protein Skimmer",
+    "hasProductName": true,
+    "hasMeaningfulDesc": true,
+    "hasSpecs": true,
+    "jsonLdCount": 3,
+    "jsonLdTypes": [
+      null,
+      "Product",
+      "BreadcrumbList"
+    ],
+    "hasImageUrl": true,
+    "hasInternalLinks": true,
+    "rawHtmlLength": 127032
+  }
+}
