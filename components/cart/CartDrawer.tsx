@@ -97,11 +97,17 @@ export function CartDrawer() {
     const itemsSummary = cart
       .map(
         ({ product, quantity }) =>
-          `• ${product.name} (Qty: ${quantity}) - ₹${(product.price * quantity).toLocaleString('en-IN')}`
+          `• ${product.name} (Qty: ${quantity}) - ${
+            product.price > 0 && !product.priceOnRequest
+              ? `₹${(product.price * quantity).toLocaleString('en-IN')}`
+              : 'Price on Request'
+          }`
       )
       .join('\n');
 
-    const message = `🌊 *NEW ORDER RECEIVED — MARINE CREATURES* 🌊\n*Order ID:* #${newOrder.id}\n\n👤 *CUSTOMER DETAILS:*\n• *Name:* ${customerName.trim()}\n• *Phone:* +91 ${cleanPhone}\n• *Delivery Address:* ${customerAddress.trim()}\n• *City & Pincode:* ${customerCity.trim()} (${customerPincode.trim()})${orderNotes.trim() ? `\n• *Special Notes:* ${orderNotes.trim()}` : ''}\n\n📦 *ORDERED SPECIMENS:*\n${itemsSummary}\n\n*Total Order Value:* ₹${cartTotal.toLocaleString('en-IN')}\n*Thermal Pod Packaging:* FREE Oxygenated Climate Pod`;
+    const totalStr = cartTotal > 0 ? `₹${cartTotal.toLocaleString('en-IN')}` : 'Price on Request (Quarantine/Specimen Confirmation)';
+
+    const message = `🌊 *NEW ORDER / INQUIRY — MARINE CREATURES* 🌊\n*Order ID:* #${newOrder.id}\n\n👤 *CUSTOMER DETAILS:*\n• *Name:* ${customerName.trim()}\n• *Phone:* +91 ${cleanPhone}\n• *Delivery Address:* ${customerAddress.trim()}\n• *City & Pincode:* ${customerCity.trim()} (${customerPincode.trim()})${orderNotes.trim() ? `\n• *Special Notes:* ${orderNotes.trim()}` : ''}\n\n📦 *ORDERED SPECIMENS & ITEMS:*\n${itemsSummary}\n\n*Total Value:* ${totalStr}\n*Thermal Pod Packaging:* Insulated Climate Pod`;
 
     const encoded = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encoded}`;
@@ -197,9 +203,11 @@ export function CartDrawer() {
       <div className="px-5 sm:px-6 py-3 bg-[rgba(0,184,217,0.06)] border-b border-[rgba(0,184,217,0.15)] text-xs text-[--color-text] flex items-center gap-2 flex-shrink-0">
         <span className="text-sm">⚡</span>
         <span className="leading-snug">
-          {cartTotal >= 15000
-            ? 'Unlocked: FREE Oxygenated Insulated Thermal Pod Shipping Across India!'
-            : `Add ₹${(15000 - cartTotal).toLocaleString('en-IN')} more for FREE Climate-Controlled Shipping`}
+          {cartTotal > 0
+            ? cartTotal >= 15000
+              ? 'Unlocked: FREE Oxygenated Insulated Thermal Pod Shipping Across India!'
+              : `Add ₹${(15000 - cartTotal).toLocaleString('en-IN')} more for FREE Climate-Controlled Shipping`
+            : 'Climate-controlled insulated packaging & direct airport cargo available across India.'}
         </span>
       </div>
 
@@ -279,7 +287,9 @@ export function CartDrawer() {
                     </button>
                   </div>
                   <span className="font-body text-xs font-bold text-[--color-accent]">
-                    ₹{(product.price * quantity).toLocaleString('en-IN')}
+                    {product.price > 0 && !product.priceOnRequest
+                      ? `₹${(product.price * quantity).toLocaleString('en-IN')}`
+                      : 'Price on Request'}
                   </span>
                 </div>
               </div>
@@ -292,9 +302,11 @@ export function CartDrawer() {
       {cart.length > 0 && (
         <div className="p-5 sm:p-6 border-t border-[rgba(255,255,255,0.08)] bg-[rgba(2,7,11,0.95)] space-y-3 flex-shrink-0 pb-safe">
           <div className="flex items-center justify-between">
-            <span className="text-[--color-muted] text-sm font-light">Subtotal</span>
+            <span className="text-[--color-muted] text-sm font-light">
+              {cartTotal > 0 ? 'Subtotal' : 'Pricing'}
+            </span>
             <span className="font-display text-2xl text-[--color-text] font-light">
-              ₹{cartTotal.toLocaleString('en-IN')}
+              {cartTotal > 0 ? `₹${cartTotal.toLocaleString('en-IN')}` : 'Price on Request'}
             </span>
           </div>
           <div className="flex items-center justify-between text-xs text-[--color-muted] border-b border-[rgba(255,255,255,0.06)] pb-3">
@@ -334,7 +346,7 @@ export function CartDrawer() {
           </div>
 
           <p className="text-[10px] text-[--color-muted] text-center opacity-70 leading-tight">
-            🔒 100% DOA Live Arrival Guaranteed • Verified Red Sea Batch Authenticity
+            🔒 Verified Quarantine Husbandry • Live arrival policy applies to express air cargo
           </p>
         </div>
       )}
@@ -359,14 +371,16 @@ export function CartDrawer() {
                   <span className="text-[--color-muted] ml-1">×{quantity}</span>
                 </span>
                 <span className="text-xs font-bold text-[--color-accent] flex-shrink-0">
-                  ₹{(product.price * quantity).toLocaleString('en-IN')}
+                  {product.price > 0 && !product.priceOnRequest
+                    ? `₹${(product.price * quantity).toLocaleString('en-IN')}`
+                    : 'Price on Request'}
                 </span>
               </div>
             ))}
             <div className="border-t border-[rgba(255,255,255,0.06)] pt-2 flex items-center justify-between">
               <span className="text-xs text-[--color-muted]">Total</span>
               <span className="font-display text-lg text-[--color-text] font-semibold">
-                ₹{cartTotal.toLocaleString('en-IN')}
+                {cartTotal > 0 ? `₹${cartTotal.toLocaleString('en-IN')}` : 'Price on Request'}
               </span>
             </div>
           </div>
@@ -516,7 +530,7 @@ export function CartDrawer() {
           <span>PLACE ORDER &amp; OPEN WHATSAPP →</span>
         </button>
         <p className="text-[10px] text-[--color-muted] text-center opacity-60 leading-tight mt-3">
-          🔒 100% DOA Live Arrival Guaranteed • Verified Red Sea Batch Authenticity
+          🔒 Verified Quarantine Husbandry • Live arrival policy applies to express air cargo
         </p>
       </div>
     </>

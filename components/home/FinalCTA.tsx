@@ -1,15 +1,35 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ScrollReveal } from '@/components/ui/ScrollReveal';
 import { CallbackForm } from '@/components/ui/CallbackForm';
-
 export function FinalCTA() {
   const [mounted, setMounted] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [count, setCount] = useState(25);
+  const [prefersReduced, setPrefersReduced] = useState(false);
+  const sectionRef = useState<HTMLElement | null>(null);
+
   useEffect(() => {
     setMounted(true);
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setPrefersReduced(reduced);
+    if (reduced) return;
+
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    setCount(isMobile ? 12 : 25);
   }, []);
+
+  const particles = useState(() => {
+    return Array.from({ length: 25 }).map((_, i) => ({
+      id: i,
+      left: `${(i * 137.5) % 100}%`,
+      bottom: `${(i * 19) % 65}%`,
+      duration: `${8 + (i % 5) * 2}s`,
+      delay: `${(i * 0.7) % 8}s`,
+    }));
+  })[0];
+
   return (
     <section
       className="section relative flex flex-col justify-center overflow-hidden"
@@ -35,18 +55,18 @@ export function FinalCTA() {
         />
       </div>
 
-      {/* Particles */}
-      {mounted && (
+      {/* Particles — device-adaptive (max 12 mobile, 25 desktop) with reduced-motion support */}
+      {mounted && !prefersReduced && (
         <div className="absolute inset-0 pointer-events-none overflow-hidden z-1" aria-hidden="true">
-          {Array.from({ length: 30 }).map((_, i) => (
+          {particles.slice(0, count).map((p) => (
             <div
-              key={i}
+              key={p.id}
               className="particle"
               style={{
-                left: `${Math.random() * 100}%`,
-                bottom: `${Math.random() * 60}%`,
-                animationDuration: `${8 + Math.random() * 10}s`,
-                animationDelay: `${Math.random() * 8}s`,
+                left: p.left,
+                bottom: p.bottom,
+                animationDuration: p.duration,
+                animationDelay: p.delay,
                 opacity: 0,
                 animationName: 'particle-drift',
                 animationTimingFunction: 'linear',

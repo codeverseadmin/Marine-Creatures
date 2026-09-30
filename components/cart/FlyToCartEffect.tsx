@@ -1,15 +1,12 @@
 'use client';
-
 import React, { useEffect, useState } from 'react';
 import { useCart, FlyingItem } from '@/lib/context/CartContext';
-
 export function FlyToCartEffect() {
   const { flyingItems } = useCart();
   const [targetPos, setTargetPos] = useState<{ x: number; y: number }>({
     x: typeof window !== 'undefined' ? window.innerWidth - 60 : 1200,
     y: 35,
   });
-
   useEffect(() => {
     const updateTarget = () => {
       const cartBtn = document.getElementById('navbar-cart-btn');
@@ -26,7 +23,6 @@ export function FlyToCartEffect() {
         });
       }
     };
-
     updateTarget();
     window.addEventListener('resize', updateTarget);
     window.addEventListener('scroll', updateTarget);
@@ -46,7 +42,6 @@ export function FlyToCartEffect() {
     </div>
   );
 }
-
 function FlyingOrb({
   item,
   targetPos,

@@ -80,7 +80,7 @@ export default function AquariumDesignPage() {
           <h1 className="font-display text-display-lg text-[--color-text] font-light">
             Aquarium<br /><em>Design & Engineering.</em>
           </h1>
-          <p className="font-body font-light text-[--color-muted] mt-4 max-w-lg leading-relaxed" style={{ fontSize: '0.9375rem' }}>
+          <p className="font-body font-light text-[--color-muted] mt-4 max-w-lg leading-relaxed text-base md:text-lg">
             Where architectural ambition meets marine science. Every installation is a living masterwork conceived specifically for your space.
           </p>
         </div>
@@ -95,10 +95,10 @@ export default function AquariumDesignPage() {
             <h2 className="font-display text-display-sm text-[--color-text] font-light leading-snug mb-8">
               Every space has a rhythm. We design the ocean to inhabit it.
             </h2>
-            <p className="font-body font-light text-[--color-muted] leading-loose mb-6" style={{ fontSize: '0.9375rem' }}>
+            <p className="font-body font-light text-[--color-muted] leading-loose mb-6 text-base md:text-lg">
               A luxury marine aquarium is not merely a tank of water; it is a dynamic living canvas that commands attention, inspires tranquility, and redefines luxury interiors.
             </p>
-            <p className="font-body font-light text-[--color-muted] leading-loose mb-8" style={{ fontSize: '0.9375rem' }}>
+            <p className="font-body font-light text-[--color-muted] leading-loose mb-8 text-base md:text-lg">
               We collaborate directly with architects, interior designers, and discerning private clients from structural feasibility through to first water fill and biological maturation.
             </p>
             <Link href="/contact" className="btn-primary inline-flex" data-cursor="ENTER">

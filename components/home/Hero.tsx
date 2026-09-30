@@ -1,37 +1,75 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { gsap } from 'gsap';
 
-// Number of particles in the hero background
-const PARTICLE_COUNT = 60;
+// Device-adaptive particle counts per CTO spec:
+// max 15 on mobile (≤768px), max 40 on desktop
+const PARTICLE_COUNT_MOBILE = 15;
+const PARTICLE_COUNT_DESKTOP = 40;
 
 function Particles() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
+  const [mounted, setMounted] = React.useState(false);
+  const [count, setCount] = React.useState(PARTICLE_COUNT_DESKTOP);
+  const [isVisible, setIsVisible] = React.useState(true);
+  const [prefersReduced, setPrefersReduced] = React.useState(false);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
     setMounted(true);
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setPrefersReduced(reduced);
+    if (reduced) return;
+
+    // Detect device and apply adaptive particle count (max 15 mobile, max 40 desktop)
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    setCount(isMobile ? PARTICLE_COUNT_MOBILE : PARTICLE_COUNT_DESKTOP);
+
+    // Viewport-aware particle pause/resume via IntersectionObserver
+    if (!containerRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
   }, []);
 
-  if (!mounted) return null;
+  // Pre-generate stable particle attributes to avoid hydration/re-render jitter
+  const particles = React.useMemo(() => {
+    return Array.from({ length: count }).map((_, i) => ({
+      id: i,
+      left: `${(i * 137.5) % 100}%`,
+      bottom: `${5 + (i * 17) % 45}%`,
+      size: `${1 + (i % 3) * 0.75}px`,
+      duration: `${8 + (i % 7) * 2}s`,
+      delay: `${(i * 0.6) % 8}s`,
+    }));
+  }, [count]);
+
+  if (!mounted || prefersReduced) return null;
 
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-      {Array.from({ length: PARTICLE_COUNT }).map((_, i) => (
+    <div ref={containerRef} className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+      {particles.map((p) => (
         <div
-          key={i}
+          key={p.id}
           className="particle"
           style={{
-            left: `${Math.random() * 100}%`,
-            bottom: `${5 + Math.random() * 40}%`,
-            width: `${1 + Math.random() * 2}px`,
-            height: `${1 + Math.random() * 2}px`,
-            animationDuration: `${8 + Math.random() * 12}s`,
-            animationDelay: `${Math.random() * 10}s`,
+            left: p.left,
+            bottom: p.bottom,
+            width: p.size,
+            height: p.size,
+            animationDuration: p.duration,
+            animationDelay: p.delay,
             opacity: 0,
             animationName: 'particle-drift',
             animationTimingFunction: 'linear',
             animationIterationCount: 'infinite',
+            animationPlayState: isVisible ? 'running' : 'paused',
           }}
         />
       ))}
@@ -69,7 +107,7 @@ export function Hero() {
   const heroRef = useRef<HTMLElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const wordmarkRef = useRef<HTMLDivElement>(null);
-  const headingRef = useRef<HTMLDivElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
   const subRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -245,11 +283,9 @@ export function Hero() {
       <div ref={layer1Ref} className="absolute inset-0 z-0" aria-hidden="true">
         <div
           ref={imageRef}
-          className="absolute inset-0 opacity-0"
+          className="absolute inset-0 opacity-0 bg-cover bg-[center_35%] md:bg-center"
           style={{
             backgroundImage: `url('https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1920&q=90')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
           }}
         />
         {/* Deep ocean vignette */}
@@ -295,7 +331,7 @@ export function Hero() {
         </div>
 
         {/* Main heading */}
-        <div ref={headingRef} aria-label="The Ocean Reimagined">
+        <h1 ref={headingRef} aria-label="The Ocean Reimagined">
           <div className="overflow-hidden mb-1 sm:mb-2">
             <div className="line-1 font-display text-display-xl text-[--color-text] font-light italic leading-[0.92]" style={{ transform: 'translateY(100%)' }}>
               The Ocean
@@ -306,7 +342,7 @@ export function Hero() {
               Reimagined.
             </div>
           </div>
-        </div>
+        </h1>
 
         {/* Sub-content */}
         <div ref={subRef} className="mt-5 sm:mt-8 opacity-0 max-w-xl">
@@ -316,20 +352,20 @@ export function Hero() {
         </div>
 
         {/* Direct Actions */}
-        <div ref={ctaRef} className="mt-8 sm:mt-10 opacity-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 sm:gap-4 max-w-md sm:max-w-none">
+        <div ref={ctaRef} className="mt-7 sm:mt-10 opacity-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 max-w-md sm:max-w-none">
           <Link
             href="/marketplace"
-            className="btn-primary text-xs tracking-wider uppercase font-semibold py-4 px-8 rounded-2xl shadow-2xl justify-center text-center active:scale-[0.98] transition-transform"
+            className="btn-primary text-xs tracking-wider uppercase font-semibold py-3.5 sm:py-4 px-7 sm:px-8 rounded-2xl shadow-2xl justify-center text-center active:scale-[0.98] transition-transform"
             data-cursor="EXPLORE"
           >
             EXPLORE MARKETPLACE →
           </Link>
           <Link
-            href="/services"
-            className="btn-ghost text-xs tracking-wider uppercase font-semibold py-4 px-8 rounded-2xl border-[rgba(255,255,255,0.2)] hover:border-white text-white justify-center text-center active:scale-[0.98] transition-transform"
-            data-cursor="SERVICES"
+            href="/aquarium-design"
+            className="btn-ghost text-xs tracking-wider uppercase font-semibold py-3.5 sm:py-4 px-7 sm:px-8 rounded-2xl border-[rgba(255,255,255,0.2)] hover:border-white text-white justify-center text-center active:scale-[0.98] transition-transform"
+            data-cursor="DESIGN"
           >
-            BOOK CONSULTATION
+            AQUARIUM DESIGN &amp; BUILD
           </Link>
         </div>
       </div>

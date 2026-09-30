@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 
 interface BeforeAfterSliderProps {
   beforeSrc: string;
@@ -18,6 +18,15 @@ export function BeforeAfterSlider({
   const containerRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState(50); // percentage
   const [isDragging, setIsDragging] = useState(false);
+  const [showHint, setShowHint] = useState(true);
+
+  // Auto-dismiss drag hint after 2.5 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => setShowHint(false), 2500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const dismissHint = () => setShowHint(false);
 
   const updatePosition = useCallback((clientX: number) => {
     const container = containerRef.current;
@@ -29,6 +38,7 @@ export function BeforeAfterSlider({
   }, []);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    dismissHint();
     setIsDragging(true);
     e.currentTarget.setPointerCapture(e.pointerId);
     updatePosition(e.clientX);
@@ -62,6 +72,7 @@ export function BeforeAfterSlider({
       aria-valuemax={100}
       tabIndex={0}
       onKeyDown={(e) => {
+        dismissHint();
         if (e.key === 'ArrowLeft') setPosition((p) => Math.max(0, p - 5));
         if (e.key === 'ArrowRight') setPosition((p) => Math.min(100, p + 5));
       }}
@@ -114,6 +125,22 @@ export function BeforeAfterSlider({
           <svg width="14" height="10" viewBox="0 0 14 10" fill="none" className="text-white">
             <path d="M1 5H13M1 5L4 2M1 5L4 8M13 5L10 2M13 5L10 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
           </svg>
+        </div>
+      </div>
+      {/* DRAG TO REVEAL hint — subtle, discoverable, auto-dismisses on interaction or after 2.5s */}
+      <div
+        className={`absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-20 transition-all duration-500 ${
+          showHint ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+        }`}
+        aria-hidden="true"
+      >
+        <div className="bg-[rgba(2,7,11,0.88)] backdrop-blur-xl border border-[var(--color-accent)]/40 rounded-2xl px-5 py-2.5 flex items-center gap-2.5 shadow-2xl shadow-cyan-950/60">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M18 8L22 12L18 16" />
+            <path d="M6 8L2 12L6 16" />
+            <path d="M2 12H22" />
+          </svg>
+          <span className="text-[11px] font-bold text-white tracking-[0.2em] uppercase">DRAG TO REVEAL</span>
         </div>
       </div>
     </div>

@@ -39,7 +39,7 @@ export default function AboutPage() {
           <h1 className="font-display text-display-lg text-[--color-text] font-light">
             Beyond<br /><em>The Glass.</em>
           </h1>
-          <p className="font-body font-light text-[--color-muted] mt-4 max-w-lg leading-relaxed" style={{ fontSize: '0.9375rem' }}>
+          <p className="font-body font-light text-[--color-muted] mt-4 max-w-xl text-base md:text-lg leading-relaxed">
             We believe an aquarium is never just a vessel of water — it is a living, breathing architectural sanctuary that elevates the human spirit.
           </p>
         </div>
@@ -54,10 +54,10 @@ export default function AboutPage() {
               &ldquo;We Don&apos;t Just Build Aquariums. We Create Living Worlds.&rdquo;
             </p>
             <div className="accent-line mb-8" />
-            <p className="font-body font-light text-[--color-muted] leading-loose mb-6" style={{ fontSize: '0.9375rem' }}>
+            <p className="font-body font-light text-[--color-muted] leading-relaxed mb-6 text-base md:text-lg">
               Founded on the belief that marine beauty should be experienced in its purest, most authentic form, Marine Creatures unites marine biology, fluid dynamics, and luxury architectural design.
             </p>
-            <p className="font-body font-light text-[--color-muted] leading-loose mb-8" style={{ fontSize: '0.9375rem' }}>
+            <p className="font-body font-light text-[--color-muted] leading-relaxed mb-8 text-base md:text-lg">
               Every installation we deliver is completely custom-engineered — ensuring healthy ecosystems that flourish effortlessly while offering a transcendent visual focal point.
             </p>
             <div className="grid grid-cols-2 gap-4 border-t border-[rgba(255,255,255,0.06)] pt-6">
@@ -87,7 +87,7 @@ export default function AboutPage() {
               {VALUES.map((v) => (
                 <div key={v.title} className="p-6 border border-[rgba(255,255,255,0.06)] bg-[rgba(7,21,28,0.4)]">
                   <h3 className="font-display text-lg text-[--color-accent] font-light mb-2">{v.title}</h3>
-                  <p className="font-body font-light text-[--color-muted] text-xs leading-relaxed">{v.desc}</p>
+                  <p className="font-body font-light text-[--color-muted] text-sm sm:text-base leading-relaxed">{v.desc}</p>
                 </div>
               ))}
             </div>

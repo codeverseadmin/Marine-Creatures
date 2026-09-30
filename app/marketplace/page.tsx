@@ -10,17 +10,69 @@ import { PromoCarousel } from '@/components/ui/PromoCarousel';
 interface CategoryOption {
   id: string;
   label: string;
-  icon: string;
 }
 
 const CATEGORIES: CategoryOption[] = [
-  { id: 'all', label: 'All Items', icon: '🌊' },
-  { id: 'marine-life', label: 'Marine Life & Corals', icon: '🐠' },
-  { id: 'lighting-tech', label: 'Lighting & Tech', icon: '💡' },
-  { id: 'rock-sand', label: 'Live Rock & Sand', icon: '🪨' },
-  { id: 'salt-chemistry', label: 'Salts & Chemistry', icon: '🧪' },
-  { id: 'hardware', label: 'Equipment & Pumps', icon: '⚙️' },
+  { id: 'all', label: 'All Items' },
+  { id: 'marine-life', label: 'Marine Life & Corals' },
+  { id: 'lighting-tech', label: 'Lighting & Tech' },
+  { id: 'rock-sand', label: 'Live Rock & Sand' },
+  { id: 'salt-chemistry', label: 'Salts & Chemistry' },
+  { id: 'hardware', label: 'Equipment & Pumps' },
 ];
+
+function CategoryIcon({ id, className = 'w-4 h-4' }: { id: string; className?: string }) {
+  switch (id) {
+    case 'marine-life':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M18.5 9.5c-1.5-3-4.5-5-8.5-5S3.5 5.5 2 9.5c1 3 3.5 5.5 8 6.5 4.5-1 7-3.5 8.5-6.5z" />
+          <path d="M22 12c-1 2-3 4-6 5" />
+        </svg>
+      );
+    case 'lighting-tech':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="5" />
+          <line x1="12" y1="1" x2="12" y2="3" />
+          <line x1="12" y1="21" x2="12" y2="23" />
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+          <line x1="1" y1="12" x2="3" y2="12" />
+          <line x1="21" y1="12" x2="23" y2="12" />
+        </svg>
+      );
+    case 'rock-sand':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
+        </svg>
+      );
+    case 'salt-chemistry':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M10 2v7.31L4.62 19.3A2 2 0 0 0 6.35 22h11.3a2 2 0 0 0 1.73-2.7L14 9.31V2" />
+          <path d="M8.5 2h7" />
+          <path d="M14 9.3h-4" />
+        </svg>
+      );
+    case 'hardware':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+      );
+    case 'all':
+    default:
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M2 12c5-3 7 3 10 0s5-3 10 0" />
+          <path d="M2 17c5-3 7 3 10 0s5-3 10 0" />
+        </svg>
+      );
+  }
+}
 
 function MarketplaceContent() {
   const { products } = useCatalog();
@@ -64,23 +116,23 @@ function MarketplaceContent() {
   }, [products, selectedCategory, searchQuery, sortBy]);
 
   return (
-    <div className="bg-[#02070c] min-h-screen text-slate-100">
+    <div className="bg-[var(--color-primary)] min-h-screen text-[var(--color-text)]">
       {/* ── Marketplace Top Header ──────────────────────────────────────── */}
-      <div className="pt-24 sm:pt-28 pb-6 border-b border-slate-800/80 bg-gradient-to-b from-[#06141d] to-[#02070c]">
+      <div className="pt-24 sm:pt-28 pb-6 border-b border-[rgba(255,255,255,0.08)] bg-gradient-to-b from-[var(--color-deep)] to-[var(--color-primary)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5">
           {/* Title & Search/Sort Bar */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="w-2 h-2 rounded-full bg-cyan-400" />
-                <span className="text-[11px] uppercase tracking-widest font-semibold text-cyan-400">
+              <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                <span className="w-2 h-2 rounded-full bg-[var(--color-accent)] animate-pulse" aria-hidden="true" />
+                <span className="text-[11px] uppercase tracking-[0.25em] font-semibold text-[var(--color-accent)]">
                   Official Marine Catalog
                 </span>
               </div>
-              <h1 className="text-2xl sm:text-4xl font-bold text-white tracking-tight">
+              <h1 className="font-display text-3xl sm:text-4xl md:text-5xl text-[var(--color-text)] font-light tracking-tight">
                 Marine Marketplace
               </h1>
-              <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-lg">
+              <p className="font-body text-sm sm:text-base text-[var(--color-muted)] mt-2 sm:mt-3 max-w-xl leading-relaxed">
                 Captive-bred fish, corals, lighting &amp; precision reef gear delivered safely across India.
               </p>
             </div>
@@ -88,13 +140,14 @@ function MarketplaceContent() {
             {/* Search & Sort Controls */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto">
               <div className="relative flex-1 md:w-80 group">
-                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-cyan-400 group-focus-within:text-cyan-300 transition-colors pointer-events-none flex items-center justify-center">
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-accent)] transition-colors pointer-events-none flex items-center justify-center">
                   <svg
                     className="w-4 h-4"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
-                    strokeWidth={2.2}
+                    strokeWidth={2}
+                    aria-hidden="true"
                   >
                     <path
                       strokeLinecap="round"
@@ -108,12 +161,13 @@ function MarketplaceContent() {
                   placeholder="Search fish, corals, gear..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-12 pl-10 pr-20 rounded-2xl bg-[rgba(6,18,28,0.7)] backdrop-blur-xl border border-white/10 text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 focus:shadow-[0_0_24px_rgba(6,182,212,0.25)] transition-all shadow-inner"
+                  className="w-full h-12 pl-10 pr-20 rounded-2xl bg-[var(--color-secondary)] backdrop-blur-xl border border-white/10 text-sm text-[var(--color-text)] placeholder:text-[var(--color-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[rgba(0,184,217,0.2)] transition-all shadow-inner"
+                  aria-label="Search marine marketplace products"
                 />
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
                   {searchQuery ? (
                     <>
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-cyan-500/20 text-cyan-300 border border-cyan-400/30">
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[rgba(0,184,217,0.15)] text-[var(--color-accent)] border border-[rgba(0,184,217,0.3)]">
                         {filteredProducts.length}
                       </span>
                       <button
@@ -138,13 +192,14 @@ function MarketplaceContent() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="w-full sm:w-auto h-12 pl-4 pr-10 rounded-2xl bg-[rgba(6,18,28,0.7)] backdrop-blur-xl border border-white/10 text-xs font-semibold text-slate-200 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 transition-all cursor-pointer appearance-none shadow-inner"
+                  className="w-full sm:w-auto h-12 pl-4 pr-10 rounded-2xl bg-[var(--color-secondary)] backdrop-blur-xl border border-white/10 text-xs font-semibold text-slate-200 focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[rgba(0,184,217,0.2)] transition-all cursor-pointer appearance-none shadow-inner"
+                  aria-label="Sort products by"
                 >
-                  <option value="featured" className="bg-[#071520] text-white">Featured</option>
-                  <option value="price-asc" className="bg-[#071520] text-white">Price: Low to High</option>
-                  <option value="price-desc" className="bg-[#071520] text-white">Price: High to Low</option>
+                  <option value="featured" className="bg-[var(--color-deep)] text-white">Featured</option>
+                  <option value="price-asc" className="bg-[var(--color-deep)] text-white">Price: Low to High</option>
+                  <option value="price-desc" className="bg-[var(--color-deep)] text-white">Price: High to Low</option>
                 </select>
-                <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" aria-hidden="true">
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                   </svg>
@@ -155,8 +210,11 @@ function MarketplaceContent() {
 
           {/* Quick Search Chips */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-[11px] pt-1">
-            <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider shrink-0 flex items-center gap-1">
-              <span className="text-cyan-400">⚡</span> Quick:
+            <span className="text-[var(--color-muted)] text-[10px] uppercase font-bold tracking-wider shrink-0 flex items-center gap-1.5">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+              </svg>
+              Quick:
             </span>
             {['Clownfish', 'Angelfish', 'Blue Tang', 'Anemone', 'Apex', 'LED'].map((tag) => {
               const isCurrent = searchQuery.toLowerCase() === tag.toLowerCase();
@@ -167,7 +225,7 @@ function MarketplaceContent() {
                   onClick={() => setSearchQuery(isCurrent ? '' : tag)}
                   className={`px-3 py-1 rounded-full text-xs transition-all shrink-0 border ${
                     isCurrent
-                      ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 font-semibold shadow-[0_0_12px_rgba(6,182,212,0.3)]'
+                      ? 'bg-[rgba(0,184,217,0.15)] border-[var(--color-accent)] text-[var(--color-accent)] font-semibold shadow-[0_0_12px_rgba(0,184,217,0.25)]'
                       : 'bg-white/[0.03] hover:bg-white/[0.08] border-white/10 text-slate-300 hover:text-white'
                   }`}
                 >
@@ -183,7 +241,7 @@ function MarketplaceContent() {
           </div>
 
           {/* ── Single Clean Category Bar ───────────────────────────────── */}
-          <div className="flex items-center justify-between gap-4 pt-2 border-t border-slate-800/60">
+          <div className="flex items-center justify-between gap-4 pt-2 border-t border-[rgba(255,255,255,0.08)]">
             <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
               {CATEGORIES.map((cat) => {
                 const isActive = selectedCategory === cat.id;
@@ -193,19 +251,19 @@ function MarketplaceContent() {
                     onClick={() => setSelectedCategory(cat.id)}
                     className={`h-10 px-4 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 shrink-0 active:scale-95 ${
                       isActive
-                        ? 'bg-cyan-400 text-slate-950 font-bold shadow-md shadow-cyan-950'
-                        : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-800'
+                        ? 'bg-[var(--color-accent)] text-[var(--color-primary)] font-bold shadow-[0_4px_20px_rgba(0,184,217,0.35)]'
+                        : 'bg-[var(--color-secondary)] hover:bg-[rgba(7,21,28,0.95)] text-[var(--color-muted)] border border-[rgba(255,255,255,0.08)]'
                     }`}
                   >
-                    <span className="text-sm">{cat.icon}</span>
+                    <CategoryIcon id={cat.id} />
                     <span>{cat.label}</span>
                   </button>
                 );
               })}
             </div>
 
-            <span className="text-xs text-slate-400 shrink-0 hidden sm:inline">
-              Showing <strong className="text-white">{filteredProducts.length}</strong> items
+            <span className="text-xs text-[var(--color-muted)] shrink-0 hidden sm:inline">
+              Showing <strong className="text-[var(--color-text)]">{filteredProducts.length}</strong> items
             </span>
           </div>
         </div>
@@ -214,21 +272,41 @@ function MarketplaceContent() {
       {/* ── Product Grid ────────────────────────────────────────────────── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {filteredProducts.length === 0 ? (
-          <div className="text-center py-20 border border-slate-800 rounded-3xl p-8 bg-[#071520] max-w-md mx-auto">
-            <span className="text-4xl block mb-3">🐠</span>
-            <h3 className="text-lg font-bold text-white mb-1">No items found</h3>
-            <p className="text-xs text-slate-400 mb-5">
-              Try searching with different keywords or reset category filters.
+          <div className="text-center py-16 sm:py-20 border border-[rgba(255,255,255,0.08)] rounded-3xl p-8 sm:p-12 bg-[var(--color-secondary)] max-w-lg mx-auto shadow-2xl">
+            <div className="w-16 h-16 rounded-2xl bg-[rgba(0,184,217,0.1)] border border-[rgba(0,184,217,0.25)] flex items-center justify-center mx-auto mb-6">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M18.5 9.5c-1.5-3-4.5-5-8.5-5S3.5 5.5 2 9.5c1 3 3.5 5.5 8 6.5 4.5-1 7-3.5 8.5-6.5z" />
+                <path d="M22 12c-1 2-3 4-6 5" />
+              </svg>
+            </div>
+            {/* WHAT HAPPENED? */}
+            <h3 className="font-display text-2xl sm:text-3xl text-[var(--color-text)] font-light mb-3">
+              No specimens found
+            </h3>
+            {/* WHY? */}
+            <p className="font-body text-sm text-[var(--color-muted)] mb-6 max-w-sm mx-auto leading-relaxed">
+              No available marine life or equipment matches your current active filters{searchQuery ? ` or search "${searchQuery}"` : ''}.
             </p>
-            <button
-              onClick={() => {
-                setSelectedCategory('all');
-                setSearchQuery('');
-              }}
-              className="px-5 py-2.5 rounded-xl bg-cyan-400 text-slate-950 text-xs font-bold hover:bg-cyan-300 transition-colors"
-            >
-              Reset Filters
-            </button>
+            {/* WHAT CAN I DO? */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button
+                onClick={() => {
+                  setSelectedCategory('all');
+                  setSearchQuery('');
+                }}
+                className="btn-primary w-full sm:w-auto rounded-xl text-xs py-3.5 px-6 font-semibold tracking-wider uppercase active:scale-95 transition-all"
+              >
+                Clear Filters
+              </button>
+              <a
+                href={`https://wa.me/919330436603?text=${encodeURIComponent(`Hi Suraj, I am looking for marine specimens or equipment (${searchQuery || selectedCategory}) that are currently not listed.`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-ghost w-full sm:w-auto rounded-xl text-xs py-3.5 px-5 font-semibold tracking-wider uppercase border-[rgba(255,255,255,0.15)] text-white hover:border-[var(--color-accent)] active:scale-95 transition-all flex items-center justify-center gap-2"
+              >
+                Custom Concierge Sourcing ↗
+              </a>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-6">
@@ -241,22 +319,22 @@ function MarketplaceContent() {
 
       {/* ── Bottom Service Consultation Banner ──────────────────────────── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 md:pb-16">
-        <div className="rounded-2xl p-6 sm:p-8 border border-slate-800 bg-[#06141d] flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-1">
-            <span className="text-[10px] uppercase font-bold tracking-widest text-cyan-400">
+        <div className="rounded-2xl p-6 sm:p-8 border border-[rgba(255,255,255,0.08)] bg-[var(--color-secondary)] flex flex-col md:flex-row items-center justify-between gap-6 glass-card-hover">
+          <div className="space-y-1.5">
+            <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--color-accent)]">
               Expert Installation &amp; Maintenance
             </span>
-            <h3 className="text-xl sm:text-2xl font-bold text-white">
+            <h3 className="font-display text-xl sm:text-2xl text-[var(--color-text)] font-light">
               Need Custom Aquarium Setup?
             </h3>
-            <p className="text-xs sm:text-sm text-slate-400 max-w-xl">
+            <p className="font-body text-xs sm:text-sm text-[var(--color-muted)] max-w-xl leading-relaxed">
               From residential reef displays to corporate lobby aquariums, our marine biologists handle full design, plumbing, and live maintenance.
             </p>
           </div>
 
           <Link
             href="/services"
-            className="h-12 px-6 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs uppercase tracking-wider flex items-center justify-center transition-all active:scale-95 shrink-0 shadow-md"
+            className="btn-primary rounded-xl py-3.5 px-7 shrink-0 active:scale-95 transition-transform"
           >
             Explore Services →
           </Link>
@@ -268,7 +346,7 @@ function MarketplaceContent() {
 
 export default function MarketplacePage() {
   return (
-    <Suspense fallback={<div className="bg-[#02070c] min-h-screen" />}>
+    <Suspense fallback={<div className="bg-[var(--color-primary)] min-h-screen" />}>
       <MarketplaceContent />
     </Suspense>
   );

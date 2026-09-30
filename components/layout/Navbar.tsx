@@ -97,14 +97,15 @@ export function Navbar() {
             {/* Right — Actions: Wishlist + Cart + Track + Hamburger */}
             <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
 
-              {/* Wishlist — icon only */}
               <button
                 onClick={() => setIsWishlistOpen(true)}
                 className="relative h-10 w-10 rounded-xl border border-white/10 bg-[rgba(7,21,28,0.75)] hover:border-rose-400 text-white flex items-center justify-center transition-all active:scale-95 shadow-sm"
                 aria-label={`Wishlist (${wishlistCount} items)`}
                 title="Open Wishlist"
               >
-                <span className="text-sm">❤️</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill={wishlistCount > 0 ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={wishlistCount > 0 ? 'text-rose-400' : 'text-white'} aria-hidden="true">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
                 {wishlistCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-white font-bold text-[9px] flex items-center justify-center shadow-md">
                     {wishlistCount}
@@ -123,7 +124,11 @@ export function Navbar() {
                 }`}
                 aria-label={`Shopping Bag (${cartCount} items)`}
               >
-                <span className="text-sm">🛒</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <path d="M16 10a4 4 0 01-8 0" />
+                </svg>
                 <span className="hidden sm:inline text-[11px] uppercase tracking-wider text-[--color-muted] font-medium">
                   BAG
                 </span>
@@ -139,8 +144,11 @@ export function Navbar() {
                 onClick={() => setIsTrackingOpen(true)}
                 className="hidden lg:flex items-center gap-1.5 h-10 px-3 rounded-xl border border-cyan-400/30 bg-cyan-400/10 hover:bg-cyan-400/20 text-cyan-300 text-xs font-semibold tracking-wider uppercase transition-all active:scale-95 shadow-sm"
                 title="Track Live Order Dispatch"
+                aria-label="Track live order dispatch"
               >
-                <span>📦</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8l1 12a2 2 0 002 2h8a2 2 0 002-2L19 8M10 12v4M14 12v4" />
+                </svg>
                 <span>TRACK</span>
               </button>
 
@@ -161,12 +169,12 @@ export function Navbar() {
                 data-cursor="MENU"
               >
                 {menuOpen ? (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <line x1="18" y1="6" x2="6" y2="18" />
                     <line x1="6" y1="6" x2="18" y2="18" />
                   </svg>
                 ) : (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <line x1="4" y1="6" x2="20" y2="6" />
                     <line x1="4" y1="12" x2="20" y2="12" />
                     <line x1="4" y1="18" x2="20" y2="18" />

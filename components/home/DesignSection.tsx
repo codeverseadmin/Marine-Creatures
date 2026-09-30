@@ -110,16 +110,22 @@ export function DesignSection() {
             </div>
           </div>
 
-          {/* Right image preview */}
+          {/* Right image preview with smooth cross-fade transition */}
           <div className="lg:col-span-8 relative rounded-3xl overflow-hidden min-h-[360px] sm:min-h-[420px] lg:min-h-[480px] border border-[rgba(255,255,255,0.08)] shadow-2xl">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={current.image}
-              alt={current.name}
-              className="w-full h-full object-cover transition-transform duration-1000 hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[rgba(2,7,11,0.92)] via-[rgba(2,7,11,0.2)] to-transparent" />
-            <div className="absolute bottom-6 left-6 right-6 flex flex-wrap items-end justify-between gap-4">
+            {FORM_FACTORS.map((form, i) => (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                key={form.id}
+                src={form.image}
+                alt={form.name}
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out ${
+                  i === activeForm ? 'opacity-100 z-1' : 'opacity-0 z-0 pointer-events-none'
+                }`}
+                loading={i === 0 ? 'eager' : 'lazy'}
+              />
+            ))}
+            <div className="absolute inset-0 bg-gradient-to-t from-[rgba(2,7,11,0.92)] via-[rgba(2,7,11,0.2)] to-transparent z-2 pointer-events-none" />
+            <div className="absolute bottom-6 left-6 right-6 flex flex-wrap items-end justify-between gap-4 z-3">
               <div>
                 <span className="text-[10px] uppercase tracking-widest text-[--color-accent] block mb-1">CAPACITY &amp; VOLUME</span>
                 <span className="font-display text-2xl sm:text-3xl text-[--color-text] font-light">{current.volume}</span>

@@ -28,7 +28,7 @@ export default function ServicesPage() {
           <h1 className="font-display text-3xl sm:text-5xl md:text-6xl text-white font-light mb-3 sm:mb-4">
             Installation &amp;<br /><em>Renovation Services.</em>
           </h1>
-          <p className="font-body text-xs sm:text-base text-[--color-muted] max-w-2xl leading-relaxed">
+          <p className="font-body text-base md:text-lg text-[--color-muted] max-w-2xl leading-relaxed">
             Whether you are commissioning a monumental architectural living reef or revitalizing an existing troubled setup, our senior marine curators deliver perfection.
           </p>
         </div>
@@ -57,7 +57,7 @@ export default function ServicesPage() {
                 {service.name}
               </h2>
 
-              <p className="font-body text-xs sm:text-sm text-[--color-muted] leading-relaxed">
+              <p className="font-body text-base sm:text-lg text-[--color-muted] leading-relaxed">
                 {service.description}
               </p>
 
@@ -69,7 +69,16 @@ export default function ServicesPage() {
                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm text-slate-200">
                   {service.inclusions.map((inc, i) => (
                     <li key={i} className="flex items-start gap-2.5">
-                      <span className="text-[--color-accent] font-bold">✓</span>
+                      <svg
+                        className="w-4 h-4 text-[--color-accent] shrink-0 mt-0.5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        aria-hidden="true"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
                       <span>{inc}</span>
                     </li>
                   ))}
@@ -118,7 +127,16 @@ export default function ServicesPage() {
                 <ul className="space-y-3 text-xs sm:text-sm text-slate-200">
                   {service.guarantees.map((g, i) => (
                     <li key={i} className="flex items-center gap-3">
-                      <span className="text-emerald-400">🛡️</span>
+                      <svg
+                        className="w-4 h-4 text-emerald-400 shrink-0"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        aria-hidden="true"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
                       <span>{g}</span>
                     </li>
                   ))}
@@ -145,7 +163,7 @@ export default function ServicesPage() {
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl text-white font-light mb-3">
             Book Your Consultation
           </h2>
-          <p className="font-body text-xs sm:text-sm text-[--color-muted]">
+          <p className="font-body text-base sm:text-lg text-[--color-muted]">
             Fill in your property details below to reserve an engineering consultation with our senior biological curators.
           </p>
         </div>

@@ -6,7 +6,6 @@ export const metadata: Metadata = {
   description:
     'Expert aquarium installation by Marine Creatures. Precision engineering for residential, commercial and hospitality environments.',
 };
-
 const STAGES = [
   {
     step: '01',

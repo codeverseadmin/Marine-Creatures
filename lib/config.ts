@@ -34,15 +34,21 @@ export const STATS = [
 
 export const NAV_LINKS = [
   { label: 'Marketplace', href: '/marketplace' },
+  { label: 'Aquarium Design', href: '/aquarium-design' },
+  { label: 'Renovation', href: '/renovation' },
+  { label: 'Our Worlds', href: '/our-worlds' },
   { label: 'Services', href: '/services' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ];
 
 export const MOBILE_NAV_LINKS = [
-  { label: 'Marketplace Store', href: '/marketplace' },
+  { label: 'Marine Marketplace', href: '/marketplace' },
+  { label: 'Aquarium Design', href: '/aquarium-design' },
+  { label: 'Tank Renovation', href: '/renovation' },
+  { label: 'Our Worlds (Portfolio)', href: '/our-worlds' },
   { label: 'Services & Installation', href: '/services' },
-  { label: 'About Us', href: '/about' },
-  { label: 'Contact', href: '/contact' },
+  { label: 'About Our Studio', href: '/about' },
+  { label: 'Private Concierge', href: '/contact' },
 ];
 

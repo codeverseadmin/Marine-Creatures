@@ -63,15 +63,21 @@ export function ServicesBookingSection() {
               {/* Inclusions */}
               <ul className="space-y-2.5 text-xs sm:text-sm text-[--color-muted] mb-8">
                 <li className="flex items-center gap-2.5">
-                  <span className="text-[--color-accent] font-bold">✓</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
                   <span className="text-white font-light">OptiWhite™ Monolithic Glass / Thermoformed Acrylic</span>
                 </li>
                 <li className="flex items-center gap-2.5">
-                  <span className="text-[--color-accent] font-bold">✓</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
                   <span className="text-white font-light">IoT Controlled NemoLight &amp; Silent DC Return Pumps</span>
                 </li>
                 <li className="flex items-center gap-2.5">
-                  <span className="text-[--color-accent] font-bold">✓</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
                   <span className="text-white font-light">10-Year Structural Zero-Leak Guarantee</span>
                 </li>
               </ul>
@@ -117,15 +123,21 @@ export function ServicesBookingSection() {
               {/* Inclusions */}
               <ul className="space-y-2.5 text-xs sm:text-sm text-[--color-muted] mb-8">
                 <li className="flex items-center gap-2.5">
-                  <span className="text-[--color-gold] font-bold">✓</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-gold)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
                   <span className="text-white font-light">Zero-Loss Livestock Relocation &amp; Safe Holding</span>
                 </li>
                 <li className="flex items-center gap-2.5">
-                  <span className="text-[--color-gold] font-bold">✓</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-gold)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
                   <span className="text-white font-light">Diamond Glass Polishing &amp; Scratch Removal</span>
                 </li>
                 <li className="flex items-center gap-2.5">
-                  <span className="text-[--color-gold] font-bold">✓</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-gold)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
                   <span className="text-white font-light">Upgrading to High-PAR NemoLight LED Technology</span>
                 </li>
               </ul>
@@ -143,7 +155,11 @@ export function ServicesBookingSection() {
         {/* Direct Contact Bar */}
         <div className="rounded-2xl p-5 sm:p-7 border border-[rgba(0,184,217,0.25)] bg-[rgba(0,184,217,0.05)] flex flex-col md:flex-row items-center justify-between gap-4 text-xs sm:text-sm">
           <div className="flex items-center gap-3 text-center sm:text-left">
-            <span className="text-2xl">📞</span>
+            <div className="w-10 h-10 rounded-xl bg-[rgba(0,184,217,0.12)] border border-[rgba(0,184,217,0.25)] flex items-center justify-center shrink-0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.7A2 2 0 012 1h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
+              </svg>
+            </div>
             <div>
               <span className="text-white font-medium block">Prefer to speak directly with our Senior Biologist?</span>
               <span className="text-[--color-muted] text-xs">Available Monday–Saturday for bespoke advice across India</span>

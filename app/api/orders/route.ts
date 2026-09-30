@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { OrderModel } from '@/models/Order';
 import { isAdminRequest } from '@/lib/auth';
-
 const DEFAULT_ORDERS_SEED = [
   {
     id: 'MC-8921',

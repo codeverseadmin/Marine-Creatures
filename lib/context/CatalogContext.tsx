@@ -57,7 +57,7 @@ interface CatalogContextType {
 const CatalogContext = createContext<CatalogContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
-  PRODUCTS: 'mc_products_v1',
+  PRODUCTS: 'mc_products_v2',
   BANNERS: 'mc_banners_v1',
   INQUIRIES: 'mc_inquiries_v1',
 };

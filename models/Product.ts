@@ -42,6 +42,30 @@ export interface IProductDocument extends Document {
     careLevel?: string;
   };
   hsnCode?: string;
+  priceOnRequest?: boolean;
+  availabilityStatus?: 'AVAILABLE' | 'LIMITED' | 'ON REQUEST' | 'QUARANTINED' | 'OUT OF STOCK';
+  availabilityNote?: string;
+  isQuarantined?: boolean;
+  rarity?: string;
+  feedingCondition?: string;
+  origin?: string;
+  variants?: Array<{
+    id: string;
+    name: string;
+    sku?: string;
+    specs?: Record<string, string>;
+    inStock?: boolean;
+  }>;
+  imageStatus?: 'VERIFIED' | 'NEEDS_LICENSE_REVIEW' | 'NEEDS_MEDIA_ASSET';
+  researchStatus?: 'READY' | 'NEEDS_REVIEW' | 'RESEARCH_UNCERTAIN';
+  researchSources?: Array<{
+    sourceName: string;
+    sourceUrl: string;
+    sourceType: string;
+    accessedAt: string;
+  }>;
+  isArchived?: boolean;
+  archivedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -91,6 +115,34 @@ const ProductSchema = new Schema<IProductDocument>(
       careLevel: String,
     },
     hsnCode: { type: String, default: '01062000' },
+    priceOnRequest: { type: Boolean, default: false },
+    availabilityStatus: { type: String, default: 'AVAILABLE' },
+    availabilityNote: { type: String },
+    isQuarantined: { type: Boolean, default: false },
+    rarity: { type: String },
+    feedingCondition: { type: String },
+    origin: { type: String },
+    variants: [
+      {
+        id: String,
+        name: String,
+        sku: String,
+        specs: Schema.Types.Mixed,
+        inStock: Boolean,
+      },
+    ],
+    imageStatus: { type: String, default: 'VERIFIED' },
+    researchStatus: { type: String, default: 'READY' },
+    researchSources: [
+      {
+        sourceName: String,
+        sourceUrl: String,
+        sourceType: String,
+        accessedAt: String,
+      },
+    ],
+    isArchived: { type: Boolean, default: false, index: true },
+    archivedAt: { type: Date },
   },
   {
     timestamps: true,

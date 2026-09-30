@@ -7,17 +7,17 @@ import { isAdminRequest } from '@/lib/auth';
 export async function GET() {
   try {
     await connectToDatabase();
-    let products = await ProductModel.find({}).sort({ createdAt: -1 }).lean();
+    let products = await ProductModel.find({ isArchived: { $ne: true } }).sort({ createdAt: -1 }).lean();
 
     // Auto-seed if collection is empty
     if (!products || products.length === 0) {
       console.log('🌱 Seeding initial products catalog into MongoDB Atlas...');
       try {
         await ProductModel.insertMany(PRODUCTS, { ordered: false });
-        products = await ProductModel.find({}).sort({ createdAt: -1 }).lean();
+        products = await ProductModel.find({ isArchived: { $ne: true } }).sort({ createdAt: -1 }).lean();
       } catch (seedErr) {
         console.warn('Auto-seed partial insert or notice:', seedErr);
-        products = await ProductModel.find({}).sort({ createdAt: -1 }).lean();
+        products = await ProductModel.find({ isArchived: { $ne: true } }).sort({ createdAt: -1 }).lean();
       }
     }
 

@@ -116,6 +116,29 @@ html.has-custom-cursor [data-cursor] {
   color: var(--color-text);
 }
 
+/* ============================================================================
+   Focus — visible ring for keyboard navigation (WCAG 2.1 AA)
+   ============================================================================ */
+
+:focus-visible,
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+[role="slider"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-accent) !important;
+  outline-offset: 3px !important;
+  border-radius: 4px;
+}
+
+/* Remove default focus ring where focus-visible handles it */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
 /* Prevent iOS Safari 100% auto-zoom trigger on input focus */
 @media screen and (max-width: 768px) {
   input,
@@ -219,6 +242,54 @@ html.has-custom-cursor [data-cursor] {
 
 .gold-accent {
   color: var(--color-gold);
+}
+
+/* ============================================================================
+   Section Rhythm — Light Editorial Surfaces
+   Use these to break the all-dark monotony per CTO spec:
+   "Dark Immersive → Clean Editorial → Dark Marine → Light Architectural"
+   ============================================================================ */
+
+.section-editorial {
+  background: #F5F7F6;
+  color: #02070B;
+}
+
+.section-editorial .ocean-text-muted,
+.section-editorial .text-muted {
+  color: #4A6066;
+}
+
+.section-editorial .accent-line {
+  background: #00B8D9;
+}
+
+.section-cream {
+  background: #F0F4F3;
+  color: #02070B;
+}
+
+.section-cream .ocean-text-muted {
+  color: #4A6066;
+}
+
+/* ============================================================================
+   Body text minimum size enforcer — 16px on mobile, 17px on md+
+   Applied to .body-text class for long-form paragraphs
+   ============================================================================ */
+
+.body-text {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 1rem; /* 16px */
+  line-height: 1.75;
+  color: var(--color-muted);
+}
+
+@media (min-width: 768px) {
+  .body-text {
+    font-size: 1.0625rem; /* 17px */
+  }
 }
 
 /* ============================================================================
@@ -588,6 +659,33 @@ html.has-custom-cursor [data-cursor] {
   50%  { opacity: 0.4; transform: translateY(-60px) translateX(6px); }
   80%  { opacity: 0.2; }
   100% { transform: translateY(-130px) translateX(-8px); opacity: 0; }
+}
+
+/* ============================================================================
+   Underwater Ocean Shimmer (Subtle Caustics Movement)
+   ============================================================================ */
+
+@keyframes ocean-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.shimmer,
+.ocean-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(6, 19, 29, 0.9) 0%,
+    rgba(14, 38, 50, 0.95) 25%,
+    rgba(0, 184, 217, 0.15) 50%,
+    rgba(14, 38, 50, 0.95) 75%,
+    rgba(6, 19, 29, 0.9) 100%
+  );
+  background-size: 200% 100%;
+  animation: ocean-shimmer 2.5s ease-in-out infinite;
 }
 
 /* ============================================================================

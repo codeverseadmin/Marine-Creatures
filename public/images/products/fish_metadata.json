@@ -1,0 +1,156 @@
+[
+  {
+    "productId": "purple-tang-l",
+    "name": "Purple Tang L",
+    "localPath": "/images/products/purple-tang-l.jpg",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Zebrasoma_xanthurum_pair.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "sourceTitle": "File:Zebrasoma xanthurum pair.jpg",
+    "license": "CC BY-SA 3.0",
+    "artist": "Stan Shebs",
+    "resolution": "1600x815",
+    "status": "INGESTED"
+  },
+  {
+    "productId": "sohal-tang-m",
+    "name": "Sohal Tang M",
+    "localPath": "/images/products/sohal-tang-m.jpg",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c3/Acanthurus_sohal_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "sourceTitle": "File:Acanthurus sohal 1.jpg",
+    "license": "CC BY-SA 3.0",
+    "artist": "Stan Shebs",
+    "resolution": "1200x765",
+    "status": "INGESTED"
+  },
+  {
+    "productId": "flameback-angel",
+    "name": "Flameback Angel",
+    "localPath": "/images/products/flameback-angel.jpg",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Centropyge_acanthops.jpg",
+    "sourceTitle": "File:Centropyge acanthops.jpg",
+    "license": "Copyrighted free use",
+    "artist": "Serge Planes",
+    "resolution": "639x428",
+    "status": "INGESTED"
+  },
+  {
+    "productId": "blonde-naso-tang",
+    "name": "Blonde Naso Tang",
+    "localPath": "/images/products/blonde-naso-tang.jpg",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/9/96/Naso_elegans_Oceanopolis.jpg",
+    "sourceTitle": "File:Naso elegans Oceanopolis.jpg",
+    "license": "CC BY-SA 3.0",
+    "artist": "This illustration was made by Citron\nYou must credit this : Citron / CC-BY-SA-3.0",
+    "resolution": "2500x2413",
+    "status": "INGESTED"
+  },
+  {
+    "productId": "banggai-cardinal",
+    "name": "Banggai Cardinal",
+    "localPath": "/images/products/banggai-cardinal.jpg",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/3/39/Pterapogon_kauderni_NEA.jpg",
+    "sourceTitle": "File:Pterapogon kauderni NEA.jpg",
+    "license": "CC BY 2.5",
+    "artist": "Pharaoh Hound",
+    "resolution": "1845x1396",
+    "status": "INGESTED"
+  },
+  {
+    "productId": "regal-tang-m",
+    "name": "Regal Tang M",
+    "localPath": "/images/products/regal-tang-m.jpg",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/2/25/Blue_tang_%28Paracanthurus_hepatus%29_02.jpg",
+    "sourceTitle": "File:Blue tang (Paracanthurus hepatus) 02.jpg",
+    "license": "CC BY 2.5",
+    "artist": "Tewy",
+    "resolution": "2272x1704",
+    "status": "INGESTED"
+  },
+  {
+    "productId": "regal-tang-s",
+    "name": "Regal Tang S",
+    "localPath": "/images/products/regal-tang-s.jpg",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/2/25/Blue_tang_%28Paracanthurus_hepatus%29_02.jpg",
+    "sourceTitle": "File:Blue tang (Paracanthurus hepatus) 02.jpg",
+    "license": "CC BY 2.5",
+    "artist": "Tewy",
+    "resolution": "2272x1704",
+    "status": "INGESTED"
+  },
+  {
+    "productId": "lair-tail-hogfish",
+    "name": "Lair Tail Hogfish",
+    "localPath": "/images/products/lair-tail-hogfish.jpg",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/6/67/Lyretail_Hogfish.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "sourceTitle": "File:Lyretail Hogfish.jpg",
+    "license": "CC BY-SA 2.0",
+    "artist": "Derek Keats",
+    "resolution": "1024x648",
+    "status": "INGESTED"
+  },
+  {
+    "productId": "triangular-butterfly",
+    "name": "Triangular Butterfly",
+    "localPath": "/images/products/triangular-butterfly.jpg",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Bep_chaetodon_baronessa.jpg",
+    "sourceTitle": "File:Bep chaetodon baronessa.jpg",
+    "license": "CC BY-SA 4.0",
+    "artist": "Bernard E. Picton BernardP",
+    "resolution": "1024x768",
+    "status": "INGESTED"
+  },
+  {
+    "productId": "percula-picasso-clown",
+    "name": "Percula Picasso Clown",
+    "localPath": "/images/products/percula-picasso-clown.jpg",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e5/Amphiprion_ocellaris_%28Clown_anemonefish%29_in_Heteractis_magnifica_%28Sea_anemone%29.jpg",
+    "sourceTitle": "File:Amphiprion ocellaris (Clown anemonefish) in Heteractis magnifica (Sea anemone).jpg",
+    "license": "CC BY-SA 3.0",
+    "artist": "Nhobgood Nick Hobgood",
+    "resolution": "1260x1680",
+    "status": "INGESTED"
+  },
+  {
+    "productId": "metallic-yellow-belly-blue-damsel",
+    "name": "Metallic Yellow Belly Blue Damsel",
+    "localPath": "/images/products/metallic-yellow-belly-blue-damsel.jpg",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Crysiptera_hemicyanea.jpg",
+    "sourceTitle": "File:Crysiptera hemicyanea.jpg",
+    "license": "Public domain",
+    "artist": "User:Haplochromis",
+    "resolution": "500x332",
+    "status": "INGESTED"
+  },
+  {
+    "productId": "pink-stripe-wrasse",
+    "name": "Pink Stripe Wrasse",
+    "localPath": "/images/products/pink-stripe-wrasse.jpg",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/4/42/Pseudocheilinus_evanidus.jpg",
+    "sourceTitle": "File:Pseudocheilinus evanidus.jpg",
+    "license": "Copyrighted free use",
+    "artist": "Jeffrey T. Williams",
+    "resolution": "640x353",
+    "status": "INGESTED"
+  },
+  {
+    "productId": "cinnamon-tomato-clown",
+    "name": "Cinnamon Tomato Clown",
+    "localPath": "/images/products/cinnamon-tomato-clown.jpg",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/3/35/Amphiprion_melanopus_in_Entacmaea_quadricolor.jpg",
+    "sourceTitle": "File:Amphiprion melanopus in Entacmaea quadricolor.jpg",
+    "license": "CC BY-SA 2.0",
+    "artist": "Richard Ling",
+    "resolution": "1024x736",
+    "status": "INGESTED"
+  },
+  {
+    "productId": "magnificent-foxface",
+    "name": "Magnificent Foxface",
+    "localPath": "/images/products/magnificent-foxface.jpg",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/c/ca/Siganus_magnificus_1.jpg",
+    "sourceTitle": "File:Siganus magnificus 1.jpg",
+    "license": "CC BY-SA 3.0",
+    "artist": "Karelj",
+    "resolution": "2400x1600",
+    "status": "INGESTED"
+  }
+]

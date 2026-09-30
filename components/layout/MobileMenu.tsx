@@ -124,7 +124,11 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             className="p-3.5 rounded-2xl border border-[rgba(0,184,217,0.3)] bg-[rgba(0,184,217,0.08)] hover:bg-[rgba(0,184,217,0.16)] transition-all flex flex-col justify-between active:scale-[0.98]"
           >
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xl">🛍️</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[--color-accent]" aria-hidden="true">
+                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <path d="M16 10a4 4 0 01-8 0" />
+              </svg>
               <span className="text-[10px] text-[--color-accent] font-semibold tracking-wider">STORE</span>
             </div>
             <span className="text-xs font-medium text-white">Marketplace</span>
@@ -136,7 +140,9 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             className="p-3.5 rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] hover:border-[--color-accent] transition-all flex flex-col justify-between active:scale-[0.98]"
           >
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xl">⚡</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-300" aria-hidden="true">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+              </svg>
               <span className="text-[10px] text-[--color-muted] font-semibold tracking-wider">BOOKING</span>
             </div>
             <span className="text-xs font-medium text-white">Services &amp; Setup</span>
@@ -150,7 +156,9 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             className="p-3.5 rounded-2xl border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 transition-all flex flex-col justify-between active:scale-[0.98] text-left"
           >
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xl">❤️</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill={wishlistCount > 0 ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-rose-400" aria-hidden="true">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
               <span className="text-[10px] text-rose-400 font-semibold tracking-wider">
                 {wishlistCount > 0 ? `${wishlistCount} SAVED` : 'WISHLIST'}
               </span>
@@ -166,7 +174,9 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             className="p-3.5 rounded-2xl border border-cyan-400/30 bg-cyan-400/10 hover:bg-cyan-400/20 transition-all flex flex-col justify-between active:scale-[0.98] text-left"
           >
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xl">📦</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-400" aria-hidden="true">
+                <path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8l1 12a2 2 0 002 2h8a2 2 0 002-2L19 8M10 12v4M14 12v4" />
+              </svg>
               <span className="text-[10px] text-cyan-400 font-semibold tracking-wider">LIVE TELEMETRY</span>
             </div>
             <span className="text-xs font-medium text-white">Track Orders</span>
@@ -179,7 +189,9 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             className="p-3.5 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 transition-all flex flex-col justify-between col-span-2 sm:col-span-1 active:scale-[0.98]"
           >
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xl">💬</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-emerald-400" aria-hidden="true">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+              </svg>
               <span className="text-[10px] text-emerald-400 font-semibold tracking-wider">WHATSAPP</span>
             </div>
             <span className="text-xs font-medium text-white">Live Concierge Chat</span>
@@ -190,7 +202,9 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             className="p-3.5 rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] hover:border-white transition-all flex flex-col justify-between col-span-2 sm:col-span-1 active:scale-[0.98]"
           >
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xl">📞</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[--color-muted]" aria-hidden="true">
+                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.7A2 2 0 012 1h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
+              </svg>
               <span className="text-[10px] text-[--color-muted] font-semibold tracking-wider">DIRECT HOTLINE</span>
             </div>
             <span className="text-xs font-medium text-white">{SITE_CONFIG.phone}</span>
@@ -296,7 +310,11 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               onClick={onClose}
               className="text-[11px] text-slate-400 hover:text-cyan-400 transition-colors flex items-center gap-1.5 py-1 px-2.5 rounded-lg border border-white/10 hover:border-cyan-400/40 bg-white/5"
             >
-              <span>🔒 Admin</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0110 0v4"/>
+              </svg>
+              <span>Admin</span>
             </Link>
           </div>
         </div>

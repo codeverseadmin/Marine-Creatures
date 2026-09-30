@@ -28,24 +28,40 @@ export function Footer() {
       <div className="border-b border-white/[0.06] bg-white/[0.01]">
         <div className="container-max py-6 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center sm:text-left">
           <div className="flex items-center justify-center sm:justify-start gap-3 px-2">
-            <span className="text-2xl">🛡️</span>
+            <div className="w-9 h-9 rounded-xl border border-[rgba(0,184,217,0.25)] bg-[rgba(0,184,217,0.08)] flex items-center justify-center flex-shrink-0">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <polyline points="9 12 11 14 15 10" />
+              </svg>
+            </div>
             <div>
-              <span className="text-xs font-bold text-white block">100% Live Arrival Guarantee</span>
-              <span className="text-[11px] text-slate-400 block">30-day biological quarantine protocols</span>
+              <span className="text-xs font-bold text-white block">Verified Quarantine Protocols</span>
+              <span className="text-[11px] text-[--color-muted] block">Dedicated captive life-support husbandry</span>
             </div>
           </div>
           <div className="flex items-center justify-center sm:justify-start gap-3 px-2">
-            <span className="text-2xl">🌊</span>
+            <div className="w-9 h-9 rounded-xl border border-[rgba(0,184,217,0.25)] bg-[rgba(0,184,217,0.08)] flex items-center justify-center flex-shrink-0">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" />
+                <path d="M3 17a4 4 0 004 4h3" /><path d="M3 14v3" />
+              </svg>
+            </div>
             <div>
               <span className="text-xs font-bold text-white block">Bespoke Marine Architecture</span>
-              <span className="text-[11px] text-slate-400 block">Handcrafted by Founder Suraj Shasmal</span>
+              <span className="text-[11px] text-[--color-muted] block">Handcrafted by Founder Suraj Shasmal</span>
             </div>
           </div>
           <div className="flex items-center justify-center sm:justify-start gap-3 px-2">
-            <span className="text-2xl">✈️</span>
+            <div className="w-9 h-9 rounded-xl border border-[rgba(0,184,217,0.25)] bg-[rgba(0,184,217,0.08)] flex items-center justify-center flex-shrink-0">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11a2 2 0 012 2v3" />
+                <rect x="9" y="11" width="14" height="10" rx="2" />
+                <path d="M13 16h4M13 19h2" />
+              </svg>
+            </div>
             <div>
               <span className="text-xs font-bold text-white block">Pan-India Priority Logistics</span>
-              <span className="text-[11px] text-slate-400 block">Oxygen-injected climate crates to your door</span>
+              <span className="text-[11px] text-[--color-muted] block">Oxygen-injected climate crates to your door</span>
             </div>
           </div>
         </div>
@@ -134,6 +150,14 @@ export function Footer() {
                     </Link>
                   </li>
                 ))}
+                <li>
+                  <Link
+                    href="/shipping-policy"
+                    className="font-body font-light text-slate-400 text-xs sm:text-sm hover:text-white transition-colors duration-300 block py-0.5"
+                  >
+                    Shipping &amp; Purchase Policy
+                  </Link>
+                </li>
               </ul>
             </div>
 

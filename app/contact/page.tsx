@@ -1,40 +1,185 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 import { SITE_CONFIG } from '@/lib/config';
 import { useCatalog } from '@/lib/context/CatalogContext';
 
-// ── Service & Space options ──────────────────────────────────────────────────
+// ── Service & Space options with Accessible SVG Icons ────────────────────────
 const SERVICE_OPTIONS = [
-  { id: 'new_aquarium', label: 'New Custom Aquarium', desc: 'Bespoke turnkey living reef setup', icon: '🐠' },
-  { id: 'renovation', label: 'Tank Renovation & Care', desc: 'Revitalize an existing aquarium', icon: '🔧' },
-  { id: 'marine_life', label: 'Rare Livestock & Corals', desc: 'Acclimated fish, SPS/LPS, anemones', icon: '🐡' },
-  { id: 'installation', label: 'Turnkey Installation', desc: 'Plumbing, sumps, electrical & stands', icon: '🏗️' },
-  { id: 'maintenance', label: 'White-Glove Maintenance', desc: 'Scheduled water chemistry & upkeep', icon: '🛠️' },
-  { id: 'equipment', label: 'Equipment & Reef Salts', desc: 'Apex, skimmers, lights & dosing', icon: '🧪' },
-  { id: 'other', label: 'General Consultation', desc: 'Custom advisory or architectural survey', icon: '💬' },
+  {
+    id: 'new_aquarium',
+    label: 'New Custom Aquarium',
+    desc: 'Bespoke turnkey living reef setup',
+    icon: (
+      <svg className="w-5 h-5 text-cyan-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+      </svg>
+    ),
+  },
+  {
+    id: 'renovation',
+    label: 'Tank Renovation & Care',
+    desc: 'Revitalize an existing aquarium',
+    icon: (
+      <svg className="w-5 h-5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+      </svg>
+    ),
+  },
+  {
+    id: 'marine_life',
+    label: 'Rare Livestock & Corals',
+    desc: 'Acclimated fish, SPS/LPS, anemones',
+    icon: (
+      <svg className="w-5 h-5 text-cyan-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+      </svg>
+    ),
+  },
+  {
+    id: 'installation',
+    label: 'Turnkey Installation',
+    desc: 'Plumbing, sumps, electrical & stands',
+    icon: (
+      <svg className="w-5 h-5 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+      </svg>
+    ),
+  },
+  {
+    id: 'maintenance',
+    label: 'White-Glove Maintenance',
+    desc: 'Scheduled water chemistry & upkeep',
+    icon: (
+      <svg className="w-5 h-5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      </svg>
+    ),
+  },
+  {
+    id: 'equipment',
+    label: 'Equipment & Reef Salts',
+    desc: 'Apex, skimmers, lights & dosing',
+    icon: (
+      <svg className="w-5 h-5 text-cyan-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+      </svg>
+    ),
+  },
+  {
+    id: 'other',
+    label: 'General Consultation',
+    desc: 'Custom advisory or architectural survey',
+    icon: (
+      <svg className="w-5 h-5 text-slate-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+      </svg>
+    ),
+  },
 ];
 
 const SPACE_OPTIONS = [
-  { id: 'residence', label: 'Private Residence / Villa', icon: '🏡' },
-  { id: 'office', label: 'Corporate Office / Boardroom', icon: '🏢' },
-  { id: 'restaurant', label: 'Restaurant / Lounge / Cafe', icon: '🍽️' },
-  { id: 'hotel', label: 'Hotel / Resort / Spa', icon: '🏨' },
-  { id: 'commercial', label: 'Other Commercial Space', icon: '🏬' },
+  {
+    id: 'residence',
+    label: 'Private Residence / Villa',
+    icon: (
+      <svg className="w-5 h-5 text-cyan-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      </svg>
+    ),
+  },
+  {
+    id: 'office',
+    label: 'Corporate Office / Boardroom',
+    icon: (
+      <svg className="w-5 h-5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+      </svg>
+    ),
+  },
+  {
+    id: 'restaurant',
+    label: 'Restaurant / Lounge / Cafe',
+    icon: (
+      <svg className="w-5 h-5 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+      </svg>
+    ),
+  },
+  {
+    id: 'hotel',
+    label: 'Hotel / Resort / Spa',
+    icon: (
+      <svg className="w-5 h-5 text-cyan-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+      </svg>
+    ),
+  },
+  {
+    id: 'commercial',
+    label: 'Other Commercial Space',
+    icon: (
+      <svg className="w-5 h-5 text-slate-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+    ),
+  },
 ];
 
 const SIZE_OPTIONS = [
-  { id: 'nano', label: 'Nano (< 2 ft / < 150L)', icon: '🐚' },
-  { id: 'medium', label: 'Medium (2–4 ft / 200–600L)', icon: '🐠' },
-  { id: 'large', label: 'Large (4–6 ft / 700–1,500L)', icon: '🦈' },
-  { id: 'monumental', label: 'Monumental (6+ ft / 2,000L+)', icon: '🌊' },
-  { id: 'custom', label: 'Custom / Need Guidance', icon: '🤔' },
+  {
+    id: 'nano',
+    label: 'Nano (< 2 ft / < 150L)',
+    icon: (
+      <svg className="w-5 h-5 text-cyan-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <rect x="6" y="8" width="12" height="10" rx="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
+    id: 'medium',
+    label: 'Medium (2–4 ft / 200–600L)',
+    icon: (
+      <svg className="w-5 h-5 text-cyan-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <rect x="4" y="6" width="16" height="12" rx="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
+    id: 'large',
+    label: 'Large (4–6 ft / 700–1,500L)',
+    icon: (
+      <svg className="w-5 h-5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <rect x="2" y="5" width="20" height="14" rx="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
+    id: 'monumental',
+    label: 'Monumental (6+ ft / 2,000L+)',
+    icon: (
+      <svg className="w-5 h-5 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16m-7 6h7M4 18h3" />
+      </svg>
+    ),
+  },
+  {
+    id: 'custom',
+    label: 'Custom / Need Guidance',
+    icon: (
+      <svg className="w-5 h-5 text-slate-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+      </svg>
+    ),
+  },
 ];
 
-export default function ContactPage() {
+function ContactPageInner() {
   const { addInquiry } = useCatalog();
+  const searchParams = useSearchParams();
 
   // Form State
   const [step, setStep] = useState(0); // 0: Services, 1: Space & Size, 2: Client Details
@@ -52,6 +197,20 @@ export default function ContactPage() {
   const [inquiryId, setInquiryId] = useState('');
   const [waUrl, setWaUrl] = useState('');
   const [validationError, setValidationError] = useState('');
+
+  // Handle URL Query Parameter intent routing
+  useEffect(() => {
+    const serviceParam = searchParams.get('service');
+    if (serviceParam === 'renovation') {
+      setSelectedServices(['Tank Renovation & Care']);
+    } else if (serviceParam === 'new_aquarium' || serviceParam === 'aquarium_design' || serviceParam === 'design') {
+      setSelectedServices(['New Custom Aquarium']);
+    } else if (serviceParam === 'maintenance') {
+      setSelectedServices(['White-Glove Maintenance']);
+    } else if (serviceParam === 'marine_life' || serviceParam === 'livestock') {
+      setSelectedServices(['Rare Livestock & Corals']);
+    }
+  }, [searchParams]);
 
   // Service toggle helper
   const toggleService = (label: string) => {
@@ -121,7 +280,7 @@ export default function ContactPage() {
       `• *Aquarium Scale:* ${selectedSize}\n\n` +
       `✨ *VISION & NOTES:*\n` +
       `${vision.trim() || 'Turnkey advisory requested'}\n\n` +
-      `📍 _Submitted via Marine Creatures Mobile Portal_`;
+      `📍 _Submitted via Marine Creatures Concierge Portal_`;
 
     const cleanAdminPhone = SITE_CONFIG.whatsapp.replace(/\D/g, '');
     const targetWaUrl = `https://wa.me/${cleanAdminPhone}?text=${encodeURIComponent(waMessage)}`;
@@ -143,11 +302,13 @@ export default function ContactPage() {
     return (
       <div className="min-h-screen pt-24 pb-36 px-4 sm:px-6 flex flex-col items-center justify-center text-center bg-[#02070b]">
         <div className="max-w-lg w-full rounded-3xl border border-emerald-400/30 bg-[rgba(3,13,20,0.95)] backdrop-blur-2xl p-6 sm:p-10 shadow-2xl space-y-6">
-          {/* Animated Success Badge */}
+          {/* Animated Success Badge with SVG Checkmark */}
           <div className="relative mx-auto w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-emerald-500/15 border-2 border-emerald-400/50 flex items-center justify-center">
-            <span className="text-4xl sm:text-5xl animate-bounce">🐠</span>
-            <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-emerald-500 border-2 border-[#02070b] flex items-center justify-center">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="w-10 h-10 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-emerald-500 border-2 border-[#02070b] flex items-center justify-center">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
@@ -161,7 +322,7 @@ export default function ContactPage() {
               Your Consultation<br />Has Begun.
             </h1>
             <p className="font-body text-xs sm:text-sm text-[--color-muted] leading-relaxed">
-              Founder <strong className="text-white">Suraj Shasmal</strong> has received your project parameters. Direct WhatsApp conversation should open automatically.
+              Founder <strong className="text-white">Suraj Shasmal</strong> has received your project parameters. A direct WhatsApp conversation should open automatically.
             </p>
           </div>
 
@@ -190,7 +351,9 @@ export default function ContactPage() {
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
               >
-                <span>💬</span>
+                <svg className="w-4 h-4 text-slate-950" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
                 <span>OPEN WHATSAPP CHAT AGAIN</span>
               </a>
             )}
@@ -238,7 +401,9 @@ export default function ContactPage() {
             rel="noopener noreferrer"
             className="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-400/30 text-emerald-300 text-xs font-semibold active:scale-95 transition-transform"
           >
-            <span className="text-lg">💬</span>
+            <svg className="w-5 h-5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
             <div className="text-left">
               <span className="block text-[9px] text-emerald-400/80 font-mono uppercase tracking-wider">Fastest Reply</span>
               <span className="text-xs">WhatsApp Suraj</span>
@@ -249,7 +414,9 @@ export default function ContactPage() {
             href={`tel:${SITE_CONFIG.phone}`}
             className="flex items-center gap-2 p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 text-xs font-semibold active:scale-95 transition-transform"
           >
-            <span className="text-lg">📞</span>
+            <svg className="w-5 h-5 text-cyan-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
             <div className="text-left">
               <span className="block text-[9px] text-cyan-400/80 font-mono uppercase tracking-wider">Direct Studio</span>
               <span className="text-xs">Call +91 93304</span>
@@ -292,7 +459,10 @@ export default function ContactPage() {
               {/* Studio Info Details */}
               <div className="space-y-3.5 text-xs text-slate-300">
                 <div className="flex items-start gap-3">
-                  <span className="text-base text-cyan-400">📍</span>
+                  <svg className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
                   <div>
                     <span className="text-[11px] text-[--color-muted] block">Aquaculture Studio</span>
                     <a
@@ -307,7 +477,9 @@ export default function ContactPage() {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <span className="text-base text-emerald-400">💬</span>
+                  <svg className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
                   <div>
                     <span className="text-[11px] text-[--color-muted] block">WhatsApp Concierge</span>
                     <a
@@ -322,7 +494,9 @@ export default function ContactPage() {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <span className="text-base text-cyan-400">✉️</span>
+                  <svg className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
                   <div>
                     <span className="text-[11px] text-[--color-muted] block">Email Inquiries</span>
                     <a
@@ -335,7 +509,9 @@ export default function ContactPage() {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <span className="text-base text-amber-400">⏰</span>
+                  <svg className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
                   <div>
                     <span className="text-[11px] text-[--color-muted] block">Studio Operating Hours</span>
                     <span className="text-slate-300">Mon – Sun: 10:00 AM – 9:00 PM IST</span>
@@ -346,7 +522,9 @@ export default function ContactPage() {
               {/* Guarantees */}
               <div className="p-4 rounded-2xl bg-cyan-500/5 border border-cyan-400/20 text-[11px] text-slate-300 space-y-2">
                 <div className="flex items-center gap-2 text-cyan-300 font-semibold">
-                  <span>🛡️</span>
+                  <svg className="w-4 h-4 text-cyan-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
                   <span>Marine Creatures Assurance</span>
                 </div>
                 <ul className="space-y-1 text-slate-400 list-disc list-inside">
@@ -424,7 +602,7 @@ export default function ContactPage() {
                                 : 'border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.05]'
                             }`}
                           >
-                            <span className="text-xl sm:text-2xl shrink-0">{opt.icon}</span>
+                            <span className="p-1 rounded-lg bg-white/5 shrink-0">{opt.icon}</span>
                             <div className="flex-1 pr-5">
                               <span className={`text-xs sm:text-sm font-semibold block ${isSelected ? 'text-cyan-300' : 'text-white'}`}>
                                 {opt.label}
@@ -435,7 +613,9 @@ export default function ContactPage() {
                             </div>
                             {isSelected && (
                               <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center font-bold text-[10px]">
-                                ✓
+                                <svg className="w-2.5 h-2.5 text-slate-950" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3" aria-hidden="true">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
                               </div>
                             )}
                           </button>
@@ -492,7 +672,7 @@ export default function ContactPage() {
                                   : 'border-white/10 bg-white/[0.02] text-slate-300 hover:bg-white/[0.05]'
                               }`}
                             >
-                              <span className="text-xl">{sp.icon}</span>
+                              <span className="p-1 rounded-lg bg-white/5">{sp.icon}</span>
                               <span className="text-xs">{sp.label}</span>
                             </button>
                           );
@@ -519,7 +699,7 @@ export default function ContactPage() {
                                   : 'border-white/10 bg-white/[0.02] text-slate-300 hover:bg-white/[0.05]'
                               }`}
                             >
-                              <span className="text-xl">{sz.icon}</span>
+                              <span className="p-1 rounded-lg bg-white/5">{sz.icon}</span>
                               <span className="text-xs">{sz.label}</span>
                             </button>
                           );
@@ -554,7 +734,9 @@ export default function ContactPage() {
 
                     {validationError && (
                       <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-400/40 text-rose-300 text-xs flex items-center gap-2">
-                        <span>⚠️</span>
+                        <svg className="w-4 h-4 shrink-0 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
                         <span>{validationError}</span>
                       </div>
                     )}
@@ -565,7 +747,9 @@ export default function ContactPage() {
                         Your Full Name <span className="text-rose-400">*</span>
                       </label>
                       <div className="flex items-center rounded-2xl border border-white/15 bg-white/[0.04] focus-within:border-cyan-400 transition-colors px-4 py-3">
-                        <span className="text-slate-400 text-base mr-3">👤</span>
+                        <svg className="w-4 h-4 text-slate-400 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
                         <input
                           type="text"
                           required
@@ -584,7 +768,6 @@ export default function ContactPage() {
                       </label>
                       <div className="flex items-center rounded-2xl border border-white/15 bg-white/[0.04] focus-within:border-emerald-400 transition-colors overflow-hidden">
                         <div className="flex items-center gap-1.5 px-3.5 py-3 bg-white/5 border-r border-white/10 shrink-0">
-                          <span className="text-base">🇮🇳</span>
                           <span className="text-xs text-slate-300 font-mono font-medium">+91</span>
                         </div>
                         <input
@@ -597,8 +780,10 @@ export default function ContactPage() {
                           className="w-full px-4 py-3 bg-transparent text-white text-sm font-mono placeholder:text-slate-500 focus:outline-none"
                         />
                       </div>
-                      <p className="text-[10px] text-emerald-400/90 mt-1.5 px-1 flex items-center gap-1">
-                        <span>💬</span>
+                      <p className="text-[10px] text-emerald-400/90 mt-1.5 px-1 flex items-center gap-1.5">
+                        <svg className="w-3.5 h-3.5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
                         <span>Suraj will connect directly to this number via WhatsApp</span>
                       </p>
                     </div>
@@ -609,7 +794,10 @@ export default function ContactPage() {
                         City / Location
                       </label>
                       <div className="flex items-center rounded-2xl border border-white/15 bg-white/[0.04] focus-within:border-cyan-400 transition-colors px-4 py-3">
-                        <span className="text-slate-400 text-base mr-3">📍</span>
+                        <svg className="w-4 h-4 text-slate-400 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
                         <input
                           type="text"
                           value={city}
@@ -637,7 +825,9 @@ export default function ContactPage() {
                     {/* Recap Box */}
                     <div className="p-3.5 rounded-2xl bg-cyan-500/10 border border-cyan-400/20 text-xs text-slate-300 space-y-1">
                       <div className="font-semibold text-cyan-300 flex items-center gap-1.5">
-                        <span>📋</span>
+                        <svg className="w-4 h-4 text-cyan-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
                         <span>Consultation Summary:</span>
                       </div>
                       <div className="text-[11px] text-slate-300">
@@ -659,7 +849,9 @@ export default function ContactPage() {
                           </>
                         ) : (
                           <>
-                            <span className="text-base">💬</span>
+                            <svg className="w-4 h-4 text-slate-950" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
                             <span>SUBMIT &amp; START WHATSAPP CONSULTATION →</span>
                           </>
                         )}
@@ -679,5 +871,13 @@ export default function ContactPage() {
 
       </div>
     </div>
+  );
+}
+
+export default function ContactPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#02070b]" />}>
+      <ContactPageInner />
+    </Suspense>
   );
 }
