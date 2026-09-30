@@ -86,7 +86,7 @@ export default function OverviewTab({ onNewProduct, onSwitchTab }: OverviewTabPr
           </button>
 
           <button
-            onClick={() => onSwitchTab('orders')}
+            onClick={() => onSwitchTab('operations')}
             className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-left hover:border-cyan-400/50 transition-colors flex items-center gap-3.5"
           >
             <span className="text-2xl">📦</span>
@@ -97,7 +97,7 @@ export default function OverviewTab({ onNewProduct, onSwitchTab }: OverviewTabPr
           </button>
 
           <button
-            onClick={() => onSwitchTab('inquiries')}
+            onClick={() => onSwitchTab('crm')}
             className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-left hover:border-cyan-400/50 transition-colors flex items-center gap-3.5"
           >
             <span className="text-2xl">💬</span>

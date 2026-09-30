@@ -58,14 +58,8 @@ export default function BannersTab({ passcode, showToast }: BannersTabProps) {
       formData.append('file', fileToUpload);
       formData.append('type', 'image');
 
-      const uploadHeaders: Record<string, string> = {};
-      if (passcode?.trim()) {
-        uploadHeaders['x-admin-passcode'] = passcode.trim();
-      }
-
       const res = await fetch('/api/admin/upload', {
         method: 'POST',
-        headers: uploadHeaders,
         credentials: 'include',
         body: formData,
       });
