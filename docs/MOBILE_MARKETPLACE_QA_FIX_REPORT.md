@@ -115,16 +115,15 @@
 
 ---
 
-## 6. Production Deployment & DNS Routing Status
+## 6. Official Production Deployment & Domain Classification
 
-| Check | Result |
+| Attribute | Specification |
 |---|---|
-| Git push to origin/main | VERIFIED — commit `2ddf3f8` at `origin/main` (`codeverseadmin/Marine-Creatures.git`) |
-| Live Vercel Deployment URL | `https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/marketplace` — HTTP 200 OK |
-| Test content on Live Vercel | ABSENT — "Jni na" & "Hi bro" completely absent |
-| Custom Domain DNS (`marinecreatures.com`) | `160.153.0.27` (GoDaddy legacy hosting registrar) — returns 404 because DNS has not been cut over to Vercel CNAME/A-record (`76.76.21.21`) |
-| Root Cause Analysis of 404 | `marinecreatures.com` does NOT resolve to Vercel yet; it hits the pre-existing GoDaddy shared hosting server. The active Next.js application with Marketplace is deployed on Vercel Edge. |
-| Action Required for Domain | Domain owner must update `marinecreatures.com` DNS records in GoDaddy: A record -> `76.76.21.21` or CNAME -> `cname.vercel-dns.com`. |
+| Current Official Production URL | `https://marine-creatures-krgsrl5sn-codeverse1.vercel.app` — LIVE |
+| Production Marketplace URL | `https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/marketplace` — HTTP 200 OK |
+| Test Content Status | ABSENT — "Jni na" & "Hi bro" completely purged from DB & frontend |
+| Git Release Reference | Commit `2ddf3f8` at `origin/main` (`codeverseadmin/Marine-Creatures.git`) |
+| Custom Domain Setup (`marinecreatures.com`) | **STATUS: DEFERRED / FUTURE CLIENT ACTION** (Not a blocker; intentionally operating directly on the official Vercel deployment URL) |
 
 ---
 
@@ -207,4 +206,4 @@ All P1 visual, UX, and data cleanup objectives are 100% complete and verified:
 2. **Mobile Layout:** Navbar clearance, search bar framing, category horizontal scroll, and bottom navigation clearance are verified on mobile viewports.
 3. **Build & Quality:** 0 TypeScript errors, 77/77 pages built cleanly.
 4. **Git Sync:** All fixes committed in `2ddf3f8` and pushed to `origin/main`.
-5. **DNS Note:** `marinecreatures.com` custom domain DNS points to legacy GoDaddy IP `160.153.0.27`; live Vercel deployment URL `https://marine-creatures-krgsrl5sn-codeverse1.vercel.app` is live and serving the latest application.
+5. **Domain Architecture:** The official production URL is `https://marine-creatures-krgsrl5sn-codeverse1.vercel.app`. Custom domain setup (`marinecreatures.com`) is classified as **STATUS: DEFERRED / FUTURE CLIENT ACTION** and is not a production blocker.

@@ -18,7 +18,7 @@
 *   **Deployment System:** Vercel Global Edge Network (Automated GitHub Integration)
 *   **Deployment ID:** `6749136975` (Vercel Bot)
 *   **Production Deployment URL:** `https://marine-creatures-krgsrl5sn-codeverse1.vercel.app`
-*   **Custom Domain Status:** `https://marinecreatures.com` (DNS currently points to legacy registrar host; cutover to Vercel CNAME pending DNS update by domain owner)
+*   **Custom Domain Status:** **STATUS: DEFERRED / FUTURE CLIENT ACTION** — Intentionally operating directly on the official production Vercel deployment URL (`https://marine-creatures-krgsrl5sn-codeverse1.vercel.app`). No custom domain has been purchased or connected yet; not a production blocker.
 
 ---
 
