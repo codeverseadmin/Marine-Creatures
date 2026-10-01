@@ -113,5 +113,37 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })
   );
 
-  return [...staticRoutes, ...productRoutes];
+  // 3. Dynamic Case Studies from Worlds CMS (Strictly published, non-archived, indexed)
+  const caseStudySlugs = new Set<string>([
+    'alipore-penthouse-monolith',
+    'sector-v-corporate-sanctuary',
+    'ballygunge-heritage-villa-reef',
+  ]);
+
+  try {
+    const CaseStudyModel = (await import('@/models/CaseStudy')).default;
+    const dbStudies = await CaseStudyModel.find(
+      { published: true, isArchived: { $ne: true }, noIndex: { $ne: true } },
+      'slug id updatedAt'
+    ).lean();
+    if (dbStudies && Array.isArray(dbStudies)) {
+      dbStudies.forEach((cs: any) => {
+        if (cs.slug || cs.id) caseStudySlugs.add(cs.slug || cs.id);
+      });
+    }
+  } catch {
+    // Database fallback
+  }
+
+  const caseStudyRoutes: MetadataRoute.Sitemap = Array.from(caseStudySlugs).map(
+    (slug) => ({
+      url: `${baseUrl}/our-worlds/${slug}`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    })
+  );
+
+  return [...staticRoutes, ...productRoutes, ...caseStudyRoutes];
 }
+

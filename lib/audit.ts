@@ -4,7 +4,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 
 export interface RecordAuditParams {
   action: AuditAction;
-  entityType?: 'product' | 'banner' | 'order' | 'setting';
+  entityType?: 'product' | 'banner' | 'order' | 'setting' | 'case_study' | 'client_project';
   entityId: string;
   entityName: string;
   summary: string;

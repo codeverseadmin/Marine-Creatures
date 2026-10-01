@@ -7,6 +7,7 @@ import { AdminHeader } from '@/components/admin/AdminHeader';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { ControlOsOverview } from '@/components/admin/ControlOsOverview';
 import { ControlOsCatalog } from '@/components/admin/ControlOsCatalog';
+import { ControlOsWorlds } from '@/components/admin/ControlOsWorlds';
 import { ControlOsPlaceholder } from '@/components/admin/ControlOsPlaceholder';
 
 export default function AdminPage({ initialTab = 'overview' }: { initialTab?: ControlOsSection }) {
@@ -160,9 +161,8 @@ export default function AdminPage({ initialTab = 'overview' }: { initialTab?: Co
       id: 'worlds',
       label: 'Worlds',
       icon: '🏛️',
-      badge: 'Phase 3C',
-      isImplemented: false,
-      phaseDependency: 'Phase 3C',
+      badge: 'Active',
+      isImplemented: true,
       description: 'Living exhibits and bespoke biotope portfolio',
     },
     {
@@ -418,8 +418,13 @@ export default function AdminPage({ initialTab = 'overview' }: { initialTab?: Co
               />
             )}
 
-            {/* Phased Modules Placeholder (WORLDS, OPERATIONS, CRM, CONTENT, ANALYTICS, SYSTEM) */}
-            {activeTab !== 'overview' && activeTab !== 'catalog' && (
+            {/* Worlds Module (PHASE 3C) */}
+            {activeTab === 'worlds' && (
+              <ControlOsWorlds />
+            )}
+
+            {/* Phased Modules Placeholder (OPERATIONS, CRM, CONTENT, ANALYTICS, SYSTEM) */}
+            {activeTab !== 'overview' && activeTab !== 'catalog' && activeTab !== 'worlds' && (
               <ControlOsPlaceholder
                 section={activeTab}
                 onReturnToOverview={() => setActiveTab('overview')}

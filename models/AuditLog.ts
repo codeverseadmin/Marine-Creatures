@@ -8,11 +8,21 @@ export type AuditAction =
   | 'PRODUCT_DUPLICATED'
   | 'PRODUCT_MEDIA_UPDATED'
   | 'PRODUCT_SEO_UPDATED'
-  | 'PRODUCT_DELETED';
+  | 'PRODUCT_DELETED'
+  | 'CASE_STUDY_CREATED'
+  | 'CASE_STUDY_UPDATED'
+  | 'CASE_STUDY_PUBLISHED'
+  | 'CASE_STUDY_UNPUBLISHED'
+  | 'CASE_STUDY_ARCHIVED'
+  | 'CASE_STUDY_DUPLICATED'
+  | 'CLIENT_PROJECT_CREATED'
+  | 'CLIENT_PROJECT_UPDATED'
+  | 'CLIENT_PROJECT_ARCHIVED'
+  | 'CLIENT_PROJECT_CASE_STUDY_LINKED';
 
 export interface IAuditLogDocument extends Document {
   action: AuditAction;
-  entityType: 'product' | 'banner' | 'order' | 'setting';
+  entityType: 'product' | 'banner' | 'order' | 'setting' | 'case_study' | 'client_project';
   entityId: string;
   entityName: string;
   summary: string;

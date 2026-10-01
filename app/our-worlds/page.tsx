@@ -2,6 +2,10 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SITE_CONFIG } from '@/lib/config';
 import { generateBreadcrumbJsonLd } from '@/lib/seo/structuredData';
+import { connectToDatabase } from '@/lib/db';
+import CaseStudyModel from '@/models/CaseStudy';
+import { INITIAL_CASE_STUDIES, ensureWorldsSeeded } from '@/lib/data/worlds';
+import { serializePublicCaseStudy } from '@/lib/worlds/serializer';
 
 export const metadata: Metadata = {
   title: 'Our Worlds — Architectural Living Reef Case Studies',
@@ -36,119 +40,35 @@ export const metadata: Metadata = {
   },
 };
 
-interface CaseStudy {
-  id: string;
-  name: string;
-  subtitle: string;
-  space: string;
-  clientContext: string;
-  scale: string;
-  image: string;
-  designIntent: string;
-  materials: string[];
-  engineering: string[];
-  marineWorld: {
-    biome: string;
-    livestock: string;
-    corals: string;
-  };
-  result: string;
+async function getPublishedCaseStudies() {
+  try {
+    await connectToDatabase();
+    await ensureWorldsSeeded();
+    const docs = await CaseStudyModel.find({
+      published: true,
+      isArchived: { $ne: true },
+    })
+      .sort({ featured: -1, publishedAt: -1, createdAt: -1 })
+      .lean();
+
+    if (docs.length > 0) {
+      return docs
+        .map((d) => serializePublicCaseStudy(d))
+        .filter((d): d is NonNullable<typeof d> => d !== null);
+    }
+  } catch (err) {
+    console.error('[OurWorldsPage] Error loading published case studies:', err);
+  }
+
+  // Fallback to static seed
+  return INITIAL_CASE_STUDIES.map((c) => serializePublicCaseStudy(c)).filter(
+    (d): d is NonNullable<typeof d> => d !== null
+  );
 }
 
-const CASE_STUDIES: CaseStudy[] = [
-  {
-    id: 'alipore-penthouse',
-    name: 'The Alipore Penthouse Monolith',
-    subtitle: 'Dual-Sided Architectural Living Partition',
-    space: 'Private Penthouse Residence, Alipore, Kolkata',
-    clientContext: 'Commissioned in collaboration with Studio Morphogenesis • Completed 2025',
-    scale: '7,800 Liters / 2,060 Gallons • 4.8m (L) × 1.8m (H)',
-    image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1600&q=85',
-    designIntent:
-      'The client sought a floor-to-ceiling living ocean threshold between the grand reception salon and the private library. The structure needed to provide visual connection without acoustic leakage, allowing sunlight to refract through coral crests into both chambers.',
-    materials: [
-      '90mm Monolithic Thermoformed Cast Acrylic viewing panels',
-      'Italian Calacatta marble cladding with zero-vibration expansion joints',
-      'Marine-grade 316 structural stainless steel space frame with anti-corrosive powder finish',
-      'Acoustic-grade decoupling isolation mats beneath foundational plinth',
-    ],
-    engineering: [
-      'Concealed sub-level life-support plant room operating below 24dB acoustic threshold',
-      'Dual titanium heat-exchange chillers with remote outdoor heat dissipation',
-      'Automated 120-liter daily reverse osmosis water-change robotics',
-      'Cloud IoT telemetry with continuous spectrophotometric water chemistry logging',
-    ],
-    marineWorld: {
-      biome: 'Indo-Pacific Shallow Coral Atoll',
-      livestock: 'Schooling Threadfin Anthias, Blue-Throat Triggerfish, Captive-Bred Ocellaris pairs',
-      corals: 'Cultured Australian Acropora millepora, branching Montipora, and Euphillia torch fields',
-    },
-    result:
-      'A breathtaking centerpiece with crystal-clear 360-degree clarity. Zero odor, condensation, or mechanical hum within the living quarters. Maintained weekly under Marine Creatures VIP Concierge care with 100% biological survival rate.',
-  },
-  {
-    id: 'salt-lake-corporate',
-    name: 'The Sector V Corporate Sanctuary',
-    subtitle: 'Panoramic 360° Cylindrical Coral Column',
-    space: 'Executive Boardroom & International Reception, Salt Lake, Kolkata',
-    clientContext: 'Apex Energy Holdings HQ • Completed 2024',
-    scale: '4,200 Liters / 1,110 Gallons • 2.4m Diameter × 2.2m Height',
-    image: 'https://images.unsplash.com/photo-1520255870062-bd79d3865de7?w=1600&q=85',
-    designIntent:
-      'Engineered to soothe executive cognitive fatigue and make an unforgettable first impression on international delegates. The cylindrical form allows unobstructed viewing from every angle in the circular boardroom rotunda.',
-    materials: [
-      'Seamless Cylindrical High-Molecular Polymer (80mm thickness)',
-      'Acoustic damping rubber mounts dampening all floor-borne resonance',
-      'Brushed titanium trim and concealed maintenance access hatch',
-      'Custom Bahamian aragonite sand bed with anaerobic nitrate reduction zones',
-    ],
-    engineering: [
-      'Central vortex overflow weir eliminating surface organic films silently',
-      'Variable sine-wave DC pumps mimicking natural pelagic oceanic swell',
-      'Architectural LED matrix synchronized to outdoor solar angles and lunar cycles',
-      'Integrated ozone injection and UV sterilizer for laboratory water purity',
-    ],
-    marineWorld: {
-      biome: 'Pelagic Reef & Open Surge Zone',
-      livestock: 'Schooling Blue Chromis, Yellow Tangs, Flame Angels, Cleaner Shrimp colonies',
-      corals: 'Hardy SPS corals, pulsing Xenias, and large Polyp stony corals',
-    },
-    result:
-      'Delivered on-time without disruption to corporate operations. Requires zero executive management or maintenance; autonomously monitored via our digital health dashboard with emergency physical dispatch protocol.',
-  },
-  {
-    id: 'ballygunge-villa',
-    name: 'The Ballygunge Heritage Villa Reef',
-    subtitle: 'Integrated Living Coral Reef in Historic Millwork',
-    space: 'Heritage Colonial Bungalow, Ballygunge, Kolkata',
-    clientContext: 'Private Collector Residence • Completed 2024',
-    scale: '3,200 Liters / 845 Gallons • 3.2m (L) × 1.2m (H)',
-    image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1600&q=85',
-    designIntent:
-      'Integrating modern marine life-support into century-old Burmese teak paneling without causing moisture damage or structural deflection to the historic property framework.',
-    materials: [
-      'OptiWhite™ German Low-Iron Glass with 99.2% photonic transmission',
-      'Custom cantilevered steel frame distributing 3,500kg directly to foundation pillars',
-      'Vapor-barrier sealed cabinetry enclosure with active dehumidification extraction',
-      'Zero-leak silicone manifold with double O-ring union valves',
-    ],
-    engineering: [
-      'Active micro-climate ventilation preventing timber expansion or humidity buildup',
-      'Ultra-precise multi-channel automated dosing system for trace mineral stability',
-      'Triple-stage biological fluidized sand filter and biological nutrient export',
-      'Emergency UPS battery backup providing 48 hours of autonomous life support during power cuts',
-    ],
-    marineWorld: {
-      biome: 'Deep Oceanic Lagoon & Invertebrate Haven',
-      livestock: 'Captive-Bred Mandarin Dragonets, Orchid Dottybacks, High-Fin Gobies, Red Pistol Shrimp',
-      corals: 'Rare Scolymia australis, Acanthophyllia, Blastomussa, and Ricordea Florida gardens',
-    },
-    result:
-      'Seamless juxtaposition of heritage architecture and contemporary living marine science. The century-old timber remains untouched and completely dry while housing an thriving exotic ecosystem.',
-  },
-];
+export default async function OurWorldsPage() {
+  const caseStudies = await getPublishedCaseStudies();
 
-export default function OurWorldsPage() {
   const whatsappUrl = `https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(
     'Hello Marine Creatures, I would like to consult on commissioning an architectural aquarium project similar to your case studies.'
   )}`;
@@ -217,10 +137,10 @@ export default function OurWorldsPage() {
 
       {/* ── Case Studies Detailed Walkthrough ────────────────────────────── */}
       <div className="container-max pt-12 pb-32 space-y-28">
-        {CASE_STUDIES.map((study, idx) => (
+        {caseStudies.map((study, idx) => (
           <article
             key={study.id}
-            id={study.id}
+            id={study.slug || study.id}
             className="rounded-3xl border border-white/10 bg-[rgba(3,10,16,0.85)] backdrop-blur-2xl p-6 sm:p-10 lg:p-14 shadow-2xl overflow-hidden"
           >
             {/* Header: Project Name & Space Context */}
@@ -228,22 +148,31 @@ export default function OurWorldsPage() {
               <div>
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-xs font-mono text-cyan-400 font-semibold uppercase tracking-widest">
-                    CASE STUDY 0{idx + 1}
+                    {study.eyebrow || `CASE STUDY 0${idx + 1}`}
                   </span>
                   <span className="text-xs text-[--color-muted]">•</span>
                   <span className="text-xs text-slate-300 font-medium">{study.scale}</span>
                 </div>
                 <h2 className="font-display text-2xl sm:text-4xl text-white font-light">
-                  {study.name}
+                  <Link
+                    href={`/our-worlds/${study.slug}`}
+                    className="hover:text-cyan-300 transition-colors"
+                  >
+                    {study.title}
+                  </Link>
                 </h2>
-                <p className="text-sm sm:text-base text-cyan-300 mt-1 font-light">
-                  {study.subtitle}
-                </p>
+                {study.subtitle && (
+                  <p className="text-sm sm:text-base text-cyan-300 mt-1 font-light">
+                    {study.subtitle}
+                  </p>
+                )}
               </div>
               <div className="text-left lg:text-right">
                 <span className="text-[11px] uppercase tracking-wider text-[--color-muted] block">Setting</span>
                 <span className="text-xs sm:text-sm text-slate-200 block font-medium">{study.space}</span>
-                <span className="text-[11px] text-[--color-muted] block mt-0.5">{study.clientContext}</span>
+                {study.clientContext && (
+                  <span className="text-[11px] text-[--color-muted] block mt-0.5">{study.clientContext}</span>
+                )}
               </div>
             </div>
 
@@ -252,7 +181,7 @@ export default function OurWorldsPage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={study.image}
-                alt={study.name}
+                alt={study.title}
                 className="w-full h-full object-cover"
                 loading="lazy"
               />
@@ -269,7 +198,6 @@ export default function OurWorldsPage() {
 
             {/* Architectural Grid: Design Intent, Materials, Engineering, Marine World */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-10">
-              
               {/* Left Column: Design Intent & Result */}
               <div className="lg:col-span-6 space-y-6">
                 <div>
@@ -334,7 +262,6 @@ export default function OurWorldsPage() {
                   </ul>
                 </div>
               </div>
-
             </div>
 
             {/* Action Bar */}
@@ -344,10 +271,10 @@ export default function OurWorldsPage() {
               </span>
               <div className="flex items-center gap-3 w-full sm:w-auto">
                 <Link
-                  href="/aquarium-design"
+                  href={`/our-worlds/${study.slug}`}
                   className="btn-primary text-center w-full sm:w-auto py-3 px-6 text-xs uppercase tracking-wider font-semibold"
                 >
-                  CONFIGURE YOUR WORLD →
+                  EXPLORE FULL CASE STUDY →
                 </Link>
                 <Link
                   href="/contact"
@@ -357,7 +284,6 @@ export default function OurWorldsPage() {
                 </Link>
               </div>
             </div>
-
           </article>
         ))}
 
