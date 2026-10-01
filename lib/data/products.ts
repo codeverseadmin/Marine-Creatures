@@ -92,6 +92,17 @@ export interface Product {
   researchStatus?: 'READY' | 'NEEDS_REVIEW' | 'RESEARCH_UNCERTAIN';
   researchSources?: ResearchSource[];
   isArchived?: boolean;
+  archivedAt?: string | Date;
+  sku?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  canonicalOverride?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  noIndex?: boolean;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
 }
 
 export function isLiveProduct(p?: { itemType?: string; category?: string } | null): boolean {

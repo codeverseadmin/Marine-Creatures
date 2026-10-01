@@ -1,21 +1,36 @@
 import { NextRequest } from 'next/server';
 import { createHmac, timingSafeEqual, randomBytes } from 'crypto';
 
-const DEFAULT_PASSCODE = 'mc@admin#2026!';
 const SESSION_TTL_MS = 8 * 60 * 60 * 1000; // 8 hours
 
 /**
  * Server-only passcode resolution. Never exposes to the client bundle.
+ * Requires ADMIN_PASSCODE environment variable.
  */
 export function getAdminPasscode(): string {
-  return (process.env.ADMIN_PASSCODE || DEFAULT_PASSCODE).trim();
+  const code = process.env.ADMIN_PASSCODE;
+  if (!code) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('ADMIN_PASSCODE environment variable is not configured');
+    }
+    return '';
+  }
+  return code.trim();
 }
 
 /**
  * Server-only session signing key.
+ * Requires SESSION_SECRET or ADMIN_PASSCODE environment variable.
  */
 function getSessionSecret(): string {
-  return (process.env.SESSION_SECRET || process.env.ADMIN_PASSCODE || DEFAULT_PASSCODE).trim();
+  const secret = process.env.SESSION_SECRET || process.env.ADMIN_PASSCODE;
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('SESSION_SECRET environment variable is not configured');
+    }
+    return '';
+  }
+  return secret.trim();
 }
 
 export const SESSION_COOKIE = 'mc_admin_session';
@@ -28,6 +43,7 @@ export function verifyPasscode(input: string): boolean {
   if (!input || typeof input !== 'string') return false;
   const cleanInput = input.trim();
   const actualPasscode = getAdminPasscode();
+  if (!actualPasscode) return false;
 
   const inputBuffer = Buffer.from(cleanInput);
   const actualBuffer = Buffer.from(actualPasscode);
@@ -44,6 +60,9 @@ export function verifyPasscode(input: string): boolean {
  */
 export function createSessionToken(): string {
   const secret = getSessionSecret();
+  if (!secret) {
+    throw new Error('SESSION_SECRET is not configured on the server');
+  }
   const timestamp = Date.now();
   const nonce = randomBytes(16).toString('hex');
   const payload = `mc_admin_${timestamp}_${nonce}`;
@@ -69,6 +88,7 @@ export function verifySessionToken(token: string): boolean {
   if (!payloadBase64 || !signature) return false;
 
   const secret = getSessionSecret();
+  if (!secret) return false;
   const expectedSignature = createHmac('sha256', secret)
     .update(payloadBase64)
     .digest('hex');

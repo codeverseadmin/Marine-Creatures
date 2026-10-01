@@ -6,9 +6,10 @@ import { ControlOsSection, TabItem, OverviewDashboardData } from '@/components/a
 import { AdminHeader } from '@/components/admin/AdminHeader';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { ControlOsOverview } from '@/components/admin/ControlOsOverview';
+import { ControlOsCatalog } from '@/components/admin/ControlOsCatalog';
 import { ControlOsPlaceholder } from '@/components/admin/ControlOsPlaceholder';
 
-export default function AdminPage() {
+export default function AdminPage({ initialTab = 'overview' }: { initialTab?: ControlOsSection }) {
   // Authentication & session state
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isVerifyingAuth, setIsVerifyingAuth] = useState<boolean>(true);
@@ -18,7 +19,7 @@ export default function AdminPage() {
   const [showPasscode, setShowPasscode] = useState(false);
 
   // Navigation state
-  const [activeTab, setActiveTab] = useState<ControlOsSection>('overview');
+  const [activeTab, setActiveTab] = useState<ControlOsSection>(initialTab);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
 
@@ -72,9 +73,16 @@ export default function AdminPage() {
     }
   }, []);
 
-  // Initial authentication check on component mount
+  // Initial authentication check on component mount & read tab param from URL
   useEffect(() => {
     fetchOverviewData();
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get('tab') as ControlOsSection | null;
+      if (tab && ['overview', 'catalog', 'worlds', 'operations', 'crm', 'content', 'analytics', 'system'].includes(tab)) {
+        setActiveTab(tab);
+      }
+    }
   }, [fetchOverviewData]);
 
   // Handle Login submission
@@ -144,9 +152,8 @@ export default function AdminPage() {
       id: 'catalog',
       label: 'Catalog',
       icon: '🐠',
-      badge: 'Phase 3B',
-      isImplemented: false,
-      phaseDependency: 'Phase 3B',
+      badge: 'Active',
+      isImplemented: true,
       description: 'Product catalog governance and SKU matrix',
     },
     {
@@ -403,8 +410,16 @@ export default function AdminPage() {
               </>
             )}
 
-            {/* Phased Modules Placeholder (CATALOG, WORLDS, OPERATIONS, CRM, CONTENT, ANALYTICS, SYSTEM) */}
-            {activeTab !== 'overview' && (
+            {/* Catalog Module (PHASE 3B) */}
+            {activeTab === 'catalog' && (
+              <ControlOsCatalog
+                onReturnToOverview={() => setActiveTab('overview')}
+                showToast={showToast}
+              />
+            )}
+
+            {/* Phased Modules Placeholder (WORLDS, OPERATIONS, CRM, CONTENT, ANALYTICS, SYSTEM) */}
+            {activeTab !== 'overview' && activeTab !== 'catalog' && (
               <ControlOsPlaceholder
                 section={activeTab}
                 onReturnToOverview={() => setActiveTab('overview')}

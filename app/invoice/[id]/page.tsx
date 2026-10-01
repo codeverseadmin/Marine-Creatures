@@ -23,14 +23,26 @@ export default function InvoicePage({ params }: InvoicePageProps) {
   const [phoneError, setPhoneError] = useState(false);
   const [verifyAttempts, setVerifyAttempts] = useState(0);
 
-  // Automatically bypass verification for logged-in store managers/admins
+  // Automatically bypass verification for authenticated store managers/admins with valid session cookie
   React.useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const isAdmin = sessionStorage.getItem('mc_admin_authenticated') === 'true';
-      if (isAdmin) {
-        setPhoneVerified(true);
+    let isMounted = true;
+    async function verifyAdminSession() {
+      try {
+        const res = await fetch('/api/admin/overview', {
+          method: 'GET',
+          credentials: 'include',
+        });
+        if (res.ok && isMounted) {
+          setPhoneVerified(true);
+        }
+      } catch {
+        // Not authenticated as admin, phone verification gate remains active
       }
     }
+    verifyAdminSession();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Find order in memory or default

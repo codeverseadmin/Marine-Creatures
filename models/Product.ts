@@ -66,6 +66,14 @@ export interface IProductDocument extends Document {
   }>;
   isArchived?: boolean;
   archivedAt?: Date;
+  sku?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  canonicalOverride?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  noIndex?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -73,6 +81,7 @@ export interface IProductDocument extends Document {
 const ProductSchema = new Schema<IProductDocument>(
   {
     id: { type: String, required: true, unique: true, index: true },
+    sku: { type: String, index: true },
     name: { type: String, required: true },
     scientificName: { type: String },
     brand: { type: String, default: 'Marine Creatures' },
@@ -143,6 +152,13 @@ const ProductSchema = new Schema<IProductDocument>(
     ],
     isArchived: { type: Boolean, default: false, index: true },
     archivedAt: { type: Date },
+    seoTitle: { type: String },
+    seoDescription: { type: String },
+    canonicalOverride: { type: String },
+    ogTitle: { type: String },
+    ogDescription: { type: String },
+    ogImage: { type: String },
+    noIndex: { type: Boolean, default: false },
   },
   {
     timestamps: true,

@@ -91,15 +91,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const seoData = CATALOG_SEO_MAP[product.id];
 
   const title =
+    product.seoTitle ||
     customTitle ||
     (seoData ? seoData.seoTitle : `${product.name} — ${product.categoryLabel || 'Marine Equipment'}`);
   const description =
+    product.seoDescription ||
     customDesc ||
     (seoData
       ? seoData.metaDescription
       : `${product.shortDesc} Inquire directly for verified specifications, tank pairing, and live dispatch at Marine Creatures.`);
 
-  const canonicalUrl = `${SITE_CONFIG.url}/marketplace/${canonicalSlug}`;
+  const canonicalUrl =
+    product.canonicalOverride ||
+    `${SITE_CONFIG.url}/marketplace/${canonicalSlug}`;
   const primaryImage =
     product.images?.[0] && product.images[0].startsWith('http')
       ? product.images[0]
@@ -110,6 +114,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
+    robots: {
+      index: !product.noIndex && !product.isArchived,
+      follow: true,
+    },
     alternates: {
       canonical: canonicalUrl,
     },

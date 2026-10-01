@@ -1,18 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { MediaModel } from '@/models/Media';
-import { isAdminRequest, getAdminPasscode } from '@/lib/auth';
+import { isAdminRequest } from '@/lib/auth';
 
 // 25 MB max upload limit for specimen photos/videos
 const MAX_FILE_SIZE = 25 * 1024 * 1024;
 
 export async function POST(req: NextRequest) {
   try {
-    // 1. Authenticate admin
-    const passcodeHeader = req.headers.get('x-admin-passcode') || req.headers.get('x-admin-secret');
-    const isAuthed = isAdminRequest(req) || (passcodeHeader && passcodeHeader.trim() === getAdminPasscode());
-
-    if (!isAuthed) {
+    // 1. Authenticate admin via session cookie or verified server secret
+    if (!isAdminRequest(req)) {
       return NextResponse.json({ success: false, error: 'Unauthorized admin access' }, { status: 401 });
     }
 

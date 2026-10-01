@@ -63,11 +63,17 @@ export function generateProductJsonLd(
       '@type': 'Offer',
       url: canonicalUrl,
       priceCurrency: 'INR',
-      priceSpecification: {
-        '@type': 'PriceSpecification',
-        priceCurrency: 'INR',
-        description: 'Price on Request via Direct Marine Concierge Quotation',
-      },
+      ...(product.priceOnRequest
+        ? {
+            priceSpecification: {
+              '@type': 'PriceSpecification',
+              priceCurrency: 'INR',
+              description: 'Price on Request via Direct Marine Concierge Quotation',
+            },
+          }
+        : {
+            price: product.price,
+          }),
       availability: product.inStock
         ? 'https://schema.org/InStock'
         : 'https://schema.org/OutOfStock',

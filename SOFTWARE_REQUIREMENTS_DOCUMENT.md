@@ -59,7 +59,7 @@ Marine Creatures is an architectural marine aquarium design firm and exotic salt
 - **FR-3.2 (Instant Lead Dispatch):** Form submission must store the lead directly into `CatalogContext` inquiries state and trigger confirmation feedback to the user.
 
 ### 3.4 Module 4: Mobile-First Admin Control Center (`/admin`)
-- **FR-4.1 (Access Protection):** Route must remain completely inaccessible without entering the secret passcode (`NEXT_PUBLIC_ADMIN_PASSCODE` / `mc@admin#2026!`). Session state must persist in encrypted `sessionStorage`.
+- **FR-4.1 (Access Protection):** Route must remain completely inaccessible without entering the administrative passcode configured in the server environment (`ADMIN_PASSCODE`). Session state must be verified using signed httpOnly session cookies (`mc_admin_session`).
 - **FR-4.2 (Customer Isolation):** All navigation links, footer shortcuts, and mobile bottom bars targeting `/admin` must be omitted from customer-facing views.
 - **FR-4.3 (Touch-Friendly Stock Management):** Admin UI must offer thumb-friendly `+` and `–` buttons to modify unit counts and single-tap status toggles (`● Active` vs. `○ Paused`).
 - **FR-4.4 (Live Banner Management):** Store manager must have full CRUD capabilities to publish, hide, or delete promotional announcement slides.
@@ -195,7 +195,7 @@ graph TD
 
 | Test ID | Test Scenario | Expected Result | Pass/Fail Criteria |
 | :---: | :--- | :--- | :---: |
-| **TC-01** | Admin Authentication | Entering `mc@admin#2026!` unlocks dashboard; wrong password triggers warning. | Strict Equality |
+| **TC-01** | Admin Authentication | Entering configured administrative passcode unlocks dashboard; wrong password triggers warning. | Strict Equality |
 | **TC-02** | Customer Link Isolation | Customer inspecting header, footer, or mobile menu sees zero `/admin` traces. | Zero Links Present |
 | **TC-03** | Live Stock Counter | Tapping `+` or `-` in admin updates available stock immediately without page refresh. | State Mutation Verified |
 | **TC-04** | Out-of-Stock Handling | Setting stock to 0 shows "Out of Stock" badge on marketplace and disables checkout. | UI Badge & Disable Action |
