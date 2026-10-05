@@ -134,7 +134,7 @@ export default function AquariumDesignPage() {
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1920&q=85"
+          src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1920&q=85"
           alt="Bespoke Aquarium Design"
           className="absolute inset-0 w-full h-full object-cover opacity-45"
         />

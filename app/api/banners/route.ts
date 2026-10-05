@@ -9,9 +9,15 @@ export async function GET() {
     await connectToDatabase();
     let banners = await BannerModel.find({}).sort({ order: 1, priority: 1 }).lean();
 
-    if (!banners || banners.length === 0) {
-      console.log('🌱 Seeding initial promo banners into MongoDB Atlas...');
+    // Validate banner images: if any image points to missing local '/images/banners/' path or outdated asset, upgrade to approved DEFAULT_BANNERS
+    const hasOutdatedPaths = banners && banners.some((b: any) => typeof b.image === 'string' && (b.image.startsWith('/images/banners/') || b.image.includes('photo-1559827260-dc66d52bef19') || b.image.includes('photo-1584308666744-24d5c474f2ae')));
+
+    if (!banners || banners.length === 0 || hasOutdatedPaths) {
+      console.log('🌱 Seeding approved promo banners into MongoDB Atlas...');
       try {
+        if (hasOutdatedPaths) {
+          await BannerModel.deleteMany({});
+        }
         const mapped = DEFAULT_BANNERS.map((b, idx) => ({
           id: b.id,
           title: b.title,

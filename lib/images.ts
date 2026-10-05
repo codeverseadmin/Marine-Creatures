@@ -8,7 +8,7 @@ export const IMAGES = {
   hero: {
     bg: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=1920&q=90',
     reef: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1920&q=90',
-    underwater: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1920&q=90',
+    underwater: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1920&q=90',
   },
 
   // Marine Life / Species
@@ -34,7 +34,7 @@ export const IMAGES = {
     luxury2:
       'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1920&q=90',
     residential:
-      'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1920&q=90',
+      'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1920&q=90',
     commercial:
       'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=1920&q=90',
   },
@@ -61,7 +61,7 @@ export const IMAGES = {
 
   // Materials
   materials: {
-    rock: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1200&q=85',
+    rock: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200&q=85',
     coral:
       'https://images.unsplash.com/photo-1601459427108-47e20b8dcd65?w=1200&q=85',
     substrate:
@@ -72,7 +72,7 @@ export const IMAGES = {
 
   // Maintenance
   maintenance:
-    'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1920&q=90',
+    'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1920&q=90',
 
   // About
   about:

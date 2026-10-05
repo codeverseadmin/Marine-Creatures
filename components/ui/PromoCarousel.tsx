@@ -98,31 +98,37 @@ export function PromoCarousel() {
         {activeBanners.map((slide: BannerSlide, idx: number) => (
           <div
             key={slide.id}
-            className="w-full shrink-0 relative min-h-[290px] sm:min-h-[420px] md:min-h-[460px] flex items-center"
+            className="w-full shrink-0 relative min-h-[230px] sm:min-h-[300px] md:min-h-[340px] lg:min-h-[360px] flex items-center"
           >
             {/* Background Image with Deep Vignette */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={slide.image}
+              src={slide.image || 'https://images.unsplash.com/photo-1535591273668-578e31182c4f?w=1600&q=85'}
               alt={slide.title}
               className="absolute inset-0 w-full h-full object-cover object-center"
               loading={idx === 0 ? 'eager' : 'lazy'}
+              onError={(e) => {
+                const target = e.currentTarget as HTMLImageElement;
+                if (!target.src.includes('photo-1535591273668-578e31182c4f')) {
+                  target.src = 'https://images.unsplash.com/photo-1535591273668-578e31182c4f?w=1600&q=85';
+                }
+              }}
             />
 
-            {/* Gradient Darkening & Accent Glow */}
+            {/* Gradient Darkening & Accent Glow — carefully balanced for legible text while showcasing vibrant imagery */}
             <div
-              className="absolute inset-0 bg-gradient-to-r from-[rgba(2,7,11,0.95)] via-[rgba(2,7,11,0.75)] to-[rgba(2,7,11,0.3)]"
+              className="absolute inset-0 bg-gradient-to-r from-[rgba(2,7,11,0.90)] via-[rgba(2,7,11,0.55)] to-[rgba(2,7,11,0.15)]"
               aria-hidden="true"
             />
             <div
-              className="absolute inset-0 bg-gradient-to-t from-[rgba(2,7,11,0.95)] via-transparent to-[rgba(2,7,11,0.3)]"
+              className="absolute inset-0 bg-gradient-to-t from-[rgba(2,7,11,0.70)] via-transparent to-transparent"
               aria-hidden="true"
             />
 
             {/* Slide Content */}
-            <div className="relative z-10 container-max py-6 sm:py-14 max-w-3xl">
+            <div className="relative z-10 px-6 sm:px-10 lg:px-14 py-5 sm:py-7 lg:py-8 max-w-2xl">
               {/* Badge */}
-              <div className="mb-2 sm:mb-4">
+              <div className="mb-2 sm:mb-3">
                 <span
                   className="inline-flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] sm:tracking-[0.25em] px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full backdrop-blur-md shadow-md"
                   style={{
@@ -140,18 +146,18 @@ export function PromoCarousel() {
               </div>
 
               {/* Title */}
-              <h2 className="font-display text-xl sm:text-3xl md:text-5xl text-white font-light leading-tight mb-1.5 sm:mb-3">
+              <h2 className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl text-white font-light leading-tight mb-1.5 sm:mb-2">
                 {slide.title}
               </h2>
 
               {/* Subtitle */}
-              <p className="font-body text-xs sm:text-base text-slate-200 font-normal mb-3 sm:mb-4 leading-normal">
+              <p className="font-body text-xs sm:text-sm md:text-base text-slate-200 font-normal mb-3 sm:mb-3 leading-normal">
                 {slide.subtitle}
               </p>
 
               {/* Description (hide on small screens to prevent crowded/dense text; show on sm+) */}
               {slide.desc && (
-                <p className="hidden sm:block font-body text-xs sm:text-sm text-slate-300 font-light max-w-xl line-clamp-2 mb-6 sm:mb-8 leading-relaxed">
+                <p className="hidden sm:block font-body text-xs sm:text-sm text-slate-300 font-light max-w-lg line-clamp-2 mb-4 sm:mb-6 leading-relaxed">
                   {slide.desc}
                 </p>
               )}

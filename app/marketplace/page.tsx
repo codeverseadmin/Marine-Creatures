@@ -127,7 +127,7 @@ function MarketplaceContent() {
       <div
         className="marketplace-top-padding pb-6 border-b border-[rgba(255,255,255,0.08)] bg-gradient-to-b from-[var(--color-deep)] to-[var(--color-primary)]"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5">
+        <div className="container-max space-y-6">
           {/* Title & Search/Sort Bar */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
@@ -243,18 +243,18 @@ function MarketplaceContent() {
             })}
           </div>
 
-          {/* Promotional Carousel */}
-          <div className="pt-1">
+          {/* Promotional Carousel with Intentional Transition Breathing Room */}
+          <div className="pt-2 sm:pt-3 pb-1">
             <PromoCarousel />
           </div>
 
-          {/* ── Single Clean Category Bar ───────────────────────────────── */}
+          {/* ── Single Clean Category Bar with Clear Visual Separation ───── */}
           {/*
             On mobile the count text is hidden so the scrollable row has full width.
             The outer div uses flex-col on mobile and flex-row on sm+ so there is
             never any horizontal squeeze that clips category buttons.
           */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2 border-t border-[rgba(255,255,255,0.08)]">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-5 sm:pt-6 border-t border-[rgba(255,255,255,0.08)]">
             {/* Scrollable category buttons */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none touch-momentum">
               {CATEGORIES.map((cat) => {
@@ -300,7 +300,7 @@ function MarketplaceContent() {
       </div>
 
       {/* ── Product Grid ────────────────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <section className="container-max py-8 sm:py-12">
         {filteredProducts.length === 0 ? (
           <div className="text-center py-16 sm:py-20 border border-[rgba(255,255,255,0.08)] rounded-3xl p-8 sm:p-12 bg-[var(--color-secondary)] max-w-lg mx-auto shadow-2xl">
             <div className="w-16 h-16 rounded-2xl bg-[rgba(0,184,217,0.1)] border border-[rgba(0,184,217,0.25)] flex items-center justify-center mx-auto mb-6">
@@ -355,7 +355,7 @@ function MarketplaceContent() {
           - md+: no bottom nav, 4rem is sufficient
       */}
       <section
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 marketplace-bottom-spacing"
+        className="container-max marketplace-bottom-spacing"
       >
         <div className="rounded-2xl p-6 sm:p-8 border border-[rgba(255,255,255,0.08)] bg-[var(--color-secondary)] flex flex-col md:flex-row items-center justify-between gap-6 glass-card-hover">
           <div className="space-y-1.5">
