@@ -1,0 +1,532 @@
+[
+  {
+    "idx": 1,
+    "id": "purple-tang-l",
+    "name": "Purple Tang (Large)",
+    "category": "marine-life",
+    "images": [
+      "/images/products/purple-tang-l.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 2,
+    "id": "sohal-tang-m",
+    "name": "Sohal Tang (Medium)",
+    "category": "marine-life",
+    "images": [
+      "/images/products/sohal-tang-m.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 3,
+    "id": "flameback-angel",
+    "name": "Flameback Angelfish",
+    "category": "marine-life",
+    "images": [
+      "/images/products/flameback-angel.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 4,
+    "id": "blonde-naso-tang",
+    "name": "Blonde Naso Tang",
+    "category": "marine-life",
+    "images": [
+      "/images/products/blonde-naso-tang.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 5,
+    "id": "banggai-cardinal",
+    "name": "Banggai Cardinalfish",
+    "category": "marine-life",
+    "images": [
+      "/images/products/banggai-cardinal.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 6,
+    "id": "regal-tang-m",
+    "name": "Regal Blue Tang (Medium)",
+    "category": "marine-life",
+    "images": [
+      "/images/products/regal-tang-m.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 7,
+    "id": "regal-tang-s",
+    "name": "Regal Blue Tang (Small / Juvenile)",
+    "category": "marine-life",
+    "images": [
+      "/images/products/regal-tang-s.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 8,
+    "id": "lair-tail-hogfish",
+    "name": "Lyretail Hogfish",
+    "category": "marine-life",
+    "images": [
+      "/images/products/lair-tail-hogfish.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 9,
+    "id": "triangular-butterfly",
+    "name": "Triangular Butterflyfish",
+    "category": "marine-life",
+    "images": [
+      "/images/products/triangular-butterfly.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 10,
+    "id": "percula-picasso-clown",
+    "name": "True Percula Clownfish (Picasso Morph)",
+    "category": "marine-life",
+    "images": [
+      "/images/products/percula-picasso-clown.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 11,
+    "id": "metallic-yellow-belly-blue-damsel",
+    "name": "Metallic Yellow Belly Blue Damselfish",
+    "category": "marine-life",
+    "images": [
+      "/images/products/metallic-yellow-belly-blue-damsel.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 12,
+    "id": "pink-stripe-wrasse",
+    "name": "Pink Stripe Wrasse",
+    "category": "marine-life",
+    "images": [
+      "/images/products/pink-stripe-wrasse.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 13,
+    "id": "cinnamon-tomato-clown",
+    "name": "Cinnamon Tomato Clownfish",
+    "category": "marine-life",
+    "images": [
+      "/images/products/cinnamon-tomato-clown.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 14,
+    "id": "magnificent-foxface",
+    "name": "Magnificent Foxface Rabbitfish",
+    "category": "marine-life",
+    "images": [
+      "/images/products/magnificent-foxface.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 15,
+    "id": "nemo-extreme-led",
+    "name": "Nemo Extreme Series II Smart Marine LED",
+    "category": "lighting-tech",
+    "images": [
+      "/images/products/nemo-extreme-led.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 16,
+    "id": "sessile-comet-light",
+    "name": "Sessile Comet Manual Aquarium Light",
+    "category": "lighting-tech",
+    "images": [
+      "/images/products/sessile-comet-light.png"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 17,
+    "id": "luminous-aqua-ocean-blue",
+    "name": "Luminous Aqua S Flora Ocean Blue Marine Light",
+    "category": "lighting-tech",
+    "images": [
+      "/images/products/luminous-aqua-ocean-blue.png"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 18,
+    "id": "manual-marine-light",
+    "name": "Manual Marine Aquarium Light",
+    "category": "lighting-tech",
+    "images": [],
+    "imageStatus": "NEEDS_MEDIA_ASSET",
+    "isArchived": false
+  },
+  {
+    "idx": 19,
+    "id": "sunsun-wavemaker-jvp232",
+    "name": "Sunsun Magnetic Wavemaker JVP-232",
+    "category": "hardware",
+    "images": [
+      "/images/products/sunsun-wavemaker-jvp232.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 20,
+    "id": "sunsun-pump-jtp3800",
+    "name": "Sunsun JTP-3800 Submersible Pump (Flow Controllable)",
+    "category": "hardware",
+    "images": [
+      "/images/products/sunsun-pump-jtp3800.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 21,
+    "id": "sunsun-pump-jtp8000",
+    "name": "Sunsun JTP-8000 Submersible Pump",
+    "category": "hardware",
+    "images": [
+      "/images/products/sunsun-pump-jtp8000.webp"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 22,
+    "id": "sunsun-pump-hqb4500",
+    "name": "Sunsun HQB-4500 Submersible Pump",
+    "category": "hardware",
+    "images": [
+      "/images/products/sunsun-pump-hqb4500.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 23,
+    "id": "sunsun-pump-jdp3500",
+    "name": "Sunsun JDP-3500 DC Submersible Pump (DC Controllable)",
+    "category": "hardware",
+    "images": [
+      "/images/products/sunsun-pump-jdp3500.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 24,
+    "id": "sunsun-pump-jdp6000",
+    "name": "Sunsun JDP-6000 DC Submersible Pump (DC Controllable)",
+    "category": "hardware",
+    "images": [
+      "/images/products/sunsun-pump-jdp6000.png"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 25,
+    "id": "re-ocean-mini-60",
+    "name": "RE Ocean Mini 60 Internal Filter",
+    "category": "hardware",
+    "images": [],
+    "imageStatus": "NEEDS_MEDIA_ASSET",
+    "isArchived": false
+  },
+  {
+    "idx": 26,
+    "id": "re-ocean-mini-80",
+    "name": "RE Ocean Mini 80 Internal Filter",
+    "category": "hardware",
+    "images": [],
+    "imageStatus": "NEEDS_MEDIA_ASSET",
+    "isArchived": false
+  },
+  {
+    "idx": 27,
+    "id": "bubble-magus-qq2",
+    "name": "Bubble Magus QQ2 Nano Protein Skimmer",
+    "category": "hardware",
+    "images": [
+      "/images/products/bubble-magus-qq2.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 28,
+    "id": "bubble-magus-mini-q",
+    "name": "Bubble Magus Mini Q Nano Protein Skimmer",
+    "category": "hardware",
+    "images": [
+      "/images/products/bubble-magus-mini-q.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 29,
+    "id": "boyu-separation-box",
+    "name": "Boyu Isolation & Nursery Separation Box",
+    "category": "hardware",
+    "images": [
+      "/images/products/boyu-separation-box.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 30,
+    "id": "seachem-cupramine",
+    "name": "Seachem Cupramine Copper Treatment",
+    "category": "salt-chemistry",
+    "images": [
+      "/images/products/seachem-cupramine.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 31,
+    "id": "blue-treasure-coral-sand",
+    "name": "Blue Treasure Natural Coral Aragonite Sand",
+    "category": "rock-sand",
+    "images": [
+      "/images/products/blue-treasure-coral-sand.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 32,
+    "id": "sensibar-reef-rock",
+    "name": "Sensibar Natural Marine Reef Rock",
+    "category": "rock-sand",
+    "images": [
+      "/images/products/sensibar-reef-rock.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 33,
+    "id": "atc-salinity-refractometer",
+    "name": "Precision Optical Salinity Refractometer (with ATC)",
+    "category": "salt-chemistry",
+    "images": [
+      "/images/products/atc-salinity-refractometer.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 34,
+    "id": "seachem-calcium",
+    "name": "Seachem Reef Calcium Polygluconate",
+    "category": "salt-chemistry",
+    "images": [
+      "/images/products/seachem-calcium.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 35,
+    "id": "hikari-frozen-mysis",
+    "name": "Hikari Bio-Pure Frozen Mysis Shrimp",
+    "category": "salt-chemistry",
+    "images": [
+      "/images/products/hikari-frozen-mysis.png"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 36,
+    "id": "teraa-t-probiotics",
+    "name": "Teraa T-Probiotics Biological Water Conditioner",
+    "category": "salt-chemistry",
+    "images": [
+      "/images/products/teraa-t-probiotics.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 37,
+    "id": "biozym-303-ampules",
+    "name": "Biozym 303 Nitrifying Bacteria Ampules",
+    "category": "salt-chemistry",
+    "images": [
+      "/images/products/biozym-303-ampules.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 38,
+    "id": "tici-live-phytoplankton",
+    "name": "TiCi NatureLab Live Marine Phytoplankton",
+    "category": "salt-chemistry",
+    "images": [],
+    "imageStatus": "NEEDS_MEDIA_ASSET",
+    "isArchived": false
+  },
+  {
+    "idx": 39,
+    "id": "amozeal-vitality-blocks",
+    "name": "Amozeal Nano Vitality Ceramic Bio-Blocks",
+    "category": "salt-chemistry",
+    "images": [
+      "/images/products/amozeal-vitality-blocks.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 40,
+    "id": "zeolite-ammonia-media",
+    "name": "Zeolite Natural Ammonia Adsorbent Mineral Media",
+    "category": "salt-chemistry",
+    "images": [
+      "/images/products/zeolite-ammonia-media.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 41,
+    "id": "qtermoline-bio-media",
+    "name": "Qtermoline Thermal Fused Biological Media",
+    "category": "salt-chemistry",
+    "images": [],
+    "imageStatus": "NEEDS_MEDIA_ASSET",
+    "isArchived": false
+  },
+  {
+    "idx": 42,
+    "id": "xpores-biological-media",
+    "name": "Xpores Porous Biological Stone Media",
+    "category": "salt-chemistry",
+    "images": [
+      "/images/products/xpores-biological-media.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 43,
+    "id": "floating-mbbr-media",
+    "name": "Fluidised Moving Bed K1 / MBBR Biological Media",
+    "category": "salt-chemistry",
+    "images": [
+      "/images/products/floating-mbbr-media.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 44,
+    "id": "amozorb-ammonia-adsorbent",
+    "name": "Amozorb Ammonia Adsorbent Filtration Media",
+    "category": "salt-chemistry",
+    "images": [],
+    "imageStatus": "NEEDS_MEDIA_ASSET",
+    "isArchived": false
+  },
+  {
+    "idx": 45,
+    "id": "bio-block-filter-media",
+    "name": "Ultra-Porous Sintered Ceramic Bio Block",
+    "category": "salt-chemistry",
+    "images": [
+      "/images/products/bio-block-filter-media.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  },
+  {
+    "idx": 46,
+    "id": "ceramic-house-filter-media",
+    "name": "Porous Ceramic House Bio-Media",
+    "category": "salt-chemistry",
+    "images": [],
+    "imageStatus": "NEEDS_MEDIA_ASSET",
+    "isArchived": false
+  },
+  {
+    "idx": 47,
+    "id": "bio-pods-filter-media",
+    "name": "High Surface Area Sintered Quartz Bio Pods",
+    "category": "salt-chemistry",
+    "images": [],
+    "imageStatus": "NEEDS_MEDIA_ASSET",
+    "isArchived": false
+  },
+  {
+    "idx": 48,
+    "id": "trwil-tower-filter-media",
+    "name": "Trwil Tower Structured Trickle Bio Media",
+    "category": "salt-chemistry",
+    "images": [],
+    "imageStatus": "NEEDS_MEDIA_ASSET",
+    "isArchived": false
+  },
+  {
+    "idx": 49,
+    "id": "magic-bag-media-reactor",
+    "name": "Magic Bag Fine-Micron Chemical Resin Filter Bag",
+    "category": "salt-chemistry",
+    "images": [],
+    "imageStatus": "NEEDS_MEDIA_ASSET",
+    "isArchived": false
+  },
+  {
+    "idx": 50,
+    "id": "by-par-synthetic-adsorbent",
+    "name": "By-Par Synthetic Adsorbent Resin",
+    "category": "salt-chemistry",
+    "images": [
+      "/images/products/by-par-synthetic-adsorbent.jpg"
+    ],
+    "imageStatus": "VERIFIED",
+    "isArchived": false
+  }
+]
