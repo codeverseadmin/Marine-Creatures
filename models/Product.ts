@@ -9,6 +9,7 @@ export interface IProductDocument extends Document {
   category: string;
   categoryLabel: string;
   price: number;
+  compareAtPrice?: number;
   originalPrice?: number;
   rating: number;
   reviewsCount: number;
@@ -89,6 +90,7 @@ const ProductSchema = new Schema<IProductDocument>(
     category: { type: String, required: true, index: true },
     categoryLabel: { type: String, required: true },
     price: { type: Number, required: true },
+    compareAtPrice: { type: Number },
     originalPrice: { type: Number },
     rating: { type: Number, default: 5.0 },
     reviewsCount: { type: Number, default: 1 },

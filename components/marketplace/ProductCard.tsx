@@ -211,9 +211,9 @@ export function ProductCard({ product }: ProductCardProps) {
                   <span className="text-base sm:text-lg font-bold text-[var(--color-text)]">
                     ₹{product.price.toLocaleString('en-IN')}
                   </span>
-                  {product.originalPrice && product.originalPrice > product.price && (
+                  {(product.compareAtPrice || product.originalPrice) && (product.compareAtPrice || product.originalPrice)! > product.price && (
                     <span className="text-xs text-[var(--color-muted)] line-through">
-                      ₹{product.originalPrice.toLocaleString('en-IN')}
+                      ₹{(product.compareAtPrice || product.originalPrice)!.toLocaleString('en-IN')}
                     </span>
                   )}
                 </>

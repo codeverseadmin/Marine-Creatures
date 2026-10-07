@@ -3,6 +3,7 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 export type AuditAction =
   | 'PRODUCT_CREATED'
   | 'PRODUCT_UPDATED'
+  | 'PRODUCT_PRICE_UPDATED'
   | 'PRODUCT_ARCHIVED'
   | 'PRODUCT_UNARCHIVED'
   | 'PRODUCT_DUPLICATED'

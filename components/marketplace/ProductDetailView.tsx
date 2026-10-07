@@ -374,9 +374,9 @@ export function ProductDetailView({
                     <span className="font-display text-2xl sm:text-4xl text-white font-light">
                       ₹{product.price.toLocaleString('en-IN')}
                     </span>
-                    {product.originalPrice && product.originalPrice > product.price && (
+                    {(product.compareAtPrice || product.originalPrice) && (product.compareAtPrice || product.originalPrice)! > product.price && (
                       <span className="text-xs sm:text-base text-slate-500 line-through">
-                        ₹{product.originalPrice.toLocaleString('en-IN')}
+                        ₹{(product.compareAtPrice || product.originalPrice)!.toLocaleString('en-IN')}
                       </span>
                     )}
                   </>

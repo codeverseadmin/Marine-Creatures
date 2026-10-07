@@ -51,7 +51,9 @@
       "Application": "Must be housed in fine mesh bag (Magic Bag) in high-flow area"
     },
     "stockCount": 8,
-    "updatedAt": "2026-10-07T05:30:12.710Z"
+    "updatedAt": "2026-10-07T05:46:53.813Z",
+    "compareAtPrice": null,
+    "originalPrice": null
   },
   {
     "_id": "6abc117c035a474cc5e23826",
@@ -96,7 +98,9 @@
       "Durability": "Bleach-safe and acid-safe for repeated chemical media regeneration"
     },
     "stockCount": 12,
-    "updatedAt": "2026-10-07T05:30:12.670Z"
+    "updatedAt": "2026-10-07T05:46:54.234Z",
+    "compareAtPrice": null,
+    "originalPrice": null
   },
   {
     "_id": "6abc117c035a474cc5e23825",
@@ -140,8 +144,9 @@
       "Oxygenation": "High air-to-water surface contact"
     },
     "stockCount": 4,
-    "updatedAt": "2026-10-07T05:30:12.630Z",
-    "originalPrice": 600
+    "updatedAt": "2026-10-07T05:46:54.348Z",
+    "originalPrice": 600,
+    "compareAtPrice": 600
   },
   {
     "_id": "6abc117c035a474cc5e23824",
@@ -185,7 +190,9 @@
       "Advantage": "Resistant to compaction; uniform hydraulic permeability"
     },
     "stockCount": 6,
-    "updatedAt": "2026-10-07T05:30:12.590Z"
+    "updatedAt": "2026-10-07T05:46:54.472Z",
+    "compareAtPrice": null,
+    "originalPrice": null
   },
   {
     "_id": "6abc117c035a474cc5e23823",
@@ -193,7 +200,7 @@
     "availabilityNote": "Porous ceramic shelter and bio-housing media. [Note: Bulk porous ceramic hollow house media. Unbranded commodity stock without a dedicated consumer retail packaging photo. Intentional blueprint fallback displayed; awaiting client pack photo.]",
     "availabilityStatus": "AVAILABLE",
     "badge": "Micro-Housing",
-    "brand": "Marine Creatures Selected",
+    "brand": "Aquatic Remedies",
     "category": "salt-chemistry",
     "categoryLabel": "Biological Filter Media",
     "createdAt": "2026-09-29T19:29:00.386Z",
@@ -229,7 +236,9 @@
       "Application": "Canister trays, sump refugiums, and overflow trickle filters"
     },
     "stockCount": 4,
-    "updatedAt": "2026-10-07T05:30:12.550Z"
+    "updatedAt": "2026-10-07T05:46:54.584Z",
+    "compareAtPrice": null,
+    "originalPrice": null
   },
   {
     "_id": "6abc117c035a474cc5e23822",
@@ -237,7 +246,7 @@
     "availabilityNote": "High surface area sintered ceramic bio block for marine sumps.",
     "availabilityStatus": "AVAILABLE",
     "badge": "Deep Biofiltration",
-    "brand": "Marine Creatures Selected",
+    "brand": "Aquatic Remedies",
     "category": "salt-chemistry",
     "categoryLabel": "Biological Filter Media",
     "createdAt": "2026-09-29T19:29:00.344Z",
@@ -282,7 +291,9 @@
       "Target Biomass": "Aerobic nitrifiers (ammonia/nitrite) & anaerobic denitrifiers (nitrate)"
     },
     "stockCount": 6,
-    "updatedAt": "2026-10-07T05:30:12.508Z"
+    "updatedAt": "2026-10-07T05:46:54.697Z",
+    "compareAtPrice": null,
+    "originalPrice": null
   },
   {
     "_id": "6abc117c035a474cc5e23821",
@@ -290,7 +301,7 @@
     "availabilityNote": "Chemical adsorbent media formulated for rapid ammonia and odor removal.",
     "availabilityStatus": "AVAILABLE",
     "badge": "Ammonia Scavenger",
-    "brand": "Marine Creatures Selected",
+    "brand": "Aquatic Remedies",
     "category": "salt-chemistry",
     "categoryLabel": "Chemical Filter Media",
     "createdAt": "2026-09-29T19:29:00.302Z",
@@ -334,7 +345,9 @@
       "Usage": "Place in high-flow area of filter or sump"
     },
     "stockCount": 5,
-    "updatedAt": "2026-10-07T05:30:12.468Z"
+    "updatedAt": "2026-10-07T05:46:54.811Z",
+    "compareAtPrice": null,
+    "originalPrice": null
   },
   {
     "_id": "6abc117c035a474cc5e23820",
@@ -342,7 +355,7 @@
     "availabilityNote": "Self-cleaning fluidised moving bed K1/MBBR biological media.",
     "availabilityStatus": "AVAILABLE",
     "badge": "Moving Bed Media",
-    "brand": "Marine Creatures Selected",
+    "brand": "Aquatic Remedies",
     "category": "salt-chemistry",
     "categoryLabel": "Biological Filter Media",
     "createdAt": "2026-09-29T19:29:00.257Z",
@@ -387,7 +400,9 @@
       "Advantage": "Zero clogging; zero maintenance backwashing required"
     },
     "stockCount": 6,
-    "updatedAt": "2026-10-07T05:30:12.428Z"
+    "updatedAt": "2026-10-07T05:46:54.944Z",
+    "compareAtPrice": null,
+    "originalPrice": null
   },
   {
     "_id": "6abc117c035a474cc5e2381f",
@@ -395,7 +410,7 @@
     "availabilityNote": "Lightweight porous biological stone media for sumps and canisters.",
     "availabilityStatus": "AVAILABLE",
     "badge": "Micro-Porous",
-    "brand": "Marine Creatures Selected",
+    "brand": "Aquatic Remedies",
     "category": "salt-chemistry",
     "categoryLabel": "Biological Filter Media",
     "createdAt": "2026-09-29T19:29:00.216Z",
@@ -439,7 +454,9 @@
       "Application": "Marine sump compartments, external canisters, trickle filters"
     },
     "stockCount": 5,
-    "updatedAt": "2026-10-07T05:30:12.387Z"
+    "updatedAt": "2026-10-07T05:46:55.058Z",
+    "compareAtPrice": null,
+    "originalPrice": null
   },
   {
     "_id": "6abc117c035a474cc5e2381e",
@@ -483,12 +500,14 @@
       "Compatibility": "Canister filters, sumps, and trickle towers"
     },
     "stockCount": 4,
-    "updatedAt": "2026-10-07T05:30:12.346Z"
+    "updatedAt": "2026-10-07T05:46:55.176Z",
+    "compareAtPrice": null,
+    "originalPrice": null
   },
   {
     "_id": "6abc117c035a474cc5e2381d",
     "id": "zeolite-ammonia-media",
-    "availabilityNote": "Natural volcanic clinoptilolite mineral media for ammonia and cation adsorption.",
+    "availabilityNote": "Price may vary from product to product depending on grain size grade and packaging volume.",
     "availabilityStatus": "AVAILABLE",
     "badge": "Ammonia Control",
     "brand": "Marine Creatures Selected",
@@ -535,7 +554,9 @@
       "Application": "Filter media reactor, media bag in high-flow sump area, or canister"
     },
     "stockCount": 7,
-    "updatedAt": "2026-10-07T05:30:12.305Z"
+    "updatedAt": "2026-10-07T05:46:55.291Z",
+    "compareAtPrice": null,
+    "originalPrice": null
   },
   {
     "_id": "6abc117c035a474cc5e2381c",
@@ -588,7 +609,9 @@
       "Function": "Aerobic and anaerobic biological nitrifying surface"
     },
     "stockCount": 5,
-    "updatedAt": "2026-10-07T05:30:12.252Z"
+    "updatedAt": "2026-10-07T05:46:55.407Z",
+    "compareAtPrice": null,
+    "originalPrice": null
   },
   {
     "_id": "6abc117c035a474cc5e2381b",
@@ -633,8 +656,9 @@
       "Storage": "Store refrigerated at 2°C–6°C; gently invert bottle daily to prevent settling"
     },
     "stockCount": 6,
-    "updatedAt": "2026-10-07T05:30:12.211Z",
-    "originalPrice": 525
+    "updatedAt": "2026-10-07T05:46:55.521Z",
+    "originalPrice": 525,
+    "compareAtPrice": 525
   },
   {
     "_id": "6abc117c035a474cc5e2381a",
@@ -687,8 +711,33 @@
       "Safety Note": "Handle glass ampules carefully; snap neck with protective cloth or opener"
     },
     "stockCount": 6,
-    "updatedAt": "2026-10-07T05:30:12.171Z",
-    "originalPrice": 4500
+    "updatedAt": "2026-10-07T05:46:55.639Z",
+    "originalPrice": 4500,
+    "compareAtPrice": 4500,
+    "variants": [
+      {
+        "id": "5-ampules",
+        "name": "Biozym 303 — 5 Ampule Box",
+        "inStock": true,
+        "specs": {
+          "Packaging": "5 Ampules",
+          "Price": "₹1,450",
+          "Compare-at": "₹1,800",
+          "Function": "Nitrifying bacteria activator"
+        }
+      },
+      {
+        "id": "20-ampules",
+        "name": "Biozym 303 — 20 Ampule Box",
+        "inStock": true,
+        "specs": {
+          "Packaging": "20 Ampules",
+          "Price": "₹4,000",
+          "Compare-at": "₹4,500",
+          "Function": "Rapid cycling biological filtration"
+        }
+      }
+    ]
   },
   {
     "_id": "6abc117b035a474cc5e23819",
@@ -740,7 +789,9 @@
       "Application": "Weekly maintenance, post-water change, and tank cycling"
     },
     "stockCount": 5,
-    "updatedAt": "2026-10-07T05:30:12.130Z"
+    "updatedAt": "2026-10-07T05:46:55.752Z",
+    "compareAtPrice": null,
+    "originalPrice": null
   },
   {
     "_id": "6abc117b035a474cc5e23818",
@@ -793,8 +844,9 @@
       "Packaging": "Convenient pop-out cube blister pack"
     },
     "stockCount": 10,
-    "updatedAt": "2026-10-07T05:30:12.089Z",
-    "originalPrice": 800
+    "updatedAt": "2026-10-07T05:46:55.866Z",
+    "originalPrice": 800,
+    "compareAtPrice": 800
   },
   {
     "_id": "6abc117b035a474cc5e23817",
@@ -901,13 +953,14 @@
       "Accessories": "Pipette, calibration screwdriver, cleaning cloth, padded storage case"
     },
     "stockCount": 8,
-    "updatedAt": "2026-10-07T05:30:12.048Z",
-    "originalPrice": 1800
+    "updatedAt": "2026-10-07T05:46:55.979Z",
+    "originalPrice": 1800,
+    "compareAtPrice": 1800
   },
   {
     "_id": "6abc117b035a474cc5e23815",
     "id": "sensibar-reef-rock",
-    "availabilityNote": "Natural calcium carbonate marine rock. Highly porous aquascaping foundation.",
+    "availabilityNote": "Authoritative client pricing: ₹250 per kg.",
     "availabilityStatus": "AVAILABLE",
     "badge": "Porous Structure",
     "brand": "Marine Creatures Selected",
@@ -955,7 +1008,9 @@
       "Pest Status": "Dry cured / Zero nuisance hitchhikers"
     },
     "stockCount": 10,
-    "updatedAt": "2026-10-07T05:30:12.008Z"
+    "updatedAt": "2026-10-07T05:46:56.094Z",
+    "compareAtPrice": null,
+    "originalPrice": null
   },
   {
     "_id": "6abc117b035a474cc5e23814",
@@ -1008,7 +1063,7 @@
       "Buffering Capacity": "Maintains natural marine pH at 8.2–8.4"
     },
     "stockCount": 8,
-    "updatedAt": "2026-10-07T05:30:11.968Z",
+    "updatedAt": "2026-10-07T05:46:56.207Z",
     "variants": [
       {
         "id": "sand-2-5kg",
@@ -1030,7 +1085,9 @@
         "name": "Grade #3 Coarse (2–3 mm) — 20 kg",
         "inStock": true
       }
-    ]
+    ],
+    "compareAtPrice": null,
+    "originalPrice": null
   },
   {
     "_id": "6abc117b035a474cc5e23813",
@@ -1083,7 +1140,9 @@
       "Formulation": "Buffered Amine-Complexed Copper Solution"
     },
     "stockCount": 6,
-    "updatedAt": "2026-10-07T05:30:11.928Z"
+    "updatedAt": "2026-10-07T05:46:56.318Z",
+    "compareAtPrice": null,
+    "originalPrice": null
   },
   {
     "_id": "6abc117b035a474cc5e23812",
@@ -1136,7 +1195,7 @@
       "Function": "Acclimation observation, nursery isolation, aggression recovery"
     },
     "stockCount": 6,
-    "updatedAt": "2026-10-07T05:30:11.888Z",
+    "updatedAt": "2026-10-07T05:46:56.431Z",
     "variants": [
       {
         "id": "single",
@@ -1155,7 +1214,8 @@
         }
       }
     ],
-    "originalPrice": 600
+    "originalPrice": 600,
+    "compareAtPrice": 600
   },
   {
     "_id": "6abc117b035a474cc5e23811",
@@ -1225,8 +1285,9 @@
       "Bracket Fit": "Fits glass thicknesses up to 12 mm"
     },
     "stockCount": 4,
-    "updatedAt": "2026-10-07T05:30:11.846Z",
-    "originalPrice": 4800
+    "updatedAt": "2026-10-07T05:46:56.543Z",
+    "originalPrice": 4800,
+    "compareAtPrice": 4800
   },
   {
     "_id": "6abc117b035a474cc5e23810",
@@ -1297,8 +1358,9 @@
       "Min Water Level": "4 inches (10 cm)"
     },
     "stockCount": 3,
-    "updatedAt": "2026-10-07T05:30:11.807Z",
-    "originalPrice": 6500
+    "updatedAt": "2026-10-07T05:46:56.667Z",
+    "originalPrice": 6500,
+    "compareAtPrice": 6500
   },
   {
     "_id": "6abc117b035a474cc5e2380f",
@@ -1342,8 +1404,9 @@
       "Target Use": "Mid-sized aquariums, quarantine systems, and supplementary filtration"
     },
     "stockCount": 4,
-    "updatedAt": "2026-10-07T05:30:11.765Z",
-    "originalPrice": 10400
+    "updatedAt": "2026-10-07T05:46:56.782Z",
+    "originalPrice": 10400,
+    "compareAtPrice": 10400
   },
   {
     "_id": "6abc117b035a474cc5e2380e",
@@ -1387,8 +1450,9 @@
       "Target Use": "Nano marine tanks, quarantine setups, and hospital tanks"
     },
     "stockCount": 4,
-    "updatedAt": "2026-10-07T05:30:11.712Z",
-    "originalPrice": 6800
+    "updatedAt": "2026-10-07T05:46:56.894Z",
+    "originalPrice": 6800,
+    "compareAtPrice": 6800
   },
   {
     "_id": "6abc117b035a474cc5e2380d",
@@ -1442,8 +1506,9 @@
       "Fittings": "20 mm / 25 mm / 32 mm hose connectors"
     },
     "stockCount": 3,
-    "updatedAt": "2026-10-07T05:30:11.670Z",
-    "originalPrice": 8500
+    "updatedAt": "2026-10-07T05:46:57.008Z",
+    "originalPrice": 8500,
+    "compareAtPrice": 8500
   },
   {
     "_id": "6abc117b035a474cc5e2380c",
@@ -1497,8 +1562,9 @@
       "Controller": "External LED Digital Touch Controller with Feed Mode"
     },
     "stockCount": 4,
-    "updatedAt": "2026-10-07T05:30:11.627Z",
-    "originalPrice": 7000
+    "updatedAt": "2026-10-07T05:46:57.124Z",
+    "originalPrice": 7000,
+    "compareAtPrice": 7000
   },
   {
     "_id": "6abc117b035a474cc5e2380b",
@@ -1552,8 +1618,9 @@
       "Outlet Fittings": "22 mm / 27 mm stepped barb"
     },
     "stockCount": 3,
-    "updatedAt": "2026-10-07T05:30:11.587Z",
-    "originalPrice": 4800
+    "updatedAt": "2026-10-07T05:46:57.244Z",
+    "originalPrice": 4800,
+    "compareAtPrice": 4800
   },
   {
     "_id": "6abc117b035a474cc5e2380a",
@@ -1607,8 +1674,9 @@
       "Protection": "Locked-rotor thermal cutoff protection"
     },
     "stockCount": 2,
-    "updatedAt": "2026-10-07T05:30:11.545Z",
-    "originalPrice": 7000
+    "updatedAt": "2026-10-07T05:46:57.378Z",
+    "originalPrice": 7000,
+    "compareAtPrice": 7000
   },
   {
     "_id": "6abc117b035a474cc5e23809",
@@ -1730,8 +1798,9 @@
       "Shaft": "Titanium / Corrosion-resistant marine grade"
     },
     "stockCount": 4,
-    "updatedAt": "2026-10-07T05:30:11.503Z",
-    "originalPrice": 3000
+    "updatedAt": "2026-10-07T05:46:57.490Z",
+    "originalPrice": 3000,
+    "compareAtPrice": 3000
   },
   {
     "_id": "6abc117b035a474cc5e23807",
@@ -1841,16 +1910,17 @@
       "Application": "Marine fish displays, soft coral tanks, and reef aquariums"
     },
     "stockCount": 6,
-    "updatedAt": "2026-10-07T05:30:11.460Z",
+    "updatedAt": "2026-10-07T05:46:57.621Z",
     "variants": [
       {
         "id": "q30",
         "name": "Luminous Aqua Q30 (30 cm tank)",
         "inStock": true,
         "specs": {
-          "Tank Size": "30 cm",
-          "Price": "₹2,600",
-          "MRP": "₹3,000"
+          "Approx Length": "250 mm",
+          "Tank Fit": "30 cm",
+          "Selling Price": "₹2,600",
+          "Compare-at": "₹3,000"
         }
       },
       {
@@ -1858,9 +1928,10 @@
         "name": "Luminous Aqua Q60 (60 cm tank)",
         "inStock": true,
         "specs": {
-          "Tank Size": "60 cm",
-          "Price": "₹3,400",
-          "MRP": "₹3,800"
+          "Approx Length": "570 mm",
+          "Tank Fit": "60 cm",
+          "Selling Price": "₹3,400",
+          "Compare-at": "₹3,800"
         }
       },
       {
@@ -1868,9 +1939,10 @@
         "name": "Luminous Aqua Q75 (75 cm tank)",
         "inStock": true,
         "specs": {
-          "Tank Size": "75 cm",
-          "Price": "₹4,000",
-          "MRP": "₹4,500"
+          "Approx Length": "700 mm",
+          "Tank Fit": "75 cm",
+          "Selling Price": "₹4,000",
+          "Compare-at": "₹4,500"
         }
       },
       {
@@ -1878,9 +1950,10 @@
         "name": "Luminous Aqua Q90 (90 cm tank)",
         "inStock": true,
         "specs": {
-          "Tank Size": "90 cm",
-          "Price": "₹5,500",
-          "MRP": "₹6,000"
+          "Approx Length": "860 mm",
+          "Tank Fit": "90 cm",
+          "Selling Price": "₹5,500",
+          "Compare-at": "₹6,000"
         }
       },
       {
@@ -1888,13 +1961,15 @@
         "name": "Luminous Aqua Q120 (120 cm tank)",
         "inStock": true,
         "specs": {
-          "Tank Size": "120 cm",
-          "Price": "₹6,800",
-          "MRP": "₹7,500"
+          "Approx Length": "1,000 mm",
+          "Tank Fit": "120 cm",
+          "Selling Price": "₹6,800",
+          "Compare-at": "₹7,500"
         }
       }
     ],
-    "originalPrice": 3000
+    "originalPrice": 3000,
+    "compareAtPrice": 3000
   },
   {
     "_id": "6abc117b035a474cc5e23805",
@@ -1962,8 +2037,9 @@
       "Target Use": "Nano marine aquariums, fish-only, and anemone setups"
     },
     "stockCount": 4,
-    "updatedAt": "2026-10-07T05:30:11.417Z",
-    "originalPrice": 3000
+    "updatedAt": "2026-10-07T05:46:57.737Z",
+    "originalPrice": 3000,
+    "compareAtPrice": 3000
   },
   {
     "_id": "6abc117b035a474cc5e23804",
@@ -2034,15 +2110,16 @@
       "Bracket Fit": "Glass thickness up to 12 mm"
     },
     "stockCount": 5,
-    "updatedAt": "2026-10-07T05:30:11.355Z",
+    "updatedAt": "2026-10-07T05:46:58.107Z",
     "variants": [
       {
         "id": "e450",
         "name": "Nemo E450 (45–60 cm / 24W)",
         "inStock": true,
         "specs": {
-          "Tank Size": "45–60 cm",
-          "Power": "24W"
+          "Tank Range": "45–60 cm",
+          "Power": "24W",
+          "Control": "Bluetooth App Control"
         }
       },
       {
@@ -2050,8 +2127,9 @@
         "name": "Nemo E600 (60–80 cm / 36W)",
         "inStock": true,
         "specs": {
-          "Tank Size": "60–80 cm",
-          "Power": "36W"
+          "Tank Range": "60–80 cm",
+          "Power": "36W",
+          "Control": "Bluetooth App Control"
         }
       },
       {
@@ -2059,8 +2137,9 @@
         "name": "Nemo E900 (90–110 cm / 60W)",
         "inStock": true,
         "specs": {
-          "Tank Size": "90–110 cm",
-          "Power": "60W"
+          "Tank Range": "90–110 cm",
+          "Power": "60W",
+          "Control": "Bluetooth App Control"
         }
       },
       {
@@ -2068,12 +2147,14 @@
         "name": "Nemo E1200 (120–140 cm / 72W)",
         "inStock": true,
         "specs": {
-          "Tank Size": "120–140 cm",
-          "Power": "72W"
+          "Tank Range": "120–140 cm",
+          "Power": "72W",
+          "Control": "Bluetooth App Control"
         }
       }
     ],
-    "originalPrice": 7500
+    "originalPrice": 7500,
+    "compareAtPrice": 7500
   },
   {
     "_id": "6abc117a035a474cc5e23803",
