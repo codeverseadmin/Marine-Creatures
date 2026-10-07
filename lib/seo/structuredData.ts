@@ -23,7 +23,7 @@ export function generateProductJsonLd(
   // Build absolute image URLs
   const imageUrls = (product.images && product.images.length > 0
     ? product.images
-    : ['/images/products/placeholder-spec.jpg']
+    : ['/og-image.jpg']
   ).map((img) => (img.startsWith('http') ? img : `${SITE_CONFIG.url}${img}`));
 
   // Structured properties from product specifications
