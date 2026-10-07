@@ -23,8 +23,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "By-Par Synthetic Adsorbent Resin",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 550,
+    "priceOnRequest": false,
     "rating": 4.9,
     "researchSources": [
       {
@@ -51,7 +51,7 @@
       "Application": "Must be housed in fine mesh bag (Magic Bag) in high-flow area"
     },
     "stockCount": 8,
-    "updatedAt": "2026-09-29T19:30:06.224Z"
+    "updatedAt": "2026-10-07T05:30:12.710Z"
   },
   {
     "_id": "6abc117c035a474cc5e23826",
@@ -75,8 +75,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Magic Bag Fine-Micron Chemical Resin Filter Bag",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 600,
+    "priceOnRequest": false,
     "rating": 4.9,
     "researchSources": [
       {
@@ -96,7 +96,7 @@
       "Durability": "Bleach-safe and acid-safe for repeated chemical media regeneration"
     },
     "stockCount": 12,
-    "updatedAt": "2026-09-29T19:30:06.185Z"
+    "updatedAt": "2026-10-07T05:30:12.670Z"
   },
   {
     "_id": "6abc117c035a474cc5e23825",
@@ -120,8 +120,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Trwil Tower Structured Trickle Bio Media",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 500,
+    "priceOnRequest": false,
     "rating": 4.6,
     "researchSources": [
       {
@@ -140,7 +140,8 @@
       "Oxygenation": "High air-to-water surface contact"
     },
     "stockCount": 4,
-    "updatedAt": "2026-09-29T19:30:06.145Z"
+    "updatedAt": "2026-10-07T05:30:12.630Z",
+    "originalPrice": 600
   },
   {
     "_id": "6abc117c035a474cc5e23824",
@@ -164,8 +165,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "High Surface Area Sintered Quartz Bio Pods",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 300,
+    "priceOnRequest": false,
     "rating": 4.8,
     "researchSources": [
       {
@@ -184,7 +185,7 @@
       "Advantage": "Resistant to compaction; uniform hydraulic permeability"
     },
     "stockCount": 6,
-    "updatedAt": "2026-09-29T19:30:06.106Z"
+    "updatedAt": "2026-10-07T05:30:12.590Z"
   },
   {
     "_id": "6abc117c035a474cc5e23823",
@@ -208,8 +209,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Porous Ceramic House Bio-Media",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 35,
+    "priceOnRequest": false,
     "rating": 4.6,
     "researchSources": [
       {
@@ -228,7 +229,7 @@
       "Application": "Canister trays, sump refugiums, and overflow trickle filters"
     },
     "stockCount": 4,
-    "updatedAt": "2026-09-29T19:30:06.063Z"
+    "updatedAt": "2026-10-07T05:30:12.550Z"
   },
   {
     "_id": "6abc117c035a474cc5e23822",
@@ -254,8 +255,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Ultra-Porous Sintered Ceramic Bio Block",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 400,
+    "priceOnRequest": false,
     "rating": 5,
     "researchSources": [
       {
@@ -281,7 +282,7 @@
       "Target Biomass": "Aerobic nitrifiers (ammonia/nitrite) & anaerobic denitrifiers (nitrate)"
     },
     "stockCount": 6,
-    "updatedAt": "2026-09-29T19:30:05.519Z"
+    "updatedAt": "2026-10-07T05:30:12.508Z"
   },
   {
     "_id": "6abc117c035a474cc5e23821",
@@ -307,8 +308,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Amozorb Ammonia Adsorbent Filtration Media",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 350,
+    "priceOnRequest": false,
     "rating": 4.7,
     "researchSources": [
       {
@@ -333,7 +334,7 @@
       "Usage": "Place in high-flow area of filter or sump"
     },
     "stockCount": 5,
-    "updatedAt": "2026-09-29T19:30:05.479Z"
+    "updatedAt": "2026-10-07T05:30:12.468Z"
   },
   {
     "_id": "6abc117c035a474cc5e23820",
@@ -359,8 +360,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Fluidised Moving Bed K1 / MBBR Biological Media",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 350,
+    "priceOnRequest": false,
     "rating": 4.9,
     "researchSources": [
       {
@@ -386,7 +387,7 @@
       "Advantage": "Zero clogging; zero maintenance backwashing required"
     },
     "stockCount": 6,
-    "updatedAt": "2026-09-29T19:30:05.433Z"
+    "updatedAt": "2026-10-07T05:30:12.428Z"
   },
   {
     "_id": "6abc117c035a474cc5e2381f",
@@ -412,8 +413,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Xpores Porous Biological Stone Media",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 300,
+    "priceOnRequest": false,
     "rating": 4.7,
     "researchSources": [
       {
@@ -438,7 +439,7 @@
       "Application": "Marine sump compartments, external canisters, trickle filters"
     },
     "stockCount": 5,
-    "updatedAt": "2026-09-29T19:30:05.394Z"
+    "updatedAt": "2026-10-07T05:30:12.387Z"
   },
   {
     "_id": "6abc117c035a474cc5e2381e",
@@ -462,8 +463,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Qtermoline Thermal Fused Biological Media",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 420,
+    "priceOnRequest": false,
     "rating": 4.6,
     "researchSources": [
       {
@@ -482,7 +483,7 @@
       "Compatibility": "Canister filters, sumps, and trickle towers"
     },
     "stockCount": 4,
-    "updatedAt": "2026-09-29T19:30:05.353Z"
+    "updatedAt": "2026-10-07T05:30:12.346Z"
   },
   {
     "_id": "6abc117c035a474cc5e2381d",
@@ -508,8 +509,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Zeolite Natural Ammonia Adsorbent Mineral Media",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 310,
+    "priceOnRequest": false,
     "rating": 4.7,
     "researchSources": [
       {
@@ -534,7 +535,7 @@
       "Application": "Filter media reactor, media bag in high-flow sump area, or canister"
     },
     "stockCount": 7,
-    "updatedAt": "2026-09-29T19:30:05.313Z"
+    "updatedAt": "2026-10-07T05:30:12.305Z"
   },
   {
     "_id": "6abc117c035a474cc5e2381c",
@@ -560,8 +561,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Amozeal Nano Vitality Ceramic Bio-Blocks",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 610,
+    "priceOnRequest": false,
     "rating": 4.8,
     "researchSources": [
       {
@@ -587,7 +588,7 @@
       "Function": "Aerobic and anaerobic biological nitrifying surface"
     },
     "stockCount": 5,
-    "updatedAt": "2026-09-29T19:30:04.973Z"
+    "updatedAt": "2026-10-07T05:30:12.252Z"
   },
   {
     "_id": "6abc117c035a474cc5e2381b",
@@ -611,8 +612,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "TiCi NatureLab Live Marine Phytoplankton",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 500,
+    "priceOnRequest": false,
     "rating": 5,
     "researchSources": [
       {
@@ -632,7 +633,8 @@
       "Storage": "Store refrigerated at 2°C–6°C; gently invert bottle daily to prevent settling"
     },
     "stockCount": 6,
-    "updatedAt": "2026-09-29T19:30:04.437Z"
+    "updatedAt": "2026-10-07T05:30:12.211Z",
+    "originalPrice": 525
   },
   {
     "_id": "6abc117c035a474cc5e2381a",
@@ -658,8 +660,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Biozym 303 Nitrifying Bacteria Ampules",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 4000,
+    "priceOnRequest": false,
     "rating": 4.9,
     "researchSources": [
       {
@@ -685,7 +687,8 @@
       "Safety Note": "Handle glass ampules carefully; snap neck with protective cloth or opener"
     },
     "stockCount": 6,
-    "updatedAt": "2026-09-29T19:30:04.393Z"
+    "updatedAt": "2026-10-07T05:30:12.171Z",
+    "originalPrice": 4500
   },
   {
     "_id": "6abc117b035a474cc5e23819",
@@ -711,8 +714,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Teraa T-Probiotics Biological Water Conditioner",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 712,
+    "priceOnRequest": false,
     "rating": 4.8,
     "researchSources": [
       {
@@ -737,7 +740,7 @@
       "Application": "Weekly maintenance, post-water change, and tank cycling"
     },
     "stockCount": 5,
-    "updatedAt": "2026-09-29T19:30:04.353Z"
+    "updatedAt": "2026-10-07T05:30:12.130Z"
   },
   {
     "_id": "6abc117b035a474cc5e23818",
@@ -763,8 +766,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Hikari Bio-Pure Frozen Mysis Shrimp",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 700,
+    "priceOnRequest": false,
     "rating": 5,
     "researchSources": [
       {
@@ -790,7 +793,8 @@
       "Packaging": "Convenient pop-out cube blister pack"
     },
     "stockCount": 10,
-    "updatedAt": "2026-09-29T19:30:04.043Z"
+    "updatedAt": "2026-10-07T05:30:12.089Z",
+    "originalPrice": 800
   },
   {
     "_id": "6abc117b035a474cc5e23817",
@@ -869,8 +873,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Precision Optical Salinity Refractometer (with ATC)",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 1400,
+    "priceOnRequest": false,
     "rating": 5,
     "researchSources": [
       {
@@ -897,7 +901,8 @@
       "Accessories": "Pipette, calibration screwdriver, cleaning cloth, padded storage case"
     },
     "stockCount": 8,
-    "updatedAt": "2026-09-29T19:30:03.706Z"
+    "updatedAt": "2026-10-07T05:30:12.048Z",
+    "originalPrice": 1800
   },
   {
     "_id": "6abc117b035a474cc5e23815",
@@ -923,8 +928,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Sensibar Natural Marine Reef Rock",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 250,
+    "priceOnRequest": false,
     "rating": 4.9,
     "researchSources": [
       {
@@ -950,7 +955,7 @@
       "Pest Status": "Dry cured / Zero nuisance hitchhikers"
     },
     "stockCount": 10,
-    "updatedAt": "2026-09-29T19:30:03.657Z"
+    "updatedAt": "2026-10-07T05:30:12.008Z"
   },
   {
     "_id": "6abc117b035a474cc5e23814",
@@ -976,8 +981,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Blue Treasure Natural Coral Aragonite Sand",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 1400,
+    "priceOnRequest": false,
     "rating": 4.8,
     "researchSources": [
       {
@@ -1003,7 +1008,7 @@
       "Buffering Capacity": "Maintains natural marine pH at 8.2–8.4"
     },
     "stockCount": 8,
-    "updatedAt": "2026-09-29T19:30:03.607Z",
+    "updatedAt": "2026-10-07T05:30:11.968Z",
     "variants": [
       {
         "id": "sand-2-5kg",
@@ -1051,8 +1056,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Seachem Cupramine Copper Treatment",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 1250,
+    "priceOnRequest": false,
     "rating": 4.9,
     "researchSources": [
       {
@@ -1078,7 +1083,7 @@
       "Formulation": "Buffered Amine-Complexed Copper Solution"
     },
     "stockCount": 6,
-    "updatedAt": "2026-09-29T19:30:03.568Z"
+    "updatedAt": "2026-10-07T05:30:11.928Z"
   },
   {
     "_id": "6abc117b035a474cc5e23812",
@@ -1104,8 +1109,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Boyu Isolation & Nursery Separation Box",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 450,
+    "priceOnRequest": false,
     "rating": 4.7,
     "researchSources": [
       {
@@ -1131,7 +1136,7 @@
       "Function": "Acclimation observation, nursery isolation, aggression recovery"
     },
     "stockCount": 6,
-    "updatedAt": "2026-09-29T19:30:03.529Z",
+    "updatedAt": "2026-10-07T05:30:11.888Z",
     "variants": [
       {
         "id": "single",
@@ -1149,7 +1154,8 @@
           "Dimensions": "26 x 16 x 16 cm"
         }
       }
-    ]
+    ],
+    "originalPrice": 600
   },
   {
     "_id": "6abc117b035a474cc5e23811",
@@ -1192,8 +1198,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Bubble Magus Mini Q Nano Protein Skimmer",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 4400,
+    "priceOnRequest": false,
     "rating": 4.9,
     "researchSources": [
       {
@@ -1219,7 +1225,8 @@
       "Bracket Fit": "Fits glass thicknesses up to 12 mm"
     },
     "stockCount": 4,
-    "updatedAt": "2026-09-29T19:30:03.489Z"
+    "updatedAt": "2026-10-07T05:30:11.846Z",
+    "originalPrice": 4800
   },
   {
     "_id": "6abc117b035a474cc5e23810",
@@ -1262,8 +1269,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Bubble Magus QQ2 Nano Protein Skimmer",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 5800,
+    "priceOnRequest": false,
     "rating": 4.9,
     "researchSources": [
       {
@@ -1290,7 +1297,8 @@
       "Min Water Level": "4 inches (10 cm)"
     },
     "stockCount": 3,
-    "updatedAt": "2026-09-29T19:30:03.447Z"
+    "updatedAt": "2026-10-07T05:30:11.807Z",
+    "originalPrice": 6500
   },
   {
     "_id": "6abc117b035a474cc5e2380f",
@@ -1314,8 +1322,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "RE Ocean Mini 80 Internal Filter",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 10200,
+    "priceOnRequest": false,
     "rating": 4.6,
     "researchSources": [
       {
@@ -1334,7 +1342,8 @@
       "Target Use": "Mid-sized aquariums, quarantine systems, and supplementary filtration"
     },
     "stockCount": 4,
-    "updatedAt": "2026-09-29T19:30:03.403Z"
+    "updatedAt": "2026-10-07T05:30:11.765Z",
+    "originalPrice": 10400
   },
   {
     "_id": "6abc117b035a474cc5e2380e",
@@ -1358,8 +1367,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "RE Ocean Mini 60 Internal Filter",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 6500,
+    "priceOnRequest": false,
     "rating": 4.5,
     "researchSources": [
       {
@@ -1378,7 +1387,8 @@
       "Target Use": "Nano marine tanks, quarantine setups, and hospital tanks"
     },
     "stockCount": 4,
-    "updatedAt": "2026-09-29T19:30:03.361Z"
+    "updatedAt": "2026-10-07T05:30:11.712Z",
+    "originalPrice": 6800
   },
   {
     "_id": "6abc117b035a474cc5e2380d",
@@ -1404,8 +1414,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Sunsun JDP-6000 DC Submersible Pump (DC Controllable)",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 8000,
+    "priceOnRequest": false,
     "rating": 5,
     "researchSources": [
       {
@@ -1432,7 +1442,8 @@
       "Fittings": "20 mm / 25 mm / 32 mm hose connectors"
     },
     "stockCount": 3,
-    "updatedAt": "2026-09-29T19:30:03.321Z"
+    "updatedAt": "2026-10-07T05:30:11.670Z",
+    "originalPrice": 8500
   },
   {
     "_id": "6abc117b035a474cc5e2380c",
@@ -1458,8 +1469,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Sunsun JDP-3500 DC Submersible Pump (DC Controllable)",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 6500,
+    "priceOnRequest": false,
     "rating": 5,
     "researchSources": [
       {
@@ -1486,7 +1497,8 @@
       "Controller": "External LED Digital Touch Controller with Feed Mode"
     },
     "stockCount": 4,
-    "updatedAt": "2026-09-29T19:30:03.282Z"
+    "updatedAt": "2026-10-07T05:30:11.627Z",
+    "originalPrice": 7000
   },
   {
     "_id": "6abc117b035a474cc5e2380b",
@@ -1512,8 +1524,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Sunsun HQB-4500 Submersible Pump",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 4400,
+    "priceOnRequest": false,
     "rating": 4.7,
     "researchSources": [
       {
@@ -1540,7 +1552,8 @@
       "Outlet Fittings": "22 mm / 27 mm stepped barb"
     },
     "stockCount": 3,
-    "updatedAt": "2026-09-29T19:30:03.243Z"
+    "updatedAt": "2026-10-07T05:30:11.587Z",
+    "originalPrice": 4800
   },
   {
     "_id": "6abc117b035a474cc5e2380a",
@@ -1566,8 +1579,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Sunsun JTP-8000 Submersible Pump",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 6500,
+    "priceOnRequest": false,
     "rating": 4.9,
     "researchSources": [
       {
@@ -1594,7 +1607,8 @@
       "Protection": "Locked-rotor thermal cutoff protection"
     },
     "stockCount": 2,
-    "updatedAt": "2026-09-29T19:30:03.202Z"
+    "updatedAt": "2026-10-07T05:30:11.545Z",
+    "originalPrice": 7000
   },
   {
     "_id": "6abc117b035a474cc5e23809",
@@ -1688,8 +1702,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Sunsun Magnetic Wavemaker JVP-232",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 2590,
+    "priceOnRequest": false,
     "rating": 4.8,
     "researchSources": [
       {
@@ -1716,7 +1730,8 @@
       "Shaft": "Titanium / Corrosion-resistant marine grade"
     },
     "stockCount": 4,
-    "updatedAt": "2026-09-29T19:30:03.124Z"
+    "updatedAt": "2026-10-07T05:30:11.503Z",
+    "originalPrice": 3000
   },
   {
     "_id": "6abc117b035a474cc5e23807",
@@ -1800,8 +1815,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Luminous Aqua S Flora Ocean Blue Marine Light",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 2600,
+    "priceOnRequest": false,
     "rating": 4.7,
     "researchSources": [
       {
@@ -1826,34 +1841,60 @@
       "Application": "Marine fish displays, soft coral tanks, and reef aquariums"
     },
     "stockCount": 6,
-    "updatedAt": "2026-09-29T19:30:03.042Z",
+    "updatedAt": "2026-10-07T05:30:11.460Z",
     "variants": [
       {
         "id": "q30",
         "name": "Luminous Aqua Q30 (30 cm tank)",
-        "inStock": true
+        "inStock": true,
+        "specs": {
+          "Tank Size": "30 cm",
+          "Price": "₹2,600",
+          "MRP": "₹3,000"
+        }
       },
       {
         "id": "q60",
         "name": "Luminous Aqua Q60 (60 cm tank)",
-        "inStock": true
+        "inStock": true,
+        "specs": {
+          "Tank Size": "60 cm",
+          "Price": "₹3,400",
+          "MRP": "₹3,800"
+        }
       },
       {
         "id": "q75",
         "name": "Luminous Aqua Q75 (75 cm tank)",
-        "inStock": true
+        "inStock": true,
+        "specs": {
+          "Tank Size": "75 cm",
+          "Price": "₹4,000",
+          "MRP": "₹4,500"
+        }
       },
       {
         "id": "q90",
         "name": "Luminous Aqua Q90 (90 cm tank)",
-        "inStock": true
+        "inStock": true,
+        "specs": {
+          "Tank Size": "90 cm",
+          "Price": "₹5,500",
+          "MRP": "₹6,000"
+        }
       },
       {
         "id": "q120",
         "name": "Luminous Aqua Q120 (120 cm tank)",
-        "inStock": true
+        "inStock": true,
+        "specs": {
+          "Tank Size": "120 cm",
+          "Price": "₹6,800",
+          "MRP": "₹7,500"
+        }
       }
-    ]
+    ],
+    "originalPrice": 3000
   },
   {
     "_id": "6abc117b035a474cc5e23805",
@@ -1894,8 +1935,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Sessile Comet Manual Aquarium Light",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 2600,
+    "priceOnRequest": false,
     "rating": 4.6,
     "researchSources": [
       {
@@ -1921,7 +1962,8 @@
       "Target Use": "Nano marine aquariums, fish-only, and anemone setups"
     },
     "stockCount": 4,
-    "updatedAt": "2026-09-29T19:30:03.004Z"
+    "updatedAt": "2026-10-07T05:30:11.417Z",
+    "originalPrice": 3000
   },
   {
     "_id": "6abc117b035a474cc5e23804",
@@ -1964,8 +2006,8 @@
     "isArchived": false,
     "itemType": "dry",
     "name": "Nemo Extreme Series II Smart Marine LED",
-    "price": 0,
-    "priceOnRequest": true,
+    "price": 6500,
+    "priceOnRequest": false,
     "rating": 4.9,
     "researchSources": [
       {
@@ -1992,7 +2034,7 @@
       "Bracket Fit": "Glass thickness up to 12 mm"
     },
     "stockCount": 5,
-    "updatedAt": "2026-09-29T19:30:02.963Z",
+    "updatedAt": "2026-10-07T05:30:11.355Z",
     "variants": [
       {
         "id": "e450",
@@ -2030,7 +2072,8 @@
           "Power": "72W"
         }
       }
-    ]
+    ],
+    "originalPrice": 7500
   },
   {
     "_id": "6abc117a035a474cc5e23803",
