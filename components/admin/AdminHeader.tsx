@@ -12,6 +12,7 @@ interface AdminHeaderProps {
   setDesktopSidebarOpen: (open: boolean) => void;
   dbStatus?: { connected: boolean; cluster?: string; database?: string; latencyMs?: number };
   handleLogout: () => void;
+  onOpenSearch?: () => void;
 }
 
 export function AdminHeader({
@@ -22,56 +23,58 @@ export function AdminHeader({
   setDesktopSidebarOpen,
   dbStatus,
   handleLogout,
+  onOpenSearch,
 }: AdminHeaderProps) {
   const getTabInfo = (tab: ControlOsSection) => {
     switch (tab) {
       case 'overview':
         return {
-          title: 'Control OS',
-          desc: 'Marine Creatures operational overview',
+          title: 'Control OS Overview',
+          desc: 'Marine Creatures executive command center and live action alerts',
+          phase: 'Live',
+        };
+      case 'sales':
+      case 'crm':
+        return {
+          title: 'Sales Operations',
+          desc: 'Orders, live concierge enquiries, Customer 360 dossiers, and follow-ups',
           phase: 'Live',
         };
       case 'catalog':
         return {
           title: 'Catalog Governance',
-          desc: 'Inventory control, SKU matrix, and variant specifications',
-          phase: 'Phase 3B',
+          desc: 'Livestock inventory, dry goods, care specs, and media verification',
+          phase: 'Live',
         };
       case 'worlds':
         return {
-          title: 'Worlds Portfolio CMS',
-          desc: 'Bespoke biotope showcases and living exhibit case studies',
-          phase: 'Phase 3C',
+          title: 'Worlds Architecture CMS',
+          desc: 'Private client projects and public case study publications',
+          phase: 'Live',
         };
       case 'operations':
         return {
           title: 'Operations & Dispatch',
-          desc: 'Live quarantine tracking, thermal packing, and air cargo AWBs',
-          phase: 'Phase 3D',
-        };
-      case 'crm':
-        return {
-          title: 'Client Concierge & VIP CRM',
-          desc: 'Consultation intake, custom tank requests, and VIP pipelines',
-          phase: 'Phase 3D',
+          desc: 'Quarantine protocol, thermal air-cargo packing, and architectural servicing',
+          phase: 'Live',
         };
       case 'content':
         return {
-          title: 'Editorial & Brand Content',
-          desc: 'Announcement banners, care guides, and technical journals',
-          phase: 'Phase 3E',
+          title: 'Content & SEO Governance',
+          desc: 'Announcement banners, editorial highlights, and technical SEO audit',
+          phase: 'Live',
         };
       case 'analytics':
         return {
-          title: 'Business Intelligence & Yield',
-          desc: 'Commercial analytics, demand velocity, and revenue reporting',
-          phase: 'Phase 3F',
+          title: 'Commercial Intelligence',
+          desc: 'Database-backed ledger yield, acquisition funnel, and demand velocity',
+          phase: 'Live',
         };
       case 'system':
         return {
-          title: 'Fleet Telemetry & Security',
-          desc: 'Database cluster health, snapshots, and operational audits',
-          phase: 'Phase 3F',
+          title: 'System Governance & Fleet',
+          desc: 'Audit trail, Atlas snapshots, infrastructure health, and HMAC security',
+          phase: 'Live',
         };
       default:
         return {
@@ -126,6 +129,15 @@ export function AdminHeader({
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0">
+          {onOpenSearch && (
+            <button
+              onClick={onOpenSearch}
+              className="min-w-[44px] min-h-[44px] px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold inline-flex items-center justify-center border border-slate-700 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+              title="Search OS (Ctrl+K)"
+            >
+              <span className="text-sm">🔍</span>
+            </button>
+          )}
           <Link
             href="/marketplace"
             target="_blank"
@@ -179,6 +191,18 @@ export function AdminHeader({
 
         {/* Right: Operational Telemetry & Actions */}
         <div className="flex items-center gap-3 shrink-0">
+          {onOpenSearch && (
+            <button
+              onClick={onOpenSearch}
+              className="min-h-[44px] px-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 flex items-center gap-2.5 text-xs font-mono transition-all hover:border-cyan-500/50"
+              title="Search Operations (Ctrl+K)"
+            >
+              <span>🔍</span>
+              <span className="text-slate-400 font-sans">Search OS...</span>
+              <kbd className="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px] text-slate-400">Ctrl+K</kbd>
+            </button>
+          )}
+
           {/* Admin Identity */}
           <div className="min-h-[44px] px-3.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center gap-2 text-xs text-slate-300">
             <span className="w-2 h-2 rounded-full bg-cyan-400" />

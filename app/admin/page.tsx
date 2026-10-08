@@ -6,11 +6,21 @@ import { ControlOsSection, TabItem, OverviewDashboardData } from '@/components/a
 import { AdminHeader } from '@/components/admin/AdminHeader';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { ControlOsOverview } from '@/components/admin/ControlOsOverview';
+import { ControlOsSales } from '@/components/admin/ControlOsSales';
 import { ControlOsCatalog } from '@/components/admin/ControlOsCatalog';
 import { ControlOsWorlds } from '@/components/admin/ControlOsWorlds';
-import { ControlOsPlaceholder } from '@/components/admin/ControlOsPlaceholder';
+import { ControlOsOperations } from '@/components/admin/ControlOsOperations';
+import { ControlOsContent } from '@/components/admin/ControlOsContent';
+import { ControlOsAnalytics } from '@/components/admin/ControlOsAnalytics';
+import { ControlOsSystem } from '@/components/admin/ControlOsSystem';
+import { GlobalSearchModal } from '@/components/admin/GlobalSearchModal';
 
-export default function AdminPage({ initialTab = 'overview' }: { initialTab?: ControlOsSection }) {
+interface AdminPageProps {
+  initialTab?: ControlOsSection;
+  initialSubtab?: string;
+}
+
+export default function AdminPage({ initialTab = 'overview', initialSubtab }: AdminPageProps) {
   // Authentication & session state
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isVerifyingAuth, setIsVerifyingAuth] = useState<boolean>(true);
@@ -21,8 +31,10 @@ export default function AdminPage({ initialTab = 'overview' }: { initialTab?: Co
 
   // Navigation state
   const [activeTab, setActiveTab] = useState<ControlOsSection>(initialTab);
+  const [activeSubtab, setActiveSubtab] = useState<string | undefined>(initialSubtab);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   // Dashboard data state
   const [overviewData, setOverviewData] = useState<OverviewDashboardData | null>(null);
@@ -80,11 +92,27 @@ export default function AdminPage({ initialTab = 'overview' }: { initialTab?: Co
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const tab = params.get('tab') as ControlOsSection | null;
-      if (tab && ['overview', 'catalog', 'worlds', 'operations', 'crm', 'content', 'analytics', 'system'].includes(tab)) {
+      const sub = params.get('subtab');
+      if (tab && ['overview', 'sales', 'catalog', 'worlds', 'operations', 'crm', 'content', 'analytics', 'system'].includes(tab)) {
         setActiveTab(tab);
+      }
+      if (sub) {
+        setActiveSubtab(sub);
       }
     }
   }, [fetchOverviewData]);
+
+  // Global Ctrl+K / Cmd+K search listener
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsSearchOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
 
   // Handle Login submission
   const handleLogin = async (e: React.FormEvent) => {
@@ -150,12 +178,20 @@ export default function AdminPage({ initialTab = 'overview' }: { initialTab?: Co
       description: 'Operational overview and live action center',
     },
     {
+      id: 'sales',
+      label: 'Sales',
+      icon: '💳',
+      badge: 'Active',
+      isImplemented: true,
+      description: 'Orders, live concierge enquiries, Customer 360 dossiers, and follow-ups',
+    },
+    {
       id: 'catalog',
       label: 'Catalog',
       icon: '🐠',
       badge: 'Active',
       isImplemented: true,
-      description: 'Product catalog governance and SKU matrix',
+      description: 'Product catalog governance, livestock, inventory, and media',
     },
     {
       id: 'worlds',
@@ -169,46 +205,33 @@ export default function AdminPage({ initialTab = 'overview' }: { initialTab?: Co
       id: 'operations',
       label: 'Operations',
       icon: '📦',
-      badge: 'Phase 3D',
-      isImplemented: false,
-      phaseDependency: 'Phase 3D',
-      description: 'Live specimen quarantine and air cargo dispatch',
-    },
-    {
-      id: 'crm',
-      label: 'CRM',
-      icon: '💬',
-      badge: 'Phase 3D',
-      isImplemented: false,
-      phaseDependency: 'Phase 3D',
-      description: 'Client concierge and VIP architectural inquiries',
+      badge: 'Active',
+      isImplemented: true,
+      description: 'Live specimen quarantine, air cargo dispatch, and architectural servicing',
     },
     {
       id: 'content',
       label: 'Content',
       icon: '🎬',
-      badge: 'Phase 3E',
-      isImplemented: false,
-      phaseDependency: 'Phase 3E',
-      description: 'Editorial journal, care guides, and announcement banners',
+      badge: 'Active',
+      isImplemented: true,
+      description: 'Editorial journal, announcement banners, and technical SEO health',
     },
     {
       id: 'analytics',
       label: 'Analytics',
       icon: '📈',
-      badge: 'Phase 3F',
-      isImplemented: false,
-      phaseDependency: 'Phase 3F',
-      description: 'Commercial intelligence and yield analysis',
+      badge: 'Active',
+      isImplemented: true,
+      description: 'Database-backed business intelligence, funnel telemetry, and yield analysis',
     },
     {
       id: 'system',
       label: 'System',
       icon: '⚙️',
-      badge: 'Phase 3F',
-      isImplemented: false,
-      phaseDependency: 'Phase 3F',
-      description: 'Fleet infrastructure health, backups, and security',
+      badge: 'Active',
+      isImplemented: true,
+      description: 'Fleet infrastructure health, cloud snapshots, audit logs, and security',
     },
   ];
 
@@ -362,6 +385,7 @@ export default function AdminPage({ initialTab = 'overview' }: { initialTab?: Co
             setSidebarOpen={setSidebarOpen}
             desktopSidebarOpen={desktopSidebarOpen}
             setDesktopSidebarOpen={setDesktopSidebarOpen}
+            onOpenSearch={() => setIsSearchOpen(true)}
             dbStatus={
               overviewData
                 ? {
@@ -410,7 +434,15 @@ export default function AdminPage({ initialTab = 'overview' }: { initialTab?: Co
               </>
             )}
 
-            {/* Catalog Module (PHASE 3B) */}
+            {/* Sales Operations Module */}
+            {(activeTab === 'sales' || activeTab === 'crm') && (
+              <ControlOsSales
+                initialSubtab={activeSubtab as any}
+                showToast={showToast}
+              />
+            )}
+
+            {/* Catalog Governance Module */}
             {activeTab === 'catalog' && (
               <ControlOsCatalog
                 onReturnToOverview={() => setActiveTab('overview')}
@@ -418,21 +450,55 @@ export default function AdminPage({ initialTab = 'overview' }: { initialTab?: Co
               />
             )}
 
-            {/* Worlds Module (PHASE 3C) */}
+            {/* Worlds Architecture Module */}
             {activeTab === 'worlds' && (
               <ControlOsWorlds />
             )}
 
-            {/* Phased Modules Placeholder (OPERATIONS, CRM, CONTENT, ANALYTICS, SYSTEM) */}
-            {activeTab !== 'overview' && activeTab !== 'catalog' && activeTab !== 'worlds' && (
-              <ControlOsPlaceholder
-                section={activeTab}
-                onReturnToOverview={() => setActiveTab('overview')}
+            {/* Operations & Dispatch Module */}
+            {activeTab === 'operations' && (
+              <ControlOsOperations
+                initialSubtab={activeSubtab as any}
+                showToast={showToast}
+              />
+            )}
+
+            {/* Content & SEO Module */}
+            {activeTab === 'content' && (
+              <ControlOsContent
+                initialSubtab={activeSubtab as any}
+                showToast={showToast}
+              />
+            )}
+
+            {/* Analytics & Telemetry Module */}
+            {activeTab === 'analytics' && (
+              <ControlOsAnalytics
+                initialSubtab={activeSubtab as any}
+                showToast={showToast}
+              />
+            )}
+
+            {/* System Governance & Fleet Module */}
+            {activeTab === 'system' && (
+              <ControlOsSystem
+                initialSubtab={activeSubtab as any}
+                showToast={showToast}
               />
             )}
           </main>
         </div>
       </div>
+
+      {/* Global Command Search Modal (Ctrl+K) */}
+      <GlobalSearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        onNavigate={(section, subtab) => {
+          setActiveTab(section);
+          if (subtab) setActiveSubtab(subtab);
+        }}
+      />
     </div>
   );
 }

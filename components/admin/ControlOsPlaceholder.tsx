@@ -47,6 +47,20 @@ const SECTION_METADATA: Record<
       'High-Resolution Before/After Renovation Transformations',
     ],
   },
+  sales: {
+    title: 'Sales Operations & Commercial Ledger',
+    code: 'SALES_OS',
+    phase: 'Live',
+    icon: '💳',
+    description:
+      'Orders fulfillment lifecycle, live concierge enquiries, Customer 360 dossiers, and proactive client follow-ups.',
+    plannedCapabilities: [
+      'Multi-stage Order Fulfillment & AWB Tracking',
+      'Inquiry Concierge Qualification Pipeline',
+      'Unified Customer 360 dossiers',
+      'Overdue & Scheduled Follow-up Management',
+    ],
+  },
   operations: {
     title: 'Operations & Specimen Quarantine Engine',
     code: 'OPERATIONS_OS',
