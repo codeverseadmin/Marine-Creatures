@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useOrder, TRACKING_STEPS_META, OrderProgressStep } from '@/lib/context/OrderContext';
 import { SITE_CONFIG } from '@/lib/config';
@@ -9,6 +9,51 @@ export function OrderTrackingModal() {
   const { orders, activeOrder, setActiveOrder, isTrackingOpen, setIsTrackingOpen, findOrder } = useOrder();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchError, setSearchError] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Lock body scroll and pause Lenis while modal is open
+  useEffect(() => {
+    if (!isTrackingOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    const originalPaddingRight = document.body.style.paddingRight;
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+    document.body.style.overflow = 'hidden';
+
+    // Pause Lenis smooth scroll so it does not intercept wheel events
+    const lenis = (window as unknown as { lenis?: { stop: () => void; start: () => void } }).lenis;
+    lenis?.stop();
+
+    // Reset scroll to top whenever modal opens
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+
+    // Close on Escape key
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsTrackingOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.paddingRight = originalPaddingRight;
+      lenis?.start();
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isTrackingOpen, setIsTrackingOpen]);
+
+  // Reset scroll to top when active order changes
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }, [activeOrder?.id]);
 
   if (!isTrackingOpen) return null;
 
@@ -36,20 +81,33 @@ export function OrderTrackingModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-[99994] overflow-y-auto bg-black/85 backdrop-blur-xl p-4 sm:p-6 lg:p-8 flex items-center justify-center" role="dialog" aria-modal="true">
-      <div className="relative w-full max-w-3xl lg:max-w-4xl xl:max-w-5xl bg-[#040C12] border border-white/15 rounded-3xl shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col">
-        {/* Top Header */}
-        <div className="p-5 sm:p-6 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-slate-950 via-[#071722] to-slate-950">
+    <div
+      className="fixed inset-0 z-[99994] overflow-hidden bg-black/85 backdrop-blur-xl p-3 sm:p-6 lg:p-8 flex items-center justify-center overscroll-none"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="order-tracking-modal-title"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          setIsTrackingOpen(false);
+        }
+      }}
+    >
+      <div
+        className="relative w-full max-w-3xl lg:max-w-4xl xl:max-w-5xl bg-[#040C12] border border-white/15 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-3rem)] lg:max-h-[92dvh] h-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Top Header — Non-scrolling */}
+        <div className="p-4 sm:p-6 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-slate-950 via-[#071722] to-slate-950 shrink-0">
           <div className="flex items-center gap-3">
-            <span className="w-10 h-10 rounded-2xl bg-cyan-400/15 border border-cyan-400/30 text-cyan-400 flex items-center justify-center text-lg">
+            <span className="w-10 h-10 rounded-2xl bg-cyan-400/15 border border-cyan-400/30 text-cyan-400 flex items-center justify-center text-lg shrink-0">
               📦
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base sm:text-lg font-bold text-white tracking-wide">
+                <h3 id="order-tracking-modal-title" className="text-base sm:text-lg font-bold text-white tracking-wide">
                   Order &amp; Delivery Tracking
                 </h3>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-400/20 text-cyan-300 border border-cyan-400/30 uppercase tracking-wider">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-400/20 text-cyan-300 border border-cyan-400/30 uppercase tracking-wider shrink-0">
                   Live Status
                 </span>
               </div>
@@ -61,15 +119,15 @@ export function OrderTrackingModal() {
 
           <button
             onClick={() => setIsTrackingOpen(false)}
-            className="w-10 h-10 rounded-full border border-white/15 bg-white/5 hover:border-white text-white flex items-center justify-center text-sm transition-all"
+            className="w-10 h-10 rounded-full border border-white/15 bg-white/5 hover:border-white text-white flex items-center justify-center text-sm transition-all shrink-0 ml-2"
             aria-label="Close tracking modal"
           >
             ✕
           </button>
         </div>
 
-        {/* Search / Switch Orders Bar */}
-        <div className="p-4 sm:px-6 bg-slate-900/70 border-b border-white/5 flex flex-col sm:flex-row gap-2.5 items-center justify-between">
+        {/* Search / Switch Orders Bar — Non-scrolling */}
+        <div className="p-3.5 sm:px-6 bg-slate-900/70 border-b border-white/5 flex flex-col sm:flex-row gap-2.5 items-center justify-between shrink-0">
           <form onSubmit={handleSearch} className="flex gap-2 w-full sm:w-auto flex-1 max-w-md">
             <input
               type="text"
@@ -97,7 +155,7 @@ export function OrderTrackingModal() {
                 <button
                   key={o.id}
                   onClick={() => setActiveOrder(o)}
-                  className={`h-8 px-2.5 rounded-lg text-xs font-mono font-semibold whitespace-nowrap transition-all ${
+                  className={`h-8 px-2.5 rounded-lg text-xs font-mono font-semibold whitespace-nowrap transition-all shrink-0 ${
                     currentOrder?.id === o.id
                       ? 'bg-cyan-400 text-slate-950 shadow-md'
                       : 'bg-slate-800 text-slate-300 hover:text-white border border-white/10'
@@ -111,13 +169,20 @@ export function OrderTrackingModal() {
         </div>
 
         {searchError && (
-          <div className="mx-5 sm:mx-6 mt-3 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-xs text-red-300">
+          <div className="mx-4 sm:mx-6 mt-3 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-xs text-red-300 shrink-0">
             Could not find an order matching &ldquo;{searchQuery}&rdquo;. Try searching with &ldquo;MC-8921&rdquo;.
           </div>
         )}
 
-        {/* Body Container */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6 touch-momentum">
+        {/* Body Container — THE SOLE vertical scroll container */}
+        <div
+          ref={scrollContainerRef}
+          tabIndex={0}
+          role="region"
+          aria-label="Order tracking details"
+          data-lenis-prevent="true"
+          className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6 pb-6 sm:pb-8 space-y-6 touch-momentum focus:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400/30"
+        >
           {currentOrder ? (
             <>
               {/* Order Meta Header Card */}
@@ -235,7 +300,7 @@ export function OrderTrackingModal() {
                     const isDone = idx <= currentStepIdx;
                     const isCurrent = idx === currentStepIdx;
                     const meta = TRACKING_STEPS_META[stepKey];
-                    const log = currentOrder.statusHistory.find((h) => h.status === stepKey);
+                    const log = currentOrder.statusHistory?.find((h) => h.status === stepKey);
                     return (
                       <div key={stepKey} className="flex items-start gap-3.5 relative">
                         {/* Dot / Icon */}
@@ -272,10 +337,10 @@ export function OrderTrackingModal() {
               {/* Items in this Order */}
               <div className="space-y-3">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">
-                  Specimens in Thermal Pod ({currentOrder.items.length})
+                  Specimens in Thermal Pod ({currentOrder.items?.length || 0})
                 </h4>
                 <div className="space-y-2.5">
-                  {currentOrder.items.map(({ product, quantity }) => (
+                  {currentOrder.items?.map(({ product, quantity }) => (
                     <div
                       key={product.id}
                       className="p-3.5 rounded-2xl border border-white/10 bg-slate-950/60 flex items-center justify-between gap-3"
@@ -283,7 +348,7 @@ export function OrderTrackingModal() {
                       <div className="flex items-center gap-3 min-w-0">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                          src={product.images[0]}
+                          src={product.images?.[0] || '/logo.png'}
                           alt={product.name}
                           className="w-14 h-14 rounded-xl object-cover border border-white/10 shrink-0 bg-black"
                         />
@@ -323,8 +388,8 @@ export function OrderTrackingModal() {
           )}
         </div>
 
-        {/* Footer Support Action */}
-        <div className="p-4 sm:p-5 border-t border-white/10 bg-slate-950 flex flex-col sm:flex-row items-center justify-between gap-3">
+        {/* Footer Support Action — Non-scrolling / Fixed within modal layout */}
+        <div className="p-4 sm:p-5 border-t border-white/10 bg-slate-950 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-2 text-xs text-slate-400">
             <span>🛡️</span>
             <span>48-Hour Live Arrival Guarantee (LAG) Active on Air Cargo</span>
@@ -332,7 +397,7 @@ export function OrderTrackingModal() {
 
           <button
             onClick={handleWhatsAppOrderSupport}
-            className="w-full sm:w-auto h-11 px-5 rounded-xl border border-cyan-400/30 bg-cyan-400/10 hover:bg-cyan-400/20 active:scale-95 text-xs text-cyan-300 font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md"
+            className="w-full sm:w-auto h-11 px-5 rounded-xl border border-cyan-400/30 bg-cyan-400/10 hover:bg-cyan-400/20 active:scale-95 text-xs text-cyan-300 font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md shrink-0"
           >
             <span>💬</span>
             <span>WhatsApp Dispatch Concierge</span>
