@@ -168,7 +168,11 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
 
   const syncOrdersFromCloud = useCallback(async () => {
     try {
-      const res = await fetch('/api/orders');
+      const res = await fetch('/api/orders', { credentials: 'include' });
+      // Non-admin storefront visitors receive 401 (bulk orders are protected); retain local customer orders
+      if (!res.ok) {
+        return;
+      }
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
         const normalized = normalizeCloudOrders(data.data);

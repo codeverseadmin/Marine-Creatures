@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { OrderModel } from '@/models/Order';
 import { isAdminRequest } from '@/lib/auth';
+
+export const dynamic = 'force-dynamic';
+
 const DEFAULT_ORDERS_SEED = [
   {
     id: 'MC-8921',
@@ -70,6 +73,15 @@ const DEFAULT_ORDERS_SEED = [
 ];
 
 export async function GET(req: NextRequest) {
+  // STRICT SECURITY GATE: Bulk order enumeration is strictly restricted to authenticated administrators.
+  // Anonymous requests over the public internet are rejected to protect customer PII (phone, address, notes).
+  if (!isAdminRequest(req)) {
+    return NextResponse.json(
+      { success: false, error: 'Unauthorized: Admin authentication required to access orders dataset' },
+      { status: 401 }
+    );
+  }
+
   try {
     await connectToDatabase();
     const { searchParams } = new URL(req.url);
@@ -89,31 +101,15 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    let orders = await OrderModel.find(filter).sort({ createdAt: -1 }).lean();
-
-    // Auto-seed demo orders if database orders collection is empty
-    if (!orders || orders.length === 0) {
-      if (!phone && !query) {
-        console.log('🌱 Seeding initial demo orders into MongoDB Atlas...');
-        try {
-          await OrderModel.insertMany(DEFAULT_ORDERS_SEED, { ordered: false });
-          orders = await OrderModel.find({}).sort({ createdAt: -1 }).lean();
-        } catch (seedErr) {
-          console.warn('Orders auto-seed notice:', seedErr);
-          orders = await OrderModel.find({}).sort({ createdAt: -1 }).lean();
-        }
-      }
-    }
+    const orders = await OrderModel.find(filter).sort({ createdAt: -1 }).lean();
 
     return NextResponse.json({ success: true, count: orders.length, data: orders });
   } catch (error: any) {
     console.error('Failed to fetch orders from MongoDB:', error.message);
     return NextResponse.json({
       success: false,
-      fallback: true,
-      data: DEFAULT_ORDERS_SEED,
       error: error.message,
-    });
+    }, { status: 500 });
   }
 }
 

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useOrder, TRACKING_STEPS_META, OrderProgressStep } from '@/lib/context/OrderContext';
+import { useOrder, TRACKING_STEPS_META, OrderProgressStep, CustomerOrder } from '@/lib/context/OrderContext';
 import { SITE_CONFIG } from '@/lib/config';
 import { ProductThumbnail } from '@/components/ui/ProductThumbnail';
 
@@ -60,14 +60,82 @@ export function OrderTrackingModal() {
 
   const currentOrder = activeOrder || orders[0];
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
-    const match = findOrder(searchQuery);
+    const query = searchQuery.trim();
+    if (!query) return;
+
+    // 1. Check local browser order memory
+    const match = findOrder(query);
     if (match) {
       setActiveOrder(match);
       setSearchError(false);
-    } else {
+      return;
+    }
+
+    // 2. Query dedicated public order tracking endpoint
+    try {
+      const res = await fetch(`/api/orders/track?orderId=${encodeURIComponent(query)}`);
+      const result = await res.json();
+      if (result.success && result.data) {
+        const t = result.data;
+        const stepsOrder: OrderProgressStep[] = ['placed', 'quarantine', 'packed', 'dispatched', 'delivered'];
+        const currentTargetIdx = stepsOrder.indexOf(t.currentStep);
+
+        const mappedTrackedOrder: CustomerOrder = {
+          id: t.id,
+          customerName: t.customerMaskedName,
+          phone: '',
+          address: 'Verified Destination Address',
+          city: t.city,
+          pincode: '',
+          totalAmount: 0,
+          currentStep: t.currentStep,
+          isApproved: t.isApproved,
+          createdAt: t.createdAt,
+          estimatedDelivery: t.estimatedDelivery,
+          courierName: t.courierName,
+          awbNumber: t.awbNumber,
+          invoiceNumber: t.isApproved ? `INV-${t.id}` : undefined,
+          statusHistory: Array.isArray(t.statusHistory) && t.statusHistory.length > 0
+            ? t.statusHistory.map((s: any) => {
+                const sStep = s.status || s.step || 'placed';
+                const sIdx = stepsOrder.indexOf(sStep);
+                return {
+                  status: sStep as OrderProgressStep,
+                  title: s.title || (sStep === 'placed' ? 'Order Confirmed' : sStep === 'quarantine' ? 'Quarantine Health Inspection' : sStep === 'packed' ? 'Oxygen Thermal Packaging' : sStep === 'dispatched' ? 'Air Cargo Dispatch' : 'Delivered Safely'),
+                  description: s.note || s.description || 'Status confirmed in dispatch manifest',
+                  timestamp: s.timestamp || 'Logged',
+                  completed: sIdx <= currentTargetIdx,
+                };
+              })
+            : stepsOrder.map((step, idx) => ({
+                status: step,
+                title: step === 'placed' ? 'Order Confirmed' : step === 'quarantine' ? 'Quarantine Health Inspection' : step === 'packed' ? 'Oxygen Thermal Packaging' : step === 'dispatched' ? 'Air Cargo Dispatch' : 'Delivered Safely',
+                description: 'Status confirmed in dispatch manifest',
+                timestamp: idx <= currentTargetIdx ? 'Logged' : 'Pending',
+                completed: idx <= currentTargetIdx,
+              })),
+          items: Array.isArray(t.items)
+            ? t.items.map((it: any) => ({
+                product: {
+                  id: it.id || 'item',
+                  name: it.name || 'Marine Specimen',
+                  category: it.category || 'marine-life',
+                  price: 0,
+                  images: it.image ? [it.image] : [],
+                } as any,
+                quantity: it.quantity || 1,
+              }))
+            : [],
+        };
+
+        setActiveOrder(mappedTrackedOrder);
+        setSearchError(false);
+      } else {
+        setSearchError(true);
+      }
+    } catch {
       setSearchError(true);
     }
   };
@@ -364,19 +432,23 @@ export function OrderTrackingModal() {
                         </div>
                       </div>
 
-                      <span className="font-display text-sm sm:text-base text-white font-medium shrink-0">
-                        ₹{(product.price * quantity).toLocaleString('en-IN')}
-                      </span>
+                      {product.price > 0 && (
+                        <span className="font-display text-sm sm:text-base text-white font-medium shrink-0">
+                          ₹{(product.price * quantity).toLocaleString('en-IN')}
+                        </span>
+                      )}
                     </div>
                   ))}
                 </div>
 
-                <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs sm:text-sm">
-                  <span className="text-slate-400">Total Order Value:</span>
-                  <span className="font-display text-lg sm:text-xl font-bold text-white">
-                    ₹{currentOrder.totalAmount.toLocaleString('en-IN')}
-                  </span>
-                </div>
+                {currentOrder.totalAmount > 0 && (
+                  <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs sm:text-sm">
+                    <span className="text-slate-400">Total Order Value:</span>
+                    <span className="font-display text-lg sm:text-xl font-bold text-white">
+                      ₹{currentOrder.totalAmount.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                )}
               </div>
             </>
           ) : (

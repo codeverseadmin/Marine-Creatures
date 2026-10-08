@@ -23,6 +23,9 @@ export default function InvoicePage({ params }: InvoicePageProps) {
   const [phoneError, setPhoneError] = useState(false);
   const [verifyAttempts, setVerifyAttempts] = useState(0);
 
+  const [remoteOrder, setRemoteOrder] = useState<any>(null);
+  const [isVerifying, setIsVerifying] = useState(false);
+
   // Automatically bypass verification for authenticated store managers/admins with valid session cookie
   React.useEffect(() => {
     let isMounted = true;
@@ -34,6 +37,14 @@ export default function InvoicePage({ params }: InvoicePageProps) {
         });
         if (res.ok && isMounted) {
           setPhoneVerified(true);
+          // Fetch order details via admin credentials if not already in local memory
+          const orderRes = await fetch(`/api/orders/${encodeURIComponent(orderId)}`, {
+            credentials: 'include',
+          });
+          const orderJson = await orderRes.json();
+          if (orderJson.success && orderJson.data && isMounted) {
+            setRemoteOrder(orderJson.data);
+          }
         }
       } catch {
         // Not authenticated as admin, phone verification gate remains active
@@ -43,12 +54,12 @@ export default function InvoicePage({ params }: InvoicePageProps) {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [orderId]);
 
-  // Find order in memory or default
+  // Find order in memory or from verified remote fetch
   const order = orders.find(
     (o) => o.id.toLowerCase() === orderId.toLowerCase() || o.id.replace('MC-', '') === rawId
-  );
+  ) || remoteOrder;
 
   const handlePrint = () => {
     window.print();
@@ -72,50 +83,45 @@ export default function InvoicePage({ params }: InvoicePageProps) {
     }
   };
 
-  if (!order) {
-    return (
-      <div className="min-h-screen bg-[#02070c] text-white flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-[#071520] border border-slate-800 rounded-3xl p-8 text-center space-y-4 shadow-2xl">
-          <span className="text-4xl block">🧾</span>
-          <h2 className="text-xl font-bold text-white">Invoice Not Found</h2>
-          <p className="text-xs text-slate-400">
-            No order matching reference <span className="text-cyan-400 font-mono font-bold">#{orderId}</span> was located in the registry.
-          </p>
-          <div className="pt-2 flex justify-center gap-3">
-            <Link
-              href="/marketplace"
-              className="px-5 py-2.5 rounded-xl bg-cyan-400 text-slate-950 text-xs font-bold uppercase tracking-wider"
-            >
-              Explore Storefront
-            </Link>
-            <Link
-              href="/admin"
-              className="px-5 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold"
-            >
-              Admin Portal
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // Phone verification gate — prevents public enumeration of customer invoices
   // Locked after 5 failed attempts to slow brute-force
   if (!phoneVerified) {
-    const handleVerify = (e: React.FormEvent) => {
+    const handleVerify = async (e: React.FormEvent) => {
       e.preventDefault();
       const cleanInput = phoneInput.replace(/\D/g, '');
-      const cleanPhone = order.phone.replace(/\D/g, '');
-      // Match last 4 digits of registered phone
-      const isMatch = cleanPhone.endsWith(cleanInput) && cleanInput.length >= 4;
-      if (isMatch) {
-        setPhoneVerified(true);
-        setPhoneError(false);
-      } else {
-        setVerifyAttempts((prev) => prev + 1);
+      if (cleanInput.length < 4) {
         setPhoneError(true);
-        setPhoneInput('');
+        return;
+      }
+
+      // If already in local memory, check immediately
+      if (order?.phone) {
+        const cleanPhone = order.phone.replace(/\D/g, '');
+        if (cleanPhone.endsWith(cleanInput)) {
+          setPhoneVerified(true);
+          setPhoneError(false);
+          return;
+        }
+      }
+
+      // Otherwise verify against the secure backend /api/orders/[id]?phone=... endpoint
+      setIsVerifying(true);
+      try {
+        const res = await fetch(`/api/orders/${encodeURIComponent(orderId)}?phone=${encodeURIComponent(cleanInput)}`);
+        const result = await res.json();
+        if (result.success && result.data) {
+          setRemoteOrder(result.data);
+          setPhoneVerified(true);
+          setPhoneError(false);
+        } else {
+          setVerifyAttempts((prev) => prev + 1);
+          setPhoneError(true);
+          setPhoneInput('');
+        }
+      } catch {
+        setPhoneError(true);
+      } finally {
+        setIsVerifying(false);
       }
     };
 
@@ -169,6 +175,34 @@ export default function InvoicePage({ params }: InvoicePageProps) {
           <div className="text-center">
             <Link href="/marketplace" className="text-xs text-slate-500 hover:text-slate-300 transition-colors">
               ← Back to Storefront
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!order) {
+    return (
+      <div className="min-h-screen bg-[#02070c] text-white flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-[#071520] border border-slate-800 rounded-3xl p-8 text-center space-y-4 shadow-2xl">
+          <span className="text-4xl block">🧾</span>
+          <h2 className="text-xl font-bold text-white">Invoice Not Found</h2>
+          <p className="text-xs text-slate-400">
+            No order matching reference <span className="text-cyan-400 font-mono font-bold">#{orderId}</span> was located in the registry.
+          </p>
+          <div className="pt-2 flex justify-center gap-3">
+            <Link
+              href="/marketplace"
+              className="px-5 py-2.5 rounded-xl bg-cyan-400 text-slate-950 text-xs font-bold uppercase tracking-wider"
+            >
+              Explore Storefront
+            </Link>
+            <Link
+              href="/admin"
+              className="px-5 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold"
+            >
+              Admin Portal
             </Link>
           </div>
         </div>
@@ -439,7 +473,7 @@ export default function InvoicePage({ params }: InvoicePageProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 print:divide-black/20">
-              {order.items.map((item, idx) => (
+              {order.items?.map((item: any, idx: number) => (
                 <tr key={idx} className="hover:bg-slate-900/30 print:hover:bg-transparent">
                   <td className="p-3 text-center font-mono text-slate-500 print:text-slate-700">{idx + 1}</td>
                   <td className="p-3">
