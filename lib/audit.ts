@@ -1,10 +1,10 @@
 import { NextRequest } from 'next/server';
-import { AuditLogModel, AuditAction } from '@/models/AuditLog';
+import { AuditLogModel, AuditAction, AuditEntityType } from '@/models/AuditLog';
 import { connectToDatabase } from '@/lib/mongodb';
 
 export interface RecordAuditParams {
   action: AuditAction;
-  entityType?: 'product' | 'banner' | 'order' | 'setting' | 'case_study' | 'client_project';
+  entityType?: AuditEntityType;
   entityId: string;
   entityName: string;
   summary: string;

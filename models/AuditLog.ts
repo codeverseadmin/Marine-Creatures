@@ -19,11 +19,44 @@ export type AuditAction =
   | 'CLIENT_PROJECT_CREATED'
   | 'CLIENT_PROJECT_UPDATED'
   | 'CLIENT_PROJECT_ARCHIVED'
-  | 'CLIENT_PROJECT_CASE_STUDY_LINKED';
+  | 'CLIENT_PROJECT_CASE_STUDY_LINKED'
+  | 'ORDER_STATUS_CHANGED'
+  | 'ORDER_APPROVED'
+  | 'ORDER_TRACKING_UPDATED'
+  | 'ORDER_DELETED'
+  | 'ENQUIRY_STATUS_CHANGED'
+  | 'ENQUIRY_DELETED'
+  | 'CUSTOMER_CREATED'
+  | 'CUSTOMER_UPDATED'
+  | 'MAINTENANCE_CREATED'
+  | 'MAINTENANCE_UPDATED'
+  | 'FOLLOW_UP_CREATED'
+  | 'FOLLOW_UP_COMPLETED'
+  | 'CONTENT_UPDATED'
+  | 'BANNER_CREATED'
+  | 'BANNER_UPDATED'
+  | 'BANNER_DELETED'
+  | 'SNAPSHOT_CREATED'
+  | 'SNAPSHOT_RESTORED'
+  | 'SYSTEM_SETTINGS_UPDATED';
+
+export type AuditEntityType =
+  | 'product'
+  | 'banner'
+  | 'order'
+  | 'setting'
+  | 'case_study'
+  | 'client_project'
+  | 'customer'
+  | 'enquiry'
+  | 'maintenance'
+  | 'follow_up'
+  | 'snapshot'
+  | 'security';
 
 export interface IAuditLogDocument extends Document {
   action: AuditAction;
-  entityType: 'product' | 'banner' | 'order' | 'setting' | 'case_study' | 'client_project';
+  entityType: AuditEntityType;
   entityId: string;
   entityName: string;
   summary: string;

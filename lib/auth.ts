@@ -147,3 +147,18 @@ export function isAdminRequest(req: NextRequest): boolean {
   return false;
 }
 
+/**
+ * Standard gatekeeper for admin route handlers. Returns a 401 NextResponse
+ * if unauthenticated, or null if authorized to proceed.
+ */
+export function requireAdminSession(req: NextRequest) {
+  if (!isAdminRequest(req)) {
+    const { NextResponse } = require('next/server');
+    return NextResponse.json(
+      { success: false, error: 'Unauthorized: Valid Control OS admin session required' },
+      { status: 401 }
+    );
+  }
+  return null;
+}
+

@@ -1,12 +1,21 @@
 export type ControlOsSection =
   | 'overview'
+  | 'sales'
   | 'catalog'
   | 'worlds'
   | 'operations'
-  | 'crm'
   | 'content'
   | 'analytics'
-  | 'system';
+  | 'system'
+  | 'crm'; // Alias preserved for backwards compatibility
+
+export type SalesSubtab = 'orders' | 'enquiries' | 'customers' | 'follow-ups';
+export type CatalogSubtab = 'products' | 'marine-life' | 'inventory' | 'media';
+export type WorldsSubtab = 'projects' | 'case-studies';
+export type OperationsSubtab = 'quarantine' | 'dispatch' | 'maintenance' | 'schedule';
+export type ContentSubtab = 'homepage' | 'banners' | 'seo';
+export type AnalyticsSubtab = 'business' | 'products' | 'customers' | 'traffic';
+export type SystemSubtab = 'audit' | 'backups' | 'health' | 'security' | 'settings';
 
 export type AdminTab = ControlOsSection;
 
@@ -19,6 +28,7 @@ export interface TabItem {
   isImplemented?: boolean;
   phaseDependency?: string;
   description?: string;
+  subtabs?: Array<{ id: string; label: string; icon?: string }>;
 }
 
 export interface OverviewDashboardData {
