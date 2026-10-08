@@ -1,7 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Product } from '@/lib/data/products';
+import { Product, PRODUCTS } from '@/lib/data/products';
+import { resolveProductImage } from '@/lib/resolveProductImage';
 
 export interface CartItem {
   product: Product;
@@ -43,7 +44,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       const saved = localStorage.getItem('marine_cart');
       if (saved) {
-        setCart(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          // Reconcile with canonical catalog to eradicate any stale/wrong product data
+          const reconciled = parsed.map((item: CartItem) => {
+            const canonical = PRODUCTS.find((p) => p.id === item.product?.id);
+            return canonical ? { ...item, product: canonical } : item;
+          });
+          setCart(reconciled);
+        }
       }
     } catch {
       // ignore
@@ -61,6 +70,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [cart, isMounted]);
 
   const addToCart = (product: Product, quantity = 1, event?: React.MouseEvent) => {
+    const canonical = PRODUCTS.find((p) => p.id === product.id) || product;
+    const resolved = resolveProductImage(canonical);
+
     // 1. Trigger Fly-to-Cart Animation if click coordinates exist
     if (event) {
       const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
@@ -68,7 +80,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const startY = rect.top + rect.height / 2;
       const newFlyItem: FlyingItem = {
         id: Date.now() + Math.random(),
-        image: product.images[0] || '',
+        image: resolved.hasRealPhoto ? resolved.src : '',
         startX,
         startY,
       };
@@ -86,17 +98,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setTimeout(() => setCartIconBouncing(false), 600);
     }
 
-    // 2. Update cart items
+    // 2. Update cart items with canonical product
     setCart((prev) => {
-      const existing = prev.find((item) => item.product.id === product.id);
+      const existing = prev.find((item) => item.product.id === canonical.id);
       if (existing) {
         return prev.map((item) =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
+          item.product.id === canonical.id
+            ? { ...item, product: canonical, quantity: item.quantity + quantity }
             : item
         );
       }
-      return [...prev, { product, quantity }];
+      return [...prev, { product: canonical, quantity }];
     });
   };
 

@@ -32,6 +32,19 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (isOpen) {
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') onClose();
+      };
+      window.addEventListener('keydown', handleKeyDown);
+
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+
+      const anyWindow = window as unknown as { __lenis?: { stop: () => void; start: () => void } };
+      if (anyWindow.__lenis) {
+        anyWindow.__lenis.stop();
+      }
+
       gsap.set(overlay, { display: 'flex' });
       if (!prefersReduced) {
         gsap.fromTo(overlay, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' });
@@ -60,6 +73,14 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
         if (links) gsap.set(links, { opacity: 1, x: 0 });
         if (actions) gsap.set(actions, { opacity: 1, y: 0 });
       }
+
+      return () => {
+        window.removeEventListener('keydown', handleKeyDown);
+        document.body.style.overflow = originalOverflow;
+        if (anyWindow.__lenis) {
+          anyWindow.__lenis.start();
+        }
+      };
     } else {
       if (!prefersReduced) {
         gsap.to(overlay, {
@@ -72,12 +93,14 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
         gsap.set(overlay, { display: 'none' });
       }
     }
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-[99995] hidden flex-col overflow-y-auto bg-[rgba(2,7,11,0.96)] backdrop-blur-2xl px-5 py-5 sm:px-8 touch-momentum"
+      className="fixed inset-0 z-[99995] hidden flex-col overflow-y-auto overscroll-contain bg-[rgba(2,7,11,0.96)] backdrop-blur-2xl px-5 py-5 sm:px-8 touch-momentum focus:outline-none"
+      data-lenis-prevent="true"
+      tabIndex={0}
       aria-hidden={!isOpen}
       role="dialog"
       aria-modal="true"

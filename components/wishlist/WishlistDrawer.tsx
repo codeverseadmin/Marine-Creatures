@@ -1,14 +1,43 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { useWishlist } from '@/lib/context/WishlistContext';
 import { useCart } from '@/lib/context/CartContext';
 import { SITE_CONFIG } from '@/lib/config';
+import { ProductThumbnail } from '@/components/ui/ProductThumbnail';
 
 export function WishlistDrawer() {
   const { wishlist, isWishlistOpen, setIsWishlistOpen, removeFromWishlist, clearWishlist, wishlistCount } = useWishlist();
   const { addToCart, setIsCartOpen } = useCart();
+
+  // Body scroll lock, Lenis pause, and Escape key listener
+  useEffect(() => {
+    if (!isWishlistOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsWishlistOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const anyWindow = window as unknown as { __lenis?: { stop: () => void; start: () => void } };
+    if (anyWindow.__lenis) {
+      anyWindow.__lenis.stop();
+    }
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = originalOverflow;
+      if (anyWindow.__lenis) {
+        anyWindow.__lenis.start();
+      }
+    };
+  }, [isWishlistOpen, setIsWishlistOpen]);
 
   if (!isWishlistOpen) return null;
 
@@ -28,17 +57,22 @@ export function WishlistDrawer() {
   };
 
   return (
-    <div className="fixed inset-0 z-[99992] overflow-hidden" aria-labelledby="wishlist-heading" role="dialog" aria-modal="true">
+    <div
+      className="fixed inset-0 z-[99992] overflow-hidden overscroll-none"
+      aria-labelledby="wishlist-heading"
+      role="dialog"
+      aria-modal="true"
+    >
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity"
         onClick={() => setIsWishlistOpen(false)}
       />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex w-full sm:w-auto sm:pl-10">
-        <div className="w-full sm:w-screen max-w-md bg-[rgba(3,10,16,0.98)] border-l border-[rgba(255,255,255,0.08)] shadow-2xl flex flex-col backdrop-blur-2xl h-full">
+      <div className="fixed inset-y-0 right-0 max-w-full flex w-full sm:w-auto sm:pl-10 h-[100dvh] max-h-[100dvh]">
+        <div className="w-full sm:w-screen max-w-md bg-[rgba(3,10,16,0.98)] border-l border-[rgba(255,255,255,0.08)] shadow-2xl flex flex-col backdrop-blur-2xl h-[100dvh] max-h-[100dvh] overflow-hidden">
           {/* Header */}
-          <div className="p-5 sm:p-6 border-b border-[rgba(255,255,255,0.08)] flex items-center justify-between">
+          <div className="p-5 sm:p-6 border-b border-[rgba(255,255,255,0.08)] flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
               <span className="text-sm">❤️</span>
               <span className="text-xs uppercase tracking-[0.2em] font-bold text-rose-400">YOUR WISHLIST</span>
@@ -48,7 +82,7 @@ export function WishlistDrawer() {
             </div>
             <button
               onClick={() => setIsWishlistOpen(false)}
-              className="w-10 h-10 rounded-full border border-white/10 bg-white/5 hover:border-white text-white flex items-center justify-center transition-all"
+              className="w-10 h-10 rounded-full border border-white/10 bg-white/5 hover:border-white text-white flex items-center justify-center transition-all shrink-0"
               aria-label="Close wishlist"
             >
               ✕
@@ -56,7 +90,7 @@ export function WishlistDrawer() {
           </div>
 
           {/* Subheader info */}
-          <div className="px-5 py-2.5 bg-rose-500/5 border-b border-rose-500/15 text-xs text-rose-200/90 flex items-center justify-between">
+          <div className="px-5 py-2.5 bg-rose-500/5 border-b border-rose-500/15 text-xs text-rose-200/90 flex items-center justify-between shrink-0">
             <span>Saved specimens &amp; precision hardware</span>
             {wishlistCount > 0 && (
               <button
@@ -68,8 +102,14 @@ export function WishlistDrawer() {
             )}
           </div>
 
-          {/* Wishlist Items List */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3.5 touch-momentum">
+          {/* Wishlist Items List — THE primary vertical scroll container */}
+          <div
+            className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 pb-6 sm:pb-8 space-y-3.5 overscroll-contain touch-momentum focus:outline-none"
+            data-lenis-prevent="true"
+            tabIndex={0}
+            role="region"
+            aria-label="Wishlist items"
+          >
             {wishlist.length === 0 ? (
               <div className="text-center py-20 px-4">
                 <div className="w-16 h-16 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mx-auto mb-4 text-2xl">
@@ -100,11 +140,9 @@ export function WishlistDrawer() {
                     onClick={() => setIsWishlistOpen(false)}
                     className="flex items-center gap-3 min-w-0 flex-1"
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={product.images[0]}
-                      alt={product.name}
-                      className="w-16 h-16 rounded-xl object-cover border border-white/10 shrink-0 bg-black"
+                    <ProductThumbnail
+                      product={product}
+                      sizeClassName="w-16 h-16 rounded-xl shrink-0"
                     />
                     <div className="min-w-0 flex-1">
                       <span className="text-[10px] uppercase font-semibold text-cyan-400 tracking-wider block truncate">
@@ -150,9 +188,9 @@ export function WishlistDrawer() {
             )}
           </div>
 
-          {/* Footer Actions */}
+          {/* Footer Actions — Sticky action region */}
           {wishlist.length > 0 && (
-            <div className="p-5 border-t border-white/10 bg-black/40 space-y-2.5 pb-safe">
+            <div className="p-5 border-t border-white/10 bg-black/40 space-y-2.5 shrink-0 pb-safe">
               <button
                 onClick={handleInquireAll}
                 className="w-full h-12 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-95 text-xs text-emerald-300 font-bold tracking-wider uppercase transition-all flex items-center justify-center gap-2"
@@ -167,3 +205,4 @@ export function WishlistDrawer() {
     </div>
   );
 }
+

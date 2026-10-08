@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Product } from '@/lib/data/products';
+import { Product, PRODUCTS } from '@/lib/data/products';
 
 interface WishlistContextType {
   wishlist: Product[];
@@ -28,7 +28,14 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        setWishlist(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const reconciled = parsed.map((p: Product) => {
+            const canonical = PRODUCTS.find((prod) => prod.id === p.id);
+            return canonical || p;
+          });
+          setWishlist(reconciled);
+        }
       }
     } catch {
       // ignore
@@ -46,12 +53,13 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   }, [wishlist, isMounted]);
 
   const toggleWishlist = (product: Product) => {
+    const canonical = PRODUCTS.find((p) => p.id === product.id) || product;
     setWishlist((prev) => {
-      const exists = prev.some((item) => item.id === product.id);
+      const exists = prev.some((item) => item.id === canonical.id);
       if (exists) {
-        return prev.filter((item) => item.id !== product.id);
+        return prev.filter((item) => item.id !== canonical.id);
       } else {
-        return [...prev, product];
+        return [...prev, canonical];
       }
     });
   };

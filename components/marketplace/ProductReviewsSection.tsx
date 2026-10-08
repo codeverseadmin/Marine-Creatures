@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Product, ProductReview } from '@/lib/data/products';
 
 interface ProductReviewsSectionProps {
@@ -141,6 +141,36 @@ export function ProductReviewsSection({ product }: ProductReviewsSectionProps) {
     image: '',
   });
   const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  // Lock body scroll and pause Lenis smooth scroll while review modal or lightbox is open
+  useEffect(() => {
+    const isAnyOverlayOpen = isModalOpen || lightboxImage !== null;
+    if (!isAnyOverlayOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsModalOpen(false);
+        setLightboxImage(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const anyWindow = window as unknown as { __lenis?: { stop: () => void; start: () => void } };
+    if (anyWindow.__lenis) {
+      anyWindow.__lenis.stop();
+    }
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = originalOverflow;
+      if (anyWindow.__lenis) {
+        anyWindow.__lenis.start();
+      }
+    };
+  }, [isModalOpen, lightboxImage]);
 
   // Compute all photos from all reviews
   const allCustomerPhotos = React.useMemo(() => {
@@ -456,7 +486,10 @@ export function ProductReviewsSection({ product }: ProductReviewsSectionProps) {
       {/* ── Photo Lightbox Modal ────────────────────────────────────────── */}
       {lightboxImage && (
         <div
-          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md p-4 flex items-center justify-center animate-fade-in"
+          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md p-4 flex items-center justify-center animate-fade-in overscroll-none"
+          data-lenis-prevent="true"
+          role="dialog"
+          aria-modal="true"
           onClick={() => setLightboxImage(null)}
         >
           <div
@@ -481,14 +514,17 @@ export function ProductReviewsSection({ product }: ProductReviewsSectionProps) {
       {/* ── Write Review Modal ─────────────────────────────────────────── */}
       {isModalOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md p-4 flex items-center justify-center overflow-y-auto"
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md p-3 sm:p-4 flex items-center justify-center overscroll-contain overflow-hidden"
+          data-lenis-prevent="true"
+          role="dialog"
+          aria-modal="true"
           onClick={() => setIsModalOpen(false)}
         >
           <div
-            className="bg-[#071520] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full space-y-5 shadow-2xl relative my-8"
+            className="bg-[#071520] border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative my-auto max-h-[calc(100dvh-2rem)] flex flex-col overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3 shrink-0 mb-4">
               <div>
                 <h3 className="text-lg font-bold text-white">Write a Review</h3>
                 <p className="text-xs text-slate-400 mt-0.5">
@@ -512,7 +548,12 @@ export function ProductReviewsSection({ product }: ProductReviewsSectionProps) {
                 </p>
               </div>
             ) : (
-              <form onSubmit={handleReviewSubmit} className="space-y-4 text-xs">
+              <form
+                onSubmit={handleReviewSubmit}
+                className="space-y-4 text-xs flex-1 min-h-0 overflow-y-auto overscroll-contain pr-1 focus:outline-none"
+                data-lenis-prevent="true"
+                tabIndex={0}
+              >
                 {/* Star Selection */}
                 <div>
                   <label className="text-slate-300 font-semibold block mb-1.5">

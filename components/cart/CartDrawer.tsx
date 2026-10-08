@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useCart } from '@/lib/context/CartContext';
 import { useOrder } from '@/lib/context/OrderContext';
 import { SITE_CONFIG } from '@/lib/config';
+import { ProductThumbnail } from '@/components/ui/ProductThumbnail';
 
 type CheckoutStep = 'cart' | 'details' | 'success';
 
@@ -39,6 +40,34 @@ export function CartDrawer() {
       setFormError(null);
     }
   }, [isCartOpen]);
+
+  // Body scroll lock, Lenis pause, and Escape key listener
+  useEffect(() => {
+    if (!isCartOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsCartOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const anyWindow = window as unknown as { __lenis?: { stop: () => void; start: () => void } };
+    if (anyWindow.__lenis) {
+      anyWindow.__lenis.stop();
+    }
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = originalOverflow;
+      if (anyWindow.__lenis) {
+        anyWindow.__lenis.start();
+      }
+    };
+  }, [isCartOpen, setIsCartOpen]);
 
   if (!isCartOpen) return null;
 
@@ -120,7 +149,7 @@ export function CartDrawer() {
 
   // ─── Shared Header ────────────────────────────────────────────────────────
   const renderHeader = (title: string, showBack: boolean) => (
-    <div className="p-5 sm:p-6 border-b border-[rgba(255,255,255,0.08)] flex items-center justify-between flex-shrink-0">
+    <div className="p-5 sm:p-6 border-b border-[rgba(255,255,255,0.08)] flex items-center justify-between shrink-0">
       <div className="flex items-center gap-3">
         {showBack && (
           <button
@@ -150,7 +179,7 @@ export function CartDrawer() {
 
       <button
         onClick={handleClose}
-        className="w-10 h-10 rounded-full border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.04)] hover:border-white active:scale-95 text-white flex items-center justify-center transition-all flex-shrink-0"
+        className="w-10 h-10 rounded-full border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.04)] hover:border-white active:scale-95 text-white flex items-center justify-center transition-all shrink-0"
         aria-label="Close shopping bag"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -163,7 +192,7 @@ export function CartDrawer() {
 
   // ─── Step Indicator ────────────────────────────────────────────────────────
   const renderStepIndicator = () => (
-    <div className="flex items-center justify-center gap-2 px-6 py-2.5 border-b border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] flex-shrink-0">
+    <div className="flex items-center justify-center gap-2 px-6 py-2.5 border-b border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] shrink-0">
       {(['cart', 'details'] as const).map((s, i) => {
         const isActive = step === s || (step === 'success' && s === 'details');
         const isDone = (s === 'cart' && (step === 'details' || step === 'success'));
@@ -200,7 +229,7 @@ export function CartDrawer() {
   const renderCartStep = () => (
     <>
       {/* Free shipping banner */}
-      <div className="px-5 sm:px-6 py-3 bg-[rgba(0,184,217,0.06)] border-b border-[rgba(0,184,217,0.15)] text-xs text-[--color-text] flex items-center gap-2 flex-shrink-0">
+      <div className="px-5 sm:px-6 py-3 bg-[rgba(0,184,217,0.06)] border-b border-[rgba(0,184,217,0.15)] text-xs text-[--color-text] flex items-center gap-2 shrink-0">
         <span className="text-sm">⚡</span>
         <span className="leading-snug">
           {cartTotal > 0
@@ -211,8 +240,14 @@ export function CartDrawer() {
         </span>
       </div>
 
-      {/* Cart Items */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 overscroll-contain">
+      {/* Cart Items — THE primary vertical scroll container */}
+      <div
+        className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 pb-6 sm:pb-8 space-y-4 overscroll-contain touch-momentum focus:outline-none"
+        data-lenis-prevent="true"
+        tabIndex={0}
+        role="region"
+        aria-label="Shopping bag items"
+      >
         {cart.length === 0 ? (
           <div className="text-center py-16 px-4">
             <div className="w-16 h-16 rounded-full bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] flex items-center justify-center mx-auto mb-4 text-2xl">
@@ -238,11 +273,9 @@ export function CartDrawer() {
               key={product.id}
               className="flex gap-3.5 p-3 rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.6)] backdrop-blur-sm"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={product.images[0]}
-                alt={product.name}
-                className="w-20 h-20 sm:w-22 sm:h-22 rounded-lg object-cover border border-[rgba(255,255,255,0.08)] shrink-0 bg-black/40"
+              <ProductThumbnail
+                product={product}
+                sizeClassName="w-20 h-20 sm:w-22 sm:h-22 rounded-lg shrink-0"
               />
               <div className="flex-1 flex flex-col justify-between min-w-0">
                 <div>
@@ -298,9 +331,9 @@ export function CartDrawer() {
         )}
       </div>
 
-      {/* Footer */}
+      {/* Footer — Non-scrolling sticky action region */}
       {cart.length > 0 && (
-        <div className="p-5 sm:p-6 border-t border-[rgba(255,255,255,0.08)] bg-[rgba(2,7,11,0.95)] space-y-3 flex-shrink-0 pb-safe">
+        <div className="p-5 sm:p-6 border-t border-[rgba(255,255,255,0.08)] bg-[rgba(2,7,11,0.95)] space-y-3 shrink-0 pb-safe">
           <div className="flex items-center justify-between">
             <span className="text-[--color-muted] text-sm font-light">
               {cartTotal > 0 ? 'Subtotal' : 'Pricing'}
@@ -356,8 +389,15 @@ export function CartDrawer() {
   // ─── Step 2: Customer Details ─────────────────────────────────────────────
   const renderDetailsStep = () => (
     <>
-      <div className="flex-1 overflow-y-auto overscroll-contain">
-        <div className="p-5 sm:p-6 space-y-4">
+      {/* Primary vertical scroller for form */}
+      <div
+        className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-momentum focus:outline-none"
+        data-lenis-prevent="true"
+        tabIndex={0}
+        role="region"
+        aria-label="Delivery and checkout details"
+      >
+        <div className="p-5 sm:p-6 pb-6 sm:pb-8 space-y-4">
 
           {/* Order Summary Strip */}
           <div className="rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.7)] p-3.5 space-y-2">
@@ -370,7 +410,7 @@ export function CartDrawer() {
                   {product.name}
                   <span className="text-[--color-muted] ml-1">×{quantity}</span>
                 </span>
-                <span className="text-xs font-bold text-[--color-accent] flex-shrink-0">
+                <span className="text-xs font-bold text-[--color-accent] shrink-0">
                   {product.price > 0 && !product.priceOnRequest
                     ? `₹${(product.price * quantity).toLocaleString('en-IN')}`
                     : 'Price on Request'}
@@ -507,7 +547,7 @@ export function CartDrawer() {
 
           {/* WhatsApp info badge */}
           <div className="flex items-start gap-2.5 p-3 rounded-xl bg-emerald-500/8 border border-emerald-400/20">
-            <span className="text-lg mt-0.5 flex-shrink-0">💬</span>
+            <span className="text-lg mt-0.5 shrink-0">💬</span>
             <div>
               <p className="text-[11px] font-semibold text-emerald-300 mb-0.5">
                 Order sent to Suraj via WhatsApp
@@ -520,8 +560,8 @@ export function CartDrawer() {
         </div>
       </div>
 
-      {/* Sticky CTA */}
-      <div className="p-5 sm:p-6 border-t border-[rgba(255,255,255,0.08)] bg-[rgba(2,7,11,0.95)] flex-shrink-0 pb-safe">
+      {/* Sticky CTA Footer */}
+      <div className="p-5 sm:p-6 border-t border-[rgba(255,255,255,0.08)] bg-[rgba(2,7,11,0.95)] shrink-0 pb-safe">
         <button
           onClick={handleWhatsAppCheckout}
           className="btn-primary w-full justify-center text-xs py-4 px-4 rounded-xl flex items-center gap-2.5 shadow-xl active:scale-[0.98] transition-transform font-bold tracking-wider uppercase"
@@ -538,7 +578,11 @@ export function CartDrawer() {
 
   // ─── Step 3: Success ──────────────────────────────────────────────────────
   const renderSuccessStep = () => (
-    <div className="flex-1 flex flex-col items-center justify-center px-8 py-12 text-center gap-5">
+    <div
+      className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-6 sm:p-8 text-center flex flex-col items-center justify-center gap-5 focus:outline-none"
+      data-lenis-prevent="true"
+      tabIndex={0}
+    >
       {/* Animated check */}
       <div className="relative">
         <div className="w-24 h-24 rounded-full bg-emerald-500/15 border-2 border-emerald-400/40 flex items-center justify-center">
@@ -565,7 +609,7 @@ export function CartDrawer() {
 
       {/* WhatsApp status indicator */}
       <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-emerald-500/10 border border-emerald-400/25 w-full max-w-xs">
-        <span className="relative flex-shrink-0">
+        <span className="relative shrink-0">
           <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-emerald-400 opacity-75 top-0 left-0"></span>
           <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-400"></span>
         </span>
@@ -596,7 +640,7 @@ export function CartDrawer() {
   // ─── Main Render ──────────────────────────────────────────────────────────
   return (
     <div
-      className="fixed inset-0 z-[99990] overflow-hidden"
+      className="fixed inset-0 z-[99990] overflow-hidden overscroll-none"
       aria-labelledby="cart-heading"
       role="dialog"
       aria-modal="true"
@@ -607,13 +651,13 @@ export function CartDrawer() {
         onClick={handleClose}
       />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex w-full sm:w-auto sm:pl-10">
-        <div className="w-full sm:w-screen max-w-md bg-[rgba(3,10,16,0.98)] border-l border-[rgba(255,255,255,0.08)] shadow-2xl flex flex-col backdrop-blur-2xl h-full">
+      <div className="fixed inset-y-0 right-0 max-w-full flex w-full sm:w-auto sm:pl-10 h-[100dvh] max-h-[100dvh]">
+        <div className="w-full sm:w-screen max-w-md bg-[rgba(3,10,16,0.98)] border-l border-[rgba(255,255,255,0.08)] shadow-2xl flex flex-col backdrop-blur-2xl h-[100dvh] max-h-[100dvh] overflow-hidden">
 
           {/* Step: Success hides step indicator and has its own close */}
           {step === 'success' ? (
             <>
-              <div className="p-5 sm:p-6 border-b border-[rgba(255,255,255,0.08)] flex items-center justify-between flex-shrink-0">
+              <div className="p-5 sm:p-6 border-b border-[rgba(255,255,255,0.08)] flex items-center justify-between shrink-0">
                 <span className="text-label text-emerald-400 tracking-[0.2em]">ORDER CONFIRMED</span>
                 <button
                   onClick={handleClose}
@@ -646,3 +690,4 @@ export function CartDrawer() {
     </div>
   );
 }
+

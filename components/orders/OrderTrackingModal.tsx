@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useOrder, TRACKING_STEPS_META, OrderProgressStep } from '@/lib/context/OrderContext';
 import { SITE_CONFIG } from '@/lib/config';
+import { ProductThumbnail } from '@/components/ui/ProductThumbnail';
 
 export function OrderTrackingModal() {
   const { orders, activeOrder, setActiveOrder, isTrackingOpen, setIsTrackingOpen, findOrder } = useOrder();
@@ -346,11 +347,9 @@ export function OrderTrackingModal() {
                       className="p-3.5 rounded-2xl border border-white/10 bg-slate-950/60 flex items-center justify-between gap-3"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={product.images?.[0] || '/logo.png'}
-                          alt={product.name}
-                          className="w-14 h-14 rounded-xl object-cover border border-white/10 shrink-0 bg-black"
+                        <ProductThumbnail
+                          product={product}
+                          sizeClassName="w-14 h-14 rounded-xl shrink-0"
                         />
                         <div className="min-w-0">
                           <span className="text-[10px] uppercase font-semibold text-cyan-400 block truncate">
