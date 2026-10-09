@@ -52,9 +52,24 @@ export default function OrdersTab({ showToast }: OrdersTabProps) {
     return null;
   };
 
-  const handleSendCustomerWhatsApp = (order: CustomerOrder) => {
+  const handleSendCustomerWhatsApp = async (order: CustomerOrder) => {
     const origin = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || 'https://marinecreatures.com');
-    const invoiceUrl = `${origin}/invoice/${order.id}`;
+    let invoiceUrl = `${origin}/invoice/${order.id}`;
+
+    try {
+      // Issue/retrieve cryptographic invoice access token via admin API
+      const tokenRes = await fetch(`/api/orders/${encodeURIComponent(order.id)}`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      const tokenJson = await tokenRes.json();
+      if (tokenJson.success && tokenJson.token) {
+        invoiceUrl = `${origin}/invoice/${order.id}?token=${tokenJson.token}`;
+      }
+    } catch {
+      // Fallback to standard URL
+    }
+
     const stepMeta = TRACKING_STEPS_META[order.currentStep];
     const itemsList = order.items.map((i) => `• ${i.product.name} (x${i.quantity})`).join('\n');
 
@@ -64,7 +79,7 @@ export default function OrdersTab({ showToast }: OrdersTabProps) {
     const message = `🌊 *MARINE CREATURES ORDER UPDATE*\n\nHello *${order.customerName}*,\nYour order *#${order.id}* is currently at:\n*${stepMeta.icon} ${stepMeta.label}*\n_${stepMeta.description}_\n\n📦 *Items:*\n${itemsList}\n\n💰 *Total Amount:* ₹${order.totalAmount.toLocaleString('en-IN')}\n📍 *Delivery City:* ${order.city} (${order.pincode})\n${order.awbNumber ? `✈️ *Carrier:* ${order.courierName || 'Priority Air Cargo'}\n🔖 *Air Waybill (AWB):* ${order.awbNumber}\n` : ''}\n📄 *View / Download Tax Invoice:* \n${invoiceUrl}\n\nNeed help? Reply to this message anytime.\nMarine Creatures Concierge`;
 
     const url = `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const handleSaveTracking = (orderId: string) => {

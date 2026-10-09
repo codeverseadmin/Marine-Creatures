@@ -480,7 +480,7 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
                               <a
                                 href={`/invoice/${o.id}`}
                                 target="_blank"
-                                rel="noreferrer"
+                                rel="noopener noreferrer"
                                 className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-mono"
                                 title="Open Invoice"
                               >

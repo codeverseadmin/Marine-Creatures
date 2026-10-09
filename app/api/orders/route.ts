@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { OrderModel } from '@/models/Order';
 import { isAdminRequest } from '@/lib/auth';
+import { generateInvoiceToken } from '@/lib/invoice-token';
+import { getClientIp, checkRateLimit, rateLimitResponse } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
@@ -116,10 +118,17 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   // Public — customer order creation is allowed without admin auth
   try {
+    const clientIp = getClientIp(req);
+    const postRateLimit = await checkRateLimit(`rate:orders:create:ip:${clientIp}`, 20, 600);
+    if (!postRateLimit.allowed) {
+      return rateLimitResponse(postRateLimit.retryAfter, 'Too many order submissions. Please wait.');
+    }
+
     await connectToDatabase();
     const body = await req.json();
 
-    const id = typeof body.id === 'string' ? body.id.trim().slice(0, 50) : '';
+    const rawId = typeof body.id === 'string' ? body.id.trim().slice(0, 50) : '';
+    const id = rawId.startsWith('MC-') ? rawId : `MC-${rawId}`;
     const customerName = typeof body.customerName === 'string' ? body.customerName.trim().slice(0, 200) : '';
     const phone = typeof body.phone === 'string' ? body.phone.trim().slice(0, 25) : '';
     const address = typeof body.address === 'string' ? body.address.trim().slice(0, 1000) : '';
@@ -168,7 +177,23 @@ export async function POST(req: NextRequest) {
     // Only authenticated admins can create pre-approved orders; public orders are strictly unapproved
     const isApproved = isAdminRequest(req) ? Boolean(body.isApproved ?? false) : false;
 
-    const orderPayload = {
+    // Check existing order for token preservation
+    const existingOrder = await OrderModel.findOne({ id }).select('invoiceTokenHash invoiceTokenCreatedAt invoiceTokenExpiresAt').lean();
+
+    let issuedToken: string | undefined = undefined;
+    let tokenHashToSave = existingOrder?.invoiceTokenHash;
+    let tokenCreatedAtToSave = existingOrder?.invoiceTokenCreatedAt;
+    let tokenExpiresAtToSave = existingOrder?.invoiceTokenExpiresAt;
+
+    if (!tokenHashToSave) {
+      const tokenData = generateInvoiceToken();
+      issuedToken = tokenData.rawToken;
+      tokenHashToSave = tokenData.tokenHash;
+      tokenCreatedAtToSave = tokenData.createdAt;
+      tokenExpiresAtToSave = tokenData.expiresAt;
+    }
+
+    const orderPayload: any = {
       ...body,
       id,
       customerName,
@@ -182,6 +207,9 @@ export async function POST(req: NextRequest) {
       createdAt,
       history,
       isApproved,
+      invoiceTokenHash: tokenHashToSave,
+      invoiceTokenCreatedAt: tokenCreatedAtToSave,
+      invoiceTokenExpiresAt: tokenExpiresAtToSave,
     };
 
     // Upsert to handle idempotent creation safely
@@ -189,9 +217,18 @@ export async function POST(req: NextRequest) {
       { id },
       { $set: orderPayload },
       { upsert: true, new: true, runValidators: true }
-    );
+    ).lean();
 
-    return NextResponse.json({ success: true, data: newOrder }, { status: 201 });
+    // Prepare response: Never expose invoiceTokenHash to clients
+    const responseData: any = { ...newOrder };
+    delete responseData.invoiceTokenHash;
+
+    if (issuedToken) {
+      responseData.invoiceToken = issuedToken;
+      responseData.invoiceUrl = `/invoice/${id}?token=${issuedToken}`;
+    }
+
+    return NextResponse.json({ success: true, data: responseData }, { status: 201 });
   } catch (error: any) {
     console.error('Failed to create order in MongoDB:', error.message);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

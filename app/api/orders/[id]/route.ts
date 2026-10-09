@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { OrderModel } from '@/models/Order';
 import { isAdminRequest } from '@/lib/auth';
+import {
+  generateInvoiceToken,
+  verifyInvoiceTokenHash,
+  isInvoiceTokenExpired,
+  serializeCustomerInvoice,
+} from '@/lib/invoice-token';
+import { getClientIp, checkRateLimit, rateLimitResponse } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,8 +20,47 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
   try {
     await connectToDatabase();
     const resolvedParams = await params;
-    const rawId = resolvedParams.id;
+    const rawId = (resolvedParams.id || '').trim();
     const orderId = rawId.startsWith('MC-') ? rawId : `MC-${rawId}`;
+
+    // 1. Authenticated Admin Session has full operational access and bypasses consumer rate limiting
+    if (isAdminRequest(req)) {
+      const order = await OrderModel.findOne({
+        $or: [
+          { id: orderId },
+          { id: rawId },
+          { invoiceNumber: rawId },
+          { invoiceNumber: `INV-${rawId}` },
+        ],
+      }).lean();
+
+      if (!order) {
+        return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404 });
+      }
+
+      return NextResponse.json({ success: true, data: order, isAdmin: true });
+    }
+
+    const clientIp = getClientIp(req);
+
+    // 2. Server-side Rate Limiting for Public / Customer Access:
+    // Per-IP throttle (max 30 requests per 15 minutes)
+    const ipRateLimit = await checkRateLimit(`rate:invoice:ip:${clientIp}`, 30, 900);
+    if (!ipRateLimit.allowed) {
+      return rateLimitResponse(
+        ipRateLimit.retryAfter,
+        'Too many invoice verification requests from this IP. Please wait before retrying.'
+      );
+    }
+
+    // Per-Order throttle (max 20 requests per 15 minutes)
+    const orderRateLimit = await checkRateLimit(`rate:invoice:order:${orderId}`, 20, 900);
+    if (!orderRateLimit.allowed) {
+      return rateLimitResponse(
+        orderRateLimit.retryAfter,
+        'Too many verification attempts for this order. Please try again later.'
+      );
+    }
 
     const order = await OrderModel.findOne({
       $or: [
@@ -29,34 +75,118 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
       return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404 });
     }
 
-    // Authenticated admin has full operational access
-    if (isAdminRequest(req)) {
-      return NextResponse.json({ success: true, data: order });
-    }
-
-    // Unauthenticated customer access requires phone verification (matching last 4 digits or full phone)
+    // 4. Customer Access: STRICT Token-Based Authorization (Min 128-bit CSPRNG entropy)
+    // Legacy 4-digit phone matching is REMOVED as an authorization mechanism.
     const { searchParams } = new URL(req.url);
-    const phoneInput = (searchParams.get('phone') || '').replace(/\D/g, '');
-    const cleanOrderPhone = (order.phone || '').replace(/\D/g, '');
+    const token = (searchParams.get('token') || req.headers.get('x-invoice-token') || '').trim();
 
-    const isMatch =
-      phoneInput.length >= 4 &&
-      cleanOrderPhone.length >= 4 &&
-      cleanOrderPhone.endsWith(phoneInput);
-
-    if (!isMatch) {
+    if (!token) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Unauthorized: Phone verification required to view invoice details',
-          requiresPhoneVerification: true,
+          error: 'Unauthorized: Valid invoice access token required to view customer invoice data',
+          requiresToken: true,
         },
         { status: 401 }
       );
     }
 
-    return NextResponse.json({ success: true, data: order });
+    // Order must have a registered token hash in database
+    if (!order.invoiceTokenHash) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Unauthorized: Invoice access token is not registered for this order. Please contact support.',
+          requiresToken: true,
+        },
+        { status: 401 }
+      );
+    }
+
+    // Verify token expiration if configured
+    if (isInvoiceTokenExpired(order.invoiceTokenExpiresAt)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Unauthorized: Invoice access token has expired. Please request a reissued link.',
+          tokenExpired: true,
+        },
+        { status: 401 }
+      );
+    }
+
+    // Timing-safe verification of the cryptographic token hash
+    const isValidToken = verifyInvoiceTokenHash(token, order.invoiceTokenHash);
+    if (!isValidToken) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Unauthorized: Invalid invoice access token',
+          requiresToken: true,
+        },
+        { status: 401 }
+      );
+    }
+
+    // 5. Serialize ONLY the fields required by the invoice page (Zero raw MongoDB leak)
+    const sanitizedInvoice = serializeCustomerInvoice(order);
+    return NextResponse.json({ success: true, data: sanitizedInvoice });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.error('Invoice retrieval error:', error.message);
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+/**
+ * Administrative Token Issuance and Reissuance Endpoint
+ * Allows authenticated store managers to issue or rotate an order's access token
+ */
+export async function POST(req: NextRequest, { params }: RouteContext) {
+  // Strictly restricted to authenticated admins
+  if (!isAdminRequest(req)) {
+    return NextResponse.json(
+      { success: false, error: 'Unauthorized: Admin authentication required to issue invoice tokens' },
+      { status: 401 }
+    );
+  }
+
+  try {
+    await connectToDatabase();
+    const resolvedParams = await params;
+    const rawId = (resolvedParams.id || '').trim();
+    const orderId = rawId.startsWith('MC-') ? rawId : `MC-${rawId}`;
+
+    const order = await OrderModel.findOne({
+      $or: [{ id: orderId }, { id: rawId }],
+    });
+
+    if (!order) {
+      return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404 });
+    }
+
+    // Generate fresh cryptographically random token (256 bits entropy)
+    const { rawToken, tokenHash, createdAt, expiresAt } = generateInvoiceToken();
+
+    await OrderModel.updateOne(
+      { _id: order._id },
+      {
+        $set: {
+          invoiceTokenHash: tokenHash,
+          invoiceTokenCreatedAt: createdAt,
+          invoiceTokenExpiresAt: expiresAt,
+        },
+      }
+    );
+
+    return NextResponse.json({
+      success: true,
+      orderId: order.id,
+      token: rawToken,
+      invoiceUrl: `/invoice/${order.id}?token=${rawToken}`,
+      expiresAt: expiresAt.toISOString(),
+    });
+  } catch (error: any) {
+    console.error('Failed to issue invoice token:', error.message);
+    return NextResponse.json({ success: false, error: 'Failed to issue token' }, { status: 500 });
   }
 }

@@ -17,40 +17,68 @@ export default function InvoicePage({ params }: InvoicePageProps) {
 
   const { orders, ownerSignature } = useOrder();
   const [copied, setCopied] = useState(false);
-  // Phone verification gate — prevents public enumeration of customer invoices
-  const [phoneVerified, setPhoneVerified] = useState(false);
-  const [phoneInput, setPhoneInput] = useState('');
-  const [phoneError, setPhoneError] = useState(false);
+  // Cryptographic Token Verification Gate — strictly protects customer PII & tax records
+  const [authorized, setAuthorized] = useState(false);
+  const [tokenInput, setTokenInput] = useState('');
+  const [tokenError, setTokenError] = useState<string | null>(null);
   const [verifyAttempts, setVerifyAttempts] = useState(0);
 
   const [remoteOrder, setRemoteOrder] = useState<any>(null);
-  const [isVerifying, setIsVerifying] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(true);
 
-  // Automatically bypass verification for authenticated store managers/admins with valid session cookie
+  // Automatically authenticate if a valid token is present in URL or admin session is active
   React.useEffect(() => {
     let isMounted = true;
-    async function verifyAdminSession() {
+
+    async function checkAuthorization() {
+      // 1. Check for token in URL query parameters
+      const urlToken = typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('token')
+        : null;
+
+      if (urlToken && urlToken.trim()) {
+        try {
+          const res = await fetch(`/api/orders/${encodeURIComponent(orderId)}?token=${encodeURIComponent(urlToken.trim())}`);
+          const json = await res.json();
+          if (json.success && json.data && isMounted) {
+            setRemoteOrder(json.data);
+            setAuthorized(true);
+            setIsVerifying(false);
+            return;
+          }
+        } catch {
+          // Token invalid or network error
+        }
+      }
+
+      // 2. Check for authenticated store manager/admin session cookie
       try {
-        const res = await fetch('/api/admin/overview', {
+        const adminRes = await fetch('/api/admin/overview', {
           method: 'GET',
           credentials: 'include',
         });
-        if (res.ok && isMounted) {
-          setPhoneVerified(true);
-          // Fetch order details via admin credentials if not already in local memory
+        if (adminRes.ok && isMounted) {
           const orderRes = await fetch(`/api/orders/${encodeURIComponent(orderId)}`, {
             credentials: 'include',
           });
           const orderJson = await orderRes.json();
           if (orderJson.success && orderJson.data && isMounted) {
             setRemoteOrder(orderJson.data);
+            setAuthorized(true);
+            setIsVerifying(false);
+            return;
           }
         }
       } catch {
-        // Not authenticated as admin, phone verification gate remains active
+        // Not authenticated as admin
+      }
+
+      if (isMounted) {
+        setIsVerifying(false);
       }
     }
-    verifyAdminSession();
+
+    checkAuthorization();
     return () => {
       isMounted = false;
     };
@@ -68,11 +96,12 @@ export default function InvoicePage({ params }: InvoicePageProps) {
   const handleShareWhatsApp = () => {
     if (!order) return;
     const origin = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || 'https://marinecreatures.com');
-    const invoiceUrl = `${origin}/invoice/${order.id}`;
+    const urlToken = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('token') : '';
+    const invoiceUrl = urlToken ? `${origin}/invoice/${order.id}?token=${urlToken}` : `${origin}/invoice/${order.id}`;
     const text = `🌊 *MARINE CREATURES — OFFICIAL TAX INVOICE & DISPATCH MANIFEST* 🌊\n\nDear *${order.customerName}*,\nYour order *#${order.id}* has been verified & approved.\n\n🧾 *Invoice No:* ${order.invoiceNumber || `INV-${order.id}`}\n📅 *Date:* ${order.approvedAt || order.createdAt}\n📦 *Total Amount:* ₹${order.totalAmount.toLocaleString('en-IN')} (All-inclusive)\n📍 *Delivery Address:* ${order.address}, ${order.city} (${order.pincode})\n✈️ *Carrier:* ${order.courierName || 'Priority Air Cargo Express'} ${order.awbNumber ? `(AWB: ${order.awbNumber})` : ''}\n\n📄 *View / Download Your Official Invoice:* \n${invoiceUrl}\n\nThank you for trusting Marine Creatures — Bringing ocean at your door step!`;
     const phone = order.phone ? order.phone.replace(/\D/g, '') : '';
     const url = phone ? `https://wa.me/91${phone}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text)}`;
-    window.open(url, '_blank');
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const handleCopyLink = () => {
@@ -83,99 +112,107 @@ export default function InvoicePage({ params }: InvoicePageProps) {
     }
   };
 
-  // Phone verification gate — prevents public enumeration of customer invoices
-  // Locked after 5 failed attempts to slow brute-force
-  if (!phoneVerified) {
+  // Cryptographic Token Verification Gate — strictly prevents public harvesting of customer invoices
+  if (!authorized) {
     const handleVerify = async (e: React.FormEvent) => {
       e.preventDefault();
-      const cleanInput = phoneInput.replace(/\D/g, '');
-      if (cleanInput.length < 4) {
-        setPhoneError(true);
+      const cleanToken = tokenInput.trim();
+      if (!cleanToken) {
+        setTokenError('Please enter a valid invoice access token');
         return;
       }
 
-      // If already in local memory, check immediately
-      if (order?.phone) {
-        const cleanPhone = order.phone.replace(/\D/g, '');
-        if (cleanPhone.endsWith(cleanInput)) {
-          setPhoneVerified(true);
-          setPhoneError(false);
-          return;
-        }
-      }
-
-      // Otherwise verify against the secure backend /api/orders/[id]?phone=... endpoint
       setIsVerifying(true);
+      setTokenError(null);
       try {
-        const res = await fetch(`/api/orders/${encodeURIComponent(orderId)}?phone=${encodeURIComponent(cleanInput)}`);
+        const res = await fetch(`/api/orders/${encodeURIComponent(orderId)}?token=${encodeURIComponent(cleanToken)}`);
         const result = await res.json();
         if (result.success && result.data) {
           setRemoteOrder(result.data);
-          setPhoneVerified(true);
-          setPhoneError(false);
+          setAuthorized(true);
+          if (typeof window !== 'undefined') {
+            const newUrl = `${window.location.pathname}?token=${encodeURIComponent(cleanToken)}`;
+            window.history.replaceState({}, '', newUrl);
+          }
         } else {
           setVerifyAttempts((prev) => prev + 1);
-          setPhoneError(true);
-          setPhoneInput('');
+          setTokenError(result.error || 'Invalid or expired invoice access token');
         }
       } catch {
-        setPhoneError(true);
+        setTokenError('Verification request failed. Please check your connection.');
       } finally {
         setIsVerifying(false);
       }
     };
 
+    const whatsappRequestUrl = `https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Hello Marine Creatures, I would like to request the authenticated invoice access link for my order #${orderId}.`)}`;
+
     return (
       <div className="min-h-screen bg-[#02070c] text-white flex items-center justify-center p-4">
-        <div className="max-w-sm w-full bg-[#071520] border border-slate-800 rounded-3xl p-8 space-y-6 shadow-2xl">
+        <meta name="referrer" content="no-referrer" />
+        <div className="max-w-md w-full bg-[#071520] border border-slate-800 rounded-3xl p-8 space-y-6 shadow-2xl">
           <div className="text-center space-y-2">
             <div className="w-14 h-14 mx-auto rounded-2xl bg-cyan-400/10 border border-cyan-400/30 flex items-center justify-center text-2xl">
               🔐
             </div>
-            <h2 className="text-xl font-bold text-white">Verify Your Identity</h2>
+            <h2 className="text-xl font-bold text-white">Secure Invoice Access</h2>
             <p className="text-xs text-slate-400 leading-relaxed">
-              To view invoice <span className="font-mono text-cyan-400">#{orderId}</span>, enter the
-              <strong className="text-slate-200"> last 4 digits</strong> of the phone number used to place this order.
+              Official Tax Invoices contain confidential client address and dispatch records.
+              To view order <span className="font-mono text-cyan-400">#{orderId}</span>, please provide your secure access token or request an authenticated link.
             </p>
           </div>
 
           <form onSubmit={handleVerify} className="space-y-4">
             <div>
+              <label htmlFor="token-input" className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                Access Token
+              </label>
               <input
-                type="tel"
-                inputMode="numeric"
-                maxLength={4}
-                placeholder="e.g. 3210"
-                value={phoneInput}
-                onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                className="w-full h-13 px-5 rounded-xl bg-slate-900 border border-slate-700 text-white text-lg font-mono tracking-widest text-center placeholder:text-slate-600 focus:outline-none focus:border-cyan-400 transition-colors"
+                id="token-input"
+                type="text"
+                placeholder="Paste 64-character token"
+                value={tokenInput}
+                onChange={(e) => setTokenInput(e.target.value.trim())}
+                className="w-full h-12 px-4 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-mono placeholder:text-slate-600 focus:outline-none focus:border-cyan-400 transition-colors"
                 autoFocus
-                disabled={verifyAttempts >= 5}
+                disabled={isVerifying || verifyAttempts >= 10}
               />
-              {phoneError && verifyAttempts < 5 && (
+              {tokenError && (
                 <p className="text-xs text-red-400 mt-2 text-center">
-                  ✕ Digits don&apos;t match. {5 - verifyAttempts} attempt(s) remaining.
-                </p>
-              )}
-              {verifyAttempts >= 5 && (
-                <p className="text-xs text-red-400 mt-2 text-center font-semibold">
-                  Too many failed attempts. Please contact Marine Creatures support.
+                  ✕ {tokenError}
                 </p>
               )}
             </div>
+
             <button
               type="submit"
-              disabled={phoneInput.length < 4 || verifyAttempts >= 5}
-              className="w-full h-12 rounded-xl bg-cyan-400 hover:bg-cyan-300 disabled:bg-slate-700 disabled:text-slate-500 text-slate-950 font-bold text-sm tracking-wider uppercase transition-all active:scale-[0.98]"
+              disabled={!tokenInput || isVerifying || verifyAttempts >= 10}
+              className="w-full h-12 rounded-xl bg-cyan-400 hover:bg-cyan-300 disabled:bg-slate-700 disabled:text-slate-500 text-slate-950 font-bold text-xs tracking-wider uppercase transition-all active:scale-[0.98]"
             >
-              Verify &amp; View Invoice →
+              {isVerifying ? 'Verifying Authorization…' : 'Unlock Tax Invoice →'}
             </button>
           </form>
 
-          <div className="text-center">
-            <Link href="/marketplace" className="text-xs text-slate-500 hover:text-slate-300 transition-colors">
-              ← Back to Storefront
-            </Link>
+          <div className="pt-2 border-t border-slate-800/80 space-y-3">
+            <a
+              href={whatsappRequestUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              referrerPolicy="no-referrer"
+              className="w-full h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/30 hover:bg-emerald-500/25 text-emerald-300 text-xs font-semibold flex items-center justify-center gap-2 transition-all"
+            >
+              <span>💬</span>
+              <span>Request Link via WhatsApp Concierge</span>
+            </a>
+
+            <div className="flex justify-between items-center text-xs text-slate-500 pt-1">
+              <Link href="/marketplace" className="hover:text-slate-300 transition-colors">
+                ← Storefront
+              </Link>
+              <Link href="/admin" className="hover:text-cyan-400 transition-colors">
+                Admin Portal →
+              </Link>
+            </div>
           </div>
         </div>
       </div>

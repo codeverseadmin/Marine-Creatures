@@ -34,6 +34,9 @@ export interface IOrderDocument extends Document {
   isApproved: boolean;
   approvedAt?: string;
   invoiceNumber?: string;
+  invoiceTokenHash?: string;
+  invoiceTokenCreatedAt?: Date;
+  invoiceTokenExpiresAt?: Date;
   createdAt: string;
 }
 
@@ -86,6 +89,9 @@ const OrderSchema = new Schema<IOrderDocument>(
     isApproved: { type: Boolean, default: false },
     approvedAt: { type: String },
     invoiceNumber: { type: String },
+    invoiceTokenHash: { type: String, index: true, sparse: true },
+    invoiceTokenCreatedAt: { type: Date },
+    invoiceTokenExpiresAt: { type: Date },
     createdAt: {
       type: String,
       default: () =>
@@ -100,8 +106,13 @@ const OrderSchema = new Schema<IOrderDocument>(
   },
   {
     timestamps: true,
+    strict: false,
   }
 );
 
+if (mongoose.models && (mongoose.models as any).Order) {
+  delete (mongoose.models as any).Order;
+}
+
 export const OrderModel: Model<IOrderDocument> =
-  mongoose.models.Order || mongoose.model<IOrderDocument>('Order', OrderSchema);
+  mongoose.model<IOrderDocument>('Order', OrderSchema);

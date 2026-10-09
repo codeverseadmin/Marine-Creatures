@@ -38,6 +38,7 @@ export interface CustomerOrder {
   isApproved?: boolean;
   approvedAt?: string;
   invoiceNumber?: string;
+  invoiceToken?: string;
 }
 
 interface OrderContextType {
@@ -370,6 +371,13 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
           console.error('[OrderContext] Cloud order create error:', data.error);
         } else {
           console.log('[OrderContext] Order synced with MongoDB:', data.data?.id);
+          if (data.data?.invoiceToken) {
+            const token = data.data.invoiceToken;
+            setOrders((prev) =>
+              prev.map((o) => (o.id === newOrder.id ? { ...o, invoiceToken: token } : o))
+            );
+            setActiveOrder((curr) => (curr?.id === newOrder.id ? { ...curr, invoiceToken: token } : curr));
+          }
           syncOrdersFromCloud();
         }
       })
