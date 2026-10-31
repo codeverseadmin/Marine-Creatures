@@ -89,28 +89,27 @@ export function FinalCTA() {
 
       <div className="relative z-10 container-max text-center">
         {/* Label */}
-        <ScrollReveal className="mb-6 sm:mb-8">
-          <span className="text-[11px] sm:text-xs uppercase tracking-[0.3em] font-semibold text-[--color-accent]">
+        <ScrollReveal className="mb-4 sm:mb-6 text-center">
+          <span className="text-[11px] sm:text-xs uppercase tracking-[0.3em] font-semibold text-[--color-accent] inline-block">
             BEGIN THE CONVERSATION
           </span>
         </ScrollReveal>
 
         {/* Heading */}
-        <ScrollReveal delay={0.1}>
+        <ScrollReveal delay={0.1} className="text-center">
           <h2
             id="final-cta-heading"
-            className="font-display text-3xl sm:text-5xl md:text-6xl text-[--color-text] font-light leading-tight"
+            className="font-display text-4xl sm:text-5xl md:text-6xl text-[--color-text] font-light leading-tight text-center text-balance max-w-3xl mx-auto"
           >
-            Let&apos;s Build
-            <br />
-            <em>Your Ocean.</em>
+            Let&apos;s Build <em className="italic">Your Ocean.</em>
           </h2>
         </ScrollReveal>
 
         {/* Supporting text */}
-        <ScrollReveal delay={0.2} className="mt-4 sm:mt-6">
-          <p className="font-body font-light text-[--color-muted] max-w-lg mx-auto leading-relaxed text-xs sm:text-sm md:text-base">
-            Tell us about your space, your existing aquarium or your vision. Every extraordinary aquarium begins with a single conversation.
+        <ScrollReveal delay={0.2} className="mt-4 sm:mt-6 text-center">
+          <p className="font-body font-light text-[--color-muted] max-w-xl mx-auto leading-relaxed text-sm sm:text-base md:text-lg text-center text-balance">
+            Tell us about your space, your existing aquarium or your vision.
+            <br className="hidden sm:inline" /> Every extraordinary aquarium begins with a single conversation.
           </p>
         </ScrollReveal>
 
