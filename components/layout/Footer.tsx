@@ -74,7 +74,7 @@ export function Footer() {
             <Link href="/" className="flex items-center gap-3 mb-4 group" aria-label="Marine Creatures Home">
               <div className="w-12 h-12 rounded-xl overflow-hidden border border-[rgba(255,255,255,0.12)] bg-white flex-shrink-0 group-hover:border-[--color-accent] transition-all shadow-md">
                 <Image
-                  src="/logo.jpg"
+                  src="/logo.png"
                   alt="Marine Creatures Logo"
                   width={48}
                   height={48}

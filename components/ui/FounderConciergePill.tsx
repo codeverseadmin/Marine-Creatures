@@ -38,7 +38,7 @@ export function FounderConciergePill() {
             <div className="flex items-center gap-3">
               <div className="relative w-12 h-12 rounded-2xl overflow-hidden border border-cyan-400/40 bg-white/95 shrink-0 shadow-md">
                 <Image
-                  src="/logo.jpg"
+                  src="/logo.png"
                   alt="Suraj Shasmal"
                   width={48}
                   height={48}
@@ -107,7 +107,7 @@ export function FounderConciergePill() {
       >
         <div className="relative w-8 h-8 rounded-full overflow-hidden border border-white/20 bg-white/95 shrink-0">
           <Image
-            src="/logo.jpg"
+            src="/logo.png"
             alt="Suraj Shasmal"
             width={32}
             height={32}

@@ -98,7 +98,7 @@ export default function InvoicePage({ params }: InvoicePageProps) {
     const origin = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || 'https://marinecreatures.com');
     const urlToken = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('token') : '';
     const invoiceUrl = urlToken ? `${origin}/invoice/${order.id}?token=${urlToken}` : `${origin}/invoice/${order.id}`;
-    const text = `🌊 *MARINE CREATURES — OFFICIAL TAX INVOICE & DISPATCH MANIFEST* 🌊\n\nDear *${order.customerName}*,\nYour order *#${order.id}* has been verified & approved.\n\n🧾 *Invoice No:* ${order.invoiceNumber || `INV-${order.id}`}\n📅 *Date:* ${order.approvedAt || order.createdAt}\n📦 *Total Amount:* ₹${order.totalAmount.toLocaleString('en-IN')} (All-inclusive)\n📍 *Delivery Address:* ${order.address}, ${order.city} (${order.pincode})\n✈️ *Carrier:* ${order.courierName || 'Priority Air Cargo Express'} ${order.awbNumber ? `(AWB: ${order.awbNumber})` : ''}\n\n📄 *View / Download Your Official Invoice:* \n${invoiceUrl}\n\nThank you for trusting Marine Creatures — Bringing ocean at your door step!`;
+    const text = `🌊 *MARINE CREATURES — OFFICIAL TAX INVOICE & DISPATCH MANIFEST* 🌊\n\nDear *${order.customerName}*,\nYour order *#${order.id}* has been verified & approved.\n\n🧾 *Invoice No:* ${order.invoiceNumber || `INV-${order.id}`}\n📅 *Date:* ${order.approvedAt || order.createdAt}\n📦 *Total Amount:* ₹${order.totalAmount.toLocaleString('en-IN')} (All-inclusive)\n📍 *Delivery Address:* ${order.address}, ${order.city} (${order.pincode})\n✈️ *Carrier:* ${order.courierName || 'Priority Air Cargo Express'} ${order.awbNumber ? `(AWB: ${order.awbNumber})` : ''}\n\n📄 *View / Download Your Official Invoice:* \n${invoiceUrl}\n\nThank you for trusting Marine Creatures — Bringing Ocean at your Doorstep!`;
     const phone = order.phone ? order.phone.replace(/\D/g, '') : '';
     const url = phone ? `https://wa.me/91${phone}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
@@ -384,7 +384,7 @@ export default function InvoicePage({ params }: InvoicePageProps) {
             <div className="flex items-center gap-3.5">
               <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden border border-cyan-400/40 bg-white flex-shrink-0 shadow-lg print:border-black/30">
                 <Image
-                  src="/logo.jpg"
+                  src="/logo.png"
                   alt="Marine Creatures Official Emblem"
                   fill
                   className="object-contain p-1"
@@ -396,7 +396,7 @@ export default function InvoicePage({ params }: InvoicePageProps) {
                   Marine Creatures
                 </h1>
                 <p className="text-[11px] font-semibold text-cyan-400 print:text-slate-700 tracking-widest uppercase">
-                  Bringing ocean at your door step
+                  Bringing Ocean at your Doorstep
                 </p>
               </div>
             </div>
@@ -634,7 +634,7 @@ export default function InvoicePage({ params }: InvoicePageProps) {
         {/* Footer Note */}
         <div className="text-[10px] text-slate-500 print:text-slate-600 text-center pt-4 border-t border-slate-800/40 print:border-none leading-relaxed">
           This is a computer-generated luxury tax invoice and dispatch certificate requiring no physical stamp.
-          Bringing ocean at your door step • Kolkata, India.
+          Bringing Ocean at your Doorstep • Kolkata, India.
         </div>
       </div>
     </div>

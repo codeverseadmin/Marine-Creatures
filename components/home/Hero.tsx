@@ -347,7 +347,7 @@ export function Hero() {
         {/* Sub-content */}
         <div ref={subRef} className="mt-5 sm:mt-8 opacity-0 max-w-xl">
           <p className="font-body font-light text-[--color-muted] leading-relaxed text-sm sm:text-base md:text-lg">
-            Captive-bred marine species, living coral reef ecosystems, and turnkey architectural aquarium installations for exceptional spaces across India.
+            Wild and Captive-bred marine species and ecosystem installation done for exceptional spaces across India.
           </p>
         </div>
 

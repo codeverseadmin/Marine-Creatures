@@ -271,7 +271,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
         <div className="pt-6 mt-6 border-t border-[rgba(255,255,255,0.08)] pb-safe flex flex-col gap-3 text-xs">
           <div className="flex justify-between items-center text-[--color-muted]">
             <span>{SITE_CONFIG.email}</span>
-            <span className="text-[10px] uppercase tracking-widest text-[--color-accent]">BRINGING OCEAN AT YOUR DOOR STEP</span>
+            <span className="text-[10px] uppercase tracking-widest text-[--color-accent]">{SITE_CONFIG.tagline.toUpperCase()}</span>
           </div>
           {/* Credits */}
           <div className="flex flex-col gap-1">
@@ -326,7 +326,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           </div>
           <div className="flex items-center justify-between pt-2 border-t border-white/5">
             <p className="font-display italic text-slate-400 text-sm">
-              Bringing ocean at your door step
+              {SITE_CONFIG.tagline}
             </p>
             <Link
               href="/admin"

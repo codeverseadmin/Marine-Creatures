@@ -4,10 +4,10 @@
 
 export const SITE_CONFIG = {
   name: 'Marine Creatures',
-  tagline: 'Bringing ocean at your door step',
+  tagline: 'Bringing Ocean at your Doorstep',
   description:
-    'Marine Creatures is a luxury marine design house creating living underwater environments. Exotic captive-bred marine life, bespoke architectural aquariums, and turnkey installation & renovation services. Bringing ocean at your door step.',
-  slogan: 'Bringing ocean at your door step',
+    'Marine Creatures is a luxury marine design house creating living underwater environments. Wild and Captive-bred marine species and ecosystem installation done for exceptional spaces across India. Bringing Ocean at your Doorstep.',
+  slogan: 'Bringing Ocean at your Doorstep',
   url: (process.env.NEXT_PUBLIC_SITE_URL || 'https://marine-creatures-krgsrl5sn-codeverse1.vercel.app').replace(/\/$/, ''),
   whatsapp: '+919330436603',
   email: 'surajshasmal04@gmail.com',
@@ -15,12 +15,12 @@ export const SITE_CONFIG = {
   address: 'Kolkata, West Bengal, India',
   facebook: 'https://www.facebook.com/share/1HWXFrHZ9V/',
   googleMaps: 'https://maps.app.goo.gl/uYfMxyXqsGD8iQWz7?g_st=ac',
-  nurturedBy: 'Bringing ocean at your door step',
+  nurturedBy: 'Bringing Ocean at your Doorstep',
   founder: 'Suraj Shasmal',
   founderLink: 'https://www.facebook.com/share/19XkubBDzW/',
   developer: 'Aritya Saha',
   developerLink: 'https://www.facebook.com/share/19cXkY5XbV/',
-  studioTagline: 'Bringing ocean at your door step',
+  studioTagline: 'Bringing Ocean at your Doorstep',
 };
 
 

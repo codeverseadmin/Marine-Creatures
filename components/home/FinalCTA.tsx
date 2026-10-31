@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ScrollReveal } from '@/components/ui/ScrollReveal';
 import { CallbackForm } from '@/components/ui/CallbackForm';
+import { SITE_CONFIG } from '@/lib/config';
 export function FinalCTA() {
   const [mounted, setMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
@@ -135,7 +136,7 @@ export function FinalCTA() {
               MARINE CREATURES
             </span>
             <span className="font-display text-sm italic text-[--color-muted] opacity-60">
-              Bringing ocean at your door step
+              {SITE_CONFIG.tagline}
             </span>
           </div>
         </ScrollReveal>

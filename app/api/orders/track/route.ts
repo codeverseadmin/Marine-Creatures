@@ -140,7 +140,7 @@ export async function GET(req: NextRequest) {
             name: `${itemCount} Marine Specimen(s) in Oxygen Thermal Packaging`,
             quantity: itemCount,
             category: 'Protected Manifest',
-            image: '/logo.jpg',
+            image: '/logo.png',
           },
         ],
         requiresVerificationForManifest: true,

@@ -434,7 +434,7 @@ function ContactPageInner() {
               <div className="flex items-center gap-4 border-b border-white/10 pb-5">
                 <div className="relative w-16 h-16 rounded-2xl overflow-hidden border border-cyan-400/40 bg-white/95 shrink-0 shadow-md">
                   <Image
-                    src="/logo.jpg"
+                    src="/logo.png"
                     alt="Suraj Shasmal — Marine Creatures"
                     width={64}
                     height={64}

@@ -12,14 +12,14 @@ import { SITE_CONFIG } from '@/lib/config';
 export const metadata: Metadata = {
   title: 'Marine Creatures — Luxury Marine Marketplace & Bespoke Services',
   description:
-    'Official marketplace for captive-bred marine life, NemoLight LED fixtures, Real Reef rock, Red Sea salt, and bespoke aquarium installation & renovation services.',
+    'Official marketplace for wild and captive-bred marine species, NemoLight LED fixtures, Real Reef rock, Red Sea salt, and bespoke ecosystem installation done for exceptional spaces across India.',
   alternates: {
     canonical: SITE_CONFIG.url,
   },
   openGraph: {
     title: 'Marine Creatures — Luxury Marine Marketplace & Bespoke Services',
     description:
-      'Official marketplace for captive-bred marine life, NemoLight LED fixtures, Real Reef rock, and bespoke architectural aquarium services.',
+      'Official marketplace for wild and captive-bred marine species, NemoLight LED fixtures, Real Reef rock, and bespoke ecosystem installation done for exceptional spaces across India.',
     url: SITE_CONFIG.url,
     siteName: SITE_CONFIG.name,
     locale: 'en_IN',

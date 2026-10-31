@@ -39,9 +39,9 @@ export const metadata: Metadata = {
     images: [
       {
         url: '/og-image.jpg',
-        width: 1024,
-        height: 1024,
-        alt: 'Marine Creatures — Bringing Ocean At Your Door Step',
+        width: 1200,
+        height: 630,
+        alt: 'Marine Creatures — Bringing Ocean at your Doorstep',
       },
     ],
   },
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   },
   keywords: [
     'Marine Creatures',
-    'Bringing ocean at your door step',
+    'Bringing Ocean at your Doorstep',
     'Exotic Marine Fish India',
     'Captive-Bred Marine Life',
     'Clownfish Pairs India',
@@ -116,7 +116,7 @@ export default function RootLayout({
         name: SITE_CONFIG.name,
         alternateName: 'Marine Creatures Aquatics Private Limited',
         url: SITE_CONFIG.url,
-        logo: `${SITE_CONFIG.url}/logo.jpg`,
+        logo: `${SITE_CONFIG.url}/logo.png`,
         image: `${SITE_CONFIG.url}/og-image.jpg`,
         description: SITE_CONFIG.description,
         slogan: SITE_CONFIG.slogan,

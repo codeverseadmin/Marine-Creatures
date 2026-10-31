@@ -59,7 +59,7 @@ export function Navbar() {
             >
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg overflow-hidden border border-[rgba(255,255,255,0.15)] bg-white/95 flex-shrink-0 group-hover:border-[--color-accent] transition-all shadow-sm">
                 <Image
-                  src="/logo.jpg"
+                  src="/logo.png"
                   alt="Marine Creatures"
                   width={36}
                   height={36}

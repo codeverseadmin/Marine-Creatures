@@ -18,7 +18,7 @@
 2. **Precision Livestock & Hardware E-Commerce:** Providing a seamless, friction-free purchasing experience for delicate captive-bred marine fish, quarantined invertebrates, rare corals, and specialized reef hardware with guaranteed live arrival.
 
 ### 1.2 Tagline & Brand Philosophy
-> *"Bringing ocean at your door step"*
+> *"Bringing Ocean at your Doorstep"*
 
 Every digital touchpoint must evoke the tranquility, depth, and precision engineering of a pristine coral reef ecosystem, combining deep oceanic blues, crystal caustics, micro-animations, and high-trust logistical transparent communication.
 
