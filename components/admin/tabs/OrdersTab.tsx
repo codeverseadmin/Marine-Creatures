@@ -28,13 +28,32 @@ export default function OrdersTab({ showToast }: OrdersTabProps) {
   // ── PDF share state — tracked per-order ID ──────────────────────────────
   const [sharingOrderId, setSharingOrderId] = useState<string | null>(null);
   const [shareError, setShareError] = useState<string | null>(null);
+  const [desktopNoticeOrderId, setDesktopNoticeOrderId] = useState<string | null>(null);
 
-  const { share: sharePdf } = useInvoicePdfShare({
-    onStateChange: (state, message) => {
-      if (state === 'loading' || state === 'sharing') return; // spinner already shown
-      if (state === 'done')  { showToast('✓ Invoice PDF sent via WhatsApp'); setSharingOrderId(null); }
-      if (state === 'error') { setShareError(message || 'PDF share failed'); setSharingOrderId(null); }
-      if (state === 'idle')  { setSharingOrderId(null); }
+  const {
+    state: shareState,
+    dispatchMode,
+    downloadedFilename,
+    share: sharePdf,
+    dismissNotice,
+  } = useInvoicePdfShare({
+    onStateChange: (state, message, mode) => {
+      if (state === 'loading' || state === 'sharing') return;
+      if (state === 'done') {
+        if (mode === 'desktop-download') {
+          showToast('✓ Invoice PDF downloaded. WhatsApp opened.');
+        } else {
+          showToast('✓ Invoice shared via WhatsApp.');
+        }
+        setSharingOrderId(null);
+      }
+      if (state === 'error') {
+        setShareError(message || 'Invoice PDF dispatch failed');
+        setSharingOrderId(null);
+      }
+      if (state === 'idle') {
+        setSharingOrderId(null);
+      }
     },
   });
 
@@ -42,6 +61,8 @@ export default function OrdersTab({ showToast }: OrdersTabProps) {
     if (sharingOrderId) return;
     setSharingOrderId(order.id);
     setShareError(null);
+    setDesktopNoticeOrderId(order.id);
+
     await sharePdf(order.id, {
       customerName:  order.customerName,
       phone:         order.phone,
@@ -436,21 +457,17 @@ export default function OrdersTab({ showToast }: OrdersTabProps) {
                             ? 'bg-emerald-600/60 text-slate-300 cursor-wait'
                             : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
                         }`}
-                        title={
-                          sharingOrderId === order.id
-                            ? 'Generating PDF…'
-                            : 'Generate invoice PDF and share via WhatsApp'
-                        }
+                        title="Generate executive PDF and send via WhatsApp"
                       >
                         {sharingOrderId === order.id ? (
                           <>
                             <span className="animate-spin text-sm">⏳</span>
-                            <span>Generating PDF…</span>
+                            <span>Preparing Invoice PDF…</span>
                           </>
                         ) : (
                           <>
                             <span>📄</span>
-                            <span>Send PDF Invoice</span>
+                            <span>Send Invoice via WhatsApp</span>
                           </>
                         )}
                       </button>
@@ -468,6 +485,31 @@ export default function OrdersTab({ showToast }: OrdersTabProps) {
                         </button>
                       )}
                     </div>
+
+                    {/* Desktop WhatsApp Manual Attachment Instructions Notice */}
+                    {desktopNoticeOrderId === order.id && downloadedFilename && (
+                      <div className="mt-2 p-3.5 rounded-xl bg-slate-900/90 border border-emerald-500/30 text-xs space-y-1.5">
+                        <div className="flex items-center justify-between text-emerald-300 font-semibold">
+                          <span className="flex items-center gap-1.5">
+                            <span>📥</span>
+                            <span>Downloaded: <strong>{downloadedFilename}</strong></span>
+                          </span>
+                          <button
+                            onClick={() => {
+                              setDesktopNoticeOrderId(null);
+                              dismissNotice();
+                            }}
+                            className="text-slate-400 hover:text-white px-1.5 py-0.5 rounded text-xs"
+                            title="Dismiss notice"
+                          >
+                            ✕ Dismiss
+                          </button>
+                        </div>
+                        <p className="text-slate-300 text-[11px] leading-relaxed">
+                          WhatsApp conversation has been opened in a new tab for <strong>+91 {order.phone}</strong>. Please attach the downloaded file <strong>{downloadedFilename}</strong> and press Send.
+                        </p>
+                      </div>
+                    )}
 
                     {/* Share error banner */}
                     {shareError && sharingOrderId === null && (

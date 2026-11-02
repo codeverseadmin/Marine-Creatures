@@ -1,8 +1,11 @@
 /**
- * Invoice PDF Template
- * Server-side React PDF document using @react-pdf/renderer.
- * Mirrors the visual structure of /invoice/[id]/page.tsx.
- * Never imported on the client bundle — server-route only.
+ * MARINE CREATURES — EXECUTIVE INVOICE
+ *
+ * Premium, minimalist corporate invoice document.
+ * Pure white background, deep navy typography, muted ocean-blue accents,
+ * thin elegant dividers, subtle information panels, and clean alignment.
+ *
+ * Server-side React-PDF document via @react-pdf/renderer.
  */
 
 import React from 'react';
@@ -15,285 +18,483 @@ import {
   Image,
 } from '@react-pdf/renderer';
 
-// ─── Colour palette (matches dark invoice theme → print-safe on white) ────────
+// ─── Executive Colour Palette ────────────────────────────────────────────────
 const C = {
-  black:      '#0a0f18',
-  ink:        '#1e293b',
-  border:     '#334155',
-  muted:      '#64748b',
-  body:       '#374151',
-  heading:    '#0f172a',
-  accent:     '#0891b2',   // cyan-600
-  emerald:    '#059669',
-  amber:      '#d97706',
   white:      '#ffffff',
-  lightBg:    '#f8fafc',
-  rowEven:    '#f1f5f9',
+  navy:       '#0f172a',    // Slate 900 (primary headings, invoice title, total box)
+  ink:        '#1e293b',    // Slate 800 (table headers, primary body text)
+  body:       '#334155',    // Slate 700 (standard text)
+  muted:      '#64748b',    // Slate 500 (labels, secondary meta)
+  subtle:     '#94a3b8',    // Slate 400 (captions, footer notes)
+  ocean:      '#0369a1',    // Sky 700 (subtle ocean-blue brand accents)
+  oceanLight: '#e0f2fe',    // Sky 100
+  border:     '#e2e8f0',    // Slate 200 (thin elegant hairline dividers)
+  borderLight:'#f1f5f9',    // Slate 100
+  panelBg:    '#f8fafc',    // Slate 50 (subtle grey information panels)
+  tableRowAlt:'#fafafa',    // Minimal alternating row tint
+  emerald:    '#059669',    // Verified indicator
 };
 
 const styles = StyleSheet.create({
   page: {
-    fontFamily:      'Helvetica',
-    backgroundColor: C.white,
-    paddingTop:      36,
-    paddingBottom:   48,
-    paddingHorizontal: 40,
-    fontSize:        9,
-    color:           C.body,
-    lineHeight:      1.5,
+    fontFamily:        'Helvetica',
+    backgroundColor:   C.white,
+    paddingTop:        32,
+    paddingBottom:     36,
+    paddingHorizontal: 36,
+    fontSize:          8.5,
+    color:             C.body,
+    lineHeight:        1.45,
   },
 
-  // ── Header ─────────────────────────────────────────────────────────────────
+  // ── Header Section ──────────────────────────────────────────────────────────
   headerRow: {
-    flexDirection:  'row',
-    justifyContent: 'space-between',
-    alignItems:     'flex-start',
-    borderBottom:   `1 solid ${C.border}`,
-    paddingBottom:  14,
-    marginBottom:   14,
+    flexDirection:     'row',
+    justifyContent:    'space-between',
+    alignItems:        'flex-start',
+    paddingBottom:     16,
+    borderBottomWidth: 1,
+    borderBottomColor: C.border,
+    marginBottom:      14,
   },
-  companyBlock: { flex: 1 },
-  companyName: {
-    fontSize:    18,
-    fontFamily:  'Helvetica-Bold',
-    color:       C.heading,
-    letterSpacing: 1,
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems:    'center',
+    gap:           10,
+    maxWidth:      '55%',
+  },
+  logoImage: {
+    width:        44,
+    height:       44,
+    objectFit:    'contain',
+  },
+  brandBlock: {
+    justifyContent: 'center',
+  },
+  brandTitle: {
+    fontFamily:    'Helvetica-Bold',
+    fontSize:      15,
+    color:         C.navy,
+    letterSpacing: 1.2,
     textTransform: 'uppercase',
+  },
+  brandDescriptor: {
+    fontFamily:    'Helvetica',
+    fontSize:      7.5,
+    color:         C.ocean,
+    letterSpacing: 0.8,
+    marginTop:     2,
+    textTransform: 'uppercase',
+  },
+  companySubtext: {
+    fontFamily: 'Helvetica',
+    fontSize:   6.8,
+    color:      C.muted,
+    marginTop:  3,
+    lineHeight: 1.3,
+  },
+
+  headerRight: {
+    alignItems: 'flex-end',
+    minWidth:   '40%',
+  },
+  docTitleBadge: {
+    fontFamily:        'Helvetica-Bold',
+    fontSize:          8,
+    color:             C.navy,
+    textTransform:     'uppercase',
+    letterSpacing:     1,
+    backgroundColor:   C.panelBg,
+    paddingVertical:   3,
+    paddingHorizontal: 8,
+    borderRadius:      3,
+    borderWidth:       0.75,
+    borderColor:       C.border,
+    marginBottom:      6,
+  },
+  headerMetaTable: {
+    alignItems: 'flex-end',
+  },
+  headerMetaRow: {
+    flexDirection:  'row',
+    justifyContent: 'flex-end',
+    marginBottom:   2,
+  },
+  headerMetaLabel: {
+    fontFamily: 'Helvetica',
+    fontSize:   7.5,
+    color:      C.muted,
+    marginRight: 6,
+  },
+  headerMetaValue: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize:   7.8,
+    color:      C.navy,
+  },
+  headerMetaRef: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize:   7.8,
+    color:      C.ocean,
+  },
+
+  // ── Two-Column Information Cards ───────────────────────────────────────────
+  infoGrid: {
+    flexDirection: 'row',
+    gap:           12,
+    marginBottom:  14,
+  },
+  infoCard: {
+    flex:            1,
+    backgroundColor: C.panelBg,
+    borderWidth:     0.75,
+    borderColor:     C.border,
+    borderRadius:    4,
+    padding:         9,
+  },
+  cardTitle: {
+    fontFamily:        'Helvetica-Bold',
+    fontSize:          7,
+    color:             C.navy,
+    textTransform:     'uppercase',
+    letterSpacing:     0.8,
+    marginBottom:      5,
+    paddingBottom:     3,
+    borderBottomWidth: 0.5,
+    borderBottomColor: C.border,
+  },
+  customerName: {
+    fontFamily:   'Helvetica-Bold',
+    fontSize:     9.5,
+    color:        C.navy,
     marginBottom: 2,
   },
-  companyTagline: {
-    fontSize:   8,
-    color:      C.accent,
-    letterSpacing: 1.5,
-    textTransform: 'uppercase',
-    marginBottom: 6,
+  cardLine: {
+    fontFamily:   'Helvetica',
+    fontSize:     7.5,
+    color:        C.body,
+    marginBottom: 1.5,
+    lineHeight:   1.35,
   },
-  companyMeta: { fontSize: 8, color: C.muted, lineHeight: 1.6 },
+  cardLineMuted: {
+    fontFamily: 'Helvetica',
+    fontSize:   7.2,
+    color:      C.muted,
+  },
 
-  invoiceBadgeBlock: { alignItems: 'flex-end' },
-  invoiceBadge: {
-    fontSize:        8,
-    fontFamily:      'Helvetica-Bold',
-    color:           C.accent,
-    textTransform:   'uppercase',
-    letterSpacing:   1,
-    borderRadius:    4,
-    border:          `1 solid ${C.accent}`,
-    paddingVertical: 3,
-    paddingHorizontal: 8,
-    marginBottom:    8,
-  },
-  invoiceMetaRow: {
+  // ── Dispatch Specifications Grid ───────────────────────────────────────────
+  consignmentGrid: {
     flexDirection: 'row',
-    gap:            6,
-    marginBottom:   2,
-    justifyContent: 'flex-end',
+    flexWrap:      'wrap',
+    gap:           6,
   },
-  invoiceMetaLabel: { color: C.muted, fontSize: 8 },
-  invoiceMetaValue: { fontFamily: 'Helvetica-Bold', color: C.heading, fontSize: 8 },
-
-  // ── Two-column section ─────────────────────────────────────────────────────
-  twoCol: {
-    flexDirection:  'row',
-    gap:            10,
-    marginBottom:   14,
-  },
-  infoBox: {
-    flex:            1,
-    backgroundColor: C.lightBg,
-    border:          `1 solid ${C.border}`,
-    borderRadius:    6,
-    padding:         10,
-  },
-  infoBoxLabel: {
-    fontSize:      7,
-    fontFamily:    'Helvetica-Bold',
-    color:         C.accent,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom:  6,
-  },
-  infoCustomerName: {
-    fontSize:    11,
-    fontFamily:  'Helvetica-Bold',
-    color:       C.heading,
+  consignmentItem: {
+    width:        '48%',
     marginBottom: 3,
   },
-  infoLine:  { fontSize: 8, color: C.body, marginBottom: 2 },
-  infoGrid:  { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  infoGridItem: { width: '45%' },
-  infoGridLabel: { fontSize: 7, color: C.muted, marginBottom: 1 },
-  infoGridValue: { fontSize: 8, fontFamily: 'Helvetica-Bold', color: C.heading },
+  consignmentLabel: {
+    fontFamily: 'Helvetica',
+    fontSize:   6.8,
+    color:      C.muted,
+  },
+  consignmentValue: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize:   7.5,
+    color:      C.ink,
+  },
+  orderNoteText: {
+    fontFamily: 'Helvetica',
+    fontSize:   7,
+    color:      C.ocean,
+    marginTop:  4,
+  },
 
-  // ── Items table ────────────────────────────────────────────────────────────
+  // ── Itemised Table ─────────────────────────────────────────────────────────
   table: {
-    border:       `1 solid ${C.border}`,
-    borderRadius: 6,
-    marginBottom: 14,
-    overflow:     'hidden',
+    borderWidth:       0.75,
+    borderColor:       C.border,
+    borderRadius:      4,
+    marginBottom:      12,
+    overflow:          'hidden',
   },
-  tableHead: {
-    flexDirection:   'row',
-    backgroundColor: C.ink,
-    paddingVertical: 7,
-    paddingHorizontal: 10,
+  tableHeader: {
+    flexDirection:     'row',
+    backgroundColor:   C.panelBg,
+    borderBottomWidth: 0.75,
+    borderBottomColor: C.border,
+    paddingVertical:   6,
+    paddingHorizontal: 8,
   },
-  tableHeadCell: {
-    color:         C.white,
-    fontSize:      7.5,
+  tableHeaderCell: {
     fontFamily:    'Helvetica-Bold',
+    fontSize:      7,
+    color:         C.navy,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   tableRow: {
     flexDirection:     'row',
-    paddingVertical:   7,
-    paddingHorizontal: 10,
-    borderTop:         `1 solid ${C.border}`,
+    paddingVertical:   5.5,
+    paddingHorizontal: 8,
+    borderBottomWidth: 0.5,
+    borderBottomColor: C.borderLight,
+    alignItems:        'center',
   },
-  tableRowAlt: { backgroundColor: C.rowEven },
-  tableCell:  { fontSize: 8, color: C.body },
-  tableCellBold: { fontFamily: 'Helvetica-Bold', color: C.heading },
+  tableRowAlt: {
+    backgroundColor: C.tableRowAlt,
+  },
+  tableCell: {
+    fontFamily: 'Helvetica',
+    fontSize:   7.5,
+    color:      C.body,
+  },
+  tableCellBold: {
+    fontFamily: 'Helvetica-Bold',
+    color:      C.ink,
+  },
+  tableCellSub: {
+    fontFamily: 'Helvetica',
+    fontSize:   6.5,
+    color:      C.muted,
+    marginTop:  1,
+  },
 
-  colNo:    { width: '6%' },
+  colNo:    { width: '6%',  textAlign: 'center' },
   colDesc:  { width: '46%' },
   colHsn:   { width: '12%', textAlign: 'center' },
-  colQty:   { width: '10%', textAlign: 'center' },
-  colRate:  { width: '13%', textAlign: 'right' },
-  colAmt:   { width: '13%', textAlign: 'right' },
+  colQty:   { width: '8%',  textAlign: 'center' },
+  colRate:  { width: '14%', textAlign: 'right' },
+  colAmt:   { width: '14%', textAlign: 'right' },
 
-  // ── Totals row ─────────────────────────────────────────────────────────────
-  totalsSection: {
+  // ── Settlement Summary ─────────────────────────────────────────────────────
+  summarySection: {
     flexDirection:  'row',
-    justifyContent: 'flex-end',
-    marginBottom:   14,
+    justifyContent: 'space-between',
+    alignItems:     'flex-start',
+    marginBottom:   12,
+    gap:            16,
   },
-  totalsBox: {
-    width:           220,
-    border:          `1 solid ${C.border}`,
-    borderRadius:    6,
-    overflow:        'hidden',
+  summaryLeft: {
+    flex:     1,
+    maxWidth: '56%',
   },
-  totalsRow: {
-    flexDirection:     'row',
-    justifyContent:    'space-between',
-    paddingVertical:   5,
-    paddingHorizontal: 10,
-    borderBottom:      `1 solid ${C.border}`,
+  amountWordsBox: {
+    backgroundColor: C.panelBg,
+    borderWidth:     0.75,
+    borderColor:     C.border,
+    borderRadius:    4,
+    padding:         8,
+    marginBottom:    8,
   },
-  totalsRowFinal: {
-    flexDirection:     'row',
-    justifyContent:    'space-between',
-    paddingVertical:   7,
-    paddingHorizontal: 10,
-    backgroundColor:   C.ink,
-  },
-  totalsLabel:      { fontSize: 8, color: C.muted },
-  totalsValue:      { fontSize: 8, color: C.body },
-  totalsFinalLabel: { fontSize: 9, fontFamily: 'Helvetica-Bold', color: C.white },
-  totalsFinalValue: { fontSize: 10, fontFamily: 'Helvetica-Bold', color: C.white },
-
-  // ── Terms box ──────────────────────────────────────────────────────────────
-  termsBox: {
-    backgroundColor: '#f0fdf4',
-    border:          `1 solid ${C.emerald}`,
-    borderRadius:    6,
-    padding:         10,
-    marginBottom:    14,
-  },
-  termsTitle: {
-    fontSize:      8,
+  amountWordsLabel: {
     fontFamily:    'Helvetica-Bold',
-    color:         C.emerald,
+    fontSize:      6.8,
+    color:         C.muted,
     textTransform: 'uppercase',
-    marginBottom:  4,
+    letterSpacing: 0.6,
+    marginBottom:  2,
   },
-  termsText: { fontSize: 7.5, color: C.body, lineHeight: 1.6 },
+  amountWordsText: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize:   7.5,
+    color:      C.ink,
+  },
+  protocolNotice: {
+    fontSize:   6.8,
+    color:      C.muted,
+    lineHeight: 1.4,
+  },
 
-  // ── Footer / signatories ───────────────────────────────────────────────────
-  footer: {
+  summaryRight: {
+    width:        210,
+    borderWidth:  0.75,
+    borderColor:  C.border,
+    borderRadius: 4,
+    overflow:     'hidden',
+  },
+  summaryRow: {
+    flexDirection:     'row',
+    justifyContent:    'space-between',
+    paddingVertical:   4,
+    paddingHorizontal: 8,
+    borderBottomWidth: 0.5,
+    borderBottomColor: C.borderLight,
+  },
+  summaryLabel: {
+    fontFamily: 'Helvetica',
+    fontSize:   7.5,
+    color:      C.muted,
+  },
+  summaryVal: {
+    fontFamily: 'Helvetica',
+    fontSize:   7.5,
+    color:      C.ink,
+  },
+  summaryValFree: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize:   7,
+    color:      C.emerald,
+  },
+  totalBox: {
+    flexDirection:     'row',
+    justifyContent:    'space-between',
+    alignItems:        'center',
+    paddingVertical:   6.5,
+    paddingHorizontal: 8,
+    backgroundColor:   C.navy,
+  },
+  totalLabel: {
+    fontFamily:    'Helvetica-Bold',
+    fontSize:      8,
+    color:         C.white,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  totalAmountVal: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize:   10,
+    color:      C.white,
+  },
+
+  // ── Footer & Signatory ─────────────────────────────────────────────────────
+  footerSection: {
+    borderTopWidth: 0.75,
+    borderTopColor: C.border,
+    paddingTop:     10,
+    marginTop:      'auto',
+  },
+  footerRow: {
     flexDirection:  'row',
     justifyContent: 'space-between',
     alignItems:     'flex-end',
-    borderTop:      `1 solid ${C.border}`,
-    paddingTop:     12,
-    marginBottom:   10,
+    marginBottom:   8,
   },
-  sealCircle: {
-    width:        56,
-    height:       56,
-    borderRadius: 28,
-    border:       `2 solid ${C.accent}`,
-    alignItems:   'center',
-    justifyContent: 'center',
-    padding:      6,
+  footerCompanyDetails: {
+    maxWidth: '65%',
   },
-  sealText: {
-    fontSize:      5.5,
+  footerCompanyName: {
     fontFamily:    'Helvetica-Bold',
-    color:         C.accent,
-    textTransform: 'uppercase',
+    fontSize:      7.5,
+    color:         C.navy,
     letterSpacing: 0.5,
-    textAlign:     'center',
-    lineHeight:    1.4,
-  },
-  sealSubText: {
-    fontSize:      5,
-    color:         C.emerald,
-    fontFamily:    'Helvetica-Bold',
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    textAlign:     'center',
   },
-  sigBlock: { alignItems: 'flex-end' },
-  sigForLine: { fontSize: 7.5, color: C.muted, marginBottom: 20, textAlign: 'right' },
-  sigLine: {
-    borderTop:   `1 solid ${C.border}`,
-    paddingTop:  4,
-    width:       150,
-    alignItems:  'flex-end',
-  },
-  sigName: { fontSize: 8, fontFamily: 'Helvetica-Bold', color: C.heading, textAlign: 'right' },
-  sigTitle: { fontSize: 7, color: C.muted, textAlign: 'right' },
-
-  documentFooter: {
-    textAlign:  'center',
-    fontSize:   7,
+  footerCompanyText: {
+    fontFamily: 'Helvetica',
+    fontSize:   6.8,
     color:      C.muted,
-    marginTop:  8,
-    lineHeight: 1.5,
+    lineHeight: 1.4,
+    marginTop:  1,
   },
 
-  // ── Amount in words ────────────────────────────────────────────────────────
-  amtWords: {
-    fontSize:    7.5,
-    color:       C.muted,
-    marginBottom: 14,
+  signatoryBlock: {
+    alignItems: 'flex-end',
+    width:      140,
   },
-  amtWordsBold: { fontFamily: 'Helvetica-Bold', fontStyle: 'normal', color: C.body },
+  signatoryImage: {
+    maxHeight: 28,
+    maxWidth:  100,
+    objectFit: 'contain',
+    marginBottom: 2,
+  },
+  signatoryRule: {
+    width:             '100%',
+    borderTopWidth:    0.75,
+    borderTopColor:    C.border,
+    paddingTop:        2,
+    alignItems:        'flex-end',
+  },
+  signatoryTitle: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize:   7,
+    color:      C.navy,
+  },
+  signatoryRole: {
+    fontFamily: 'Helvetica',
+    fontSize:   6.5,
+    color:      C.muted,
+  },
 
-  // ── Status badge ───────────────────────────────────────────────────────────
-  statusApproved: { color: C.emerald, fontFamily: 'Helvetica-Bold', fontSize: 8 },
-  statusPending:  { color: C.amber,   fontFamily: 'Helvetica-Bold', fontSize: 8 },
+  brandBaseline: {
+    position:          'absolute',
+    bottom:            12,
+    left:              36,
+    right:             36,
+    textAlign:         'center',
+    fontFamily:        'Helvetica',
+    fontSize:          6.5,
+    color:             C.subtle,
+    letterSpacing:     0.5,
+    paddingTop:        4,
+    borderTopWidth:    0.5,
+    borderTopColor:    C.borderLight,
+  },
 });
 
-// ─── Number-to-words helper (Indian numbering) ─────────────────────────────
-function numberToWords(num: number): string {
-  const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine',
+// ─── Indian Currency Number-to-Words Helper ──────────────────────────────────
+export function numberToWords(num: number): string {
+  const a = [
+    '', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine',
     'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen',
-    'Seventeen', 'Eighteen', 'Nineteen'];
+    'Seventeen', 'Eighteen', 'Nineteen',
+  ];
   const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-  if (num === 0) return 'Zero';
-  if (num < 20)   return a[num];
-  if (num < 100)  return b[Math.floor(num / 10)] + (num % 10 ? ' ' + a[num % 10] : '');
-  if (num < 1000) return a[Math.floor(num / 100)] + ' Hundred' + (num % 100 ? ' and ' + numberToWords(num % 100) : '');
-  if (num < 100000)   return numberToWords(Math.floor(num / 1000))   + ' Thousand' + (num % 1000   ? ' ' + numberToWords(num % 1000) : '');
-  if (num < 10000000) return numberToWords(Math.floor(num / 100000)) + ' Lakh'     + (num % 100000 ? ' ' + numberToWords(num % 100000) : '');
-  return `${num}`;
+
+  if (num === 0) return 'Zero Rupees Only';
+
+  function convert(n: number): string {
+    if (n < 20) return a[n];
+    if (n < 100) return b[Math.floor(n / 10)] + (n % 10 ? ' ' + a[n % 10] : '');
+    if (n < 1000) return a[Math.floor(n / 100)] + ' Hundred' + (n % 100 ? ' ' + convert(n % 100) : '');
+    if (n < 100000) return convert(Math.floor(n / 1000)) + ' Thousand' + (n % 1000 ? ' ' + convert(n % 1000) : '');
+    if (n < 10000000) return convert(Math.floor(n / 100000)) + ' Lakh' + (n % 100000 ? ' ' + convert(n % 100000) : '');
+    return convert(Math.floor(n / 10000000)) + ' Crore' + (n % 10000000 ? ' ' + convert(n % 10000000) : '');
+  }
+
+  return convert(Math.round(num)) + ' Rupees Only';
 }
 
-// ─── Order shape expected by the template ─────────────────────────────────
-export interface InvoiceOrderData {
+// ─── Executive Date Formatter (e.g. 07 October 2026) ─────────────────────────
+export function formatExecutiveDate(input?: string | Date | null): string {
+  if (!input) {
+    const now = new Date();
+    return `${String(now.getDate()).padStart(2, '0')} ${now.toLocaleString('en-US', { month: 'long' })} ${now.getFullYear()}`;
+  }
+
+  // If already in "D Month YYYY" or "DD Month YYYY" format
+  const match = String(input).match(/^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
+  if (match) {
+    const [, d, mStr, y] = match;
+    const testDate = new Date(`${mStr} 1, 2000`);
+    const fullMonth = !isNaN(testDate.getTime()) ? testDate.toLocaleString('en-US', { month: 'long' }) : mStr;
+    return `${d.padStart(2, '0')} ${fullMonth} ${y}`;
+  }
+
+  const d = new Date(input);
+  if (!isNaN(d.getTime())) {
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = d.toLocaleString('en-US', { month: 'long' });
+    const year = d.getFullYear();
+    return `${day} ${month} ${year}`;
+  }
+
+  return String(input);
+}
+
+// ─── Input Data Interface ────────────────────────────────────────────────────
+export interface TaxAccountingParticulars {
+  verifiedSupplierGstin: string;
+  verifiedSupplierPan?: string;
+  cgstRate?: number;
+  cgstAmount?: number;
+  sgstRate?: number;
+  sgstAmount?: number;
+  igstRate?: number;
+  igstAmount?: number;
+  taxableValue?: number;
+  placeOfSupply?: string;
+}
+
+export interface ExecutiveInvoiceOrderData {
   id: string;
   customerName: string;
   phone: string;
@@ -311,6 +512,7 @@ export interface InvoiceOrderData {
     product?: { name: string; price: number; quantity?: number; categoryLabel?: string };
   }>;
   totalAmount: number;
+  subtotal?: number;
   courierName?: string;
   awbNumber?: string;
   estimatedDelivery?: string;
@@ -318,236 +520,248 @@ export interface InvoiceOrderData {
   isApproved?: boolean;
   approvedAt?: string;
   createdAt?: string;
+  gstin?: string;
+  taxAccounting?: TaxAccountingParticulars;
+  isTaxInvoiceCompliant?: boolean;
+  logoPath?: string;
+  signaturePath?: string;
 }
 
-// ─── PDF Document Component ────────────────────────────────────────────────
-export function InvoicePDFDocument({ order }: { order: InvoiceOrderData }) {
+// ─── Executive PDF Document ──────────────────────────────────────────────────
+export function InvoicePDFDocument({ order }: { order: ExecutiveInvoiceOrderData }) {
   const invoiceNumber = order.invoiceNumber || `INV-${order.id}`;
-  const invoiceDate   = order.approvedAt || order.createdAt || new Date().toLocaleDateString('en-IN');
+  const formattedDate = formatExecutiveDate(order.approvedAt || order.createdAt);
 
-  // Normalise item shape (OrdersTab uses flat fields; invoice page uses `product` wrapper)
-  const items = order.items.map((item) => {
+  // Normalise product rows
+  const items = (order.items || []).map((item) => {
     if (item.product) {
       return {
         name:          item.product.name,
         price:         item.product.price,
-        quantity:      item.quantity,
+        quantity:      item.quantity || 1,
         categoryLabel: item.product.categoryLabel || '',
       };
     }
     return {
       name:          item.name,
       price:         item.price,
-      quantity:      item.quantity,
+      quantity:      item.quantity || 1,
       categoryLabel: item.categoryLabel || item.category || '',
     };
   });
 
+  // Calculate Subtotal safely
+  const computedSubtotal = items.reduce((acc, it) => acc + (it.price * it.quantity), 0);
+  const displaySubtotal = order.subtotal || computedSubtotal || order.totalAmount;
+
+  // Filter out placeholder AWB numbers like 'EXP-AIR-PENDING'
+  const validAwb = order.awbNumber && !order.awbNumber.includes('PENDING') && order.awbNumber.trim().length > 0
+    ? order.awbNumber.trim()
+    : null;
+
+  // Filter out unverified estimated delivery placeholders
+  const validEstDelivery = order.estimatedDelivery && !order.estimatedDelivery.includes('PENDING') && order.estimatedDelivery.trim().length > 0
+    ? order.estimatedDelivery.trim()
+    : null;
+
+  // Permanent Invoice Classification:
+  // Marine Creatures operates without a GSTIN registration.
+  // Under statutory compliance and owner directive, this document heading is
+  // PERMANENTLY fixed as 'INVOICE & DISPATCH MANIFEST'.
+  // Automatic or conditional switching to 'TAX INVOICE' is strictly disallowed
+  // without explicit business owner authorization.
+  const docTitle = 'INVOICE & DISPATCH MANIFEST';
+
   return (
     <Document
-      title={`Tax Invoice — ${invoiceNumber}`}
-      author="Marine Creatures Aquatics Pvt. Ltd."
-      subject={`Invoice for Order ${order.id}`}
-      creator="Marine Creatures Control OS"
+      title={`Marine Creatures Invoice — ${invoiceNumber}`}
+      author="Marine Creatures Aquatics Private Limited"
+      subject={`Invoice for Order #${order.id}`}
+      creator="Marine Creatures Executive Billing Engine"
       producer="@react-pdf/renderer"
     >
       <Page size="A4" style={styles.page}>
 
-        {/* ── Header ──────────────────────────────────────────────────── */}
+        {/* ── A. Header ────────────────────────────────────────────────── */}
         <View style={styles.headerRow}>
-          <View style={styles.companyBlock}>
-            <Text style={styles.companyName}>Marine Creatures</Text>
-            <Text style={styles.companyTagline}>Bringing Ocean at your Doorstep</Text>
-            <Text style={styles.companyMeta}>Marine Creatures Aquatics Private Limited</Text>
-            <Text style={styles.companyMeta}>Registered Studio: Kolkata, West Bengal, India</Text>
-            <Text style={styles.companyMeta}>Live Marine Cargo Permitted • Government Registered Aquaculture Vendor</Text>
+          <View style={styles.headerLeft}>
+            {order.logoPath ? (
+              <Image src={order.logoPath} style={styles.logoImage} />
+            ) : null}
+            <View style={styles.brandBlock}>
+              <Text style={styles.brandTitle}>Marine Creatures</Text>
+              <Text style={styles.brandDescriptor}>Bringing Ocean at Your Doorstep</Text>
+              <Text style={styles.companySubtext}>Marine Creatures Aquatics Private Limited</Text>
+            </View>
           </View>
 
-          <View style={styles.invoiceBadgeBlock}>
-            <Text style={styles.invoiceBadge}>Tax Invoice &amp; Live Manifest</Text>
-
-            <View style={styles.invoiceMetaRow}>
-              <Text style={styles.invoiceMetaLabel}>Invoice No: </Text>
-              <Text style={styles.invoiceMetaValue}>{invoiceNumber}</Text>
-            </View>
-            <View style={styles.invoiceMetaRow}>
-              <Text style={styles.invoiceMetaLabel}>Invoice Date: </Text>
-              <Text style={styles.invoiceMetaValue}>{invoiceDate}</Text>
-            </View>
-            <View style={styles.invoiceMetaRow}>
-              <Text style={styles.invoiceMetaLabel}>Order Ref: </Text>
-              <Text style={styles.invoiceMetaValue}>#{order.id}</Text>
-            </View>
-            <View style={styles.invoiceMetaRow}>
-              <Text style={styles.invoiceMetaLabel}>Status: </Text>
-              <Text style={order.isApproved ? styles.statusApproved : styles.statusPending}>
-                {order.isApproved ? '✓ APPROVED & VERIFIED' : '● PENDING APPROVAL'}
-              </Text>
+          <View style={styles.headerRight}>
+            <Text style={styles.docTitleBadge}>{docTitle}</Text>
+            <View style={styles.headerMetaTable}>
+              <View style={styles.headerMetaRow}>
+                <Text style={styles.headerMetaLabel}>Invoice No:</Text>
+                <Text style={styles.headerMetaValue}>{invoiceNumber}</Text>
+              </View>
+              <View style={styles.headerMetaRow}>
+                <Text style={styles.headerMetaLabel}>Date:</Text>
+                <Text style={styles.headerMetaValue}>{formattedDate}</Text>
+              </View>
+              <View style={styles.headerMetaRow}>
+                <Text style={styles.headerMetaLabel}>Order Ref:</Text>
+                <Text style={styles.headerMetaRef}>#{order.id}</Text>
+              </View>
+              {order.gstin ? (
+                <View style={styles.headerMetaRow}>
+                  <Text style={styles.headerMetaLabel}>GSTIN:</Text>
+                  <Text style={styles.headerMetaValue}>{order.gstin}</Text>
+                </View>
+              ) : null}
             </View>
           </View>
         </View>
 
-        {/* ── Consignee + Cargo ────────────────────────────────────────── */}
-        <View style={styles.twoCol}>
-          {/* Billed To */}
-          <View style={styles.infoBox}>
-            <Text style={styles.infoBoxLabel}>Billed To / Consignee</Text>
-            <Text style={styles.infoCustomerName}>{order.customerName}</Text>
-            <Text style={styles.infoLine}>+91 {order.phone}</Text>
-            <Text style={styles.infoLine}>{order.address}</Text>
-            <Text style={styles.infoLine}>City &amp; PIN: {order.city} — {order.pincode}</Text>
+        {/* ── B, C, D. Information Panels (Two Columns) ────────────────── */}
+        <View style={styles.infoGrid}>
+          {/* Left Panel: Issuer & Bill To */}
+          <View style={styles.infoCard}>
+            <Text style={styles.cardTitle}>Bill To / Consignee</Text>
+            <Text style={styles.customerName}>{order.customerName}</Text>
+            <Text style={styles.cardLine}>+91 {order.phone}</Text>
+            <Text style={styles.cardLine}>{order.address}</Text>
+            <Text style={styles.cardLine}>{order.city} — {order.pincode}</Text>
             {order.orderNotes ? (
-              <Text style={[styles.infoLine, { color: C.amber, marginTop: 4 }]}>
-                Note: {order.orderNotes}
-              </Text>
+              <Text style={styles.orderNoteText}>Note: &ldquo;{order.orderNotes}&rdquo;</Text>
             ) : null}
           </View>
 
-          {/* Cargo Details */}
-          <View style={styles.infoBox}>
-            <Text style={styles.infoBoxLabel}>Live Air Cargo Dispatch Details</Text>
-            <View style={styles.infoGrid}>
-              <View style={styles.infoGridItem}>
-                <Text style={styles.infoGridLabel}>Carrier Partner</Text>
-                <Text style={styles.infoGridValue}>{order.courierName || 'IndiGo CarGo Priority'}</Text>
+          {/* Right Panel: Consignment & Dispatch Specifications */}
+          <View style={styles.infoCard}>
+            <Text style={styles.cardTitle}>Consignment Specifications</Text>
+            <View style={styles.consignmentGrid}>
+              <View style={styles.consignmentItem}>
+                <Text style={styles.consignmentLabel}>Carrier Partner</Text>
+                <Text style={styles.consignmentValue}>{order.courierName || 'Priority Air Cargo'}</Text>
               </View>
-              <View style={styles.infoGridItem}>
-                <Text style={styles.infoGridLabel}>Air Waybill (AWB)</Text>
-                <Text style={styles.infoGridValue}>{order.awbNumber || 'EXP-AIR-PENDING'}</Text>
+              <View style={styles.consignmentItem}>
+                <Text style={styles.consignmentLabel}>Air Waybill (AWB)</Text>
+                <Text style={styles.consignmentValue}>{validAwb || 'Assigned at Dispatch'}</Text>
               </View>
-              <View style={styles.infoGridItem}>
-                <Text style={styles.infoGridLabel}>Est. Delivery</Text>
-                <Text style={styles.infoGridValue}>{order.estimatedDelivery || '—'}</Text>
+              <View style={styles.consignmentItem}>
+                <Text style={styles.consignmentLabel}>Est. Delivery</Text>
+                <Text style={styles.consignmentValue}>{validEstDelivery || 'Standard Express'}</Text>
               </View>
-              <View style={styles.infoGridItem}>
-                <Text style={styles.infoGridLabel}>Packaging Standard</Text>
-                <Text style={[styles.infoGridValue, { color: C.emerald }]}>Climate Thermal Pod</Text>
+              <View style={styles.consignmentItem}>
+                <Text style={styles.consignmentLabel}>Packaging Standard</Text>
+                <Text style={[styles.consignmentValue, { color: C.emerald }]}>Climate Thermal Pod</Text>
               </View>
             </View>
           </View>
         </View>
 
-        {/* ── Items Table ──────────────────────────────────────────────── */}
+        {/* ── E. Itemised Product Table ─────────────────────────────────── */}
         <View style={styles.table}>
-          {/* Head */}
-          <View style={styles.tableHead}>
-            <Text style={[styles.tableHeadCell, styles.colNo]}>#</Text>
-            <Text style={[styles.tableHeadCell, styles.colDesc]}>Specimen / Marine Item Description</Text>
-            <Text style={[styles.tableHeadCell, styles.colHsn]}>HSN/SAC</Text>
-            <Text style={[styles.tableHeadCell, styles.colQty]}>Qty</Text>
-            <Text style={[styles.tableHeadCell, styles.colRate]}>Unit Rate</Text>
-            <Text style={[styles.tableHeadCell, styles.colAmt]}>Total Amount</Text>
+          {/* Table Header */}
+          <View style={styles.tableHeader}>
+            <Text style={[styles.tableHeaderCell, styles.colNo]}>No.</Text>
+            <Text style={[styles.tableHeaderCell, styles.colDesc]}>Product Description</Text>
+            <Text style={[styles.tableHeaderCell, styles.colHsn]}>HSN/SAC</Text>
+            <Text style={[styles.tableHeaderCell, styles.colQty]}>Qty</Text>
+            <Text style={[styles.tableHeaderCell, styles.colRate]}>Unit Price</Text>
+            <Text style={[styles.tableHeaderCell, styles.colAmt]}>Amount</Text>
           </View>
 
-          {/* Rows */}
+          {/* Table Rows */}
           {items.map((item, idx) => (
-            <View key={idx} style={[styles.tableRow, idx % 2 === 1 ? styles.tableRowAlt : {}]}>
+            <View
+              key={idx}
+              style={[styles.tableRow, idx % 2 === 1 ? styles.tableRowAlt : {}]}
+              wrap={false}
+            >
               <Text style={[styles.tableCell, styles.colNo, { color: C.muted }]}>{idx + 1}</Text>
-              <View style={[styles.colDesc]}>
+              <View style={styles.colDesc}>
                 <Text style={[styles.tableCell, styles.tableCellBold]}>{item.name}</Text>
                 {item.categoryLabel ? (
-                  <Text style={[styles.tableCell, { color: C.muted, fontSize: 7 }]}>
-                    Category: {item.categoryLabel}
-                  </Text>
+                  <Text style={styles.tableCellSub}>{item.categoryLabel}</Text>
                 ) : null}
               </View>
-              <Text style={[styles.tableCell, styles.colHsn, { textAlign: 'center', color: C.muted }]}>0301</Text>
-              <Text style={[styles.tableCell, styles.tableCellBold, styles.colQty, { textAlign: 'center' }]}>
-                {item.quantity}
-              </Text>
-              <Text style={[styles.tableCell, styles.colRate, { textAlign: 'right' }]}>
+              <Text style={[styles.tableCell, styles.colHsn, { color: C.muted }]}>0301</Text>
+              <Text style={[styles.tableCell, styles.tableCellBold, styles.colQty]}>{item.quantity}</Text>
+              <Text style={[styles.tableCell, styles.colRate]}>
                 {'\u20B9'}{item.price.toLocaleString('en-IN')}
               </Text>
-              <Text style={[styles.tableCell, styles.tableCellBold, styles.colAmt, { textAlign: 'right', color: C.accent }]}>
+              <Text style={[styles.tableCell, styles.tableCellBold, styles.colAmt]}>
                 {'\u20B9'}{(item.price * item.quantity).toLocaleString('en-IN')}
               </Text>
             </View>
           ))}
         </View>
 
-        {/* ── Amount in words ──────────────────────────────────────────── */}
-        <Text style={styles.amtWords}>
-          * In Words:{' '}
-          <Text style={styles.amtWordsBold}>
-            {numberToWords(order.totalAmount)} Rupees Only
-          </Text>
-        </Text>
+        {/* ── F. Payment Summary & Amount in Words ──────────────────────── */}
+        <View style={styles.summarySection} wrap={false}>
+          <View style={styles.summaryLeft}>
+            <View style={styles.amountWordsBox}>
+              <Text style={styles.amountWordsLabel}>Amount in Words</Text>
+              <Text style={styles.amountWordsText}>{numberToWords(order.totalAmount)}</Text>
+            </View>
+            <Text style={styles.protocolNotice}>
+              Live marine cargo certified. Specimens are conditioned in dedicated quarantine facilities
+              and packaged in multi-stage oxygenated thermal enclosures.
+            </Text>
+          </View>
 
-        {/* ── Totals ──────────────────────────────────────────────────── */}
-        <View style={styles.totalsSection}>
-          <View style={styles.totalsBox}>
-            <View style={styles.totalsRow}>
-              <Text style={styles.totalsLabel}>Specimen Subtotal</Text>
-              <Text style={styles.totalsValue}>{'\u20B9'}{order.totalAmount.toLocaleString('en-IN')}</Text>
+          <View style={styles.summaryRight}>
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Subtotal</Text>
+              <Text style={styles.summaryVal}>{'\u20B9'}{displaySubtotal.toLocaleString('en-IN')}</Text>
             </View>
-            <View style={styles.totalsRow}>
-              <Text style={styles.totalsLabel}>Applicable Taxes &amp; Packaging</Text>
-              <Text style={[styles.totalsValue, { color: C.emerald }]}>Included ({'\u20B9'}0 Extra)</Text>
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Thermal Pod Packaging</Text>
+              <Text style={styles.summaryValFree}>Complimentary</Text>
             </View>
-            <View style={styles.totalsRow}>
-              <Text style={styles.totalsLabel}>Thermal Pod Packaging</Text>
-              <Text style={[styles.totalsValue, { color: C.emerald }]}>FREE ({'\u20B9'}0)</Text>
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Priority Cargo Transit</Text>
+              <Text style={styles.summaryValFree}>Complimentary</Text>
             </View>
-            <View style={styles.totalsRow}>
-              <Text style={styles.totalsLabel}>Priority Cargo Air Transit</Text>
-              <Text style={[styles.totalsValue, { color: C.emerald }]}>FREE ({'\u20B9'}0)</Text>
-            </View>
-            <View style={styles.totalsRowFinal}>
-              <Text style={styles.totalsFinalLabel}>Total Amount Payable</Text>
-              <Text style={styles.totalsFinalValue}>{'\u20B9'}{order.totalAmount.toLocaleString('en-IN')}</Text>
+            <View style={styles.totalBox}>
+              <Text style={styles.totalLabel}>Total Payable</Text>
+              <Text style={styles.totalAmountVal}>{'\u20B9'}{order.totalAmount.toLocaleString('en-IN')}</Text>
             </View>
           </View>
         </View>
 
-        {/* ── Terms ───────────────────────────────────────────────────── */}
-        <View style={styles.termsBox}>
-          <Text style={styles.termsTitle}>48-Hour Live Arrival Guarantee (LAG) Active</Text>
-          <Text style={styles.termsText}>
-            Specimens are packed in specialized medical-grade pure oxygen bags inside multi-layer thermal
-            polystyrene pods. Acclimate slowly via drip transfer method over 45 minutes upon unboxing.
-            All sales final. Guarantee applies to specimens arriving DOA under standard shipping conditions.
-            Ref Code: MC-DOA-AUTHENTIC
-          </Text>
-        </View>
-
-        {/* ── Footer / Signatory ───────────────────────────────────────── */}
-        <View style={styles.footer}>
-          {/* Seal */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <View style={styles.sealCircle}>
-              <Text style={styles.sealText}>MARINE{'\n'}CREATURES</Text>
-              <Text style={{ fontSize: 10, textAlign: 'center' }}>~</Text>
-              <Text style={styles.sealSubText}>VERIFIED</Text>
-            </View>
-            <View>
-              <Text style={{ fontSize: 8, fontFamily: 'Helvetica-Bold', color: C.heading }}>
-                Official Dispatch Accreditation
-              </Text>
-              <Text style={{ fontSize: 7, color: C.muted }}>Government Registered Aquaculture Vendor</Text>
-              <Text style={{ fontSize: 7, color: C.muted, fontFamily: 'Helvetica' }}>
-                Ref: MC-DOA-AUTHENTIC
+        {/* ── G. Footer & Signatory ────────────────────────────────────── */}
+        <View style={styles.footerSection} wrap={false}>
+          <View style={styles.footerRow}>
+            <View style={styles.footerCompanyDetails}>
+              <Text style={styles.footerCompanyName}>Marine Creatures Aquatics Private Limited</Text>
+              <Text style={styles.footerCompanyText}>
+                Registered Studio: Kolkata, West Bengal, India{'\n'}
+                Contact: +91 93304 36603 • concierge@marinecreatures.com
               </Text>
             </View>
-          </View>
 
-          {/* Signature Block */}
-          <View style={styles.sigBlock}>
-            <Text style={styles.sigForLine}>For Marine Creatures Aquatics Pvt. Ltd.</Text>
-            <View style={styles.sigLine}>
-              <Text style={styles.sigName}>Authorized Signatory</Text>
-              <Text style={styles.sigTitle}>Founder &amp; Master Aquarist</Text>
+            <View style={styles.signatoryBlock}>
+              {order.signaturePath ? (
+                <Image src={order.signaturePath} style={styles.signatoryImage} />
+              ) : null}
+              <View style={styles.signatoryRule}>
+                <Text style={styles.signatoryTitle}>Authorized Signatory</Text>
+                <Text style={styles.signatoryRole}>Founder &amp; Master Aquarist</Text>
+              </View>
             </View>
           </View>
         </View>
 
-        {/* ── Document Footer ──────────────────────────────────────────── */}
-        <Text style={styles.documentFooter}>
-          This is a computer-generated tax invoice and dispatch certificate requiring no physical stamp.{'\n'}
-          Marine Creatures Aquatics Pvt. Ltd. • Kolkata, India • Bringing Ocean at your Doorstep
-        </Text>
+        {/* ── Dynamic Page Numbering & Baseline (Fixed on all pages) ──── */}
+        <Text
+          style={styles.brandBaseline}
+          render={({ pageNumber, totalPages }) =>
+            `Marine Creatures — Bringing Ocean at Your Doorstep • Page ${pageNumber} of ${totalPages}`
+          }
+          fixed
+        />
 
       </Page>
     </Document>
   );
 }
-

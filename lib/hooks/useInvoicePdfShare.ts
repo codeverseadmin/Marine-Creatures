@@ -2,10 +2,12 @@
  * useInvoicePdfShare — Client-side hook for WhatsApp PDF invoice delivery.
  *
  * Flow:
- *  1. Admin clicks "Share PDF via WhatsApp"
+ *  1. Admin clicks "Send Invoice via WhatsApp"
  *  2. Hook calls GET /api/admin/orders/[id]/invoice-pdf (admin-auth required)
- *  3a. Mobile / Web Share API available → navigator.share({ files: [pdfFile] })
- *  3b. Desktop fallback → download PDF + open WhatsApp with professional text (no URL)
+ *  3a. Mobile / Web Share API available → navigator.share({ files: [pdfFile], text: message })
+ *  3b. Desktop fallback → downloads PDF with correct filename (Marine-Creatures-INV-[orderId].pdf)
+ *      and opens customer WhatsApp conversation with concise, professional message (no URL).
+ *      Provides explicit instruction state for UI to guide the administrator to attach & send.
  *
  * States: idle → loading → sharing → done | error
  */
@@ -15,17 +17,11 @@
 import { useState, useCallback } from 'react';
 
 export type PdfShareState = 'idle' | 'loading' | 'sharing' | 'done' | 'error';
+export type DispatchMode = 'mobile-share' | 'desktop-download' | null;
 
 export interface UsePdfShareOptions {
   /** Called on every state change */
-  onStateChange?: (state: PdfShareState, message?: string) => void;
-}
-
-export interface UsePdfShareReturn {
-  state: PdfShareState;
-  error: string | null;
-  share: (orderId: string, order: WhatsAppOrderPayload) => Promise<void>;
-  reset: () => void;
+  onStateChange?: (state: PdfShareState, message?: string, mode?: DispatchMode) => void;
 }
 
 export interface WhatsAppOrderPayload {
@@ -39,59 +35,76 @@ export interface WhatsAppOrderPayload {
   createdAt?: string;
 }
 
-/**
- * Professional WhatsApp message template — no invoice URL included.
- */
-function buildWhatsAppMessage(orderId: string, order: WhatsAppOrderPayload): string {
-  const invoiceNo  = order.invoiceNumber || `INV-${orderId}`;
-  const date       = order.approvedAt    || order.createdAt || new Date().toLocaleDateString('en-IN');
-  const carrier    = order.courierName   || 'Priority Air Cargo Express';
-  const awb        = order.awbNumber     ? `\nAWB No: ${order.awbNumber}` : '';
-  const amount     = `\u20B9${order.totalAmount.toLocaleString('en-IN')}`;
+export interface UsePdfShareReturn {
+  state: PdfShareState;
+  dispatchMode: DispatchMode;
+  error: string | null;
+  downloadedFilename: string | null;
+  targetPhone: string | null;
+  targetOrderId: string | null;
+  share: (orderId: string, order: WhatsAppOrderPayload) => Promise<void>;
+  reset: () => void;
+  dismissNotice: () => void;
+}
 
+/**
+ * Concise Executive WhatsApp message — strict compliance with brand guidelines:
+ * No invoice URL, no delivery address, no personal phone number, no line-item finance details.
+ */
+function buildExecutiveWhatsAppMessage(orderId: string, customerName: string): string {
   return (
-    `🌊 *MARINE CREATURES*\n` +
-    `_Bringing the Ocean to your Doorstep_\n\n` +
-    `Dear *${order.customerName}*,\n\n` +
-    `Your order *#${orderId}* has been verified and approved.\n` +
-    `Please find your official Tax Invoice and Dispatch Manifest attached as a PDF document.\n\n` +
-    `*Invoice No:* ${invoiceNo}\n` +
-    `*Date:* ${date}\n` +
-    `*Total Amount:* ${amount} (All-inclusive)\n` +
-    `*Carrier:* ${carrier}${awb}\n\n` +
-    `Your specimens are being prepared with our Climate Thermal Pod packaging. ` +
-    `Please follow the acclimation guide included in the package upon delivery.\n\n` +
-    `Thank you for choosing Marine Creatures.\n` +
-    `_BRINGING THE OCEAN TO YOUR DOORSTEP_ 🐠`
+    `MARINE CREATURES\n\n` +
+    `Dear ${customerName},\n\n` +
+    `Your order #${orderId} has been confirmed.\n\n` +
+    `Please find your invoice and dispatch details attached.\n\n` +
+    `Thank you for choosing Marine Creatures.\n\n` +
+    `Bringing Ocean at Your Doorstep.`
   );
 }
 
 export function useInvoicePdfShare(options?: UsePdfShareOptions): UsePdfShareReturn {
   const [state, setState] = useState<PdfShareState>('idle');
+  const [dispatchMode, setDispatchMode] = useState<DispatchMode>(null);
   const [error, setError] = useState<string | null>(null);
+  const [downloadedFilename, setDownloadedFilename] = useState<string | null>(null);
+  const [targetPhone, setTargetPhone] = useState<string | null>(null);
+  const [targetOrderId, setTargetOrderId] = useState<string | null>(null);
 
   const transition = useCallback(
-    (next: PdfShareState, msg?: string) => {
+    (next: PdfShareState, msg?: string, mode?: DispatchMode) => {
       setState(next);
-      options?.onStateChange?.(next, msg);
+      if (mode !== undefined) setDispatchMode(mode);
+      options?.onStateChange?.(next, msg, mode);
     },
     [options]
   );
 
   const reset = useCallback(() => {
     setState('idle');
+    setDispatchMode(null);
     setError(null);
+    setDownloadedFilename(null);
+    setTargetPhone(null);
+    setTargetOrderId(null);
   }, []);
+
+  const dismissNotice = useCallback(() => {
+    setDownloadedFilename(null);
+    setDispatchMode(null);
+    if (state === 'done') setState('idle');
+  }, [state]);
 
   const share = useCallback(
     async (orderId: string, order: WhatsAppOrderPayload) => {
-      if (state === 'loading' || state === 'sharing') return; // prevent double-tap
+      if (state === 'loading' || state === 'sharing') return; // prevent repeated dispatches
 
-      transition('loading');
+      transition('loading', 'Fetching invoice PDF...', null);
       setError(null);
+      setDownloadedFilename(null);
+      setTargetOrderId(orderId);
 
       try {
-        // ── Step 1: fetch PDF from admin API ──────────────────────────────────
+        // ── 1. Fetch PDF from authenticated admin route ─────────────────────────
         const resp = await fetch(
           `/api/admin/orders/${encodeURIComponent(orderId)}/invoice-pdf`,
           { credentials: 'include' }
@@ -99,23 +112,30 @@ export function useInvoicePdfShare(options?: UsePdfShareOptions): UsePdfShareRet
 
         if (!resp.ok) {
           const body = await resp.json().catch(() => ({}));
-          throw new Error(body?.error || `PDF generation failed (HTTP ${resp.status})`);
+          throw new Error(body?.error || `Unable to retrieve invoice PDF (HTTP ${resp.status})`);
         }
 
         const blob = await resp.blob();
-        if (blob.size === 0) throw new Error('PDF generation returned an empty file');
+        if (blob.size === 0) {
+          throw new Error('Retrieved invoice PDF file is empty. Please verify order data.');
+        }
 
-        const invoiceNo = order.invoiceNumber || `INV-${orderId}`;
-        const filename  = `Marine-Creatures-Invoice-${invoiceNo.replace(/[^a-zA-Z0-9\-_]/g, '_')}.pdf`;
-        const pdfFile   = new File([blob], filename, { type: 'application/pdf' });
+        // ── 2. Standardised Filename (e.g. Marine-Creatures-INV-MC-611716YH.pdf) ──
+        const rawInv = (order.invoiceNumber || `INV-${orderId}`).replace(/[^a-zA-Z0-9\-_]/g, '_');
+        const cleanInv = rawInv.startsWith('INV-') ? rawInv : `INV-${rawInv}`;
+        const filename = `Marine-Creatures-${cleanInv}.pdf`;
+        setDownloadedFilename(filename);
 
-        transition('sharing');
+        const pdfFile = new File([blob], filename, { type: 'application/pdf' });
 
-        const message   = buildWhatsAppMessage(orderId, order);
-        const cleanPhone = order.phone.replace(/\D/g, '');
+        transition('sharing', 'Preparing dispatch...', null);
+
+        const message = buildExecutiveWhatsAppMessage(orderId, order.customerName);
+        const cleanPhone = (order.phone || '').replace(/\D/g, '');
         const phoneWithCC = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+        setTargetPhone(phoneWithCC || null);
 
-        // ── Step 2a: Web Share API (mobile — attaches actual PDF) ─────────────
+        // ── 3a. Mobile / Web Share API (native file sharing where supported) ────
         if (
           typeof navigator !== 'undefined' &&
           'share' in navigator &&
@@ -124,48 +144,57 @@ export function useInvoicePdfShare(options?: UsePdfShareOptions): UsePdfShareRet
         ) {
           await navigator.share({
             files: [pdfFile],
-            title: `Marine Creatures Invoice — ${invoiceNo}`,
+            title: `Marine Creatures Invoice — ${cleanInv}`,
             text:  message,
           });
 
-          transition('done');
+          transition('done', 'Invoice shared via native share interface', 'mobile-share');
           return;
         }
 
-        // ── Step 2b: Desktop fallback ─────────────────────────────────────────
-        // Download the PDF so the admin has it, then open WhatsApp with message.
-        const objectUrl  = URL.createObjectURL(blob);
-        const anchor     = document.createElement('a');
-        anchor.href      = objectUrl;
-        anchor.download  = filename;
+        // ── 3b. Desktop Fallback (Automatic Download + Open Chat + UI Guide) ────
+        // 1. Download the PDF file to administrator's local machine
+        const objectUrl = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = objectUrl;
+        anchor.download = filename;
         document.body.appendChild(anchor);
         anchor.click();
         document.body.removeChild(anchor);
-        setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);
+        setTimeout(() => URL.revokeObjectURL(objectUrl), 8000);
 
-        // Open WhatsApp (web or app) with pre-filled professional message.
-        // Message intentionally contains NO invoice URL.
+        // 2. Open WhatsApp Web / Desktop application with customer's verified number
         const waUrl = phoneWithCC
           ? `https://wa.me/${phoneWithCC}?text=${encodeURIComponent(message)}`
           : `https://wa.me/?text=${encodeURIComponent(message)}`;
 
         window.open(waUrl, '_blank', 'noopener,noreferrer');
 
-        transition('done');
+        // 3. Set state to 'done' with 'desktop-download' mode to prompt administrator
+        transition('done', `Invoice downloaded as ${filename}. WhatsApp opened.`, 'desktop-download');
       } catch (err: any) {
-        // navigator.share() AbortError means user cancelled — treat as idle, not error
+        // User aborted native share sheet
         if (err?.name === 'AbortError') {
-          transition('idle');
+          transition('idle', 'Share cancelled by user', null);
           return;
         }
-        const msg = err?.message || 'Unknown error during PDF share';
+        const msg = err?.message || 'Invoice PDF dispatch failed';
         setError(msg);
-        transition('error', msg);
+        transition('error', msg, null);
       }
     },
     [state, transition]
   );
 
-  return { state, error, share, reset };
+  return {
+    state,
+    dispatchMode,
+    error,
+    downloadedFilename,
+    targetPhone,
+    targetOrderId,
+    share,
+    reset,
+    dismissNotice,
+  };
 }
-

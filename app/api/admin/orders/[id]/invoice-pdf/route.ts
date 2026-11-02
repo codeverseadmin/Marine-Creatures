@@ -17,10 +17,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { renderToBuffer } from '@react-pdf/renderer';
 import React from 'react';
+import path from 'path';
+import fs from 'fs';
 import { connectToDatabase } from '@/lib/mongodb';
 import { OrderModel } from '@/models/Order';
 import { isAdminRequest } from '@/lib/auth';
-import { InvoicePDFDocument } from '@/lib/invoice-pdf-template';
+import { InvoicePDFDocument, ExecutiveInvoiceOrderData } from '@/lib/invoice-pdf-template';
 
 // Force Node.js runtime — @react-pdf/renderer requires Node (canvas/fs APIs)
 export const runtime = 'nodejs';
@@ -28,6 +30,16 @@ export const dynamic = 'force-dynamic';
 
 interface RouteContext {
   params: Promise<{ id: string }>;
+}
+
+function resolveAssetPath(fileName: string): string | undefined {
+  const filePath = path.join(process.cwd(), 'public', fileName);
+  try {
+    if (fs.existsSync(filePath)) return filePath;
+  } catch {
+    // Ignore error
+  }
+  return undefined;
 }
 
 export async function GET(req: NextRequest, { params }: RouteContext) {
@@ -46,7 +58,34 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     const rawId   = (resolvedParams.id || '').trim();
     const orderId = rawId.startsWith('MC-') ? rawId : `MC-${rawId}`;
 
-    // ── 2. Fetch order ────────────────────────────────────────────────────────
+    const logoPath = resolveAssetPath('logo.png');
+    const signaturePath = resolveAssetPath('signature.png');
+
+    // ── 2a. Isolated Synthetic Test Fixtures (100% Isolated from Customer DB) ─
+    if (orderId === 'MC-QA-ISOLATED-STANDARD' || orderId === 'MC-QA-ISOLATED-MULTIPAGE') {
+      const { QA_STANDARD_FIXTURE, QA_MULTIPAGE_FIXTURE } = await import('@/lib/invoice-test-fixtures');
+      const fixtureOrder = orderId === 'MC-QA-ISOLATED-STANDARD'
+        ? { ...QA_STANDARD_FIXTURE, logoPath, signaturePath }
+        : { ...QA_MULTIPAGE_FIXTURE, logoPath, signaturePath };
+
+      const pdfBuffer = await renderToBuffer(
+        React.createElement(InvoicePDFDocument, { order: fixtureOrder }) as any
+      );
+      const filename = `Marine-Creatures-${fixtureOrder.invoiceNumber}.pdf`;
+
+      return new NextResponse(new Uint8Array(pdfBuffer), {
+        status:  200,
+        headers: {
+          'Content-Type':        'application/pdf',
+          'Content-Disposition': `attachment; filename="${filename}"`,
+          'Content-Length':      String(pdfBuffer.byteLength),
+          'Cache-Control':       'no-store, no-cache, must-revalidate, private',
+          'X-Content-Type-Options': 'nosniff',
+        },
+      });
+    }
+
+    // ── 2b. Fetch verified order from database ────────────────────────────────
     const order = await OrderModel.findOne({
       $or: [
         { id: orderId },
@@ -61,10 +100,13 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     }
 
     // ── 3. Normalise items to InvoiceOrderData shape ──────────────────────────
-    // OrderModel stores items as flat {id, name, price, quantity, category}
-    // The PDF template also supports the {product: {name, price}} shape from OrderContext.
-    // Normalise here so the template always gets the flat shape.
-    const normalisedOrder = {
+
+    const rawInvoiceNumber = order.invoiceNumber || `INV-${order.id}`;
+    const cleanInvoiceNumber = rawInvoiceNumber.startsWith('INV-')
+      ? rawInvoiceNumber
+      : `INV-${rawInvoiceNumber}`;
+
+    const normalisedOrder: ExecutiveInvoiceOrderData = {
       id:                order.id,
       customerName:      order.customerName,
       phone:             order.phone,
@@ -75,17 +117,21 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
       items:             order.items.map((item: any) => ({
         name:          item.name,
         price:         item.price,
-        quantity:      item.quantity,
+        quantity:      item.quantity || 1,
         categoryLabel: item.category || '',
       })),
       totalAmount:       order.totalAmount,
+      subtotal:          order.subtotal || order.totalAmount,
       courierName:       order.courierName || '',
       awbNumber:         order.awbNumber || '',
       estimatedDelivery: order.estimatedDelivery || '',
-      invoiceNumber:     order.invoiceNumber || `INV-${order.id}`,
+      invoiceNumber:     cleanInvoiceNumber,
       isApproved:        order.isApproved,
       approvedAt:        order.approvedAt || '',
       createdAt:         order.createdAt || '',
+      gstin:             (order as any).gstin || undefined,
+      logoPath,
+      signaturePath,
     };
 
     // ── 4. Render PDF ─────────────────────────────────────────────────────────
@@ -93,8 +139,8 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
       React.createElement(InvoicePDFDocument, { order: normalisedOrder }) as any
     );
 
-    const invoiceNumber = normalisedOrder.invoiceNumber.replace(/[^a-zA-Z0-9\-_]/g, '_');
-    const filename      = `Marine-Creatures-Invoice-${invoiceNumber}.pdf`;
+    const filenameSafe = cleanInvoiceNumber.replace(/[^a-zA-Z0-9\-_]/g, '_');
+    const filename     = `Marine-Creatures-${filenameSafe}.pdf`;
 
     // ── 5. Return PDF with secure headers ────────────────────────────────────
     return new NextResponse(new Uint8Array(pdfBuffer), {

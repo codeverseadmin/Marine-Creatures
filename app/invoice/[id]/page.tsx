@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useOrder } from '@/lib/context/OrderContext';
 import { SITE_CONFIG } from '@/lib/config';
 import { useInvoicePdfShare } from '@/lib/hooks/useInvoicePdfShare';
+import { formatExecutiveDate } from '@/lib/invoice-pdf-template';
 
 interface InvoicePageProps {
   params: Promise<{ id: string }>;
@@ -283,7 +284,7 @@ export default function InvoicePage({ params }: InvoicePageProps) {
               Invoice Locked Until Packed
             </h2>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Official Tax Invoices are strictly released only after livestock completes quarantine and is verified and sealed in <strong className="text-slate-200">Stage 3: Thermal Pod Packaging</strong>.
+              Official Invoices &amp; Dispatch Manifests are strictly released only after livestock completes quarantine and is verified and sealed in <strong className="text-slate-200">Stage 3: Thermal Pod Packaging</strong>.
             </p>
           </div>
 
@@ -328,7 +329,7 @@ export default function InvoicePage({ params }: InvoicePageProps) {
   }
 
   const invoiceNumber = order.invoiceNumber || `INV-${order.id}`;
-  const invoiceDate = order.approvedAt || order.createdAt;
+  const invoiceDate = formatExecutiveDate(order.approvedAt || order.createdAt);
 
   // Amount in words calculation helper
   const numberToWords = (num: number): string => {
@@ -452,7 +453,7 @@ export default function InvoicePage({ params }: InvoicePageProps) {
           {/* Invoice Badge Block */}
           <div className="sm:text-right space-y-2">
             <div className="inline-block px-3.5 py-1 rounded-xl bg-cyan-400/15 border border-cyan-400/30 text-cyan-300 font-bold text-xs uppercase tracking-wider print:bg-slate-100 print:text-black print:border-black/30">
-              Tax Invoice &amp; Live Manifest
+              Invoice &amp; Dispatch Manifest
             </div>
 
             <div className="text-xs space-y-1">
@@ -622,24 +623,13 @@ export default function InvoicePage({ params }: InvoicePageProps) {
           </div>
         </div>
 
-        {/* Bottom Signatory & Embossed Seal Block */}
+        {/* Bottom Signatory & Verified Consignment Block */}
         <div className="pt-6 border-t border-slate-800 print:border-black/20 flex flex-col sm:flex-row items-center justify-between gap-6">
-          {/* Official Company Seal Stamp */}
-          <div className="flex items-center gap-3">
-            <div className="w-16 h-16 rounded-full border-2 border-cyan-400/60 print:border-black flex flex-col items-center justify-center p-1 text-center shadow-[0_0_15px_rgba(0,184,217,0.2)] print:shadow-none">
-              <span className="text-[7px] font-black uppercase text-cyan-400 print:text-black tracking-widest leading-none">
-                MARINE CREATURES
-              </span>
-              <span className="text-base leading-none py-0.5">🌊</span>
-              <span className="text-[6px] font-bold text-emerald-400 print:text-black tracking-wider leading-none">
-                VERIFIED SEAL
-              </span>
-            </div>
-            <div className="text-[10px] text-slate-400 print:text-slate-600 leading-tight">
-              <p className="font-bold text-slate-300 print:text-black uppercase">Official Dispatch Accreditation</p>
-              <p>Government Registered Aquaculture Vendor</p>
-              <p className="text-[9px] font-mono opacity-80">Ref Code: MC-DOA-AUTHENTIC</p>
-            </div>
+          {/* Verified Consignment Info */}
+          <div className="text-left space-y-1">
+            <p className="font-bold text-white print:text-black uppercase text-xs">Marine Creatures Aquatics Private Limited</p>
+            <p className="text-[11px] text-slate-400 print:text-slate-600">Registered Studio: Kolkata, West Bengal, India</p>
+            <p className="text-[11px] text-slate-400 print:text-slate-600">Hotline: +91 93304 36603 • concierge@marinecreatures.com</p>
           </div>
 
           {/* Owner Signature Block */}

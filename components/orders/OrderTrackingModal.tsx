@@ -303,7 +303,7 @@ export function OrderTrackingModal() {
                       className="h-9 px-3.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 text-xs font-bold uppercase tracking-wider inline-flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all"
                     >
                       <span>🧾</span>
-                      <span>View Tax Invoice ↗</span>
+                      <span>View Invoice &amp; Manifest ↗</span>
                     </Link>
                   ) : (
                     <span

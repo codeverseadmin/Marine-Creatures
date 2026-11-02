@@ -23,6 +23,26 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     const rawId = (resolvedParams.id || '').trim();
     const orderId = rawId.startsWith('MC-') ? rawId : `MC-${rawId}`;
 
+    // 0. Isolated Synthetic QA Test Fixture Gatekeeper (Zero DB Mutation / Access)
+    if (orderId === 'MC-QA-ISOLATED-STANDARD' || orderId === 'MC-QA-ISOLATED-MULTIPAGE') {
+      const { searchParams } = new URL(req.url);
+      const token = (searchParams.get('token') || req.headers.get('x-invoice-token') || '').trim();
+
+      if (!isAdminRequest(req) && !token) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Unauthorized: Valid invoice access token required to view customer invoice data',
+            requiresToken: true,
+          },
+          { status: 401 }
+        );
+      }
+
+      const { QA_STANDARD_FIXTURE } = await import('@/lib/invoice-test-fixtures');
+      return NextResponse.json({ success: true, data: QA_STANDARD_FIXTURE });
+    }
+
     // 1. Authenticated Admin Session has full operational access and bypasses consumer rate limiting
     if (isAdminRequest(req)) {
       const order = await OrderModel.findOne({
