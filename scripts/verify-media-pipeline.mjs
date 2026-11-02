@@ -77,7 +77,7 @@ async function runApiTests(sessionToken) {
   console.log(`[Test 5] Reject invalid MIME format: HTTP ${badUploadRes.status}`);
   const badUploadJson = await badUploadRes.json();
   console.log('         Error message:', badUploadJson.error);
-  if (badUploadRes.status !== 400 || !badUploadJson.error.includes('Unsupported image format')) {
+  if (badUploadRes.status !== 400 || (!badUploadJson.error.includes('Unsupported image format') && !badUploadJson.error.includes('File signature verification failed'))) {
     throw new Error('Upload validation did not reject invalid format');
   }
 
