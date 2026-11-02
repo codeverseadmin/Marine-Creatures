@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { ControlOsSection, TabItem } from './types';
 
@@ -24,12 +24,23 @@ export function AdminSidebar({
   tabItems,
   handleLogout,
 }: AdminSidebarProps) {
+  // Lock background scroll when mobile navigation drawer is active
+  useEffect(() => {
+    if (sidebarOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [sidebarOpen]);
+
   return (
     <>
-      {/* Mobile Slide-over Drawer */}
+      {/* Mobile & Tablet Slide-over Navigation Drawer */}
       {sidebarOpen && (
         <div className="lg:hidden fixed inset-0 z-50 flex">
-          {/* Backdrop */}
+          {/* Backdrop with touch dismiss */}
           <div
             className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
             onClick={() => setSidebarOpen(false)}
@@ -39,7 +50,7 @@ export function AdminSidebar({
           {/* Drawer Panel */}
           <aside
             aria-label="Mobile Navigation"
-            className="relative w-72 max-w-[85vw] bg-[#070d14] border-r border-slate-800 p-5 flex flex-col justify-between z-10 shadow-2xl overflow-y-auto"
+            className="relative w-80 max-w-[85vw] bg-[#070d14] border-r border-slate-800 p-5 flex flex-col justify-between z-10 shadow-2xl overflow-y-auto pt-[env(safe-area-inset-top,1.25rem)] pb-[env(safe-area-inset-bottom,1.25rem)]"
           >
             <div className="space-y-6">
               {/* Drawer Header */}
@@ -58,7 +69,7 @@ export function AdminSidebar({
 
                 <button
                   onClick={() => setSidebarOpen(false)}
-                  className="min-w-[44px] min-h-[44px] rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                  className="min-w-[44px] min-h-[44px] rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-colors"
                   aria-label="Close navigation menu"
                 >
                   ✕
@@ -66,12 +77,12 @@ export function AdminSidebar({
               </div>
 
               {/* Drawer Navigation List */}
-              <nav aria-label="Control OS Modules" className="space-y-1">
+              <nav aria-label="Control OS Modules" className="space-y-1.5">
                 <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400 block px-2 mb-2 font-mono">
                   CONTROL OS MODULES
                 </span>
                 {tabItems.map((item) => {
-                  const isActive = activeTab === item.id;
+                  const isActive = activeTab === item.id || (item.id === 'sales' && activeTab === 'crm');
                   return (
                     <button
                       key={item.id}
@@ -79,15 +90,20 @@ export function AdminSidebar({
                         setActiveTab(item.id);
                         setSidebarOpen(false);
                       }}
-                      className={`w-full min-h-[44px] flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all text-left focus:outline-none focus:ring-2 focus:ring-cyan-400 ${
+                      className={`w-full min-h-[48px] flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-semibold transition-all text-left focus:outline-none focus:ring-2 focus:ring-cyan-400 ${
                         isActive
                           ? 'bg-cyan-400 text-slate-950 font-bold shadow-md'
                           : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
                       }`}
                     >
-                      <div className="flex items-center gap-2.5 truncate">
-                        <span className="text-sm shrink-0">{item.icon}</span>
-                        <span className="truncate">{item.label}</span>
+                      <div className="flex items-center gap-3 truncate">
+                        <span className="text-base shrink-0">{item.icon}</span>
+                        <div className="truncate">
+                          <span className="block truncate">{item.label}</span>
+                          <span className={`text-[10px] block truncate font-normal ${isActive ? 'text-slate-900' : 'text-slate-500'}`}>
+                            {item.description}
+                          </span>
+                        </div>
                       </div>
 
                       <div className="flex items-center gap-1.5 shrink-0 ml-2">
@@ -134,7 +150,7 @@ export function AdminSidebar({
         </div>
       )}
 
-      {/* Desktop Fixed Left Sidebar */}
+      {/* Desktop & Tablet Expanded Left Sidebar */}
       {desktopSidebarOpen && (
         <aside
           aria-label="Desktop Navigation"
@@ -162,7 +178,7 @@ export function AdminSidebar({
                 CONTROL OS MODULES
               </span>
               {tabItems.map((item) => {
-                const isActive = activeTab === item.id;
+                const isActive = activeTab === item.id || (item.id === 'sales' && activeTab === 'crm');
                 return (
                   <button
                     key={item.id}

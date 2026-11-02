@@ -340,7 +340,7 @@ export default function BannersTab({ passcode, showToast }: BannersTabProps) {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handleEditBannerClick(b)}
-                  className="h-10 px-4 rounded-xl bg-cyan-400/15 text-cyan-300 hover:bg-cyan-400/25 text-xs font-bold border border-cyan-400/30"
+                  className="min-h-[44px] px-4 rounded-xl bg-cyan-400/15 text-cyan-300 hover:bg-cyan-400/25 text-xs font-bold border border-cyan-400/30 flex items-center justify-center transition-colors"
                 >
                   Edit
                 </button>
@@ -351,8 +351,9 @@ export default function BannersTab({ passcode, showToast }: BannersTabProps) {
                       showToast('Banner slide deleted');
                     }
                   }}
-                  className="h-10 w-10 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold border border-red-500/20 flex items-center justify-center"
+                  className="min-h-[44px] min-w-[44px] rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold border border-red-500/20 flex items-center justify-center transition-colors"
                   title="Delete banner"
+                  aria-label={`Delete banner ${b.title}`}
                 >
                   🗑️
                 </button>

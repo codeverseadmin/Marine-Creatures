@@ -128,6 +128,18 @@ export function ControlOsSystem({
     }
   }, [showToast]);
 
+  // Lock body scroll when inspector or confirmation modals are active
+  useEffect(() => {
+    if (selectedAuditLog || restoreConfirmId) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [selectedAuditLog, restoreConfirmId]);
+
   useEffect(() => {
     if (activeSubtab === 'audit') fetchAuditLogs();
     else if (activeSubtab === 'backups') fetchSnapshots();
@@ -223,7 +235,7 @@ export function ControlOsSystem({
         </div>
 
         {/* Subtabs */}
-        <div className="flex items-center gap-1.5 p-1 bg-[#0b121a] border border-slate-800 rounded-xl overflow-x-auto">
+        <div className="flex items-center gap-1.5 p-1 bg-[#0b121a] border border-slate-800 rounded-xl overflow-x-auto scrollbar-none max-w-full">
           {[
             { id: 'audit', label: 'Audit Log', icon: '📜' },
             { id: 'backups', label: 'Snapshots', icon: '💾' },
@@ -234,7 +246,7 @@ export function ControlOsSystem({
             <button
               key={tab.id}
               onClick={() => setActiveSubtab(tab.id as SystemSubtab)}
-              className={`min-h-[44px] px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap ${
+              className={`min-h-[44px] px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 whitespace-nowrap shrink-0 transition-all ${
                 activeSubtab === tab.id
                   ? 'bg-cyan-400 text-slate-950 shadow-sm'
                   : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
@@ -263,11 +275,11 @@ export function ControlOsSystem({
                 </span>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <select
                   value={auditFilterEntity}
                   onChange={(e) => setAuditFilterEntity(e.target.value)}
-                  className="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded-lg px-2 py-1"
+                  className="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded-lg px-2.5 py-1.5 focus:outline-none"
                 >
                   <option value="ALL">All Entities</option>
                   <option value="product">Products</option>
@@ -281,7 +293,7 @@ export function ControlOsSystem({
                 <select
                   value={auditFilterSeverity}
                   onChange={(e) => setAuditFilterSeverity(e.target.value)}
-                  className="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded-lg px-2 py-1"
+                  className="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded-lg px-2.5 py-1.5 focus:outline-none"
                 >
                   <option value="ALL">All Severity</option>
                   <option value="info">Info</option>
@@ -291,7 +303,7 @@ export function ControlOsSystem({
 
                 <button
                   onClick={fetchAuditLogs}
-                  className="min-h-[36px] px-2.5 text-xs text-slate-400 hover:text-white rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800"
+                  className="min-h-[44px] px-3.5 py-1.5 text-xs text-slate-400 hover:text-white rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 transition-colors"
                 >
                   ↻ Refresh
                 </button>
@@ -308,79 +320,139 @@ export function ControlOsSystem({
                 No audit events found for selected filters.
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="border-b border-slate-800/80 bg-slate-900/40 text-[10px] font-mono uppercase tracking-wider text-slate-400">
-                      <th className="p-3.5">Timestamp</th>
-                      <th className="p-3.5">Action Event</th>
-                      <th className="p-3.5">Entity</th>
-                      <th className="p-3.5">Operator</th>
-                      <th className="p-3.5">Severity</th>
-                      <th className="p-3.5 text-right">Details</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/50 font-mono">
-                    {auditLogs.map((log) => (
-                      <tr key={log._id || log.id} className="hover:bg-slate-900/30 transition-colors">
-                        <td className="p-3.5 text-slate-400 text-[11px]">
+              <>
+                {/* Mobile Audit Cards */}
+                <div className="md:hidden p-3 space-y-3">
+                  {auditLogs.map((log) => (
+                    <div
+                      key={log._id || log.id}
+                      className="p-3.5 rounded-xl bg-slate-900/50 border border-slate-800/90 space-y-2 font-mono text-xs"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="font-bold text-white text-xs">{log.action}</span>
+                        <span
+                          className={`px-2 py-0.5 rounded text-[10px] uppercase font-mono shrink-0 ${
+                            log.severity === 'error'
+                              ? 'bg-red-950/80 text-red-400 border border-red-800'
+                              : log.severity === 'warn'
+                              ? 'bg-amber-950/80 text-amber-400 border border-amber-800'
+                              : 'bg-slate-900 text-slate-300 border border-slate-800'
+                          }`}
+                        >
+                          {log.severity || 'info'}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 p-2 rounded-lg bg-black/40 border border-slate-800/80 text-[11px]">
+                        <div>
+                          <span className="text-slate-500 text-[10px] block">Target</span>
+                          <span className="text-cyan-400 truncate block">{log.entityType} : {log.entityId}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 text-[10px] block">Operator</span>
+                          <span className="text-slate-300 truncate block">{log.adminId || 'session:admin'}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1 border-t border-slate-800/60">
+                        <span className="text-slate-500 text-[10px]">
                           {new Date(log.timestamp || log.createdAt).toLocaleString('en-US', {
                             month: 'short',
                             day: 'numeric',
                             hour: '2-digit',
                             minute: '2-digit',
-                            second: '2-digit',
                           })}
-                        </td>
-                        <td className="p-3.5 font-bold text-white text-[11px]">
-                          {log.action}
-                        </td>
-                        <td className="p-3.5 text-cyan-400 text-[11px]">
-                          {log.entityType} : {log.entityId}
-                        </td>
-                        <td className="p-3.5 text-slate-300 text-[11px]">
-                          {log.adminId || 'session:admin'}
-                        </td>
-                        <td className="p-3.5">
-                          <span
-                            className={`px-2 py-0.5 rounded text-[10px] uppercase font-mono ${
-                              log.severity === 'error'
-                                ? 'bg-red-950/80 text-red-400 border border-red-800'
-                                : log.severity === 'warn'
-                                ? 'bg-amber-950/80 text-amber-400 border border-amber-800'
-                                : 'bg-slate-900 text-slate-300 border border-slate-800'
-                            }`}
-                          >
-                            {log.severity || 'info'}
-                          </span>
-                        </td>
-                        <td className="p-3.5 text-right">
-                          <button
-                            onClick={() => setSelectedAuditLog(log)}
-                            className="min-h-[32px] px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px]"
-                          >
-                            Inspect
-                          </button>
-                        </td>
+                        </span>
+                        <button
+                          onClick={() => setSelectedAuditLog(log)}
+                          className="min-h-[44px] px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center transition-colors"
+                        >
+                          Inspect Event
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Preserved Desktop Table */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-800/80 bg-slate-900/40 text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                        <th className="p-3.5">Timestamp</th>
+                        <th className="p-3.5">Action Event</th>
+                        <th className="p-3.5">Entity</th>
+                        <th className="p-3.5">Operator</th>
+                        <th className="p-3.5">Severity</th>
+                        <th className="p-3.5 text-right">Details</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/50 font-mono">
+                      {auditLogs.map((log) => (
+                        <tr key={log._id || log.id} className="hover:bg-slate-900/30 transition-colors">
+                          <td className="p-3.5 text-slate-400 text-[11px]">
+                            {new Date(log.timestamp || log.createdAt).toLocaleString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              second: '2-digit',
+                            })}
+                          </td>
+                          <td className="p-3.5 font-bold text-white text-[11px]">
+                            {log.action}
+                          </td>
+                          <td className="p-3.5 text-cyan-400 text-[11px]">
+                            {log.entityType} : {log.entityId}
+                          </td>
+                          <td className="p-3.5 text-slate-300 text-[11px]">
+                            {log.adminId || 'session:admin'}
+                          </td>
+                          <td className="p-3.5">
+                            <span
+                              className={`px-2 py-0.5 rounded text-[10px] uppercase font-mono ${
+                                log.severity === 'error'
+                                  ? 'bg-red-950/80 text-red-400 border border-red-800'
+                                  : log.severity === 'warn'
+                                  ? 'bg-amber-950/80 text-amber-400 border border-amber-800'
+                                  : 'bg-slate-900 text-slate-300 border border-slate-800'
+                              }`}
+                            >
+                              {log.severity || 'info'}
+                            </span>
+                          </td>
+                          <td className="p-3.5 text-right">
+                            <button
+                              onClick={() => setSelectedAuditLog(log)}
+                              className="min-h-[32px] px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px]"
+                            >
+                              Inspect
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </div>
 
           {/* Audit Detail Inspector Modal */}
           {selectedAuditLog && (
-            <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-              <div className="bg-[#0b121a] border border-slate-800 rounded-3xl p-6 max-w-lg w-full space-y-4">
+            <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+              <div className="bg-[#0b121a] border border-slate-800 rounded-2xl sm:rounded-3xl p-5 sm:p-6 max-w-lg w-full space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                  <h3 className="text-sm font-bold text-white font-mono">
-                    Audit Event: {selectedAuditLog.action}
-                  </h3>
+                  <div className="min-w-0 pr-2">
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-cyan-400 block truncate">SECURITY AUDIT INSPECTION</span>
+                    <h3 className="text-sm font-bold text-white font-mono truncate">
+                      Event: {selectedAuditLog.action}
+                    </h3>
+                  </div>
                   <button
                     onClick={() => setSelectedAuditLog(null)}
-                    className="text-slate-400 hover:text-white"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:text-white rounded-xl bg-slate-800/40 hover:bg-slate-800 transition-colors shrink-0"
+                    aria-label="Close Inspector"
                   >
                     ✕
                   </button>
@@ -413,10 +485,10 @@ export function ControlOsSystem({
                     </div>
                   )}
                 </div>
-                <div className="pt-2 flex justify-end">
+                <div className="pt-2 flex justify-end border-t border-slate-800/60">
                   <button
                     onClick={() => setSelectedAuditLog(null)}
-                    className="min-h-[44px] px-4 py-2 rounded-xl bg-slate-900 text-slate-300 text-xs"
+                    className="min-h-[44px] px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs font-mono transition-colors"
                   >
                     Close
                   </button>
@@ -432,7 +504,7 @@ export function ControlOsSystem({
       {/* ────────────────────────────────────────────────────────────────────── */}
       {activeSubtab === 'backups' && (
         <div className="space-y-6">
-          <div className="bg-[#0b121a] border border-slate-800 rounded-2xl p-6">
+          <div className="bg-[#0b121a] border border-slate-800 rounded-2xl p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4 mb-4">
               <div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider">
@@ -442,11 +514,11 @@ export function ControlOsSystem({
                   Point-in-time state backups of catalog, orders, inquiries, and customer registries.
                 </p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <button
                   disabled={capturingSnapshot}
                   onClick={handleCaptureSnapshot}
-                  className="min-h-[44px] px-4 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs flex items-center gap-2 disabled:opacity-50"
+                  className="min-h-[44px] px-4 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs flex items-center gap-2 disabled:opacity-50 shadow-lg shadow-cyan-400/20 transition-colors"
                 >
                   {capturingSnapshot ? (
                     <span>Capturing State...</span>
@@ -458,7 +530,7 @@ export function ControlOsSystem({
                 </button>
                 <button
                   onClick={fetchSnapshots}
-                  className="min-h-[44px] px-3 py-1.5 text-xs text-slate-400 hover:text-white rounded-xl bg-slate-900 border border-slate-800"
+                  className="min-h-[44px] px-3.5 py-1.5 text-xs text-slate-400 hover:text-white rounded-xl bg-slate-900 border border-slate-800 transition-colors"
                 >
                   ↻ Refresh
                 </button>
@@ -475,60 +547,109 @@ export function ControlOsSystem({
                 No cloud snapshots available. Click &quot;Capture Snapshot Now&quot; to secure current database state.
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="border-b border-slate-800/80 bg-slate-900/40 text-[10px] font-mono uppercase tracking-wider text-slate-400">
-                      <th className="p-3.5">Snapshot Label</th>
-                      <th className="p-3.5">Trigger Source</th>
-                      <th className="p-3.5">Records Included</th>
-                      <th className="p-3.5">Payload Size</th>
-                      <th className="p-3.5">Created At</th>
-                      <th className="p-3.5 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/50 font-mono">
-                    {snapshots.map((snap) => (
-                      <tr key={snap.id} className="hover:bg-slate-900/30 transition-colors">
-                        <td className="p-3.5 font-bold text-white text-[11px]">
-                          {snap.label || snap.id}
-                        </td>
-                        <td className="p-3.5 text-cyan-400 text-[11px]">
-                          {snap.source || 'admin_manual'}
-                        </td>
-                        <td className="p-3.5 text-slate-300 text-[10px]">
-                          {snap.counts
-                            ? `${snap.counts.products || 0} items, ${snap.counts.orders || 0} orders`
-                            : 'Full State'}
-                        </td>
-                        <td className="p-3.5 text-slate-400 text-[11px]">
+              <>
+                {/* Mobile Snapshot Cards */}
+                <div className="md:hidden space-y-3">
+                  {snapshots.map((snap) => (
+                    <div
+                      key={snap.id}
+                      className="p-4 rounded-xl bg-slate-900/50 border border-slate-800/90 space-y-3 font-mono text-xs"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <h4 className="font-bold text-white text-xs truncate">{snap.label || snap.id}</h4>
+                          <span className="text-[10px] text-cyan-400 block">{snap.source || 'admin_manual'}</span>
+                        </div>
+                        <span className="text-[10px] text-slate-400 shrink-0">
                           {snap.sizeBytes ? `${Math.round(snap.sizeBytes / 1024)} KB` : 'N/A'}
-                        </td>
-                        <td className="p-3.5 text-slate-400 text-[11px]">
-                          {new Date(snap.createdAt).toLocaleString()}
-                        </td>
-                        <td className="p-3.5 text-right">
-                          <button
-                            onClick={() => setRestoreConfirmId(snap.id)}
-                            className="min-h-[32px] px-2.5 py-1 rounded bg-red-950/60 hover:bg-red-900/80 text-red-300 border border-red-800/80 text-[11px]"
-                          >
-                            ⚠️ Restore
-                          </button>
-                        </td>
+                        </span>
+                      </div>
+
+                      <div className="p-2 rounded-lg bg-black/40 border border-slate-800/80 text-[11px] space-y-1">
+                        <div className="flex justify-between">
+                          <span className="text-slate-500 text-[10px]">Records:</span>
+                          <span className="text-slate-300 text-right truncate">
+                            {snap.counts
+                              ? `${snap.counts.products || 0} items, ${snap.counts.orders || 0} orders`
+                              : 'Full State'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between border-t border-slate-800/60 pt-1">
+                          <span className="text-slate-500 text-[10px]">Captured:</span>
+                          <span className="text-slate-400 text-[10px]">
+                            {new Date(snap.createdAt).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="pt-1 border-t border-slate-800/60">
+                        <button
+                          onClick={() => setRestoreConfirmId(snap.id)}
+                          className="min-h-[44px] w-full px-3 py-2 rounded-xl bg-red-950/60 hover:bg-red-900/80 text-red-300 border border-red-800/80 text-xs font-semibold flex items-center justify-center transition-colors"
+                        >
+                          ⚠️ Restore State from Snapshot
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Preserved Desktop Table */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-800/80 bg-slate-900/40 text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                        <th className="p-3.5">Snapshot Label</th>
+                        <th className="p-3.5">Trigger Source</th>
+                        <th className="p-3.5">Records Included</th>
+                        <th className="p-3.5">Payload Size</th>
+                        <th className="p-3.5">Created At</th>
+                        <th className="p-3.5 text-right">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/50 font-mono">
+                      {snapshots.map((snap) => (
+                        <tr key={snap.id} className="hover:bg-slate-900/30 transition-colors">
+                          <td className="p-3.5 font-bold text-white text-[11px]">
+                            {snap.label || snap.id}
+                          </td>
+                          <td className="p-3.5 text-cyan-400 text-[11px]">
+                            {snap.source || 'admin_manual'}
+                          </td>
+                          <td className="p-3.5 text-slate-300 text-[10px]">
+                            {snap.counts
+                              ? `${snap.counts.products || 0} items, ${snap.counts.orders || 0} orders`
+                              : 'Full State'}
+                          </td>
+                          <td className="p-3.5 text-slate-400 text-[11px]">
+                            {snap.sizeBytes ? `${Math.round(snap.sizeBytes / 1024)} KB` : 'N/A'}
+                          </td>
+                          <td className="p-3.5 text-slate-400 text-[11px]">
+                            {new Date(snap.createdAt).toLocaleString()}
+                          </td>
+                          <td className="p-3.5 text-right">
+                            <button
+                              onClick={() => setRestoreConfirmId(snap.id)}
+                              className="min-h-[32px] px-2.5 py-1 rounded bg-red-950/60 hover:bg-red-900/80 text-red-300 border border-red-800/80 text-[11px]"
+                            >
+                              ⚠️ Restore
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </div>
 
           {/* High-Risk Restore Confirmation Modal */}
           {restoreConfirmId && (
-            <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
-              <div className="bg-[#0b121a] border border-red-600/50 rounded-3xl p-6 max-w-md w-full space-y-4">
+            <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+              <div className="bg-[#0b121a] border border-red-600/50 rounded-2xl sm:rounded-3xl p-5 sm:p-6 max-w-md w-full space-y-4 shadow-2xl">
                 <div className="flex items-center gap-3 text-red-400">
-                  <span className="text-2xl">⚠️</span>
+                  <span className="text-2xl shrink-0">⚠️</span>
                   <div>
                     <h3 className="text-sm font-bold text-white uppercase tracking-wider">
                       Critical System Action: Restore
@@ -550,24 +671,24 @@ export function ControlOsSystem({
                     value={restorePasscodePrompt}
                     onChange={(e) => setRestorePasscodePrompt(e.target.value)}
                     placeholder="RESTORE"
-                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-xs uppercase"
+                    className="w-full min-h-[44px] bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono text-xs uppercase focus:outline-none focus:ring-1 focus:ring-red-500"
                   />
                 </div>
 
-                <div className="pt-2 flex justify-end gap-2">
+                <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-800/60">
                   <button
                     onClick={() => {
                       setRestoreConfirmId(null);
                       setRestorePasscodePrompt('');
                     }}
-                    className="min-h-[44px] px-4 py-2 rounded-xl bg-slate-900 text-slate-300 text-xs"
+                    className="min-h-[44px] px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-mono transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     disabled={restorePasscodePrompt !== 'RESTORE'}
                     onClick={handleRestoreSnapshot}
-                    className="min-h-[44px] px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs disabled:opacity-30"
+                    className="min-h-[44px] px-5 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs disabled:opacity-30 shadow-lg shadow-red-600/20 transition-colors"
                   >
                     Execute Recovery
                   </button>
@@ -723,7 +844,7 @@ export function ControlOsSystem({
                   type="text"
                   value={settings.companyName}
                   onChange={(e) => setSettings({ ...settings, companyName: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                  className="w-full min-h-[44px] bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:ring-1 focus:ring-cyan-500"
                 />
               </div>
 
@@ -733,7 +854,7 @@ export function ControlOsSystem({
                   type="email"
                   value={settings.supportEmail}
                   onChange={(e) => setSettings({ ...settings, supportEmail: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono"
+                  className="w-full min-h-[44px] bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono focus:outline-none focus:ring-1 focus:ring-cyan-500"
                 />
               </div>
 
@@ -743,7 +864,7 @@ export function ControlOsSystem({
                   type="text"
                   value={settings.supportPhone}
                   onChange={(e) => setSettings({ ...settings, supportPhone: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono"
+                  className="w-full min-h-[44px] bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono focus:outline-none focus:ring-1 focus:ring-cyan-500"
                 />
               </div>
 
@@ -753,7 +874,7 @@ export function ControlOsSystem({
                   type="text"
                   value={settings.whatsappNumber}
                   onChange={(e) => setSettings({ ...settings, whatsappNumber: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono"
+                  className="w-full min-h-[44px] bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono focus:outline-none focus:ring-1 focus:ring-cyan-500"
                 />
               </div>
 
@@ -763,7 +884,7 @@ export function ControlOsSystem({
                   type="text"
                   value={settings.airCargoNotice}
                   onChange={(e) => setSettings({ ...settings, airCargoNotice: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                  className="w-full min-h-[44px] bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:ring-1 focus:ring-cyan-500"
                 />
               </div>
 
@@ -773,7 +894,7 @@ export function ControlOsSystem({
                   type="number"
                   value={settings.maintenanceBufferDays}
                   onChange={(e) => setSettings({ ...settings, maintenanceBufferDays: Number(e.target.value) })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono"
+                  className="w-full min-h-[44px] bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono focus:outline-none focus:ring-1 focus:ring-cyan-500"
                 />
               </div>
 
@@ -783,7 +904,7 @@ export function ControlOsSystem({
                   type="number"
                   value={settings.defaultPaginationLimit}
                   onChange={(e) => setSettings({ ...settings, defaultPaginationLimit: Number(e.target.value) })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono"
+                  className="w-full min-h-[44px] bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono focus:outline-none focus:ring-1 focus:ring-cyan-500"
                 />
               </div>
             </div>
@@ -792,7 +913,7 @@ export function ControlOsSystem({
               <button
                 type="submit"
                 disabled={savingSettings}
-                className="min-h-[44px] px-5 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs disabled:opacity-50"
+                className="min-h-[44px] px-6 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs disabled:opacity-50 shadow-lg shadow-cyan-400/20 transition-colors"
               >
                 {savingSettings ? 'Saving...' : 'Save Configuration'}
               </button>

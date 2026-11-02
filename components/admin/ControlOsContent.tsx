@@ -77,7 +77,7 @@ export function ControlOsContent({
         </div>
 
         {/* Subtabs */}
-        <div className="flex items-center gap-1.5 p-1 bg-[#0b121a] border border-slate-800 rounded-xl">
+        <div className="flex items-center gap-1.5 p-1 bg-[#0b121a] border border-slate-800 rounded-xl overflow-x-auto scrollbar-none max-w-full">
           {[
             { id: 'banners', label: 'Banners & Promos', icon: '🖼️' },
             { id: 'homepage', label: 'Editorial & Alerts', icon: '📢' },
@@ -86,7 +86,7 @@ export function ControlOsContent({
             <button
               key={tab.id}
               onClick={() => setActiveSubtab(tab.id as ContentSubtab)}
-              className={`min-h-[44px] px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all ${
+              className={`min-h-[44px] px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 whitespace-nowrap shrink-0 transition-all ${
                 activeSubtab === tab.id
                   ? 'bg-cyan-400 text-slate-950 shadow-sm'
                   : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
@@ -243,13 +243,13 @@ export function ControlOsContent({
 
           {/* Technical Product SEO Table */}
           <div className="bg-[#0b121a] border border-slate-800 rounded-2xl overflow-hidden">
-            <div className="p-4 border-b border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-3">
+            <div className="p-4 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-2.5">
                 <span className="text-xs font-bold text-white uppercase tracking-wider">Catalog SEO Audit Register</span>
                 <select
                   value={seoFilter}
                   onChange={(e: any) => setSeoFilter(e.target.value)}
-                  className="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded-lg px-2.5 py-1"
+                  className="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded-lg px-2.5 py-1.5 focus:outline-none"
                 >
                   <option value="ALL">All Catalog Items</option>
                   <option value="ISSUES">Needs Review (Missing Meta)</option>
@@ -258,7 +258,7 @@ export function ControlOsContent({
               </div>
               <button
                 onClick={fetchSeoAudit}
-                className="min-h-[44px] px-3 py-1 text-xs text-slate-400 hover:text-white rounded-lg hover:bg-slate-900"
+                className="min-h-[44px] px-3.5 py-1.5 text-xs text-slate-400 hover:text-white rounded-lg hover:bg-slate-900 border border-slate-800/80 transition-colors self-start sm:self-auto"
               >
                 ↻ Refresh Audit
               </button>
@@ -274,63 +274,123 @@ export function ControlOsContent({
                 No catalog items in this SEO filter status.
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="border-b border-slate-800/80 bg-slate-900/40 text-[10px] font-mono uppercase tracking-wider text-slate-400">
-                      <th className="p-3.5">Product / Route</th>
-                      <th className="p-3.5">Meta Title</th>
-                      <th className="p-3.5">Meta Description</th>
-                      <th className="p-3.5">Canonical URL</th>
-                      <th className="p-3.5">OpenGraph</th>
-                      <th className="p-3.5">Robots</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/50">
-                    {seoAudit.items
-                      .filter((item: any) => {
-                        if (seoFilter === 'ISSUES') return !item.hasDescription || !item.hasTitle;
-                        if (seoFilter === 'READY') return item.hasDescription && item.hasTitle;
-                        return true;
-                      })
-                      .map((item: any) => (
-                        <tr key={item.id} className="hover:bg-slate-900/30 transition-colors">
-                          <td className="p-3.5">
-                            <div className="font-semibold text-white">{item.name}</div>
-                            <div className="text-[10px] font-mono text-cyan-400">{item.slug}</div>
-                          </td>
-                          <td className="p-3.5 font-mono text-[11px]">
+              <>
+                {/* Mobile SEO Cards */}
+                <div className="md:hidden p-3 space-y-3">
+                  {seoAudit.items
+                    .filter((item: any) => {
+                      if (seoFilter === 'ISSUES') return !item.hasDescription || !item.hasTitle;
+                      if (seoFilter === 'READY') return item.hasDescription && item.hasTitle;
+                      return true;
+                    })
+                    .map((item: any) => (
+                      <div
+                        key={item.id}
+                        className="p-4 rounded-xl bg-slate-900/50 border border-slate-800/90 space-y-2.5"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0 flex-1">
+                            <h4 className="text-sm font-semibold text-white truncate">{item.name}</h4>
+                            <span className="text-[10px] font-mono text-cyan-400 block truncate">/{item.slug}</span>
+                          </div>
+                          <span className="px-2 py-0.5 rounded bg-emerald-950/70 text-emerald-400 border border-emerald-800 text-[10px] font-mono shrink-0">
+                            index, follow
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-black/40 border border-slate-800 text-xs">
+                          <div>
+                            <span className="text-[10px] text-slate-500 font-mono block">Meta Title</span>
                             {item.hasTitle ? (
-                              <span className="text-emerald-400">✓ {item.titleLength} chars</span>
+                              <span className="text-emerald-400 font-mono text-[11px] font-medium">✓ {item.titleLength} chars</span>
                             ) : (
-                              <span className="text-amber-400">⚠ Missing Title</span>
+                              <span className="text-amber-400 font-mono text-[11px] font-medium">⚠ Missing</span>
                             )}
-                          </td>
-                          <td className="p-3.5 font-mono text-[11px]">
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-500 font-mono block">Meta Description</span>
                             {item.hasDescription ? (
-                              <span className="text-emerald-400">✓ {item.descriptionLength} chars</span>
+                              <span className="text-emerald-400 font-mono text-[11px] font-medium">✓ {item.descriptionLength} chars</span>
                             ) : (
-                              <span className="text-amber-400">⚠ Missing Desc</span>
+                              <span className="text-amber-400 font-mono text-[11px] font-medium">⚠ Missing</span>
                             )}
-                          </td>
-                          <td className="p-3.5 text-slate-400 font-mono text-[10px] truncate max-w-xs">
-                            {item.canonicalUrl || `https://marinecreatures.com/product/${item.slug}`}
-                          </td>
-                          <td className="p-3.5">
+                          </div>
+                          <div className="col-span-2 pt-1 border-t border-slate-800/60">
+                            <span className="text-[10px] text-slate-500 font-mono block">Canonical Route</span>
+                            <span className="text-slate-400 font-mono text-[10px] truncate block">
+                              {item.canonicalUrl || `https://marinecreatures.com/product/${item.slug}`}
+                            </span>
+                          </div>
+                          <div className="col-span-2 pt-1 border-t border-slate-800/60 flex items-center justify-between">
+                            <span className="text-[10px] text-slate-500 font-mono">OpenGraph Asset:</span>
                             <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-[10px] text-slate-300">
                               {item.hasOgImage ? 'OG Image Set' : 'Default Asset'}
                             </span>
-                          </td>
-                          <td className="p-3.5">
-                            <span className="px-2 py-0.5 rounded bg-emerald-950/70 text-emerald-400 border border-emerald-800 text-[10px] font-mono">
-                              index, follow
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+
+                {/* Preserved Desktop Table */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-800/80 bg-slate-900/40 text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                        <th className="p-3.5">Product / Route</th>
+                        <th className="p-3.5">Meta Title</th>
+                        <th className="p-3.5">Meta Description</th>
+                        <th className="p-3.5">Canonical URL</th>
+                        <th className="p-3.5">OpenGraph</th>
+                        <th className="p-3.5">Robots</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/50">
+                      {seoAudit.items
+                        .filter((item: any) => {
+                          if (seoFilter === 'ISSUES') return !item.hasDescription || !item.hasTitle;
+                          if (seoFilter === 'READY') return item.hasDescription && item.hasTitle;
+                          return true;
+                        })
+                        .map((item: any) => (
+                          <tr key={item.id} className="hover:bg-slate-900/30 transition-colors">
+                            <td className="p-3.5">
+                              <div className="font-semibold text-white">{item.name}</div>
+                              <div className="text-[10px] font-mono text-cyan-400">{item.slug}</div>
+                            </td>
+                            <td className="p-3.5 font-mono text-[11px]">
+                              {item.hasTitle ? (
+                                <span className="text-emerald-400">✓ {item.titleLength} chars</span>
+                              ) : (
+                                <span className="text-amber-400">⚠ Missing Title</span>
+                              )}
+                            </td>
+                            <td className="p-3.5 font-mono text-[11px]">
+                              {item.hasDescription ? (
+                                <span className="text-emerald-400">✓ {item.descriptionLength} chars</span>
+                              ) : (
+                                <span className="text-amber-400">⚠ Missing Desc</span>
+                              )}
+                            </td>
+                            <td className="p-3.5 text-slate-400 font-mono text-[10px] truncate max-w-xs">
+                              {item.canonicalUrl || `https://marinecreatures.com/product/${item.slug}`}
+                            </td>
+                            <td className="p-3.5">
+                              <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-[10px] text-slate-300">
+                                {item.hasOgImage ? 'OG Image Set' : 'Default Asset'}
+                              </span>
+                            </td>
+                            <td className="p-3.5">
+                              <span className="px-2 py-0.5 rounded bg-emerald-950/70 text-emerald-400 border border-emerald-800 text-[10px] font-mono">
+                                index, follow
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </div>
         </div>

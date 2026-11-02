@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ControlOsSection, TabItem, OverviewDashboardData } from '@/components/admin/types';
 import { AdminHeader } from '@/components/admin/AdminHeader';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
+import { AdminBottomNav } from '@/components/admin/AdminBottomNav';
 import { ControlOsOverview } from '@/components/admin/ControlOsOverview';
 import { ControlOsSales } from '@/components/admin/ControlOsSales';
 import { ControlOsCatalog } from '@/components/admin/ControlOsCatalog';
@@ -354,7 +355,7 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
         <div
           role="status"
           aria-live="polite"
-          className="fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:w-auto z-50 pointer-events-none"
+          className="fixed bottom-20 sm:bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:w-auto z-50 pointer-events-none"
         >
           <div className="bg-cyan-400 text-slate-950 px-5 py-3 rounded-2xl shadow-2xl font-bold text-xs font-mono text-center">
             {notification}
@@ -400,7 +401,7 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
           />
 
           {/* Main Operational Surface */}
-          <main className="p-4 sm:p-6 lg:p-8 flex-1 max-w-7xl w-full mx-auto">
+          <main className="p-3 sm:p-6 lg:p-8 pb-24 sm:pb-28 lg:pb-8 flex-1 max-w-7xl w-full mx-auto">
             {activeTab === 'overview' && (
               <>
                 {overviewError && (
@@ -489,6 +490,15 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
           </main>
         </div>
       </div>
+
+      {/* Mobile Bottom Navigation Bar (Operational Quick Access) */}
+      <AdminBottomNav
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onOpenMenu={() => setSidebarOpen(true)}
+        onOpenSearch={() => setIsSearchOpen(true)}
+        pendingActionCount={overviewData?.actionCenter.count || 0}
+      />
 
       {/* Global Command Search Modal (Ctrl+K) */}
       <GlobalSearchModal

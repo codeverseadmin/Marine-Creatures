@@ -44,19 +44,20 @@ export function ControlOsOverview({
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 self-start sm:self-auto">
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto w-full sm:w-auto">
           <button
             onClick={onRefresh}
             disabled={isLoading}
-            className="h-9 px-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-medium text-slate-300 hover:text-white transition-all active:scale-95 flex items-center gap-2 disabled:opacity-50"
+            className="min-h-[44px] flex-1 sm:flex-none px-4 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-medium text-slate-300 hover:text-white transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
             title="Refresh database metrics"
           >
             <span className={`text-cyan-400 text-sm ${isLoading ? 'animate-spin' : ''}`}>↻</span>
             <span>{isLoading ? 'Syncing...' : 'Sync Database'}</span>
           </button>
 
-          <div className="h-9 px-3 rounded-xl bg-slate-900/60 border border-slate-800/80 text-[11px] font-mono text-slate-400 flex items-center">
-            {currentDateFormatted}
+          <div className="min-h-[44px] px-3.5 rounded-xl bg-slate-900/60 border border-slate-800/80 text-[11px] font-mono text-slate-400 flex items-center shrink-0">
+            <span className="sm:hidden">{new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short' }).format(new Date())}</span>
+            <span className="hidden sm:inline">{currentDateFormatted}</span>
           </div>
         </div>
       </div>
@@ -102,7 +103,7 @@ export function ControlOsOverview({
             {actionCenter.items.map((item) => (
               <div
                 key={item.id}
-                className="p-4 rounded-2xl bg-[#0c131c] border border-slate-800 hover:border-slate-700 transition-all flex items-start justify-between gap-3 group"
+                className="p-4 rounded-2xl bg-[#0c131c] border border-slate-800 hover:border-slate-700 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 group"
               >
                 <div className="flex items-start gap-3 min-w-0">
                   <span
@@ -131,7 +132,7 @@ export function ControlOsOverview({
 
                 <button
                   onClick={() => onNavigateSection(item.targetTab as ControlOsSection)}
-                  className="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-[11px] font-medium text-slate-300 hover:text-white shrink-0 transition-colors"
+                  className="min-h-[44px] px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-xs font-medium text-cyan-300 hover:text-white shrink-0 transition-colors flex items-center justify-center self-stretch sm:self-auto"
                 >
                   Inspect →
                 </button>
@@ -248,7 +249,7 @@ export function ControlOsOverview({
             </div>
             <button
               onClick={() => onNavigateSection('operations')}
-              className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors font-medium flex items-center gap-1"
+              className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors font-medium min-h-[44px] px-2.5 py-2 -my-2 rounded-lg hover:bg-cyan-500/10 inline-flex items-center gap-1.5"
             >
               <span>View All in Operations (Phase 3C)</span>
               <span>→</span>
@@ -261,57 +262,94 @@ export function ControlOsOverview({
                 No orders registered in the system.
               </div>
             ) : (
-              <div className="overflow-x-auto scrollbar-none">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-800/80 bg-slate-950/40 text-slate-400 font-mono text-[10px] uppercase">
-                      <th className="py-2.5 px-3 sm:px-4">Ref</th>
-                      <th className="py-2.5 px-3 sm:px-4">Customer</th>
-                      <th className="py-2.5 px-3 sm:px-4">Status</th>
-                      <th className="py-2.5 px-3 sm:px-4 text-right">Amount</th>
-                      <th className="py-2.5 px-3 sm:px-4 text-right">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/50">
-                    {orders.map((order) => (
-                      <tr key={order.id} className="hover:bg-slate-900/40 transition-colors">
-                        <td className="py-3 px-3 sm:px-4 font-mono font-bold text-white whitespace-nowrap">
-                          {order.id}
-                        </td>
-                        <td className="py-3 px-3 sm:px-4">
-                          <div className="font-medium text-slate-200 truncate max-w-[140px] sm:max-w-[180px]">
-                            {order.customerName}
-                          </div>
-                          <div className="text-[10px] text-slate-400 truncate max-w-[140px] sm:max-w-[180px]">
-                            {order.city} • {order.itemsCount} {order.itemsCount === 1 ? 'item' : 'items'}
-                          </div>
-                        </td>
-                        <td className="py-3 px-3 sm:px-4 whitespace-nowrap">
-                          <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase tracking-wider ${
-                              order.currentStep === 'DELIVERED'
-                                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                                : order.currentStep === 'DISPATCHED'
-                                ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
-                                : order.currentStep === 'QUARANTINE'
-                                ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
-                                : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                            }`}
-                          >
-                            {order.currentStep}
-                          </span>
-                        </td>
-                        <td className="py-3 px-3 sm:px-4 text-right font-mono font-semibold text-white whitespace-nowrap">
-                          ₹{order.totalAmount.toLocaleString('en-IN')}
-                        </td>
-                        <td className="py-3 px-3 sm:px-4 text-right text-[10px] font-mono text-slate-400 whitespace-nowrap">
-                          {order.createdAt ? order.createdAt.split(' ').slice(0, 3).join(' ') : 'Recent'}
-                        </td>
+              <>
+                {/* Mobile Cards View (< 768px) */}
+                <div className="md:hidden divide-y divide-slate-800/60">
+                  {orders.map((order) => (
+                    <div key={order.id} className="p-3.5 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono font-bold text-white text-xs">{order.id}</span>
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase tracking-wider ${
+                            order.currentStep === 'DELIVERED'
+                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                              : order.currentStep === 'DISPATCHED'
+                              ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
+                              : order.currentStep === 'QUARANTINE'
+                              ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
+                              : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                          }`}
+                        >
+                          {order.currentStep}
+                        </span>
+                      </div>
+                      <div className="flex items-baseline justify-between text-xs">
+                        <div className="min-w-0 pr-2">
+                          <div className="font-medium text-slate-200 truncate">{order.customerName}</div>
+                          <div className="text-[10px] text-slate-400 font-mono truncate">{order.city} • {order.itemsCount} {order.itemsCount === 1 ? 'item' : 'items'}</div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <div className="font-mono font-bold text-white">₹{order.totalAmount.toLocaleString('en-IN')}</div>
+                          <div className="text-[10px] text-slate-500 font-mono">{order.createdAt ? order.createdAt.split(' ').slice(0, 3).join(' ') : 'Recent'}</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop Table View (>= 768px) */}
+                <div className="hidden md:block overflow-x-auto scrollbar-none">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-800/80 bg-slate-950/40 text-slate-400 font-mono text-[10px] uppercase">
+                        <th className="py-2.5 px-3 sm:px-4">Ref</th>
+                        <th className="py-2.5 px-3 sm:px-4">Customer</th>
+                        <th className="py-2.5 px-3 sm:px-4">Status</th>
+                        <th className="py-2.5 px-3 sm:px-4 text-right">Amount</th>
+                        <th className="py-2.5 px-3 sm:px-4 text-right">Date</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/50">
+                      {orders.map((order) => (
+                        <tr key={order.id} className="hover:bg-slate-900/40 transition-colors">
+                          <td className="py-3 px-3 sm:px-4 font-mono font-bold text-white whitespace-nowrap">
+                            {order.id}
+                          </td>
+                          <td className="py-3 px-3 sm:px-4">
+                            <div className="font-medium text-slate-200 truncate max-w-[140px] sm:max-w-[180px]">
+                              {order.customerName}
+                            </div>
+                            <div className="text-[10px] text-slate-400 truncate max-w-[140px] sm:max-w-[180px]">
+                              {order.city} • {order.itemsCount} {order.itemsCount === 1 ? 'item' : 'items'}
+                            </div>
+                          </td>
+                          <td className="py-3 px-3 sm:px-4 whitespace-nowrap">
+                            <span
+                              className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase tracking-wider ${
+                                order.currentStep === 'DELIVERED'
+                                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                                  : order.currentStep === 'DISPATCHED'
+                                  ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
+                                  : order.currentStep === 'QUARANTINE'
+                                  ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
+                                  : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                              }`}
+                            >
+                              {order.currentStep}
+                            </span>
+                          </td>
+                          <td className="py-3 px-3 sm:px-4 text-right font-mono font-semibold text-white whitespace-nowrap">
+                            ₹{order.totalAmount.toLocaleString('en-IN')}
+                          </td>
+                          <td className="py-3 px-3 sm:px-4 text-right text-[10px] font-mono text-slate-400 whitespace-nowrap">
+                            {order.createdAt ? order.createdAt.split(' ').slice(0, 3).join(' ') : 'Recent'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </div>
         </section>
@@ -327,7 +365,7 @@ export function ControlOsOverview({
             </div>
             <button
               onClick={() => onNavigateSection('crm')}
-              className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors font-medium flex items-center gap-1"
+              className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors font-medium min-h-[44px] px-2.5 py-2 -my-2 rounded-lg hover:bg-cyan-500/10 inline-flex items-center gap-1.5"
             >
               <span>View All in CRM (Phase 3C)</span>
               <span>→</span>
@@ -385,7 +423,7 @@ export function ControlOsOverview({
             </div>
             <button
               onClick={() => onNavigateSection('catalog')}
-              className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors font-medium flex items-center gap-1"
+              className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors font-medium min-h-[44px] px-2.5 py-2 -my-2 rounded-lg hover:bg-cyan-500/10 inline-flex items-center gap-1.5"
             >
               <span>Manage in Catalog (Phase 3B)</span>
               <span>→</span>

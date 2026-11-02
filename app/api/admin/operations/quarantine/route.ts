@@ -90,12 +90,18 @@ export async function PATCH(req: NextRequest) {
         timestamp: nowFormatted,
         note: note || 'Specimen prophylactic dip and salinity matching initiated in dedicated quarantine tank',
       } as any);
-    } else if (action === 'pass_quarantine') {
+    } else if (action === 'pass_quarantine' || action === 'PASS') {
       order.currentStep = 'packed';
       order.history.push({
         step: 'packed',
         timestamp: nowFormatted,
-        note: note || 'Quarantine health check passed. Specimen transferred to medical-grade pure oxygen thermal pod',
+        note: note || 'Quarantine health check passed. Specimen certified clean and transferred to thermal shipping pod',
+      } as any);
+    } else if (action === 'EXTEND') {
+      order.history.push({
+        step: 'quarantine',
+        timestamp: nowFormatted,
+        note: note || 'Quarantine extended by 7 days for observation stability',
       } as any);
     } else if (note) {
       order.history.push({

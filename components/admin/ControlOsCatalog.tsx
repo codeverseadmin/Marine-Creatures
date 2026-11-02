@@ -123,6 +123,17 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
+  // Scroll lock when modal dialogs are active
+  useEffect(() => {
+    if (isEditorOpen || archiveTarget || duplicateTarget) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isEditorOpen, archiveTarget, duplicateTarget]);
+
   // ── Fetch Authoritative Catalog from MongoDB ───────────────────────────────
   const fetchCatalogData = useCallback(async () => {
     setIsLoading(true);
@@ -775,12 +786,12 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
           </div>
 
           {/* Quick Filter Toggles */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto">
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               aria-label="Filter by Category"
-              className="min-h-[42px] bg-slate-900 border border-slate-800 focus:border-cyan-400 rounded-xl px-3 text-xs text-slate-300 focus:outline-none"
+              className="min-h-[42px] flex-1 sm:flex-none bg-slate-900 border border-slate-800 focus:border-cyan-400 rounded-xl px-3 text-xs text-slate-300 focus:outline-none"
             >
               <option value="all">All Categories</option>
               {CATALOG_CATEGORIES.map((cat) => (
@@ -794,7 +805,7 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
               aria-label="Filter by Status"
-              className="min-h-[42px] bg-slate-900 border border-slate-800 focus:border-cyan-400 rounded-xl px-3 text-xs text-slate-300 focus:outline-none"
+              className="min-h-[42px] flex-1 sm:flex-none bg-slate-900 border border-slate-800 focus:border-cyan-400 rounded-xl px-3 text-xs text-slate-300 focus:outline-none"
             >
               <option value="all">All Statuses</option>
               <option value="active">Active Only</option>
@@ -804,7 +815,7 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
 
             <button
               onClick={() => setFilterDrawerOpen(!filterDrawerOpen)}
-              className={`min-h-[42px] px-3.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition-colors ${
+              className={`min-h-[42px] px-3.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shrink-0 ${
                 filterDrawerOpen || selectedStockState !== 'all' || selectedImageStatus !== 'all' || selectedPriceMode !== 'all'
                   ? 'bg-cyan-500/10 border-cyan-500/40 text-cyan-300'
                   : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
@@ -1227,30 +1238,30 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
                     </div>
                   </div>
 
-                  {/* Mobile Action Buttons */}
-                  <div className="grid grid-cols-4 gap-2 pt-2 border-t border-slate-800/60">
+                  {/* Mobile Action Buttons (Grid 2-col on small, 4-col on sm) */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-800/60">
                     <Link
                       href={`/marketplace/${p.id}`}
                       target="_blank"
-                      className="min-h-[44px] rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center text-xs"
+                      className="min-h-[44px] rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center text-xs hover:text-white"
                     >
-                      View
+                      View ↗
                     </Link>
                     <button
                       onClick={() => handleOpenEditProduct(p)}
-                      className="min-h-[44px] rounded-xl bg-cyan-400/10 border border-cyan-400/30 text-cyan-300 font-semibold text-xs flex items-center justify-center"
+                      className="min-h-[44px] rounded-xl bg-cyan-400/10 border border-cyan-400/30 text-cyan-300 font-semibold text-xs flex items-center justify-center hover:bg-cyan-400/20"
                     >
-                      Edit
+                      Edit Spec
                     </button>
                     <button
                       onClick={() => setDuplicateTarget(p)}
-                      className="min-h-[44px] rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center text-xs"
+                      className="min-h-[44px] rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center text-xs hover:text-white"
                     >
-                      Copy
+                      Copy ⧉
                     </button>
                     <button
                       onClick={() => setArchiveTarget(p)}
-                      className="min-h-[44px] rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center text-xs"
+                      className="min-h-[44px] rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center text-xs hover:text-white"
                     >
                       {isArchived ? 'Restore' : 'Archive'}
                     </button>
@@ -1264,32 +1275,32 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
 
       {/* ── Add / Edit Product Multi-Section Governance Drawer / Modal ─────── */}
       {isEditorOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto">
-          <div className="relative w-full max-w-4xl bg-[#090f17] border border-slate-800 rounded-3xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden my-auto">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto">
+          <div className="relative w-full max-w-4xl bg-[#090f17] border border-slate-800 rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col h-[94vh] sm:max-h-[92vh] sm:h-auto overflow-hidden my-0 sm:my-auto">
             {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-slate-800/80 flex items-center justify-between bg-slate-900/60 shrink-0">
+            <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-800/80 flex items-center justify-between bg-slate-900/60 shrink-0">
               <div>
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
                   <span>{editingProduct ? 'Edit Catalog Product' : 'Add New Catalog Product'}</span>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
                     Step {activeStep} of 7
                   </span>
                 </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5 truncate max-w-[200px] xs:max-w-xs sm:max-w-none">
                   {editingProduct ? `Governance ID: ${editingProduct.id}` : 'Create an authoritative catalog record'}
                 </p>
               </div>
 
               <button
                 onClick={() => setIsEditorOpen(false)}
-                className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-sm"
+                className="min-w-[44px] min-h-[44px] rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-sm"
               >
                 ✕
               </button>
             </div>
 
             {/* Stepper Navigation Pills */}
-            <div className="px-6 py-3 bg-slate-950/60 border-b border-slate-800/60 overflow-x-auto flex items-center gap-2 shrink-0">
+            <div className="px-3 sm:px-6 py-2.5 bg-slate-950/60 border-b border-slate-800/60 overflow-x-auto flex items-center gap-2 shrink-0 scrollbar-none">
               {[
                 { step: 1, label: '01 Basic' },
                 { step: 2, label: '02 Catalog' },
@@ -1302,7 +1313,7 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
                 <button
                   key={s.step}
                   onClick={() => setActiveStep(s.step)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-mono whitespace-nowrap transition-colors ${
+                  className={`min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-mono whitespace-nowrap transition-colors flex items-center ${
                     activeStep === s.step
                       ? 'bg-cyan-400 text-slate-950 font-bold'
                       : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
@@ -2122,22 +2133,22 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
             </div>
 
             {/* Modal Footer Controls */}
-            <div className="px-6 py-4 border-t border-slate-800/80 bg-slate-900/60 flex items-center justify-between shrink-0">
+            <div className="px-3 sm:px-6 py-3 sm:py-4 border-t border-slate-800/80 bg-slate-900/60 flex items-center justify-between gap-2 shrink-0">
               <div>
                 {activeStep > 1 && (
                   <button
                     onClick={() => setActiveStep((prev) => Math.max(1, prev - 1))}
-                    className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold"
+                    className="min-h-[44px] px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center"
                   >
-                    ← Previous Step
+                    ← Prev
                   </button>
                 )}
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsEditorOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white text-xs font-semibold"
+                  className="min-h-[44px] px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white text-xs font-semibold flex items-center"
                 >
                   Cancel
                 </button>
@@ -2145,7 +2156,7 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
                 {activeStep < 7 ? (
                   <button
                     onClick={() => setActiveStep((prev) => Math.min(7, prev + 1))}
-                    className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold"
+                    className="min-h-[44px] px-4 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 text-xs font-bold flex items-center"
                   >
                     Next Step →
                   </button>
@@ -2153,9 +2164,9 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
                   <button
                     onClick={handleSaveProduct}
                     disabled={isSaving || !validationResults.isValid}
-                    className="px-6 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-950/40 disabled:opacity-50 transition-all"
+                    className="min-h-[44px] px-4 sm:px-6 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-950/40 disabled:opacity-50 transition-all flex items-center"
                   >
-                    {isSaving ? 'Persisting to MongoDB...' : editingProduct ? 'Save Product Changes' : 'Publish Product to Catalog'}
+                    {isSaving ? 'Persisting...' : editingProduct ? 'Save Changes' : 'Publish Product'}
                   </button>
                 )}
               </div>

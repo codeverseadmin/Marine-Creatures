@@ -64,13 +64,13 @@ export function ControlOsAnalytics({
         </div>
 
         {/* Time Range Selector */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 p-1 bg-[#0b121a] border border-slate-800 rounded-xl">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1 p-1 bg-[#0b121a] border border-slate-800 rounded-xl overflow-x-auto">
             {(['7d', '30d', '90d', 'all'] as const).map((r) => (
               <button
                 key={r}
                 onClick={() => setTimeRange(r)}
-                className={`min-h-[36px] px-3 py-1 rounded-lg text-xs font-mono uppercase transition-all ${
+                className={`min-h-[40px] px-3 py-1.5 rounded-lg text-xs font-mono uppercase transition-all ${
                   timeRange === r
                     ? 'bg-cyan-400 text-slate-950 font-bold'
                     : 'text-slate-400 hover:text-white'
@@ -83,7 +83,7 @@ export function ControlOsAnalytics({
 
           <button
             onClick={fetchAnalytics}
-            className="min-h-[44px] px-3 py-1.5 text-xs text-slate-400 hover:text-white rounded-xl bg-[#0b121a] border border-slate-800 hover:bg-slate-900"
+            className="min-h-[44px] px-3.5 py-1.5 text-xs text-slate-400 hover:text-white rounded-xl bg-[#0b121a] border border-slate-800 hover:bg-slate-900 transition-colors"
           >
             ↻ Sync
           </button>
@@ -91,7 +91,7 @@ export function ControlOsAnalytics({
       </div>
 
       {/* Subtab Navigation */}
-      <div className="flex items-center gap-1.5 p-1 bg-[#0b121a] border border-slate-800 rounded-xl w-fit">
+      <div className="flex items-center gap-1.5 p-1 bg-[#0b121a] border border-slate-800 rounded-xl overflow-x-auto scrollbar-none max-w-full w-full sm:w-fit">
         {[
           { id: 'business', label: 'Business & Yield', icon: '💎' },
           { id: 'products', label: 'Product Performance', icon: '🐠' },
@@ -101,7 +101,7 @@ export function ControlOsAnalytics({
           <button
             key={tab.id}
             onClick={() => setActiveSubtab(tab.id as AnalyticsSubtab)}
-            className={`min-h-[44px] px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all ${
+            className={`min-h-[44px] px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 whitespace-nowrap shrink-0 transition-all ${
               activeSubtab === tab.id
                 ? 'bg-cyan-400 text-slate-950 shadow-sm'
                 : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
@@ -251,38 +251,62 @@ export function ControlOsAnalytics({
                   </div>
                 </div>
 
-                <div className="border border-slate-800 rounded-xl overflow-hidden">
-                  <table className="w-full text-left text-xs">
-                    <thead>
-                      <tr className="bg-slate-900/80 text-[10px] font-mono text-slate-400 uppercase">
-                        <th className="p-3">Rank</th>
-                        <th className="p-3">Specimen Name</th>
-                        <th className="p-3">Units Sold</th>
-                        <th className="p-3 text-right">Gross Revenue</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800/60">
-                      {topProducts.length === 0 ? (
-                        <tr>
-                          <td colSpan={4} className="p-6 text-center text-slate-500 font-mono">
-                            Insufficient sales telemetry in this time window.
-                          </td>
-                        </tr>
-                      ) : (
-                        topProducts.map((p: any, i: number) => (
-                          <tr key={i} className="hover:bg-slate-900/30">
-                            <td className="p-3 font-mono text-slate-500">#{i + 1}</td>
-                            <td className="p-3 font-medium text-white">{p.name}</td>
-                            <td className="p-3 font-mono text-slate-300">{p.count}</td>
-                            <td className="p-3 font-mono text-cyan-400 text-right font-bold">
-                              ₹{(p.revenue || 0).toLocaleString('en-IN')}
-                            </td>
+                {topProducts.length === 0 ? (
+                  <div className="p-8 text-center text-slate-500 font-mono text-xs border border-slate-800 rounded-xl">
+                    Insufficient sales telemetry in this time window.
+                  </div>
+                ) : (
+                  <>
+                    {/* Mobile Product Performance Cards */}
+                    <div className="md:hidden space-y-2.5">
+                      {topProducts.map((p: any, i: number) => (
+                        <div
+                          key={i}
+                          className="p-3.5 rounded-xl bg-slate-900/50 border border-slate-800 flex items-center justify-between gap-3"
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <span className="w-7 h-7 rounded-lg bg-slate-800 text-slate-400 font-mono text-xs font-bold flex items-center justify-center shrink-0">
+                              #{i + 1}
+                            </span>
+                            <div className="min-w-0">
+                              <h4 className="text-xs font-semibold text-white truncate">{p.name}</h4>
+                              <span className="text-[10px] text-slate-400 font-mono">{p.count} units delivered</span>
+                            </div>
+                          </div>
+                          <div className="text-right shrink-0 font-mono text-xs font-bold text-cyan-400">
+                            ₹{(p.revenue || 0).toLocaleString('en-IN')}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Preserved Desktop Table */}
+                    <div className="hidden md:block border border-slate-800 rounded-xl overflow-hidden">
+                      <table className="w-full text-left text-xs">
+                        <thead>
+                          <tr className="bg-slate-900/80 text-[10px] font-mono text-slate-400 uppercase">
+                            <th className="p-3">Rank</th>
+                            <th className="p-3">Specimen Name</th>
+                            <th className="p-3">Units Sold</th>
+                            <th className="p-3 text-right">Gross Revenue</th>
                           </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/60">
+                          {topProducts.map((p: any, i: number) => (
+                            <tr key={i} className="hover:bg-slate-900/30">
+                              <td className="p-3 font-mono text-slate-500">#{i + 1}</td>
+                              <td className="p-3 font-medium text-white">{p.name}</td>
+                              <td className="p-3 font-mono text-slate-300">{p.count}</td>
+                              <td className="p-3 font-mono text-cyan-400 text-right font-bold">
+                                ₹{(p.revenue || 0).toLocaleString('en-IN')}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           )}

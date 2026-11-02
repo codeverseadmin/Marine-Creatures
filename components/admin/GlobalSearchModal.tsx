@@ -24,12 +24,18 @@ export function GlobalSearchModal({ isOpen, onClose, onNavigate }: GlobalSearchM
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Lock background scroll when open
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 50);
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => inputRef.current?.focus(), 60);
       setQuery('');
       setResults([]);
       setSelectedIndex(0);
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
     }
   }, [isOpen]);
 
@@ -130,34 +136,43 @@ export function GlobalSearchModal({ isOpen, onClose, onNavigate }: GlobalSearchM
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-start justify-center p-4 pt-16 sm:pt-24"
+      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-start justify-center p-3 sm:p-4 pt-4 sm:pt-20"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
     >
       <div
-        className="bg-[#071018] border border-slate-700 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col"
+        className="bg-[#071018] border border-slate-700 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search Input Bar */}
-        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-slate-800 bg-[#091520]">
-          <span className="text-slate-400 text-lg">🔍</span>
+        <div className="flex items-center gap-2.5 px-3.5 py-3 border-b border-slate-800 bg-[#091520]">
+          <span className="text-slate-400 text-lg shrink-0">🔍</span>
           <input
             ref={inputRef}
             type="text"
-            placeholder="Search orders (MC-8921), products, customers, enquiries, or projects..."
+            placeholder="Search orders, products, clients..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full bg-transparent text-sm text-white placeholder:text-slate-500 focus:outline-none"
+            className="w-full bg-transparent text-sm text-white placeholder:text-slate-500 focus:outline-none min-h-[44px]"
           />
           {loading && (
-            <span className="text-xs text-cyan-400 animate-pulse font-mono">Searching…</span>
+            <span className="text-xs text-cyan-400 animate-pulse font-mono shrink-0">Searching…</span>
+          )}
+          {query && (
+            <button
+              onClick={() => setQuery('')}
+              className="min-w-[44px] min-h-[44px] text-xs text-slate-400 hover:text-white flex items-center justify-center shrink-0"
+              aria-label="Clear search input"
+            >
+              ✕
+            </button>
           )}
           <button
             onClick={onClose}
-            className="px-2 py-1 text-[11px] font-mono text-slate-400 border border-slate-700 rounded-md hover:text-white"
+            className="min-h-[44px] px-3 text-xs font-mono text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl flex items-center justify-center shrink-0"
           >
-            ESC
+            Close
           </button>
         </div>
 
@@ -188,7 +203,7 @@ export function GlobalSearchModal({ isOpen, onClose, onNavigate }: GlobalSearchM
                 key={`${item.type}-${item.id}`}
                 onClick={() => handleSelect(item)}
                 onMouseEnter={() => setSelectedIndex(idx)}
-                className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors ${
+                className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors min-h-[48px] ${
                   isSelected ? 'bg-cyan-500/15 border border-cyan-500/30' : 'hover:bg-slate-850 border border-transparent'
                 }`}
               >
@@ -211,14 +226,16 @@ export function GlobalSearchModal({ isOpen, onClose, onNavigate }: GlobalSearchM
           })}
         </div>
 
-        {/* Modal Footer Keybinds */}
-        <div className="px-4 py-2 bg-slate-950/80 border-t border-slate-800 text-[10px] text-slate-400 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        {/* Modal Footer */}
+        <div className="px-4 py-2.5 bg-slate-950/80 border-t border-slate-800 text-[10px] text-slate-400 flex items-center justify-between">
+          <div className="hidden sm:flex items-center gap-3">
             <span>↑↓ Navigate</span>
             <span>↵ Select</span>
             <span>ESC Close</span>
           </div>
-          <span className="text-slate-400 font-mono">Control OS Global Index</span>
+          <span className="text-slate-400 font-mono text-center sm:text-right w-full sm:w-auto">
+            Control OS Global Index
+          </span>
         </div>
       </div>
     </div>

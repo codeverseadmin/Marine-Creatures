@@ -162,6 +162,17 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
     if (subtab === 'follow-ups') fetchFollowUps();
   }, [subtab, fetchOrders, fetchEnquiries, fetchCustomers, fetchFollowUps]);
 
+  // Scroll lock when any modal is open
+  useEffect(() => {
+    if (selectedOrder || followUpModalEnquiry || activeCustomerDossier) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [selectedOrder, followUpModalEnquiry, activeCustomerDossier]);
+
   // Order state transition
   const handleAdvanceStep = async (orderId: string, nextStep: string) => {
     try {
@@ -271,36 +282,36 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
   return (
     <div className="space-y-6">
       {/* Sales Sub-navigation Bar */}
-      <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 max-w-full">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-800 pb-3 gap-2">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full scrollbar-none">
           <button
             onClick={() => setSubtab('orders')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 ${
-              subtab === 'orders' ? 'bg-cyan-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-white hover:bg-slate-800'
+            className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 flex items-center ${
+              subtab === 'orders' ? 'bg-cyan-400 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-white hover:bg-slate-800'
             }`}
           >
             Orders &amp; Shipments ({orders.length})
           </button>
           <button
             onClick={() => setSubtab('enquiries')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 ${
-              subtab === 'enquiries' ? 'bg-cyan-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-white hover:bg-slate-800'
+            className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 flex items-center ${
+              subtab === 'enquiries' ? 'bg-cyan-400 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-white hover:bg-slate-800'
             }`}
           >
             Concierge Enquiries ({enquiries.length})
           </button>
           <button
             onClick={() => setSubtab('customers')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 ${
-              subtab === 'customers' ? 'bg-cyan-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-white hover:bg-slate-800'
+            className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 flex items-center ${
+              subtab === 'customers' ? 'bg-cyan-400 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-white hover:bg-slate-800'
             }`}
           >
             Customer 360 Dossiers
           </button>
           <button
             onClick={() => setSubtab('follow-ups')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 ${
-              subtab === 'follow-ups' ? 'bg-cyan-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-white hover:bg-slate-800'
+            className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 flex items-center ${
+              subtab === 'follow-ups' ? 'bg-cyan-400 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-white hover:bg-slate-800'
             }`}
           >
             Follow-ups {followUpCounts.overdue ? `(${followUpCounts.overdue} Overdue)` : ''}
@@ -318,32 +329,32 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
       {subtab === 'orders' && (
         <div className="space-y-4">
           {/* Controls & Filter Bar */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#07131e] p-3 rounded-2xl border border-slate-800">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-[#07131e] p-3 rounded-2xl border border-slate-800">
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <input
                 type="text"
                 placeholder="Search Order ID, customer, phone, city..."
                 value={orderSearch}
                 onChange={(e) => setOrderSearch(e.target.value)}
-                className="w-full sm:w-64 h-9 px-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
+                className="w-full sm:w-64 min-h-[44px] px-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
               />
               <button
                 onClick={fetchOrders}
-                className="h-9 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300"
+                className="min-h-[44px] px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 shrink-0"
               >
                 Search
               </button>
             </div>
 
             {/* Step Filter Badges */}
-            <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+            <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
               {['all', 'placed', 'quarantine', 'packed', 'dispatched', 'delivered'].map((st) => (
                 <button
                   key={st}
                   onClick={() => setOrderStepFilter(st)}
-                  className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold uppercase tracking-wider shrink-0 transition-colors ${
+                  className={`min-h-[36px] px-3 py-1 rounded-lg text-[10px] font-mono font-bold uppercase tracking-wider shrink-0 transition-colors flex items-center ${
                     orderStepFilter === st
-                      ? 'bg-cyan-400 text-slate-950'
+                      ? 'bg-cyan-400 text-slate-950 font-bold'
                       : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
                   }`}
                 >
@@ -353,7 +364,7 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
             </div>
           </div>
 
-          {/* Orders Operational Table */}
+          {/* Orders Operational Table & Mobile Cards */}
           {loadingOrders ? (
             <div className="p-12 text-center text-xs text-slate-400 animate-pulse font-mono">
               Loading active orders...
@@ -363,7 +374,158 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
               No orders found matching the filter criteria.
             </div>
           ) : (
-            <div className="bg-[#07131e] border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+            <>
+              {/* Mobile Orders Card View (< 768px) */}
+              <div className="md:hidden space-y-3">
+                {orders.map((o) => {
+                  const nextStepMap: Record<string, string> = {
+                    placed: 'quarantine',
+                    quarantine: 'packed',
+                    packed: 'dispatched',
+                    dispatched: 'delivered',
+                  };
+                  const nextStep = nextStepMap[o.currentStep];
+
+                  return (
+                    <div
+                      key={o.id}
+                      className="bg-[#07131e] border border-slate-800 rounded-2xl p-4 space-y-3 shadow-md"
+                    >
+                      {/* Card Header: ID, Step Badge, Date */}
+                      <div className="flex items-center justify-between gap-2">
+                        <div>
+                          <span className="font-mono font-bold text-cyan-400 text-sm">#{o.id}</span>
+                          <span className="text-[10px] text-slate-400 block font-mono mt-0.5">{o.createdAt}</span>
+                        </div>
+
+                        <span
+                          className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider border ${
+                            o.currentStep === 'delivered'
+                              ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                              : o.currentStep === 'dispatched'
+                              ? 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30'
+                              : o.currentStep === 'packed'
+                              ? 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30'
+                              : o.currentStep === 'quarantine'
+                              ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+                              : 'bg-slate-800 text-slate-300 border-slate-700'
+                          }`}
+                        >
+                          {o.currentStep}
+                        </span>
+                      </div>
+
+                      {/* Customer & Destination */}
+                      <div className="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80 space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-semibold text-white truncate">{o.customerName}</span>
+                          <a href={`tel:${o.phone}`} className="font-mono text-cyan-400 text-[11px] hover:underline">
+                            {o.phone}
+                          </a>
+                        </div>
+                        <div className="text-[11px] text-slate-400 truncate">
+                          📍 {o.city} • {o.pincode || 'Metro'}
+                        </div>
+                        <div className="text-[10px] text-slate-400 pt-1 border-t border-slate-800/60">
+                          <strong className="text-slate-300">{o.items?.length || 0} specimens: </strong>
+                          <span className="truncate inline-block max-w-[200px] align-bottom">
+                            {o.items?.map((i: any) => `${i.name} (x${i.quantity})`).join(', ')}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Financial & Logistics Info */}
+                      <div className="flex items-center justify-between text-xs pt-1">
+                        <div>
+                          <span className="text-[10px] text-slate-400 block">Total Amount</span>
+                          <span className="font-mono font-bold text-emerald-400 text-sm">
+                            ₹{o.totalAmount?.toLocaleString('en-IN')}
+                          </span>
+                        </div>
+
+                        <div className="text-right">
+                          <span className="text-[10px] text-slate-400 block">Cargo / AWB</span>
+                          {editingAwbOrderId === o.id ? (
+                            <div className="flex items-center gap-1.5 mt-1">
+                              <input
+                                type="text"
+                                placeholder="AWB"
+                                value={awbInput}
+                                onChange={(e) => setAwbInput(e.target.value)}
+                                className="w-24 h-8 px-2 rounded bg-black border border-slate-700 text-[11px] font-mono text-white"
+                              />
+                              <button
+                                onClick={() => handleSaveAwb(o.id)}
+                                className="min-h-[32px] px-2.5 bg-cyan-400 text-slate-950 font-bold rounded text-[11px]"
+                              >
+                                Save
+                              </button>
+                              <button
+                                onClick={() => setEditingAwbOrderId(null)}
+                                className="min-h-[32px] px-2 text-slate-400 hover:text-white text-xs"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-end gap-1.5">
+                              <span className="font-mono text-[11px] text-slate-300">
+                                {o.awbNumber || 'No AWB'}
+                              </span>
+                              <button
+                                onClick={() => {
+                                  setEditingAwbOrderId(o.id);
+                                  setAwbInput(o.awbNumber || '');
+                                  setCourierInput(o.courierName || 'IndiGo CarGo Priority Express');
+                                }}
+                                className="min-h-[36px] min-w-[36px] flex items-center justify-center text-xs text-cyan-400"
+                                title="Edit AWB / Carrier"
+                              >
+                                ✏️
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Mobile Actions Bar (44px touch targets) */}
+                      <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800">
+                        {nextStep ? (
+                          <button
+                            onClick={() => handleAdvanceStep(o.id, nextStep)}
+                            className="min-h-[44px] px-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase transition-colors flex items-center justify-center text-center"
+                          >
+                            → {nextStep}
+                          </button>
+                        ) : (
+                          <div className="min-h-[44px] flex items-center justify-center text-[10px] text-emerald-400 font-mono">
+                            ✓ Complete
+                          </div>
+                        )}
+
+                        <a
+                          href={`/invoice/${o.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="min-h-[44px] px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium flex items-center justify-center text-center border border-slate-700"
+                        >
+                          Invoice ↗
+                        </a>
+
+                        <button
+                          onClick={() => setSelectedOrder(o)}
+                          className="min-h-[44px] px-2 rounded-xl bg-cyan-400/10 hover:bg-cyan-400/20 border border-cyan-400/30 text-cyan-300 text-xs font-semibold flex items-center justify-center text-center"
+                        >
+                          Details
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop Orders Table View (>= 768px) */}
+              <div className="hidden md:block bg-[#07131e] border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead className="bg-[#040c14] border-b border-slate-800 text-[10px] uppercase font-mono tracking-wider text-slate-400">
@@ -501,16 +663,17 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
                 </table>
               </div>
             </div>
+            </>
           )}
 
           {/* Order Details Modal Drawer */}
           {selectedOrder && (
             <div
-              className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+              className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4"
               onClick={() => setSelectedOrder(null)}
             >
               <div
-                className="bg-[#07131e] border border-slate-700 rounded-3xl p-6 max-w-2xl w-full max-h-[85vh] overflow-y-auto space-y-5"
+                className="bg-[#07131e] border border-slate-700 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 max-w-2xl w-full max-h-[92vh] sm:max-h-[85vh] overflow-y-auto space-y-5 shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex items-center justify-between border-b border-slate-800 pb-4">
@@ -525,19 +688,22 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
                   </div>
                   <button
                     onClick={() => setSelectedOrder(null)}
-                    className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center text-xs"
+                    className="min-w-[44px] min-h-[44px] rounded-xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center text-sm transition-colors"
+                    aria-label="Close modal"
                   >
                     ✕
                   </button>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs">
                   <div className="bg-[#050f18] p-3.5 rounded-xl border border-slate-800">
                     <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">
                       Customer Dossier
                     </span>
                     <h4 className="font-bold text-white text-sm">{selectedOrder.customerName}</h4>
-                    <p className="text-cyan-400 font-mono mt-0.5">{selectedOrder.phone}</p>
+                    <a href={`tel:${selectedOrder.phone}`} className="text-cyan-400 font-mono mt-0.5 block hover:underline">
+                      {selectedOrder.phone}
+                    </a>
                     <p className="text-slate-300 mt-1">{selectedOrder.address}, {selectedOrder.city} - {selectedOrder.pincode}</p>
                   </div>
                   <div className="bg-[#050f18] p-3.5 rounded-xl border border-slate-800">
@@ -606,23 +772,23 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
       {/* ─────────────────────────────────────────────────────────────────── */}
       {subtab === 'enquiries' && (
         <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#07131e] p-3 rounded-2xl border border-slate-800">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-[#07131e] p-3 rounded-2xl border border-slate-800">
             <input
               type="text"
               placeholder="Search leads by name, phone, service, location..."
               value={enquirySearch}
               onChange={(e) => setEnquirySearch(e.target.value)}
-              className="w-full sm:w-64 h-9 px-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
+              className="w-full sm:w-72 min-h-[44px] px-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
             />
 
-            <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+            <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
               {['all', 'new', 'contacted', 'qualified', 'proposal', 'won', 'lost'].map((st) => (
                 <button
                   key={st}
                   onClick={() => setEnquiryStageFilter(st)}
-                  className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold uppercase tracking-wider shrink-0 transition-colors ${
+                  className={`min-h-[36px] px-3 py-1 rounded-lg text-[10px] font-mono font-bold uppercase tracking-wider shrink-0 transition-colors flex items-center ${
                     enquiryStageFilter === st
-                      ? 'bg-cyan-400 text-slate-950'
+                      ? 'bg-cyan-400 text-slate-950 font-bold'
                       : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
                   }`}
                 >
@@ -656,7 +822,9 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
 
                   <div>
                     <h4 className="font-bold text-white text-sm">{enq.name}</h4>
-                    <p className="text-cyan-400 text-xs font-mono font-semibold">{enq.phone}</p>
+                    <a href={`tel:${enq.phone}`} className="text-cyan-400 text-xs font-mono font-semibold block hover:underline">
+                      {enq.phone}
+                    </a>
                     {enq.email && <p className="text-[11px] text-slate-400">{enq.email}</p>}
                     {enq.location && <p className="text-[11px] text-slate-400">📍 {enq.location}</p>}
                   </div>
@@ -670,11 +838,11 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
                   )}
 
                   {/* Stage Dropdown + Actions */}
-                  <div className="pt-2 border-t border-slate-800 flex items-center justify-between gap-2">
+                  <div className="pt-3 border-t border-slate-800 flex flex-col xs:flex-row items-stretch xs:items-center justify-between gap-2">
                     <select
                       value={enq.status}
                       onChange={(e) => handleEnquiryStatusChange(enq.id, e.target.value)}
-                      className="bg-black border border-slate-700 text-white text-[11px] font-mono rounded-lg px-2 py-1 focus:outline-none focus:border-cyan-400"
+                      className="min-h-[44px] bg-black border border-slate-700 text-white text-xs font-mono rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-400"
                     >
                       <option value="new">NEW</option>
                       <option value="contacted">CONTACTED</option>
@@ -684,13 +852,13 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
                       <option value="lost">LOST</option>
                     </select>
 
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-2">
                       <button
                         onClick={() => {
                           setFollowUpModalEnquiry(enq);
                           setFollowUpDateInput(new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
                         }}
-                        className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-semibold"
+                        className="min-h-[44px] flex-1 xs:flex-initial px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center border border-slate-700"
                         title="Schedule Follow-up"
                       >
                         ⏰ Follow-up
@@ -702,7 +870,7 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
                         )}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="px-2.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[10px] flex items-center gap-1 shadow"
+                        className="min-h-[44px] flex-1 xs:flex-initial px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow"
                       >
                         <span>💬</span>
                         <span>WhatsApp</span>
@@ -717,16 +885,26 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
           {/* Schedule Follow-up Modal */}
           {followUpModalEnquiry && (
             <div
-              className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+              className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4"
               onClick={() => setFollowUpModalEnquiry(null)}
             >
               <div
-                className="bg-[#07131e] border border-slate-700 rounded-3xl p-6 max-w-md w-full space-y-4"
+                className="bg-[#07131e] border border-slate-700 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 max-w-md w-full space-y-4 shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
               >
-                <h3 className="font-bold text-white text-sm">
-                  Schedule Follow-up for {followUpModalEnquiry.name}
-                </h3>
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h3 className="font-bold text-white text-sm">
+                    Schedule Follow-up for {followUpModalEnquiry.name}
+                  </h3>
+                  <button
+                    onClick={() => setFollowUpModalEnquiry(null)}
+                    className="min-w-[40px] min-h-[40px] rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs"
+                    aria-label="Close modal"
+                  >
+                    ✕
+                  </button>
+                </div>
+
                 <div className="space-y-3 text-xs">
                   <div>
                     <label className="text-[10px] text-slate-400 uppercase font-bold block mb-1">
@@ -736,7 +914,7 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
                       type="date"
                       value={followUpDateInput}
                       onChange={(e) => setFollowUpDateInput(e.target.value)}
-                      className="w-full h-9 px-3 rounded-xl bg-black border border-slate-700 text-white text-xs"
+                      className="w-full min-h-[44px] px-3 rounded-xl bg-black border border-slate-700 text-white text-xs"
                     />
                   </div>
                   <div>
@@ -755,13 +933,13 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
                 <div className="flex items-center justify-end gap-2 pt-2">
                   <button
                     onClick={() => setFollowUpModalEnquiry(null)}
-                    className="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 text-xs"
+                    className="min-h-[44px] px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleCreateEnquiryFollowUp}
-                    className="px-4 py-1.5 rounded-xl bg-cyan-400 text-slate-950 font-bold text-xs"
+                    className="min-h-[44px] px-5 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs"
                   >
                     Save Follow-up
                   </button>
@@ -777,17 +955,17 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
       {/* ─────────────────────────────────────────────────────────────────── */}
       {subtab === 'customers' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between gap-3 bg-[#07131e] p-3 rounded-2xl border border-slate-800">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-[#07131e] p-3 rounded-2xl border border-slate-800">
             <input
               type="text"
               placeholder="Search customer dossiers by name, phone, city, VIP tags..."
               value={customerSearch}
               onChange={(e) => setCustomerSearch(e.target.value)}
-              className="w-full sm:w-80 h-9 px-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
+              className="w-full sm:w-80 min-h-[44px] px-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
             />
             <button
               onClick={fetchCustomers}
-              className="h-9 px-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 shrink-0"
+              className="min-h-[44px] px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 shrink-0"
             >
               Refresh Dossiers
             </button>
@@ -823,7 +1001,7 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
                   </div>
 
                   {/* Summary badges */}
-                  <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800 text-center text-[10px] font-mono">
+                  <div className="grid grid-cols-3 gap-1.5 sm:gap-2 pt-2 border-t border-slate-800 text-center text-[10px] font-mono">
                     <div className="bg-slate-950 p-1.5 rounded-lg border border-slate-800">
                       <span className="text-slate-400 block">Orders</span>
                       <strong className="text-white">{c.totalOrdersCount || 0}</strong>
@@ -845,11 +1023,11 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
           {/* Full Customer 360 Dossier Modal */}
           {activeCustomerDossier && (
             <div
-              className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+              className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4"
               onClick={() => setActiveCustomerDossier(null)}
             >
               <div
-                className="bg-[#07131e] border border-slate-700 rounded-3xl p-6 max-w-3xl w-full max-h-[85vh] overflow-y-auto space-y-6"
+                className="bg-[#07131e] border border-slate-700 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 max-w-3xl w-full max-h-[92vh] sm:max-h-[85vh] overflow-y-auto space-y-6 shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Header */}
@@ -872,14 +1050,15 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
                   </div>
                   <button
                     onClick={() => setActiveCustomerDossier(null)}
-                    className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center text-xs"
+                    className="min-w-[44px] min-h-[44px] rounded-xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center text-sm transition-colors"
+                    aria-label="Close dossier"
                   >
                     ✕
                   </button>
                 </div>
 
                 {/* Metrics strip */}
-                <div className="grid grid-cols-4 gap-3 text-center text-xs font-mono">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 text-center text-xs font-mono">
                   <div className="bg-[#050f18] p-3 rounded-xl border border-slate-800">
                     <span className="text-slate-400 block text-[10px]">Total Spend</span>
                     <strong className="text-emerald-400 text-sm">₹{activeCustomerDossier.totalSpend?.toLocaleString('en-IN')}</strong>
@@ -950,36 +1129,36 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
       {/* ─────────────────────────────────────────────────────────────────── */}
       {subtab === 'follow-ups' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between bg-[#07131e] p-3 rounded-2xl border border-slate-800">
-            <div className="flex items-center gap-2">
+          <div className="bg-[#07131e] p-3 rounded-2xl border border-slate-800">
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
               <button
                 onClick={() => setFollowUpTimeframe('today')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold ${
-                  followUpTimeframe === 'today' ? 'bg-cyan-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'
+                className={`min-h-[40px] px-3.5 py-1.5 rounded-xl text-xs font-semibold shrink-0 transition-all ${
+                  followUpTimeframe === 'today' ? 'bg-cyan-400 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-white'
                 }`}
               >
                 Today ({followUpCounts.today || 0})
               </button>
               <button
                 onClick={() => setFollowUpTimeframe('overdue')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold ${
-                  followUpTimeframe === 'overdue' ? 'bg-rose-500 text-white font-bold' : 'text-slate-400 hover:text-white'
+                className={`min-h-[40px] px-3.5 py-1.5 rounded-xl text-xs font-semibold shrink-0 transition-all ${
+                  followUpTimeframe === 'overdue' ? 'bg-rose-500 text-white font-bold shadow-sm' : 'text-slate-400 hover:text-white'
                 }`}
               >
                 Overdue ({followUpCounts.overdue || 0})
               </button>
               <button
                 onClick={() => setFollowUpTimeframe('upcoming')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold ${
-                  followUpTimeframe === 'upcoming' ? 'bg-cyan-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'
+                className={`min-h-[40px] px-3.5 py-1.5 rounded-xl text-xs font-semibold shrink-0 transition-all ${
+                  followUpTimeframe === 'upcoming' ? 'bg-cyan-400 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-white'
                 }`}
               >
                 Upcoming ({followUpCounts.upcoming || 0})
               </button>
               <button
                 onClick={() => setFollowUpTimeframe('completed')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold ${
-                  followUpTimeframe === 'completed' ? 'bg-emerald-500 text-white font-bold' : 'text-slate-400 hover:text-white'
+                className={`min-h-[40px] px-3.5 py-1.5 rounded-xl text-xs font-semibold shrink-0 transition-all ${
+                  followUpTimeframe === 'completed' ? 'bg-emerald-500 text-white font-bold shadow-sm' : 'text-slate-400 hover:text-white'
                 }`}
               >
                 Completed ({followUpCounts.completed || 0})
@@ -1000,7 +1179,7 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
               {followUps.map((flw) => (
                 <div
                   key={flw.id}
-                  className="bg-[#07131e] border border-slate-800 rounded-2xl p-4 flex items-center justify-between gap-4"
+                  className="bg-[#07131e] border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md"
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
@@ -1018,21 +1197,22 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
                     {flw.notes && <p className="text-slate-400 text-[11px]">{flw.notes}</p>}
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-2 self-stretch sm:self-auto justify-end">
                     <a
                       href={`https://wa.me/${flw.customerPhone.replace(/\D/g, '')}?text=${encodeURIComponent(
                         `Hi ${flw.customerName}, following up regarding your Marine Creatures consultation!`
                       )}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs"
+                      className="min-h-[44px] flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow"
                     >
-                      💬 WhatsApp
+                      <span>💬</span>
+                      <span>WhatsApp</span>
                     </a>
                     {flw.status === 'pending' && (
                       <button
                         onClick={() => handleCompleteFollowUp(flw.id)}
-                        className="px-3 py-1.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs"
+                        className="min-h-[44px] flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs flex items-center justify-center"
                       >
                         ✓ Complete
                       </button>

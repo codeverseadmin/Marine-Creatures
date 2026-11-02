@@ -1,0 +1,177 @@
+{
+  "breakpoints": [
+    {
+      "name": "320x640",
+      "w": 320,
+      "h": 640,
+      "isMobile": true,
+      "label": "Small Mobile",
+      "docW": 320,
+      "winW": 320,
+      "bodyW": 320,
+      "hasOverflow": false,
+      "bottomNavVisible": true,
+      "bottomNavHeight": 65,
+      "filename": "qa-screenshots/admin-320x640.png"
+    },
+    {
+      "name": "360x800",
+      "w": 360,
+      "h": 800,
+      "isMobile": true,
+      "label": "Standard Android",
+      "docW": 360,
+      "winW": 360,
+      "bodyW": 360,
+      "hasOverflow": false,
+      "bottomNavVisible": true,
+      "bottomNavHeight": 65,
+      "filename": "qa-screenshots/admin-360x800.png"
+    },
+    {
+      "name": "375x812",
+      "w": 375,
+      "h": 812,
+      "isMobile": true,
+      "label": "Standard iPhone",
+      "docW": 375,
+      "winW": 375,
+      "bodyW": 375,
+      "hasOverflow": false,
+      "bottomNavVisible": true,
+      "bottomNavHeight": 65,
+      "filename": "qa-screenshots/admin-375x812.png"
+    },
+    {
+      "name": "390x844",
+      "w": 390,
+      "h": 844,
+      "isMobile": true,
+      "label": "iPhone Pro",
+      "docW": 390,
+      "winW": 390,
+      "bodyW": 390,
+      "hasOverflow": false,
+      "bottomNavVisible": true,
+      "bottomNavHeight": 65,
+      "filename": "qa-screenshots/admin-390x844.png"
+    },
+    {
+      "name": "430x932",
+      "w": 430,
+      "h": 932,
+      "isMobile": true,
+      "label": "Large Mobile",
+      "docW": 430,
+      "winW": 430,
+      "bodyW": 430,
+      "hasOverflow": false,
+      "bottomNavVisible": true,
+      "bottomNavHeight": 65,
+      "filename": "qa-screenshots/admin-430x932.png"
+    },
+    {
+      "name": "768x1024",
+      "w": 768,
+      "h": 1024,
+      "isMobile": false,
+      "label": "Tablet Portrait",
+      "docW": 765,
+      "winW": 768,
+      "bodyW": 765,
+      "hasOverflow": false,
+      "bottomNavVisible": true,
+      "bottomNavHeight": 65,
+      "filename": "qa-screenshots/admin-768x1024.png"
+    },
+    {
+      "name": "1024x768",
+      "w": 1024,
+      "h": 768,
+      "isMobile": false,
+      "label": "Tablet Landscape",
+      "docW": 1021,
+      "winW": 1024,
+      "bodyW": 1021,
+      "hasOverflow": false,
+      "bottomNavVisible": false,
+      "bottomNavHeight": 0,
+      "filename": "qa-screenshots/admin-1024x768.png"
+    },
+    {
+      "name": "1440x900",
+      "w": 1440,
+      "h": 900,
+      "isMobile": false,
+      "label": "Desktop Standard",
+      "docW": 1437,
+      "winW": 1440,
+      "bodyW": 1437,
+      "hasOverflow": false,
+      "bottomNavVisible": false,
+      "bottomNavHeight": 0,
+      "filename": "qa-screenshots/admin-1440x900.png"
+    }
+  ],
+  "workflows": {
+    "A": {
+      "name": "Module Navigation",
+      "passed": true,
+      "details": "8/8 modules loaded with zero horizontal overflow and proper headings."
+    },
+    "B": {
+      "name": "Inspect Order Details",
+      "passed": true,
+      "details": "Modal inspected with screenshot saved. Close button verified: true"
+    },
+    "C": {
+      "name": "Change Order Lifecycle Status",
+      "passed": true,
+      "details": "Sample order MC-611716YH lifecycle transition confirmed."
+    },
+    "D": {
+      "name": "Open and Edit Product",
+      "passed": false,
+      "details": "Product modal opened. Height: 0px within Viewport 812px. 3 inputs verified."
+    },
+    "E": {
+      "name": "Update Inventory Information",
+      "passed": true,
+      "details": "Product Nemo Extreme Series II Smart Marine LED stock information updated in database."
+    },
+    "F": {
+      "name": "Review Customer Enquiry & Contact Action",
+      "passed": true,
+      "details": "Found 3 WhatsApp actions with touch target height 44px."
+    },
+    "G": {
+      "name": "Update Quarantine Record",
+      "passed": true,
+      "details": "Found 20 clean-certify touch actions with height 44px. API validated: true."
+    },
+    "H": {
+      "name": "Assign / Edit AWB Logistics",
+      "passed": true,
+      "details": "AWB modal opened with 3 input fields and accessible save action."
+    },
+    "I": {
+      "name": "Global Search with Mobile Keyboard Input",
+      "passed": true,
+      "details": "Search dialog opened, focused, and received query input: \"Reef\"."
+    },
+    "J": {
+      "name": "Complex Modal Form (Schedule Architectural Service)",
+      "passed": true,
+      "details": "Architectural scheduling modal opened; form and submit button verified. Scroll container verified: true."
+    }
+  },
+  "quality": {
+    "totalInteractive": 31,
+    "sub40Count": 0,
+    "sub44Count": 0,
+    "smallElements": [],
+    "sub10FontCount": 12,
+    "overflowCount": 0,
+    "overflowElements": []
+  }
+}

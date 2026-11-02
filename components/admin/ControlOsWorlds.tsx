@@ -160,6 +160,17 @@ export function ControlOsWorlds() {
     return () => clearTimeout(timer);
   }, [search]);
 
+  // Scroll lock when modal dialogs are active
+  useEffect(() => {
+    if (isCaseStudyModalOpen || isProjectModalOpen || confirmAction) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isCaseStudyModalOpen, isProjectModalOpen, confirmAction]);
+
   // Fetch Worlds Data
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -409,13 +420,13 @@ export function ControlOsWorlds() {
         </div>
 
         {/* Sub-Tabs */}
-        <div className="flex items-center p-1 rounded-xl bg-slate-900 border border-slate-800 shrink-0">
+        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-900 border border-slate-800 shrink-0 overflow-x-auto scrollbar-none w-full sm:w-auto">
           <button
             type="button"
             onClick={() => setSubTab('overview')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold transition-all shrink-0 flex items-center ${
               subTab === 'overview'
-                ? 'bg-cyan-500 text-black shadow font-semibold'
+                ? 'bg-cyan-400 text-slate-950 shadow font-bold'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -424,28 +435,28 @@ export function ControlOsWorlds() {
           <button
             type="button"
             onClick={() => setSubTab('case_studies')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
+            className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold transition-all shrink-0 flex items-center gap-1.5 ${
               subTab === 'case_studies'
-                ? 'bg-cyan-500 text-black shadow font-semibold'
+                ? 'bg-cyan-400 text-slate-950 shadow font-bold'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
             <span>Case Studies</span>
-            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-black/30 text-current">
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-black/40 text-current">
               {metrics?.caseStudies.total || 0}
             </span>
           </button>
           <button
             type="button"
             onClick={() => setSubTab('client_projects')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
+            className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold transition-all shrink-0 flex items-center gap-1.5 ${
               subTab === 'client_projects'
-                ? 'bg-cyan-500 text-black shadow font-semibold'
+                ? 'bg-cyan-400 text-slate-950 shadow font-bold'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
             <span>Client Projects</span>
-            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-black/30 text-current">
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-black/40 text-current">
               {metrics?.clientProjects.total || 0}
             </span>
           </button>
@@ -768,29 +779,30 @@ export function ControlOsWorlds() {
 
       {/* ── MODAL 1: CASE STUDY EDITOR (10 STEPS / SECTIONS) ─────────────── */}
       {isCaseStudyModalOpen && editingCaseStudy && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-          <div className="bg-[#0b121a] border border-slate-800 rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-6 overflow-y-auto">
+          <div className="bg-[#0b121a] border border-slate-800 rounded-2xl sm:rounded-3xl w-full max-w-4xl h-[95vh] sm:h-auto sm:max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
             {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
-              <div>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-cyan-400 block">
+            <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/50 shrink-0">
+              <div className="min-w-0 pr-2">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-cyan-400 block truncate">
                   CASE STUDY GOVERNANCE // {editingCaseStudy.slug ? 'EDITING RECORD' : 'NEW RECORD'}
                 </span>
-                <h3 className="text-base font-bold text-white">
+                <h3 className="text-sm sm:text-base font-bold text-white truncate">
                   {editingCaseStudy.title || 'Untitled Case Study'}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setIsCaseStudyModalOpen(false)}
-                className="text-slate-400 hover:text-white p-1 text-sm rounded-lg"
+                className="min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:text-white text-base rounded-xl bg-slate-800/40 hover:bg-slate-800 shrink-0 transition-colors"
+                aria-label="Close Case Study Editor"
               >
                 ✕
               </button>
             </div>
 
             {/* Stepper Tabs */}
-            <div className="px-6 py-2 border-b border-slate-800/80 bg-slate-900/30 flex items-center gap-1 overflow-x-auto text-[11px] font-mono">
+            <div className="px-3 sm:px-6 py-2 border-b border-slate-800/80 bg-slate-900/30 flex items-center gap-1.5 overflow-x-auto text-[11px] font-mono scrollbar-none shrink-0">
               {[
                 { s: 1, label: '01 STORY' },
                 { s: 2, label: '02 PROJECT' },
@@ -805,7 +817,7 @@ export function ControlOsWorlds() {
                   key={tab.s}
                   type="button"
                   onClick={() => setCaseStudyStep(tab.s)}
-                  className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-all ${
+                  className={`min-h-[38px] px-3 py-1.5 rounded-lg whitespace-nowrap transition-all ${
                     caseStudyStep === tab.s
                       ? 'bg-cyan-500/20 text-cyan-300 font-semibold border border-cyan-500/40'
                       : 'text-slate-400 hover:text-white'
@@ -1290,12 +1302,12 @@ export function ControlOsWorlds() {
             </div>
 
             {/* Modal Footer */}
-            <div className="px-6 py-3 border-t border-slate-800 bg-slate-900/50 flex items-center justify-between">
+            <div className="px-4 py-3 sm:px-6 sm:py-3.5 border-t border-slate-800 bg-slate-900/50 flex flex-wrap items-center justify-between gap-2 shrink-0">
               <button
                 type="button"
                 onClick={() => setCaseStudyStep(Math.max(1, caseStudyStep - 1))}
                 disabled={caseStudyStep === 1}
-                className="px-3 py-1.5 rounded-lg border border-slate-800 text-slate-400 hover:text-white disabled:opacity-40 text-xs"
+                className="min-h-[44px] px-4 py-2 rounded-xl border border-slate-800 text-slate-400 hover:text-white disabled:opacity-40 text-xs font-mono transition-colors"
               >
                 ← Back
               </button>
@@ -1305,7 +1317,7 @@ export function ControlOsWorlds() {
                   <button
                     type="button"
                     onClick={() => setCaseStudyStep(Math.min(8, caseStudyStep + 1))}
-                    className="px-4 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs border border-slate-700"
+                    className="min-h-[44px] px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs border border-slate-700 transition-colors"
                   >
                     Next →
                   </button>
@@ -1315,7 +1327,7 @@ export function ControlOsWorlds() {
                       type="button"
                       disabled={isSubmitting}
                       onClick={() => handleSaveCaseStudy(false)}
-                      className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs border border-slate-700 disabled:opacity-50"
+                      className="min-h-[44px] px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs border border-slate-700 disabled:opacity-50 transition-colors"
                     >
                       {isSubmitting ? 'Saving...' : 'Save as Draft'}
                     </button>
@@ -1323,7 +1335,7 @@ export function ControlOsWorlds() {
                       type="button"
                       disabled={isSubmitting}
                       onClick={() => handleSaveCaseStudy(true)}
-                      className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-semibold text-xs disabled:opacity-50"
+                      className="min-h-[44px] px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-semibold text-xs disabled:opacity-50 transition-colors shadow-lg shadow-cyan-500/20"
                     >
                       {isSubmitting ? 'Publishing...' : 'Publish to Portfolio'}
                     </button>
@@ -1337,21 +1349,22 @@ export function ControlOsWorlds() {
 
       {/* ── MODAL 2: CLIENT PROJECT EDITOR ───────────────────────────────── */}
       {isProjectModalOpen && editingProject && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-          <div className="bg-[#0b121a] border border-slate-800 rounded-3xl w-full max-w-3xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
-              <div>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 block">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-6 overflow-y-auto">
+          <div className="bg-[#0b121a] border border-slate-800 rounded-2xl sm:rounded-3xl w-full max-w-3xl h-[95vh] sm:h-auto sm:max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+            <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/50 shrink-0">
+              <div className="min-w-0 pr-2">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 block truncate">
                   CLIENT PROJECT RECORD // CONFIDENTIAL
                 </span>
-                <h3 className="text-base font-bold text-white">
+                <h3 className="text-sm sm:text-base font-bold text-white truncate">
                   {editingProject.projectName || 'New Client Commission'}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setIsProjectModalOpen(false)}
-                className="text-slate-400 hover:text-white p-1 text-sm rounded-lg"
+                className="min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:text-white text-base rounded-xl bg-slate-800/40 hover:bg-slate-800 shrink-0 transition-colors"
+                aria-label="Close Project Editor"
               >
                 ✕
               </button>
@@ -1486,11 +1499,11 @@ export function ControlOsWorlds() {
               </div>
             </div>
 
-            <div className="px-6 py-3 border-t border-slate-800 bg-slate-900/50 flex items-center justify-end gap-2">
+            <div className="px-4 py-3 sm:px-6 sm:py-3.5 border-t border-slate-800 bg-slate-900/50 flex items-center justify-end gap-2 shrink-0">
               <button
                 type="button"
                 onClick={() => setIsProjectModalOpen(false)}
-                className="px-4 py-2 rounded-xl border border-slate-800 text-slate-400 hover:text-white text-xs"
+                className="min-h-[44px] px-4 py-2 rounded-xl border border-slate-800 text-slate-400 hover:text-white text-xs font-mono transition-colors"
               >
                 Cancel
               </button>
@@ -1498,7 +1511,7 @@ export function ControlOsWorlds() {
                 type="button"
                 disabled={isSubmitting}
                 onClick={handleSaveProject}
-                className="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-semibold text-xs disabled:opacity-50"
+                className="min-h-[44px] px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-semibold text-xs disabled:opacity-50 transition-colors shadow-lg shadow-cyan-500/20"
               >
                 {isSubmitting ? 'Saving...' : 'Save Client Project'}
               </button>
@@ -1509,9 +1522,9 @@ export function ControlOsWorlds() {
 
       {/* ── MODAL 3: CONFIRMATION PROMPTS ────────────────────────────────── */}
       {confirmAction && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0b121a] border border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4">
-            <h4 className="text-base font-bold text-white">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-[#0b121a] border border-slate-800 rounded-2xl sm:rounded-3xl p-5 sm:p-6 max-w-md w-full shadow-2xl space-y-4">
+            <h4 className="text-sm sm:text-base font-bold text-white">
               {confirmAction.type === 'publish' && 'Publish Case Study to Portfolio?'}
               {confirmAction.type === 'unpublish' && 'Unpublish Case Study?'}
               {confirmAction.type === 'archive_cs' && 'Archive Case Study?'}
@@ -1537,7 +1550,7 @@ export function ControlOsWorlds() {
               <button
                 type="button"
                 onClick={() => setConfirmAction(null)}
-                className="px-4 py-2 rounded-xl border border-slate-800 text-slate-400 hover:text-white text-xs"
+                className="min-h-[44px] px-4 py-2 rounded-xl border border-slate-800 text-slate-400 hover:text-white text-xs font-mono transition-colors"
               >
                 Cancel
               </button>
@@ -1551,7 +1564,7 @@ export function ControlOsWorlds() {
                   else if (confirmAction.type === 'duplicate_cs') handleCaseStudyAction('duplicate', confirmAction.targetId);
                   else if (confirmAction.type === 'archive_cp') handleProjectArchive(confirmAction.targetId, 'archive');
                 }}
-                className="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-semibold text-xs disabled:opacity-50"
+                className="min-h-[44px] px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-semibold text-xs disabled:opacity-50 transition-colors shadow-lg shadow-cyan-500/20"
               >
                 {isSubmitting ? 'Processing...' : 'Confirm Action'}
               </button>
@@ -1734,30 +1747,43 @@ export function ControlOsWorlds() {
                 <div className="min-w-0 flex-1">
                   <h4 className="text-sm font-bold text-white truncate">{cs.title}</h4>
                   <span className="text-[11px] font-mono text-cyan-400 block truncate">/{cs.slug}</span>
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="flex flex-wrap items-center gap-1.5 mt-1">
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/40 text-slate-300">
                       {cs.scale}
                     </span>
                     {cs.published ? (
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400">
-                        Live
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">
+                        LIVE
                       </span>
                     ) : (
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400">
-                        Draft
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                        DRAFT
                       </span>
                     )}
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2 border-t border-slate-800/80 pt-2.5">
+              {/* Mobile Quick Meta */}
+              <div className="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80 text-[11px]">
+                <div>
+                  <span className="text-slate-500 block text-[10px] uppercase font-mono">Setting</span>
+                  <span className="text-slate-300 truncate block">{cs.space || '—'}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block text-[10px] uppercase font-mono">Volume</span>
+                  <span className="text-slate-300 truncate block font-mono">{cs.aquariumVolume || '—'}</span>
+                </div>
+              </div>
+
+              {/* Mobile Action Controls */}
+              <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80">
                 <Link
                   href={`/our-worlds/${cs.slug}`}
                   target="_blank"
-                  className="px-3 py-1.5 rounded-lg bg-slate-800 text-cyan-300 text-xs"
+                  className="min-h-[44px] flex items-center justify-center px-3 py-2 rounded-xl bg-slate-800/90 text-cyan-300 hover:text-cyan-200 text-xs font-medium border border-slate-700/60 transition-colors"
                 >
-                  View
+                  View Live ↗
                 </Link>
                 <button
                   type="button"
@@ -1766,9 +1792,66 @@ export function ControlOsWorlds() {
                     setCaseStudyStep(1);
                     setIsCaseStudyModalOpen(true);
                   }}
-                  className="px-3 py-1.5 rounded-lg bg-slate-800 text-white text-xs"
+                  className="min-h-[44px] flex items-center justify-center px-3 py-2 rounded-xl bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 text-xs font-semibold hover:bg-cyan-500/20 transition-colors"
                 >
-                  Edit
+                  Edit Story
+                </button>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setConfirmAction({
+                      type: 'duplicate_cs',
+                      targetId: cs.id,
+                      title: cs.title,
+                    })
+                  }
+                  className="min-h-[44px] flex items-center justify-center px-2 py-1.5 rounded-xl bg-slate-800/60 text-slate-300 hover:text-white border border-slate-700/50 text-[11px] font-mono transition-colors"
+                >
+                  Copy
+                </button>
+                {cs.published ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setConfirmAction({
+                        type: 'unpublish',
+                        targetId: cs.id,
+                        title: cs.title,
+                      })
+                    }
+                    className="min-h-[44px] flex items-center justify-center px-2 py-1.5 rounded-xl bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 border border-amber-500/30 text-[11px] font-semibold transition-colors"
+                  >
+                    Unpublish
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setConfirmAction({
+                        type: 'publish',
+                        targetId: cs.id,
+                        title: cs.title,
+                      })
+                    }
+                    className="min-h-[44px] flex items-center justify-center px-2 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 border border-emerald-500/30 text-[11px] font-semibold transition-colors"
+                  >
+                    Publish
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setConfirmAction({
+                      type: 'archive_cs',
+                      targetId: cs.id,
+                      title: cs.title,
+                    })
+                  }
+                  className="min-h-[44px] flex items-center justify-center px-2 py-1.5 rounded-xl bg-slate-800/40 text-slate-400 hover:text-red-300 border border-slate-700/40 text-[11px] font-mono transition-colors"
+                >
+                  Archive
                 </button>
               </div>
             </div>
@@ -1871,29 +1954,73 @@ export function ControlOsWorlds() {
         {/* Mobile Stacked Project Cards */}
         <div className="md:hidden space-y-3">
           {items.map((cp) => (
-            <div key={cp.id} className="p-4 rounded-2xl bg-[#0b121a] border border-slate-800 space-y-2.5">
+            <div key={cp.id} className="p-4 rounded-2xl bg-[#0b121a] border border-slate-800 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="font-mono text-xs font-bold text-cyan-400">{cp.id}</span>
-                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-slate-800 text-slate-300">
+                <span className="text-[10px] font-mono uppercase px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">
                   {cp.status}
                 </span>
               </div>
-              <h4 className="text-sm font-semibold text-white">{cp.projectName}</h4>
-              <p className="text-xs text-slate-400">
-                {cp.city} • {cp.aquariumVolume || 'Custom volume'}
-              </p>
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800/80">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditingProject(cp);
-                    setProjectStep(1);
-                    setIsProjectModalOpen(true);
-                  }}
-                  className="px-3 py-1.5 rounded-lg bg-slate-800 text-white text-xs"
-                >
-                  Edit Project
-                </button>
+              <div>
+                <h4 className="text-sm font-semibold text-white">{cp.projectName}</h4>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  {cp.city} <span className="text-slate-600">•</span> <span className="capitalize">{cp.siteType}</span>
+                </p>
+              </div>
+
+              {/* Volume and Case Study Status */}
+              <div className="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80 text-[11px]">
+                <div>
+                  <span className="text-slate-500 block text-[10px] uppercase font-mono">Volume</span>
+                  <span className="text-slate-200 font-mono">{cp.aquariumVolume || '—'}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block text-[10px] uppercase font-mono">Case Study</span>
+                  {cp.caseStudyId ? (
+                    <span className="text-emerald-400 font-mono truncate block">✓ {cp.caseStudyId}</span>
+                  ) : (
+                    <span className="text-slate-500 font-mono">Unlinked</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Action Buttons with 44px+ touch targets */}
+              <div className="flex flex-col sm:flex-row gap-2 pt-1 border-t border-slate-800/80">
+                {!cp.caseStudyId && (
+                  <button
+                    type="button"
+                    onClick={() => handleCreateCaseStudyFromProject(cp.id)}
+                    className="min-h-[44px] flex items-center justify-center px-3 py-2 rounded-xl bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 text-xs font-semibold hover:bg-cyan-500/20 transition-colors w-full"
+                  >
+                    + Create Case Study
+                  </button>
+                )}
+                <div className="grid grid-cols-2 gap-2 w-full">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingProject(cp);
+                      setProjectStep(1);
+                      setIsProjectModalOpen(true);
+                    }}
+                    className="min-h-[44px] flex items-center justify-center px-3 py-2 rounded-xl bg-slate-800 text-white hover:bg-slate-700 text-xs font-medium border border-slate-700 transition-colors"
+                  >
+                    Edit Project
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setConfirmAction({
+                        type: 'archive_cp',
+                        targetId: cp.id,
+                        title: cp.projectName,
+                      })
+                    }
+                    className="min-h-[44px] flex items-center justify-center px-3 py-2 rounded-xl bg-slate-800/40 text-slate-400 hover:text-red-300 border border-slate-700/50 text-xs font-mono transition-colors"
+                  >
+                    Archive
+                  </button>
+                </div>
               </div>
             </div>
           ))}
