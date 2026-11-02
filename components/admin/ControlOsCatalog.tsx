@@ -110,8 +110,11 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
   const [duplicateTarget, setDuplicateTarget] = useState<Product | null>(null);
   const [isProcessingAction, setIsProcessingAction] = useState(false);
 
-  // Image Uploading State in Modal
+  // Image Uploading & Media State in Modal
   const [isUploadingMedia, setIsUploadingMedia] = useState(false);
+  const [isMediaLoading, setIsMediaLoading] = useState(false);
+  const [mediaError, setMediaError] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [newImageUrl, setNewImageUrl] = useState('');
   const [newImageAlt, setNewImageAlt] = useState('');
 
@@ -229,6 +232,10 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
     setEditingProduct(null);
     setActiveStep(1);
     setEditorError(null);
+    setMediaError(null);
+    setIsMediaLoading(false);
+    setPreviewImage(null);
+    setNewImageUrl('');
     setFormState({
       name: '',
       id: '',
@@ -277,6 +284,10 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
     setEditingProduct(prod);
     setActiveStep(1);
     setEditorError(null);
+    setMediaError(null);
+    setIsMediaLoading(false);
+    setPreviewImage(null);
+    setNewImageUrl('');
     setFormState({
       ...prod,
       careGuide: prod.careGuide || {
@@ -324,12 +335,81 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
     }));
   };
 
+  // ── Product Media Synchronization Lifecycle ───────────────────────────────
+  const fetchProductMedia = useCallback(async (productId: string) => {
+    if (!productId) return;
+    setIsMediaLoading(true);
+    setMediaError(null);
+    try {
+      const res = await fetch(`/api/admin/media?productId=${encodeURIComponent(productId)}`, {
+        credentials: 'include',
+      });
+      if (res.status === 401) {
+        setMediaError('Admin session expired. Please sign in again.');
+        return;
+      }
+      if (res.status === 404) {
+        // Record is new or unsaved, maintain existing form state
+        return;
+      }
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Failed to synchronize product media (HTTP ${res.status})`);
+      }
+      const json = await res.json();
+      if (json.success && json.data) {
+        const { images, imageStatus } = json.data;
+        setFormState((prev) => {
+          const current = prev.images || [];
+          const backendImages = Array.isArray(images) ? images : [];
+          // Preserve any newly added uploads from the current session
+          const resolvedImages = current.length > backendImages.length ? current : backendImages;
+          return {
+            ...prev,
+            images: resolvedImages,
+            imageStatus: imageStatus || (resolvedImages.length > 0 ? 'VERIFIED' : prev.imageStatus),
+          };
+        });
+      }
+    } catch (err: any) {
+      console.error('Failed to synchronize product media:', err);
+      setMediaError(err.message || 'Failed to load media assets from server');
+    } finally {
+      setIsMediaLoading(false);
+    }
+  }, []);
+
+  // Synchronize media assets whenever Step 5 becomes active
+  useEffect(() => {
+    if (isEditorOpen && activeStep === 5 && formState.id) {
+      fetchProductMedia(formState.id);
+    }
+  }, [isEditorOpen, activeStep, formState.id, fetchProductMedia]);
+
   // ── Media Handlers (Binary Cloud & Upload Pipeline) ────────────────────────
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
+    const MAX_SIZE = 25 * 1024 * 1024; // 25MB
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (file.size > MAX_SIZE) {
+        setMediaError(`File "${file.name}" exceeds the maximum 25MB limit (${(file.size / (1024 * 1024)).toFixed(1)}MB).`);
+        e.target.value = '';
+        return;
+      }
+      if (file.type && !ALLOWED_MIME.includes(file.type)) {
+        setMediaError(`File "${file.name}" has an unsupported format (${file.type}). Allowed formats: JPEG, PNG, WEBP, GIF, SVG.`);
+        e.target.value = '';
+        return;
+      }
+    }
+
     setIsUploadingMedia(true);
+    setMediaError(null);
     showToast(`Optimizing & uploading ${files.length} asset(s)...`);
 
     try {
@@ -337,11 +417,20 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        const optimized = await optimizeImageForUpload(file, 1600, 0.85);
+        let fileToUpload: File | Blob = file;
+        try {
+          fileToUpload = await optimizeImageForUpload(file, 1600, 0.85);
+        } catch {
+          // If canvas optimization fails (e.g. for SVG or in unsupported runtime), fall back to original file
+          fileToUpload = file;
+        }
 
         const formData = new FormData();
-        formData.append('file', optimized);
+        formData.append('file', fileToUpload, file.name);
         formData.append('type', 'image');
+        if (formState.id) {
+          formData.append('productId', formState.id);
+        }
 
         const res = await fetch('/api/admin/upload', {
           method: 'POST',
@@ -349,9 +438,13 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
           body: formData,
         });
 
+        if (res.status === 401) {
+          throw new Error('Admin session expired. Please sign in again.');
+        }
+
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.error || `Upload failed for ${file.name}`);
+          throw new Error(errData.error || `Upload failed for "${file.name}" (HTTP ${res.status})`);
         }
 
         const json = await res.json();
@@ -372,20 +465,41 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
 
       showToast(`✓ Uploaded ${newUrls.length} image(s) successfully`);
     } catch (err: any) {
-      setEditorError(err.message || 'Media upload failed');
+      setMediaError(err.message || 'Media upload failed');
     } finally {
       setIsUploadingMedia(false);
+      e.target.value = '';
     }
   };
 
   const handleAddExternalImageUrl = () => {
-    if (!newImageUrl.trim()) return;
-    const url = newImageUrl.trim();
+    const raw = newImageUrl.trim();
+    if (!raw) return;
+
+    let isValid = false;
+    try {
+      if (raw.startsWith('/')) {
+        isValid = true; // Relative local asset path
+      } else {
+        const parsed = new URL(raw);
+        isValid = parsed.protocol === 'http:' || parsed.protocol === 'https:';
+      }
+    } catch {
+      isValid = false;
+    }
+
+    if (!isValid) {
+      setMediaError('Invalid URL format. Please enter a valid HTTP/HTTPS web address or absolute path (e.g. https://.../photo.jpg).');
+      return;
+    }
+
+    setMediaError(null);
     setFormState((prev) => {
       const currentImages = prev.images || [];
       return {
         ...prev,
-        images: [...currentImages, url],
+        images: [...currentImages, raw],
+        imageStatus: prev.imageStatus === 'NEEDS_MEDIA_ASSET' ? 'VERIFIED' : prev.imageStatus,
       };
     });
     setNewImageUrl('');
@@ -401,6 +515,7 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
         imageStatus: updated.length === 0 ? 'NEEDS_MEDIA_ASSET' : prev.imageStatus,
       };
     });
+    showToast('Removed image asset');
   };
 
   const handleSetPrimaryImage = (index: number) => {
@@ -413,7 +528,22 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
         images: [selected, ...images],
       };
     });
-    showToast('✓ Set as primary thumbnail');
+    showToast('✓ Set as primary marketplace thumbnail');
+  };
+
+  const handleMoveImage = (index: number, direction: 'left' | 'right') => {
+    setFormState((prev) => {
+      const images = [...(prev.images || [])];
+      const targetIndex = direction === 'left' ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= images.length) return prev;
+      const temp = images[index];
+      images[index] = images[targetIndex];
+      images[targetIndex] = temp;
+      return {
+        ...prev,
+        images,
+      };
+    });
   };
 
   // ── SEO Health Calculation ─────────────────────────────────────────────────
@@ -1825,9 +1955,11 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
               {/* ── STEP 5: MEDIA MANAGEMENT ── */}
               {activeStep === 5 && (
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
-                      <span className="font-semibold text-slate-200 block">Product Photography & Visual Assets</span>
+                      <span className="font-semibold text-slate-200 block text-sm">
+                        Product Photography & Visual Assets
+                      </span>
                       <p className="text-[11px] text-slate-400">
                         First image in the sequence serves as the primary marketplace thumbnail and social card asset.
                       </p>
@@ -1862,71 +1994,170 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
                     </div>
                   )}
 
+                  {/* Actionable Media Error Banner (Step-scoped) */}
+                  {mediaError && (
+                    <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-200 text-xs flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-2">
+                        <span className="text-base shrink-0">⚠️</span>
+                        <div>
+                          <strong className="block font-semibold text-red-300">Media Operation Error</strong>
+                          <p className="text-red-200/90 mt-0.5">{mediaError}</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMediaError(null);
+                          if (formState.id) fetchProductMedia(formState.id);
+                        }}
+                        className="px-2.5 py-1 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-200 text-[11px] font-semibold shrink-0 transition-colors"
+                      >
+                        Retry Sync
+                      </button>
+                    </div>
+                  )}
+
                   {/* Upload Drop Zone & External Input */}
-                  <div className="p-4 rounded-2xl bg-slate-900/60 border border-dashed border-slate-700 space-y-3 text-center">
+                  <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/60 border border-dashed border-slate-700 space-y-3 text-center">
                     <input
                       type="file"
                       id="catalog-file-upload"
                       multiple
-                      accept="image/*"
+                      accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
                       onChange={handleFileUpload}
+                      disabled={isUploadingMedia}
                       className="hidden"
                     />
                     <label
                       htmlFor="catalog-file-upload"
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs cursor-pointer shadow-md transition-colors"
+                      className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs cursor-pointer shadow-md transition-colors ${
+                        isUploadingMedia
+                          ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
+                          : 'bg-cyan-400 hover:bg-cyan-300 text-slate-950'
+                      }`}
                     >
-                      <span>📁</span>
-                      <span>{isUploadingMedia ? 'Optimizing & Uploading...' : 'Upload Photos (Client Canvas Optimized)'}</span>
+                      {isUploadingMedia ? (
+                        <>
+                          <span className="inline-block w-3.5 h-3.5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                          <span>Optimizing & Uploading...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>📁</span>
+                          <span>Upload Photos (Client Canvas Optimized)</span>
+                        </>
+                      )}
                     </label>
 
-                    <div className="flex items-center gap-2 max-w-lg mx-auto pt-2">
+                    <div className="flex flex-col sm:flex-row items-center gap-2 max-w-lg mx-auto pt-2">
                       <input
                         type="url"
-                        placeholder="Or paste external asset URL..."
+                        placeholder="Or paste external asset URL (e.g. https://.../photo.jpg)..."
                         value={newImageUrl}
-                        onChange={(e) => setNewImageUrl(e.target.value)}
-                        className="flex-1 min-h-[36px] bg-slate-900 border border-slate-800 rounded-xl px-3 text-xs text-white"
+                        onChange={(e) => {
+                          setNewImageUrl(e.target.value);
+                          if (mediaError) setMediaError(null);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddExternalImageUrl();
+                          }
+                        }}
+                        className="w-full sm:flex-1 min-h-[38px] bg-slate-900 border border-slate-800 rounded-xl px-3 text-xs text-white placeholder:text-slate-500 focus:border-cyan-400"
                       />
                       <button
+                        type="button"
                         onClick={handleAddExternalImageUrl}
-                        className="px-3.5 min-h-[36px] rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold"
+                        className="w-full sm:w-auto px-4 min-h-[38px] rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold shrink-0 transition-colors"
                       >
                         Add URL
                       </button>
                     </div>
                   </div>
 
-                  {/* Image Gallery Sequence */}
-                  {formState.images && formState.images.length > 0 ? (
+                  {/* Loading State */}
+                  {isMediaLoading ? (
+                    <div className="p-8 text-center rounded-2xl bg-slate-900/40 border border-slate-800 space-y-2">
+                      <div className="inline-block w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                      <p className="text-xs text-slate-400 font-mono">Synchronizing media assets for {formState.id}...</p>
+                    </div>
+                  ) : formState.images && formState.images.length > 0 ? (
+                    /* Image Gallery Sequence */
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                       {formState.images.map((imgUrl, idx) => (
                         <div
-                          key={idx}
-                          className={`relative rounded-xl overflow-hidden border bg-slate-900 group ${
-                            idx === 0 ? 'border-cyan-400 ring-2 ring-cyan-400/20' : 'border-slate-800'
+                          key={`${imgUrl}-${idx}`}
+                          className={`relative rounded-xl overflow-hidden border bg-slate-900 group transition-all ${
+                            idx === 0
+                              ? 'border-cyan-400 ring-2 ring-cyan-400/20 shadow-lg shadow-cyan-950/30'
+                              : 'border-slate-800 hover:border-slate-700'
                           }`}
                         >
-                          <img src={imgUrl} alt={`Asset ${idx + 1}`} className="w-full h-32 object-cover" />
-                          {idx === 0 && (
-                            <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-cyan-400 text-slate-950 font-mono text-[9px] font-bold">
+                          <div
+                            className="cursor-pointer overflow-hidden aspect-video sm:aspect-square bg-slate-950 flex items-center justify-center"
+                            onClick={() => setPreviewImage(imgUrl)}
+                            title="Click to view full preview"
+                          >
+                            <img
+                              src={imgUrl}
+                              alt={`Asset ${idx + 1}`}
+                              className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                              onError={(e) => {
+                                (e.target as HTMLElement).style.opacity = '0.5';
+                              }}
+                            />
+                          </div>
+
+                          {idx === 0 ? (
+                            <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-cyan-400 text-slate-950 font-mono text-[9px] font-bold shadow">
                               PRIMARY
+                            </span>
+                          ) : (
+                            <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-slate-900/80 backdrop-blur-xs text-slate-400 font-mono text-[9px]">
+                              #{idx + 1}
                             </span>
                           )}
 
-                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-2">
-                            {idx > 0 && (
-                              <button
-                                onClick={() => handleSetPrimaryImage(idx)}
-                                className="px-2 py-1 rounded bg-slate-800 text-cyan-300 text-[10px] font-semibold hover:bg-slate-700"
-                                title="Make Primary Thumbnail"
-                              >
-                                Set Main
-                              </button>
-                            )}
+                          {/* Hover / Persistent Action Bar */}
+                          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-2 flex items-center justify-between gap-1 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center gap-1">
+                              {idx > 0 && (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleSetPrimaryImage(idx)}
+                                    className="px-1.5 py-1 rounded bg-cyan-500/20 text-cyan-300 text-[10px] font-semibold hover:bg-cyan-500/30 transition-colors"
+                                    title="Make Primary Thumbnail"
+                                  >
+                                    Main
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleMoveImage(idx, 'left')}
+                                    className="px-1.5 py-1 rounded bg-slate-800 text-slate-300 text-[10px] font-semibold hover:bg-slate-700 transition-colors"
+                                    title="Move earlier"
+                                  >
+                                    ←
+                                  </button>
+                                </>
+                              )}
+                              {idx < (formState.images?.length || 0) - 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleMoveImage(idx, 'right')}
+                                  className="px-1.5 py-1 rounded bg-slate-800 text-slate-300 text-[10px] font-semibold hover:bg-slate-700 transition-colors"
+                                  title="Move later"
+                                >
+                                  →
+                                </button>
+                              )}
+                            </div>
+
                             <button
+                              type="button"
                               onClick={() => handleRemoveImage(idx)}
-                              className="px-2 py-1 rounded bg-rose-600/80 text-white text-[10px] font-semibold hover:bg-rose-500"
+                              className="px-2 py-1 rounded bg-rose-600/80 text-white text-[10px] font-semibold hover:bg-rose-500 transition-colors"
                               title="Remove Asset"
                             >
                               ✕
@@ -1935,11 +2166,17 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
                         </div>
                       ))}
                     </div>
-                  ) : (
-                    <div className="text-center py-6 text-slate-500 text-xs font-mono">
-                      Zero media assets attached.
+                  ) : !mediaError ? (
+                    <div className="p-8 text-center rounded-2xl bg-slate-900/40 border border-dashed border-slate-800 space-y-2">
+                      <span className="text-2xl block">📷</span>
+                      <p className="text-slate-300 font-medium text-xs">
+                        No media assets currently attached to this catalog record.
+                      </p>
+                      <p className="text-slate-500 text-[11px] max-w-md mx-auto">
+                        Upload a photographic asset above or provide an external image URL. The marketplace will display an authoritative blueprint fallback until verified imagery is provided.
+                      </p>
                     </div>
-                  )}
+                  ) : null}
                 </div>
               )}
 
@@ -2170,6 +2407,47 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
                   </button>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── High-Resolution Media Preview Lightbox Modal ─────────────────── */}
+      {previewImage && (
+        <div
+          className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div
+            className="relative max-w-3xl w-full bg-[#090f17] border border-slate-800 rounded-3xl overflow-hidden shadow-2xl p-4 space-y-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+              <span className="text-xs font-semibold text-slate-200">Asset High-Resolution Preview</span>
+              <button
+                type="button"
+                onClick={() => setPreviewImage(null)}
+                className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="max-h-[70vh] flex items-center justify-center overflow-hidden rounded-2xl bg-black">
+              <img
+                src={previewImage}
+                alt="Enlarged Visual Asset"
+                className="max-h-[70vh] w-auto max-w-full object-contain rounded-xl"
+              />
+            </div>
+            <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 pt-1">
+              <span className="truncate max-w-sm">{previewImage}</span>
+              <button
+                type="button"
+                onClick={() => setPreviewImage(null)}
+                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold"
+              >
+                Close Preview
+              </button>
             </div>
           </div>
         </div>
