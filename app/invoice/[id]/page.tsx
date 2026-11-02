@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useOrder } from '@/lib/context/OrderContext';
 import { SITE_CONFIG } from '@/lib/config';
+import { useInvoicePdfShare } from '@/lib/hooks/useInvoicePdfShare';
 
 interface InvoicePageProps {
   params: Promise<{ id: string }>;
@@ -25,6 +26,30 @@ export default function InvoicePage({ params }: InvoicePageProps) {
 
   const [remoteOrder, setRemoteOrder] = useState<any>(null);
   const [isVerifying, setIsVerifying] = useState(true);
+
+  // PDF share (admin session required — available when admin views invoice directly)
+  const [pdfShareError, setPdfShareError] = useState<string | null>(null);
+  const { state: pdfState, share: sharePdf } = useInvoicePdfShare({
+    onStateChange: (state, message) => {
+      if (state === 'error') setPdfShareError(message || 'PDF share failed');
+      if (state === 'done' || state === 'idle') setPdfShareError(null);
+    },
+  });
+
+  const handleSharePdf = async () => {
+    if (!order) return;
+    setPdfShareError(null);
+    await sharePdf(orderId, {
+      customerName:  order.customerName,
+      phone:         order.phone,
+      invoiceNumber: order.invoiceNumber,
+      totalAmount:   order.totalAmount,
+      courierName:   order.courierName,
+      awbNumber:     order.awbNumber,
+      approvedAt:    order.approvedAt,
+      createdAt:     order.createdAt,
+    });
+  };
 
   // Automatically authenticate if a valid token is present in URL or admin session is active
   React.useEffect(() => {
@@ -94,14 +119,7 @@ export default function InvoicePage({ params }: InvoicePageProps) {
   };
 
   const handleShareWhatsApp = () => {
-    if (!order) return;
-    const origin = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || 'https://marinecreatures.com');
-    const urlToken = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('token') : '';
-    const invoiceUrl = urlToken ? `${origin}/invoice/${order.id}?token=${urlToken}` : `${origin}/invoice/${order.id}`;
-    const text = `🌊 *MARINE CREATURES — OFFICIAL TAX INVOICE & DISPATCH MANIFEST* 🌊\n\nDear *${order.customerName}*,\nYour order *#${order.id}* has been verified & approved.\n\n🧾 *Invoice No:* ${order.invoiceNumber || `INV-${order.id}`}\n📅 *Date:* ${order.approvedAt || order.createdAt}\n📦 *Total Amount:* ₹${order.totalAmount.toLocaleString('en-IN')} (All-inclusive)\n📍 *Delivery Address:* ${order.address}, ${order.city} (${order.pincode})\n✈️ *Carrier:* ${order.courierName || 'Priority Air Cargo Express'} ${order.awbNumber ? `(AWB: ${order.awbNumber})` : ''}\n\n📄 *View / Download Your Official Invoice:* \n${invoiceUrl}\n\nThank you for trusting Marine Creatures — Bringing Ocean at your Doorstep!`;
-    const phone = order.phone ? order.phone.replace(/\D/g, '') : '';
-    const url = phone ? `https://wa.me/91${phone}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text)}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
+    // Replaced by handleSharePdf — kept as no-op for safety
   };
 
   const handleCopyLink = () => {
@@ -356,12 +374,32 @@ export default function InvoicePage({ params }: InvoicePageProps) {
           </button>
 
           <button
-            onClick={handleShareWhatsApp}
-            className="h-10 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md active:scale-95 transition-all"
+            onClick={handleSharePdf}
+            disabled={pdfState === 'loading' || pdfState === 'sharing'}
+            className={`h-10 px-4 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md active:scale-95 transition-all ${
+              pdfState === 'loading' || pdfState === 'sharing'
+                ? 'bg-emerald-600/50 text-slate-300 cursor-wait'
+                : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
+            }`}
+            title="Generate PDF and share via WhatsApp"
           >
-            <span>💬</span>
-            <span>Send to Client WhatsApp</span>
+            {pdfState === 'loading' || pdfState === 'sharing' ? (
+              <>
+                <span className="animate-spin text-sm">⏳</span>
+                <span>Preparing PDF…</span>
+              </>
+            ) : (
+              <>
+                <span>📄</span>
+                <span>Share PDF via WhatsApp</span>
+              </>
+            )}
           </button>
+          {pdfShareError && (
+            <span className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">
+              ⚠️ {pdfShareError}
+            </span>
+          )}
 
           <button
             onClick={handlePrint}

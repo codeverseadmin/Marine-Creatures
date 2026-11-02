@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import Link from 'next/link';
 import {
   useOrder,
@@ -8,6 +8,7 @@ import {
   OrderProgressStep,
   TRACKING_STEPS_META,
 } from '@/lib/context/OrderContext';
+import { useInvoicePdfShare } from '@/lib/hooks/useInvoicePdfShare';
 
 interface OrdersTabProps {
   showToast: (message: string) => void;
@@ -23,6 +24,35 @@ const ORDER_STEPS: { key: OrderProgressStep; label: string; stepNumber: number; 
 
 export default function OrdersTab({ showToast }: OrdersTabProps) {
   const { orders, updateOrderStatus, updateOrderTracking, deleteOrder, approveOrder, refreshOrders } = useOrder();
+
+  // ── PDF share state — tracked per-order ID ──────────────────────────────
+  const [sharingOrderId, setSharingOrderId] = useState<string | null>(null);
+  const [shareError, setShareError] = useState<string | null>(null);
+
+  const { share: sharePdf } = useInvoicePdfShare({
+    onStateChange: (state, message) => {
+      if (state === 'loading' || state === 'sharing') return; // spinner already shown
+      if (state === 'done')  { showToast('✓ Invoice PDF sent via WhatsApp'); setSharingOrderId(null); }
+      if (state === 'error') { setShareError(message || 'PDF share failed'); setSharingOrderId(null); }
+      if (state === 'idle')  { setSharingOrderId(null); }
+    },
+  });
+
+  const handleShareInvoicePdf = useCallback(async (order: CustomerOrder) => {
+    if (sharingOrderId) return;
+    setSharingOrderId(order.id);
+    setShareError(null);
+    await sharePdf(order.id, {
+      customerName:  order.customerName,
+      phone:         order.phone,
+      invoiceNumber: order.invoiceNumber,
+      totalAmount:   order.totalAmount,
+      courierName:   order.courierName,
+      awbNumber:     order.awbNumber,
+      approvedAt:    order.approvedAt,
+      createdAt:     order.createdAt,
+    });
+  }, [sharingOrderId, sharePdf]);
 
   const [orderSearch, setOrderSearch] = useState('');
   const [orderStatusFilter, setOrderStatusFilter] = useState<string>('all');
@@ -50,36 +80,6 @@ export default function OrdersTab({ showToast }: OrdersTabProps) {
       return ORDER_STEPS[idx + 1];
     }
     return null;
-  };
-
-  const handleSendCustomerWhatsApp = async (order: CustomerOrder) => {
-    const origin = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || 'https://marinecreatures.com');
-    let invoiceUrl = `${origin}/invoice/${order.id}`;
-
-    try {
-      // Issue/retrieve cryptographic invoice access token via admin API
-      const tokenRes = await fetch(`/api/orders/${encodeURIComponent(order.id)}`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-      const tokenJson = await tokenRes.json();
-      if (tokenJson.success && tokenJson.token) {
-        invoiceUrl = `${origin}/invoice/${order.id}?token=${tokenJson.token}`;
-      }
-    } catch {
-      // Fallback to standard URL
-    }
-
-    const stepMeta = TRACKING_STEPS_META[order.currentStep];
-    const itemsList = order.items.map((i) => `• ${i.product.name} (x${i.quantity})`).join('\n');
-
-    const cleanPhone = order.phone.replace(/\D/g, '');
-    const phoneWithCountry = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
-
-    const message = `🌊 *MARINE CREATURES ORDER UPDATE*\n\nHello *${order.customerName}*,\nYour order *#${order.id}* is currently at:\n*${stepMeta.icon} ${stepMeta.label}*\n_${stepMeta.description}_\n\n📦 *Items:*\n${itemsList}\n\n💰 *Total Amount:* ₹${order.totalAmount.toLocaleString('en-IN')}\n📍 *Delivery City:* ${order.city} (${order.pincode})\n${order.awbNumber ? `✈️ *Carrier:* ${order.courierName || 'Priority Air Cargo'}\n🔖 *Air Waybill (AWB):* ${order.awbNumber}\n` : ''}\n📄 *View / Download Tax Invoice:* \n${invoiceUrl}\n\nNeed help? Reply to this message anytime.\nMarine Creatures Concierge`;
-
-    const url = `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const handleSaveTracking = (orderId: string) => {
@@ -416,35 +416,69 @@ export default function OrdersTab({ showToast }: OrdersTabProps) {
                 {/* 4. Actions & Tracking Row */}
                 <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-slate-800/80">
                   {/* Primary Customer Actions */}
-                  <div className="flex items-center gap-2.5 flex-wrap">
-                    <Link
-                      href={`/invoice/${order.id}`}
-                      target="_blank"
-                      className="h-10 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-slate-700 text-xs font-semibold inline-flex items-center gap-1.5 transition-all shadow-sm"
-                    >
-                      <span>🧾</span>
-                      <span>View Invoice ↗</span>
-                    </Link>
-
-                    <button
-                      onClick={() => handleSendCustomerWhatsApp(order)}
-                      className="h-10 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold inline-flex items-center gap-1.5 transition-all active:scale-95 shadow-md"
-                    >
-                      <span>💬</span>
-                      <span>Send WhatsApp Invoice</span>
-                    </button>
-
-                    {!order.isApproved && (
-                      <button
-                        onClick={() => {
-                          approveOrder(order.id);
-                          showToast(`✓ Order #${order.id} Approved!`);
-                        }}
-                        className="h-10 px-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold inline-flex items-center gap-1.5 transition-all"
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                      <Link
+                        href={`/invoice/${order.id}`}
+                        target="_blank"
+                        className="h-10 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-slate-700 text-xs font-semibold inline-flex items-center gap-1.5 transition-all shadow-sm"
                       >
-                        <span>⚡</span>
-                        <span>Approve Order</span>
+                        <span>🧾</span>
+                        <span>View Invoice ↗</span>
+                      </Link>
+
+                      {/* ── WhatsApp PDF Share Button ─────────────────────── */}
+                      <button
+                        onClick={() => handleShareInvoicePdf(order)}
+                        disabled={sharingOrderId === order.id}
+                        className={`h-10 px-4 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 transition-all active:scale-95 shadow-md ${
+                          sharingOrderId === order.id
+                            ? 'bg-emerald-600/60 text-slate-300 cursor-wait'
+                            : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
+                        }`}
+                        title={
+                          sharingOrderId === order.id
+                            ? 'Generating PDF…'
+                            : 'Generate invoice PDF and share via WhatsApp'
+                        }
+                      >
+                        {sharingOrderId === order.id ? (
+                          <>
+                            <span className="animate-spin text-sm">⏳</span>
+                            <span>Generating PDF…</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>📄</span>
+                            <span>Send PDF Invoice</span>
+                          </>
+                        )}
                       </button>
+
+                      {!order.isApproved && (
+                        <button
+                          onClick={() => {
+                            approveOrder(order.id);
+                            showToast(`✓ Order #${order.id} Approved!`);
+                          }}
+                          className="h-10 px-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold inline-flex items-center gap-1.5 transition-all"
+                        >
+                          <span>⚡</span>
+                          <span>Approve Order</span>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Share error banner */}
+                    {shareError && sharingOrderId === null && (
+                      <div className="flex items-center gap-2 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">
+                        <span>⚠️</span>
+                        <span>{shareError}</span>
+                        <button
+                          onClick={() => setShareError(null)}
+                          className="ml-auto text-red-400 hover:text-white"
+                        >✕</button>
+                      </div>
                     )}
                   </div>
 
