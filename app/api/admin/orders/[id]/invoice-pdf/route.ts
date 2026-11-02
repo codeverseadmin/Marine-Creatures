@@ -62,11 +62,41 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     const signaturePath = resolveAssetPath('signature.png');
 
     // ── 2a. Isolated Synthetic Test Fixtures (100% Isolated from Customer DB) ─
-    if (orderId === 'MC-QA-ISOLATED-STANDARD' || orderId === 'MC-QA-ISOLATED-MULTIPAGE') {
-      const { QA_STANDARD_FIXTURE, QA_MULTIPAGE_FIXTURE } = await import('@/lib/invoice-test-fixtures');
-      const fixtureOrder = orderId === 'MC-QA-ISOLATED-STANDARD'
-        ? { ...QA_STANDARD_FIXTURE, logoPath, signaturePath }
-        : { ...QA_MULTIPAGE_FIXTURE, logoPath, signaturePath };
+    if (
+      orderId === 'MC-QA-ISOLATED-STANDARD' ||
+      orderId === 'MC-QA-ISOLATED-MULTIPAGE' ||
+      orderId === 'MC-QA-POR-FIXTURE' ||
+      orderId === 'MC-QA-POR-RESOLVED-FIXTURE' ||
+      orderId === 'MC-QA-FINANCIAL-RECON' ||
+      orderId === 'MC-QA-FINANCIAL-RECON-RESOLVED'
+    ) {
+      const { getFixture, resetAllFixtures } = await import('@/lib/invoice-test-fixtures');
+      if (req.headers.get('x-reset-fixtures') === 'true') {
+        resetAllFixtures();
+      }
+      const baseFixture = getFixture(orderId);
+      if (!baseFixture) {
+        return NextResponse.json({ success: false, error: 'Test fixture not found' }, { status: 404 });
+      }
+
+      const fixtureOrder = { ...baseFixture, logoPath, signaturePath };
+
+      // Mandatory POR Pricing Check on synthetic fixture
+      const hasUnresolvedPor = fixtureOrder.hasUnresolvedPorItems || (fixtureOrder.items && fixtureOrder.items.some((it: any) =>
+        (it.priceOnRequest || it.price === 0) && (!it.agreedUnitPrice || it.agreedUnitPrice <= 0)
+      ));
+
+      if (hasUnresolvedPor) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Cannot generate invoice: Order contains specimens with unresolved Price on Request (POR). Please set agreed pricing before releasing invoice.',
+            requiresPorPricing: true,
+            orderId: fixtureOrder.id,
+          },
+          { status: 400 }
+        );
+      }
 
       const pdfBuffer = await renderToBuffer(
         React.createElement(InvoicePDFDocument, { order: fixtureOrder }) as any
@@ -99,6 +129,25 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
       return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404 });
     }
 
+    // ── 2c. Mandatory POR Pricing Check ───────────────────────────────────────
+    // Under business rules, an Executive Invoice CANNOT be generated while any
+    // line item has an unresolved Price on Request (POR) status.
+    const unresolvedPor = (order.items || []).filter(
+      (it: any) => (it.priceOnRequest === true || it.pricingStatus === 'PENDING_POR' || (it.price === 0 && (!it.agreedUnitPrice || it.agreedUnitPrice <= 0)))
+    );
+
+    if (unresolvedPor.length > 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Cannot generate invoice: Order contains ${unresolvedPor.length} unresolved Price on Request (POR) specimen(s). Please agree on order-specific pricing before issuing an invoice.`,
+          requiresPorPricing: true,
+          unresolvedItems: unresolvedPor.map((it: any) => ({ id: it.id, name: it.name, quantity: it.quantity })),
+        },
+        { status: 400 }
+      );
+    }
+
     // ── 3. Normalise items to InvoiceOrderData shape ──────────────────────────
 
     const rawInvoiceNumber = order.invoiceNumber || `INV-${order.id}`;
@@ -114,12 +163,17 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
       city:              order.city,
       pincode:           order.pincode,
       orderNotes:        order.orderNotes || '',
-      items:             order.items.map((item: any) => ({
-        name:          item.name,
-        price:         item.price,
-        quantity:      item.quantity || 1,
-        categoryLabel: item.category || '',
-      })),
+      items:             order.items.map((item: any) => {
+        const unitPrice = typeof item.agreedUnitPrice === 'number' && item.agreedUnitPrice > 0
+          ? item.agreedUnitPrice
+          : (item.price || 0);
+        return {
+          name:          item.name,
+          price:         unitPrice,
+          quantity:      item.quantity || 1,
+          categoryLabel: item.category || '',
+        };
+      }),
       totalAmount:       order.totalAmount,
       subtotal:          order.subtotal || order.totalAmount,
       courierName:       order.courierName || '',

@@ -510,6 +510,11 @@ export interface ExecutiveInvoiceOrderData {
     category?: string;
     categoryLabel?: string;
     product?: { name: string; price: number; quantity?: number; categoryLabel?: string };
+    priceOnRequest?: boolean;
+    agreedUnitPrice?: number;
+    pricingStatus?: string;
+    pricedAt?: string;
+    pricedBy?: string;
   }>;
   totalAmount: number;
   subtotal?: number;
@@ -520,6 +525,15 @@ export interface ExecutiveInvoiceOrderData {
   isApproved?: boolean;
   approvedAt?: string;
   createdAt?: string;
+  currentStep?: string;
+  statusHistory?: any[];
+  history?: any[];
+  hasUnresolvedPorItems?: boolean;
+  porPricingResolvedAt?: string;
+  porPricingResolvedBy?: string;
+  pricingVersion?: number;
+  originalInvoiceNumber?: string;
+  invoiceRevisions?: any[];
   gstin?: string;
   taxAccounting?: TaxAccountingParticulars;
   isTaxInvoiceCompliant?: boolean;

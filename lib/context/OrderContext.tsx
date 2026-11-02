@@ -8,6 +8,12 @@ export type OrderProgressStep = 'placed' | 'quarantine' | 'packed' | 'dispatched
 export interface OrderItem {
   product: Product;
   quantity: number;
+  priceOnRequest?: boolean;
+  agreedUnitPrice?: number;
+  pricingStatus?: 'STANDARD' | 'PENDING_POR' | 'AGREED';
+  pricedAt?: string;
+  pricedBy?: string;
+  originalPriceStatus?: string;
 }
 
 export interface StatusUpdateLog {
@@ -39,17 +45,29 @@ export interface CustomerOrder {
   approvedAt?: string;
   invoiceNumber?: string;
   invoiceToken?: string;
+  hasUnresolvedPorItems?: boolean;
+  porPricingResolvedAt?: string;
+  porPricingResolvedBy?: string;
+  pricingVersion?: number;
+  originalInvoiceNumber?: string;
+  invoiceRevisions?: any[];
 }
 
 interface OrderContextType {
   orders: CustomerOrder[];
   activeOrder: CustomerOrder | null;
-  setActiveOrder: (order: CustomerOrder | null) => void;
+  setActiveOrder: React.Dispatch<React.SetStateAction<CustomerOrder | null>>;
   isTrackingOpen: boolean;
   setIsTrackingOpen: (open: boolean) => void;
   createOrder: (orderData: Omit<CustomerOrder, 'id' | 'currentStep' | 'statusHistory' | 'createdAt'>) => CustomerOrder;
-  updateOrderStatus: (orderId: string, nextStep: OrderProgressStep, note?: string) => void;
+  updateOrderStatus: (orderId: string, nextStep: OrderProgressStep, note?: string) => Promise<void>;
   updateOrderTracking: (orderId: string, awbNumber: string, courierName: string) => void;
+  setOrderPorPricing: (
+    orderId: string,
+    items: Array<{ id: string; agreedUnitPrice: number }>,
+    pricedBy?: string,
+    expectedVersion?: number
+  ) => Promise<{ success: boolean; data?: CustomerOrder; error?: string }>;
   approveOrder: (orderId: string, customInvoiceNum?: string) => void;
   deleteOrder: (orderId: string) => void;
   findOrder: (query: string) => CustomerOrder | undefined;
@@ -101,68 +119,75 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
   const SIGNATURE_STORAGE_KEY = 'mc_admin_owner_signature_v1';
 
   const normalizeCloudOrders = useCallback((cloudOrders: any[]): CustomerOrder[] => {
+    const stepsSequence: OrderProgressStep[] = ['placed', 'quarantine', 'packed', 'dispatched', 'delivered'];
+
     return cloudOrders.map((o: any) => {
+      const currentStepIdx = stepsSequence.indexOf(o.currentStep || 'placed');
+
       const mappedItems = Array.isArray(o.items)
-        ? o.items.map((it: any) => ({
-            product: it.product || {
-              id: it.id,
-              name: it.name,
-              price: it.price,
-              category: it.category || 'marine-life',
-              categoryLabel: it.category || 'Marine Life',
-              stockCount: 10,
-              inStock: true,
-              images: it.image ? [it.image] : [],
-              shortDesc: '',
-              description: '',
-              rating: 5,
-              reviewsCount: 1,
-            },
-            quantity: it.quantity || 1,
-          }))
+        ? o.items.map((it: any) => {
+            const isPor = Boolean(
+              it.priceOnRequest ||
+              it.product?.priceOnRequest ||
+              it.price === 0 ||
+              it.product?.price === 0
+            );
+            const unitPrice = typeof it.agreedUnitPrice === 'number' && it.agreedUnitPrice > 0
+              ? it.agreedUnitPrice
+              : (it.price ?? it.product?.price ?? 0);
+
+            return {
+              product: it.product || {
+                id: it.id,
+                name: it.name,
+                price: unitPrice,
+                category: it.category || 'marine-life',
+                categoryLabel: it.category || 'Marine Life',
+                stockCount: 10,
+                inStock: true,
+                images: it.image ? [it.image] : [],
+                shortDesc: '',
+                description: '',
+                rating: 5,
+                reviewsCount: 1,
+                priceOnRequest: isPor,
+              },
+              quantity: it.quantity || 1,
+              priceOnRequest: isPor,
+              agreedUnitPrice: it.agreedUnitPrice,
+              pricingStatus: it.pricingStatus || (isPor ? (it.agreedUnitPrice > 0 ? 'AGREED' : 'PENDING_POR') : 'STANDARD'),
+              pricedAt: it.pricedAt,
+              pricedBy: it.pricedBy,
+              originalPriceStatus: it.originalPriceStatus,
+            };
+          })
         : [];
+
+      // Determine unresolved POR state
+      const hasUnresolvedPorItems = o.hasUnresolvedPorItems !== undefined
+        ? Boolean(o.hasUnresolvedPorItems)
+        : mappedItems.some((it: any) => it.priceOnRequest && (!it.agreedUnitPrice || it.agreedUnitPrice <= 0));
+
+      // Build real statusHistory from o.history if present
+      const statusHistory: StatusUpdateLog[] = stepsSequence.map((step, idx) => {
+        const meta = TRACKING_STEPS_META[step] || { label: step, description: '' };
+        const historyEntry = Array.isArray(o.history) ? o.history.find((h: any) => h.step === step) : null;
+        const isDone = idx <= currentStepIdx;
+        return {
+          status: step,
+          title: meta.label,
+          description: historyEntry?.note || meta.description,
+          timestamp: historyEntry?.timestamp || (isDone ? (o.createdAt || 'Logged') : 'Pending'),
+          completed: isDone,
+        };
+      });
 
       return {
         ...o,
         subtotal: o.subtotal ?? o.totalAmount,
         items: mappedItems,
-        statusHistory: o.statusHistory || [
-          {
-            status: 'placed',
-            title: 'Order Confirmed',
-            description: 'Order confirmed',
-            timestamp: o.createdAt || 'Done',
-            completed: true,
-          },
-          {
-            status: 'quarantine',
-            title: 'Quarantine Check',
-            description: 'Health check completed',
-            timestamp: 'Done',
-            completed: o.currentStep !== 'placed',
-          },
-          {
-            status: 'packed',
-            title: 'Thermal Pod Packed',
-            description: 'Packed in oxygen pod',
-            timestamp: 'Done',
-            completed: ['packed', 'dispatched', 'delivered'].includes(o.currentStep),
-          },
-          {
-            status: 'dispatched',
-            title: 'Air Cargo Dispatched',
-            description: 'Dispatched via express',
-            timestamp: 'Done',
-            completed: ['dispatched', 'delivered'].includes(o.currentStep),
-          },
-          {
-            status: 'delivered',
-            title: 'Delivered Safely',
-            description: 'Doorstep arrival',
-            timestamp: 'Done',
-            completed: o.currentStep === 'delivered',
-          },
-        ],
+        hasUnresolvedPorItems,
+        statusHistory,
       };
     });
   }, []);
@@ -386,7 +411,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     return newOrder;
   };
 
-  const updateOrderStatus = (orderId: string, nextStep: OrderProgressStep, note?: string) => {
+  const updateOrderStatus = async (orderId: string, nextStep: OrderProgressStep, note?: string) => {
     const stepsSequence: OrderProgressStep[] = ['placed', 'quarantine', 'packed', 'dispatched', 'delivered'];
     const targetIdx = stepsSequence.indexOf(nextStep);
 
@@ -419,14 +444,57 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
       })
     );
 
-    fetch('/api/orders', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ id: orderId, currentStep: nextStep }),
-    }).catch((err) => {
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ id: orderId, currentStep: nextStep, note }),
+      });
+      const data = await res.json();
+      if (data.success && data.data) {
+        const [normalized] = normalizeCloudOrders([data.data]);
+        if (normalized) {
+          setOrders((prev) => prev.map((o) => (o.id === orderId ? normalized : o)));
+          if (activeOrder?.id === orderId) {
+            setActiveOrder(normalized);
+          }
+        }
+      }
+    } catch (err) {
       if (process.env.NODE_ENV === 'development') console.warn('Cloud order step update error:', err);
-    });
+    }
+  };
+
+  const setOrderPorPricing = async (
+    orderId: string,
+    items: Array<{ id: string; agreedUnitPrice: number }>,
+    pricedBy?: string,
+    expectedVersion?: number
+  ): Promise<{ success: boolean; data?: CustomerOrder; error?: string }> => {
+    try {
+      const res = await fetch(`/api/admin/orders/${encodeURIComponent(orderId)}/por-pricing`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ items, pricedBy, expectedVersion }),
+      });
+      const resJson = await res.json();
+      if (!res.ok || !resJson.success) {
+        return { success: false, error: resJson.error || 'Failed to update POR pricing' };
+      }
+      const [normalized] = normalizeCloudOrders([resJson.data]);
+      if (normalized) {
+        setOrders((prev) => prev.map((o) => (o.id === orderId ? normalized : o)));
+        if (activeOrder?.id === orderId) {
+          setActiveOrder(normalized);
+        }
+        return { success: true, data: normalized };
+      }
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Network error updating POR pricing' };
+    }
   };
 
   const updateOrderTracking = (orderId: string, awbNumber: string, courierName: string) => {
@@ -455,11 +523,10 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     const targetOrder = orders.find((o) => o.id === orderId);
     if (!targetOrder) return;
 
-    // Strict Packaging Protocol: Invoices are strictly released only once order is marked as Packed or later
-    const isPackedOrLater = ['packed', 'dispatched', 'delivered'].includes(targetOrder.currentStep);
-    if (!isPackedOrLater) {
+    // Strict POR Protocol: Invoices and approvals are strictly prohibited while unresolved POR items exist
+    if (targetOrder.hasUnresolvedPorItems) {
       if (process.env.NODE_ENV === 'development') {
-        console.warn(`[Marine Protocol] Order #${orderId} cannot be approved/invoiced prior to Step 3: Packed.`);
+        console.warn(`[Marine Protocol] Order #${orderId} cannot be approved prior to resolving POR pricing.`);
       }
       return;
     }
@@ -541,6 +608,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
         createOrder,
         updateOrderStatus,
         updateOrderTracking,
+        setOrderPorPricing,
         approveOrder,
         deleteOrder,
         findOrder,

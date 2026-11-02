@@ -1,5 +1,7 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
+export type PorPricingStatus = 'STANDARD' | 'PENDING_POR' | 'AGREED';
+
 export interface IOrderItem {
   id: string;
   name: string;
@@ -7,12 +9,36 @@ export interface IOrderItem {
   quantity: number;
   image?: string;
   category?: string;
+  priceOnRequest?: boolean;
+  agreedUnitPrice?: number;
+  pricingStatus?: PorPricingStatus;
+  pricedAt?: string;
+  pricedBy?: string;
+  originalPriceStatus?: string;
 }
 
 export interface IOrderHistory {
   step: 'placed' | 'quarantine' | 'packed' | 'dispatched' | 'delivered';
   timestamp: string;
   note: string;
+}
+
+export interface IInvoiceRevision {
+  revisionNumber: number;
+  invoiceNumber: string;
+  revisedAt: string;
+  revisedBy: string;
+  subtotal: number;
+  totalAmount: number;
+  items: Array<{
+    id?: string;
+    name: string;
+    quantity: number;
+    price: number;
+    agreedUnitPrice?: number;
+    category?: string;
+  }>;
+  reason?: string;
 }
 
 export interface IOrderDocument extends Document {
@@ -27,6 +53,12 @@ export interface IOrderDocument extends Document {
   subtotal: number;
   totalAmount: number;
   currentStep: 'placed' | 'quarantine' | 'packed' | 'dispatched' | 'delivered';
+  hasUnresolvedPorItems?: boolean;
+  porPricingResolvedAt?: string;
+  porPricingResolvedBy?: string;
+  pricingVersion?: number;
+  originalInvoiceNumber?: string;
+  invoiceRevisions?: IInvoiceRevision[];
   awbNumber?: string;
   courierName: string;
   estimatedDelivery: string;
@@ -48,6 +80,16 @@ const OrderItemSchema = new Schema<IOrderItem>(
     quantity: { type: Number, required: true, default: 1 },
     image: String,
     category: String,
+    priceOnRequest: { type: Boolean, default: false },
+    agreedUnitPrice: { type: Number },
+    pricingStatus: {
+      type: String,
+      enum: ['STANDARD', 'PENDING_POR', 'AGREED'],
+      default: 'STANDARD',
+    },
+    pricedAt: { type: String },
+    pricedBy: { type: String },
+    originalPriceStatus: { type: String },
   },
   { _id: false }
 );
@@ -61,6 +103,20 @@ const OrderHistorySchema = new Schema<IOrderHistory>(
     },
     timestamp: { type: String, required: true },
     note: { type: String, required: true },
+  },
+  { _id: false }
+);
+
+const InvoiceRevisionSchema = new Schema<IInvoiceRevision>(
+  {
+    revisionNumber: { type: Number, required: true },
+    invoiceNumber: { type: String, required: true },
+    revisedAt: { type: String, required: true },
+    revisedBy: { type: String, required: true },
+    subtotal: { type: Number, required: true },
+    totalAmount: { type: Number, required: true },
+    items: { type: [OrderItemSchema], default: [] },
+    reason: { type: String },
   },
   { _id: false }
 );
@@ -82,6 +138,12 @@ const OrderSchema = new Schema<IOrderDocument>(
       enum: ['placed', 'quarantine', 'packed', 'dispatched', 'delivered'],
       default: 'placed',
     },
+    hasUnresolvedPorItems: { type: Boolean, default: false },
+    porPricingResolvedAt: { type: String },
+    porPricingResolvedBy: { type: String },
+    pricingVersion: { type: Number, default: 1 },
+    originalInvoiceNumber: { type: String },
+    invoiceRevisions: { type: [InvoiceRevisionSchema], default: [] },
     awbNumber: { type: String },
     courierName: { type: String, default: 'Priority Air Cargo Express' },
     estimatedDelivery: { type: String, default: 'Within 24-48 Hours' },

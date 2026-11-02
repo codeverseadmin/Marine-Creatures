@@ -1,16 +1,151 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { useOrder, TRACKING_STEPS_META, OrderProgressStep, CustomerOrder } from '@/lib/context/OrderContext';
+import { useOrder, TRACKING_STEPS_META, OrderProgressStep, CustomerOrder, StatusUpdateLog } from '@/lib/context/OrderContext';
 import { SITE_CONFIG } from '@/lib/config';
 import { ProductThumbnail } from '@/components/ui/ProductThumbnail';
+
+function mapTrackDataToCustomerOrder(t: any, existingOrder?: CustomerOrder | null): CustomerOrder {
+  const stepsOrder: OrderProgressStep[] = ['placed', 'quarantine', 'packed', 'dispatched', 'delivered'];
+  const currentTargetIdx = stepsOrder.indexOf(t.currentStep || 'placed');
+
+  const statusHistory: StatusUpdateLog[] = Array.isArray(t.statusHistory) && t.statusHistory.length > 0
+    ? t.statusHistory.map((s: any) => {
+        const sStep = (s.status || s.step || 'placed') as OrderProgressStep;
+        const sIdx = stepsOrder.indexOf(sStep);
+        const meta = TRACKING_STEPS_META[sStep] || { label: sStep, description: '' };
+        return {
+          status: sStep,
+          title: s.title || meta.label,
+          description: s.note || s.description || meta.description,
+          timestamp: s.timestamp || (sIdx <= currentTargetIdx ? (t.createdAt || 'Logged') : 'Pending'),
+          completed: sIdx <= currentTargetIdx,
+        };
+      })
+    : stepsOrder.map((step, idx) => {
+        const meta = TRACKING_STEPS_META[step];
+        return {
+          status: step,
+          title: meta.label,
+          description: meta.description,
+          timestamp: idx <= currentTargetIdx ? (t.createdAt || 'Logged') : 'Pending',
+          completed: idx <= currentTargetIdx,
+        };
+      });
+
+  const items = Array.isArray(t.items) && t.items.length > 0
+    ? t.items.map((it: any) => {
+        const isPor = Boolean(
+          it.priceOnRequest ||
+          it.pricingStatus === 'PENDING_POR' ||
+          it.price === 0
+        );
+        const unitPrice = typeof it.agreedUnitPrice === 'number' && it.agreedUnitPrice > 0
+          ? it.agreedUnitPrice
+          : (it.price || 0);
+
+        return {
+          product: {
+            id: it.id || 'item',
+            name: it.name || 'Marine Specimen',
+            category: it.category || 'marine-life',
+            categoryLabel: it.category || 'Marine Life',
+            stockCount: 10,
+            inStock: true,
+            price: unitPrice,
+            images: it.image ? [it.image] : [],
+            shortDesc: '',
+            description: '',
+            rating: 5,
+            reviewsCount: 1,
+            priceOnRequest: isPor,
+          },
+          quantity: it.quantity || 1,
+          priceOnRequest: isPor,
+          agreedUnitPrice: it.agreedUnitPrice,
+          pricingStatus: it.pricingStatus,
+          pricedAt: it.pricedAt,
+          pricedBy: it.pricedBy,
+        };
+      })
+    : (existingOrder?.items || []);
+
+  return {
+    id: t.id,
+    customerName: existingOrder?.customerName || t.customerMaskedName || 'Valued Client',
+    phone: existingOrder?.phone || '',
+    address: existingOrder?.address || 'Verified Destination Address',
+    city: t.city || existingOrder?.city || '',
+    pincode: existingOrder?.pincode || '',
+    orderNotes: existingOrder?.orderNotes,
+    subtotal: t.subtotal ?? existingOrder?.subtotal ?? t.totalAmount,
+    totalAmount: t.totalAmount ?? existingOrder?.totalAmount ?? 0,
+    currentStep: (t.currentStep as OrderProgressStep) || 'placed',
+    isApproved: Boolean(t.isApproved ?? existingOrder?.isApproved),
+    createdAt: t.createdAt || existingOrder?.createdAt || '',
+    estimatedDelivery: t.estimatedDelivery || existingOrder?.estimatedDelivery || '1–2 Business Days (Express Air Cargo)',
+    courierName: t.courierName || existingOrder?.courierName,
+    awbNumber: t.awbNumber || existingOrder?.awbNumber,
+    invoiceNumber: t.isApproved ? (existingOrder?.invoiceNumber || `INV-${t.id}`) : undefined,
+    invoiceToken: existingOrder?.invoiceToken,
+    hasUnresolvedPorItems: Boolean(t.hasUnresolvedPorItems ?? existingOrder?.hasUnresolvedPorItems),
+    statusHistory,
+    items,
+  };
+}
 
 export function OrderTrackingModal() {
   const { orders, activeOrder, setActiveOrder, isTrackingOpen, setIsTrackingOpen, findOrder } = useOrder();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchError, setSearchError] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Background live revalidation for open tracking modal
+  const fetchLiveTracking = useCallback(async (orderId: string) => {
+    try {
+      const res = await fetch(`/api/orders/track?orderId=${encodeURIComponent(orderId)}`, {
+        cache: 'no-store',
+      });
+      if (!res.ok) return;
+      const result = await res.json();
+      if (result.success && result.data) {
+        setActiveOrder((prev: CustomerOrder | null) => mapTrackDataToCustomerOrder(result.data, prev));
+      }
+    } catch {
+      // Background revalidation fails gracefully
+    }
+  }, [setActiveOrder]);
+
+  // Initial and periodic (10s) polling + window focus sync while modal is open
+  useEffect(() => {
+    if (!isTrackingOpen) return;
+
+    const targetId = activeOrder?.id || orders[0]?.id;
+    if (targetId) {
+      fetchLiveTracking(targetId);
+    }
+
+    const interval = setInterval(() => {
+      const curId = activeOrder?.id || orders[0]?.id;
+      if (curId) {
+        fetchLiveTracking(curId);
+      }
+    }, 10000);
+
+    const handleFocus = () => {
+      const curId = activeOrder?.id || orders[0]?.id;
+      if (curId) {
+        fetchLiveTracking(curId);
+      }
+    };
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [isTrackingOpen, activeOrder?.id, orders, fetchLiveTracking]);
 
   // Lock body scroll and pause Lenis while modal is open
   useEffect(() => {
@@ -65,7 +200,24 @@ export function OrderTrackingModal() {
     const query = searchQuery.trim();
     if (!query) return;
 
-    // 1. Check local browser order memory
+    // 1. Query dedicated public order tracking endpoint FIRST (bypasses stale localStorage)
+    try {
+      const res = await fetch(`/api/orders/track?orderId=${encodeURIComponent(query)}`, {
+        cache: 'no-store',
+      });
+      const result = await res.json();
+      if (result.success && result.data) {
+        const localMatch = findOrder(query);
+        const mapped = mapTrackDataToCustomerOrder(result.data, localMatch);
+        setActiveOrder(mapped);
+        setSearchError(false);
+        return;
+      }
+    } catch {
+      // Network error — fall back to local memory if available
+    }
+
+    // 2. Fall back to local memory if server query returned 404 or network was offline
     const match = findOrder(query);
     if (match) {
       setActiveOrder(match);
@@ -73,71 +225,7 @@ export function OrderTrackingModal() {
       return;
     }
 
-    // 2. Query dedicated public order tracking endpoint
-    try {
-      const res = await fetch(`/api/orders/track?orderId=${encodeURIComponent(query)}`);
-      const result = await res.json();
-      if (result.success && result.data) {
-        const t = result.data;
-        const stepsOrder: OrderProgressStep[] = ['placed', 'quarantine', 'packed', 'dispatched', 'delivered'];
-        const currentTargetIdx = stepsOrder.indexOf(t.currentStep);
-
-        const mappedTrackedOrder: CustomerOrder = {
-          id: t.id,
-          customerName: t.customerMaskedName,
-          phone: '',
-          address: 'Verified Destination Address',
-          city: t.city,
-          pincode: '',
-          totalAmount: 0,
-          currentStep: t.currentStep,
-          isApproved: t.isApproved,
-          createdAt: t.createdAt,
-          estimatedDelivery: t.estimatedDelivery,
-          courierName: t.courierName,
-          awbNumber: t.awbNumber,
-          invoiceNumber: t.isApproved ? `INV-${t.id}` : undefined,
-          statusHistory: Array.isArray(t.statusHistory) && t.statusHistory.length > 0
-            ? t.statusHistory.map((s: any) => {
-                const sStep = s.status || s.step || 'placed';
-                const sIdx = stepsOrder.indexOf(sStep);
-                return {
-                  status: sStep as OrderProgressStep,
-                  title: s.title || (sStep === 'placed' ? 'Order Confirmed' : sStep === 'quarantine' ? 'Quarantine Health Inspection' : sStep === 'packed' ? 'Oxygen Thermal Packaging' : sStep === 'dispatched' ? 'Air Cargo Dispatch' : 'Delivered Safely'),
-                  description: s.note || s.description || 'Status confirmed in dispatch manifest',
-                  timestamp: s.timestamp || 'Logged',
-                  completed: sIdx <= currentTargetIdx,
-                };
-              })
-            : stepsOrder.map((step, idx) => ({
-                status: step,
-                title: step === 'placed' ? 'Order Confirmed' : step === 'quarantine' ? 'Quarantine Health Inspection' : step === 'packed' ? 'Oxygen Thermal Packaging' : step === 'dispatched' ? 'Air Cargo Dispatch' : 'Delivered Safely',
-                description: 'Status confirmed in dispatch manifest',
-                timestamp: idx <= currentTargetIdx ? 'Logged' : 'Pending',
-                completed: idx <= currentTargetIdx,
-              })),
-          items: Array.isArray(t.items)
-            ? t.items.map((it: any) => ({
-                product: {
-                  id: it.id || 'item',
-                  name: it.name || 'Marine Specimen',
-                  category: it.category || 'marine-life',
-                  price: 0,
-                  images: it.image ? [it.image] : [],
-                } as any,
-                quantity: it.quantity || 1,
-              }))
-            : [],
-        };
-
-        setActiveOrder(mappedTrackedOrder);
-        setSearchError(false);
-      } else {
-        setSearchError(true);
-      }
-    } catch {
-      setSearchError(true);
-    }
+    setSearchError(true);
   };
 
   const stepsOrder: OrderProgressStep[] = ['placed', 'quarantine', 'packed', 'dispatched', 'delivered'];
@@ -295,7 +383,7 @@ export function OrderTrackingModal() {
                     )}
                   </div>
 
-                  {['packed', 'dispatched', 'delivered'].includes(currentOrder.currentStep) && currentOrder.isApproved ? (
+                  {currentOrder.isApproved ? (
                     <Link
                       href={currentOrder.invoiceToken ? `/invoice/${currentOrder.id}?token=${currentOrder.invoiceToken}` : `/invoice/${currentOrder.id}`}
                       target="_blank"
@@ -308,10 +396,10 @@ export function OrderTrackingModal() {
                   ) : (
                     <span
                       className="h-9 px-3 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-400 text-[11px] font-medium inline-flex items-center gap-1.5 cursor-not-allowed"
-                      title="Invoice is strictly generated and released once order is sealed in Thermal Pod Packaging (Stage 3)"
+                      title="Invoice is released once approved by Marine Creatures concierge"
                     >
                       <span>🔒</span>
-                      <span>Invoice releases upon packaging</span>
+                      <span>Invoice pending approval</span>
                     </span>
                   )}
                 </div>
@@ -343,6 +431,7 @@ export function OrderTrackingModal() {
                     const isDone = idx <= currentStepIdx;
                     const isCurrent = idx === currentStepIdx;
                     const meta = TRACKING_STEPS_META[stepKey];
+                    const log = currentOrder.statusHistory?.find((h) => h.status === stepKey);
                     return (
                       <div key={stepKey} className="relative z-10 flex flex-col items-center text-center max-w-[110px]">
                         <div
@@ -359,6 +448,11 @@ export function OrderTrackingModal() {
                         <span className={`text-[11px] font-bold mt-2 leading-tight ${isCurrent ? 'text-cyan-300' : isDone ? 'text-white' : 'text-slate-500'}`}>
                           {meta.label}
                         </span>
+                        {log?.timestamp && log.timestamp !== 'Pending' && (
+                          <span className="text-[9px] text-slate-400 font-mono mt-0.5 max-w-[105px] truncate block">
+                            {log.timestamp}
+                          </span>
+                        )}
                       </div>
                     );
                   })}
@@ -404,42 +498,86 @@ export function OrderTrackingModal() {
                 </div>
               </div>
 
+              {/* POR Unresolved Notification Banner */}
+              {currentOrder.hasUnresolvedPorItems && (
+                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-300 text-xs flex items-center gap-3">
+                  <span className="text-xl shrink-0">⏳</span>
+                  <div>
+                    <strong className="block text-amber-200 font-semibold mb-0.5">Rare Specimen Pricing Under Review</strong>
+                    <p className="text-[11px] text-amber-300/80 leading-relaxed">
+                      This order includes rare Price on Request (POR) specimens. Our concierge is finalizing the agreed pricing. The final executive invoice will be issued upon specimen packaging.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Items in this Order */}
               <div className="space-y-3">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">
                   Specimens in Thermal Pod ({currentOrder.items?.length || 0})
                 </h4>
                 <div className="space-y-2.5">
-                  {currentOrder.items?.map(({ product, quantity }) => (
-                    <div
-                      key={product.id}
-                      className="p-3.5 rounded-2xl border border-white/10 bg-slate-950/60 flex items-center justify-between gap-3"
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <ProductThumbnail
-                          product={product}
-                          sizeClassName="w-14 h-14 rounded-xl shrink-0"
-                        />
-                        <div className="min-w-0">
-                          <span className="text-[10px] uppercase font-semibold text-cyan-400 block truncate">
-                            {product.categoryLabel}
-                          </span>
-                          <h5 className="text-xs sm:text-sm font-semibold text-white truncate">
-                            {product.name}
-                          </h5>
-                          <span className="text-xs text-slate-400">
-                            Qty: <strong className="text-white">{quantity}</strong>
-                          </span>
-                        </div>
-                      </div>
+                  {currentOrder.items?.map((item, idx) => {
+                    const { product, quantity } = item;
+                    const isPor = Boolean(item.priceOnRequest || product.priceOnRequest || (product.price === 0 && !item.agreedUnitPrice));
+                    const unitPrice = typeof item.agreedUnitPrice === 'number' && item.agreedUnitPrice > 0
+                      ? item.agreedUnitPrice
+                      : (product.price || 0);
 
-                      {product.price > 0 && (
-                        <span className="font-display text-sm sm:text-base text-white font-medium shrink-0">
-                          ₹{(product.price * quantity).toLocaleString('en-IN')}
-                        </span>
-                      )}
-                    </div>
-                  ))}
+                    return (
+                      <div
+                        key={product.id || idx}
+                        className="p-3.5 rounded-2xl border border-white/10 bg-slate-950/60 flex items-center justify-between gap-3"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <ProductThumbnail
+                            product={product}
+                            sizeClassName="w-14 h-14 rounded-xl shrink-0"
+                          />
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="text-[10px] uppercase font-semibold text-cyan-400 truncate">
+                                {product.categoryLabel}
+                              </span>
+                              {isPor && !item.agreedUnitPrice && (
+                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase tracking-wider">
+                                  POR
+                                </span>
+                              )}
+                              {item.agreedUnitPrice && item.agreedUnitPrice > 0 && isPor && (
+                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase tracking-wider">
+                                  ✓ Agreed Quote
+                                </span>
+                              )}
+                            </div>
+                            <h5 className="text-xs sm:text-sm font-semibold text-white truncate">
+                              {product.name}
+                            </h5>
+                            <span className="text-xs text-slate-400">
+                              Qty: <strong className="text-white">{quantity}</strong>
+                            </span>
+                          </div>
+                        </div>
+
+                        {unitPrice > 0 ? (
+                          <div className="text-right shrink-0">
+                            <span className="font-display text-sm sm:text-base text-white font-medium block">
+                              ₹{(unitPrice * quantity).toLocaleString('en-IN')}
+                            </span>
+                            {isPor && (
+                              <span className="text-[10px] text-cyan-400 font-mono">
+                                ₹{unitPrice.toLocaleString('en-IN')}/ea
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-[11px] font-medium text-amber-300 bg-amber-500/10 px-2 py-1 rounded-lg border border-amber-500/20 shrink-0">
+                            Quote Pending
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
 
                 {currentOrder.totalAmount > 0 && (

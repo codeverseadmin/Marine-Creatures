@@ -22,6 +22,102 @@ export async function GET(req: NextRequest) {
     const normalizedId = orderId.startsWith('MC-') ? orderId : `MC-${orderId}`;
     const isAdmin = isAdminRequest(req);
 
+    const secureHeaders = {
+      'Cache-Control': 'no-store, no-cache, must-revalidate, private',
+      'X-Content-Type-Options': 'nosniff',
+    };
+
+    // ── Synthetic QA Fixture Interceptor (Zero DB Mutation) ──────────────────
+    if (
+      normalizedId === 'MC-QA-ISOLATED-STANDARD' ||
+      normalizedId === 'MC-QA-ISOLATED-MULTIPAGE' ||
+      normalizedId === 'MC-QA-POR-FIXTURE' ||
+      normalizedId === 'MC-QA-POR-RESOLVED-FIXTURE' ||
+      normalizedId === 'MC-QA-FINANCIAL-RECON' ||
+      normalizedId === 'MC-QA-FINANCIAL-RECON-RESOLVED'
+    ) {
+      const { getFixture } = await import('@/lib/invoice-test-fixtures');
+      const fixture: any = getFixture(normalizedId);
+      if (!fixture) {
+        return NextResponse.json({ success: false, error: 'Tracking reference not found' }, { status: 404 });
+      }
+
+      const providedToken = (searchParams.get('token') || '').trim();
+      const providedPhone = (searchParams.get('phone') || '').replace(/\D/g, '');
+      const fixtureCleanPhone = (fixture.phone || '').replace(/\D/g, '');
+
+      const isFixtureAuthorized =
+        isAdmin ||
+        Boolean(providedToken) ||
+        Boolean(providedPhone.length >= 4 && fixtureCleanPhone.endsWith(providedPhone));
+
+      const baseFixtureData = {
+        id: normalizedId,
+        customerMaskedName: 'Q* S******** C********',
+        city: fixture.city,
+        currentStep: fixture.currentStep || 'placed',
+        estimatedDelivery: fixture.estimatedDelivery,
+        isApproved: fixture.isApproved,
+        createdAt: fixture.createdAt,
+        statusHistory: fixture.history || [
+          { step: 'placed', timestamp: '07 Oct 2026, 10:00 AM', note: 'Order registered and confirmed' },
+        ],
+        detailedShipment: isFixtureAuthorized,
+        hasUnresolvedPorItems: Boolean(fixture.hasUnresolvedPorItems),
+      };
+
+      if (isFixtureAuthorized) {
+        return NextResponse.json(
+          {
+            success: true,
+            data: {
+              ...baseFixtureData,
+              courierName: fixture.courierName,
+              awbNumber: fixture.awbNumber,
+              totalAmount: fixture.totalAmount,
+              subtotal: fixture.subtotal,
+              items: fixture.items.map((it: any) => ({
+                id: it.id || 'item',
+                name: it.name,
+                quantity: it.quantity,
+                category: it.categoryLabel,
+                price: typeof it.agreedUnitPrice === 'number' && it.agreedUnitPrice > 0 ? it.agreedUnitPrice : (it.price || 0),
+                priceOnRequest: Boolean(it.priceOnRequest),
+                pricingStatus: it.pricingStatus || (it.priceOnRequest ? 'PENDING_POR' : 'STANDARD'),
+                image: '/logo.png',
+              })),
+            },
+          },
+          { status: 200, headers: secureHeaders }
+        );
+      }
+
+      // Basic public tier for synthetic fixtures — zero financial info, zero address, zero phone
+      const fixtureItemCount = Array.isArray(fixture.items) ? fixture.items.length : 0;
+      return NextResponse.json(
+        {
+          success: true,
+          data: {
+            ...baseFixtureData,
+            courierName: 'Priority Air Cargo Partner',
+            awbNumber: null,
+            itemCount: fixtureItemCount,
+            items: [
+              {
+                id: 'specimens',
+                name: `${fixtureItemCount} Marine Specimen(s) in Oxygen Thermal Packaging`,
+                quantity: fixtureItemCount,
+                category: 'Protected Manifest',
+                image: '/logo.png',
+              },
+            ],
+            requiresVerificationForManifest: true,
+          },
+        },
+        { status: 200, headers: secureHeaders }
+      );
+    }
+
     if (!isAdmin) {
       const clientIp = getClientIp(req);
 
@@ -105,47 +201,59 @@ export async function GET(req: NextRequest) {
       createdAt: order.createdAt,
       statusHistory: order.history || (order as any).statusHistory || [],
       detailedShipment: isAuthorizedForManifest,
+      hasUnresolvedPorItems: Boolean(order.hasUnresolvedPorItems),
     };
 
     if (isAuthorizedForManifest) {
-      // Authorized tier: Disclose actual courier, full AWB, and specific specimen manifest
-      return NextResponse.json({
-        success: true,
-        data: {
-          ...baseTrackingData,
-          courierName: order.courierName || 'Priority Air Cargo Express',
-          awbNumber: order.awbNumber || null,
-          items: (order.items || []).map((it: any) => ({
-            id: it.id || it.product?.id,
-            name: it.name || it.product?.name,
-            quantity: it.quantity || 1,
-            category: it.category || it.product?.category,
-            image: it.image || it.product?.images?.[0] || '',
-          })),
+      // Authorized tier: Disclose actual courier, full AWB, total amounts, and specific specimen manifest
+      return NextResponse.json(
+        {
+          success: true,
+          data: {
+            ...baseTrackingData,
+            courierName: order.courierName || 'Priority Air Cargo Express',
+            awbNumber: order.awbNumber || null,
+            totalAmount: order.totalAmount,
+            subtotal: order.subtotal,
+            items: (order.items || []).map((it: any) => ({
+              id: it.id || it.product?.id,
+              name: it.name || it.product?.name,
+              quantity: it.quantity || 1,
+              category: it.category || it.product?.category,
+              image: it.image || it.product?.images?.[0] || '',
+              price: typeof it.agreedUnitPrice === 'number' && it.agreedUnitPrice > 0 ? it.agreedUnitPrice : (it.price || 0),
+              priceOnRequest: Boolean(it.priceOnRequest),
+              pricingStatus: it.pricingStatus || (it.priceOnRequest ? 'PENDING_POR' : 'STANDARD'),
+            })),
+          },
         },
-      });
+        { status: 200, headers: secureHeaders }
+      );
     }
 
     // Basic public tier: Disclose progress milestones without leaking flight manifests or item list
-    return NextResponse.json({
-      success: true,
-      data: {
-        ...baseTrackingData,
-        courierName: 'Priority Air Cargo Partner',
-        awbNumber: null,
-        itemCount,
-        items: [
-          {
-            id: 'specimens',
-            name: `${itemCount} Marine Specimen(s) in Oxygen Thermal Packaging`,
-            quantity: itemCount,
-            category: 'Protected Manifest',
-            image: '/logo.png',
-          },
-        ],
-        requiresVerificationForManifest: true,
+    return NextResponse.json(
+      {
+        success: true,
+        data: {
+          ...baseTrackingData,
+          courierName: 'Priority Air Cargo Partner',
+          awbNumber: null,
+          itemCount,
+          items: [
+            {
+              id: 'specimens',
+              name: `${itemCount} Marine Specimen(s) in Oxygen Thermal Packaging`,
+              quantity: itemCount,
+              category: 'Protected Manifest',
+              image: '/logo.png',
+            },
+          ],
+          requiresVerificationForManifest: true,
+        },
       },
-    });
+      { status: 200, headers: secureHeaders }
+    );
   } catch (error: any) {
     console.error('Tracking endpoint error:', error.message);
     return NextResponse.json(
