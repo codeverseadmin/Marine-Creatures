@@ -1,0 +1,24 @@
+Product ID,Product Name,Existing Word Count,Verified Technical Facts,Missing Information,Suggested Content Structure,Questions For Client
+"qtermoline-bio-media","Qtermoline Thermal Fused Biological Media","28 words","High-temperature fused porous ceramic matrix; open-cell pore networks; non-crumbly structural longevity; compatible with canisters, sumps, trickle towers; ₹420 retail price.","Specific surface area (m²/L or m²/g); pore diameter range (microns); package weight/volume (e.g. 500ml vs 1L); exact bacterial colonization time frame.","1. Engineering & Material Composition
+2. Sintering Process vs Standard Ceramic Rings
+3. Nitrifying & Denitrifying Colonization Zones
+4. Recommended Sump Flow Rates & Placement
+5. Rinsing & Maintenance Protocol","1. What is the net package weight/volume (e.g. 500g, 1L)?
+2. What is the verified specific surface area rating?
+3. Is this media safe for both freshwater and marine, or marine-optimized?"
+"re-ocean-mini-80","RE Ocean Mini 80 Internal Filter","28 words","Internal submersible filter; rated for aquariums up to 250 Litres; quick-detachable filter chambers; submerged mounting; ₹10,200 retail price.","Pump power wattage (W); flow rate in L/h; dimensions (H x W x D in mm); included filter media stages (sponge, carbon, bio-cartridge); suction vs magnetic mount.","1. Hydraulic Flow Rate & Turnover Capacity
+2. Multi-Stage Chamber Architecture
+3. Sump vs In-Tank Deployment Guidelines
+4. Silent Operation & Impeller Maintenance
+5. Energy Consumption & Electrical Specs","1. What is the exact pump flow rate in L/h?
+2. What is the power consumption in Watts?
+3. Does it include physical filter media (sponges) out of the box?
+4. What are the exact unit dimensions?"
+"manual-marine-light","Manual Marine Aquarium Light","28 words","Manual On/Off toggle switch; engineered for fish-only (FOWLR) and anemone aquariums; standard glass rim mounting brackets; Price on Request.","Exact wattage / diode breakdown; spectrum kelvin rating & actinic nanometers; supported tank length range; body material & finish; price range.","1. Spectrum Profile: Daylight + Actinic Blue
+2. Biological Suitability: Why Anemones & FOWLR Thrive
+3. Rugged Manual Simplicity vs Digital Failure Points
+4. Mounting Bracket Adjustability & Glass Limits
+5. Power Supply & Safety Isolation","1. What is the exact wattage and diode count?
+2. What is the maximum tank length supported (e.g. 18-24 inches)?
+3. What is the expected retail price point or inquiry threshold?
+4. What brand or manufacturing partner produces this unit?"
