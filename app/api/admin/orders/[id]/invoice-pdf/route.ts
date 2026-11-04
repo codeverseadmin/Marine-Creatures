@@ -21,7 +21,7 @@ import path from 'path';
 import fs from 'fs';
 import { connectToDatabase } from '@/lib/mongodb';
 import { OrderModel } from '@/models/Order';
-import { isAdminRequest } from '@/lib/auth';
+import { requireAnyPermission } from '@/lib/rbac/guard';
 import { InvoicePDFDocument, ExecutiveInvoiceOrderData } from '@/lib/invoice-pdf-template';
 
 // Force Node.js runtime — @react-pdf/renderer requires Node (canvas/fs APIs)
@@ -43,13 +43,12 @@ function resolveAssetPath(fileName: string): string | undefined {
 }
 
 export async function GET(req: NextRequest, { params }: RouteContext) {
-  // ── 1. Authentication gate ────────────────────────────────────────────────
-  if (!isAdminRequest(req)) {
-    return NextResponse.json(
-      { success: false, error: 'Unauthorized: Admin session required to generate invoice PDF' },
-      { status: 401 }
-    );
-  }
+  // ── 1. Authentication & Permission gate ───────────────────────────────────
+  const { auth, errorResponse } = await requireAnyPermission(req, [
+    'orders.invoice.generate',
+    'finance.invoice.generate',
+  ]);
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { MediaModel } from '@/models/Media';
 import { ProductModel } from '@/models/Product';
-import { isAdminRequest } from '@/lib/auth';
+import { requirePermission, requireAuthenticatedEmployee } from '@/lib/rbac/guard';
 
 // 25 MB max upload limit for specimen photos/videos
 const MAX_FILE_SIZE = 25 * 1024 * 1024;
@@ -142,12 +142,8 @@ function validateSvgSecurity(buf: Buffer): { safe: boolean; reason?: string } {
 export async function POST(req: NextRequest) {
   try {
     // 1. Authenticate admin via session cookie or verified server secret
-    if (!isAdminRequest(req)) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized: Valid Control OS admin session required' },
-        { status: 401 }
-      );
-    }
+    const { auth, errorResponse } = await requirePermission(req, 'media.upload');
+  if (errorResponse) return errorResponse;
 
     // 2. Parse form data
     const formData = await req.formData();

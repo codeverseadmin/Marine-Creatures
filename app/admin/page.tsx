@@ -13,6 +13,7 @@ import { ControlOsWorlds } from '@/components/admin/ControlOsWorlds';
 import { ControlOsOperations } from '@/components/admin/ControlOsOperations';
 import { ControlOsContent } from '@/components/admin/ControlOsContent';
 import { ControlOsAnalytics } from '@/components/admin/ControlOsAnalytics';
+import { ControlOsEmployees } from '@/components/admin/ControlOsEmployees';
 import { ControlOsSystem } from '@/components/admin/ControlOsSystem';
 import { GlobalSearchModal } from '@/components/admin/GlobalSearchModal';
 
@@ -21,14 +22,31 @@ interface AdminPageProps {
   initialSubtab?: string;
 }
 
+interface CurrentUser {
+  id: string;
+  name: string;
+  email: string;
+  roleId: string;
+  roleName: string;
+  permissions: string[];
+  isOwner: boolean;
+  isBootstrap: boolean;
+}
+
 export default function AdminPage({ initialTab = 'overview', initialSubtab }: AdminPageProps) {
   // Authentication & session state
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isVerifyingAuth, setIsVerifyingAuth] = useState<boolean>(true);
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+
+  // Login form state
+  const [loginMode, setLoginMode] = useState<'employee' | 'passcode'>('employee');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [passcode, setPasscode] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [isSubmittingLogin, setIsSubmittingLogin] = useState(false);
-  const [showPasscode, setShowPasscode] = useState(false);
 
   // Navigation state
   const [activeTab, setActiveTab] = useState<ControlOsSection>(initialTab);
@@ -50,6 +68,21 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
     setTimeout(() => setNotification(null), 3500);
   };
 
+  // Fetch current user profile
+  const fetchCurrentUser = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/me', { credentials: 'include' });
+      const data = await res.json();
+      if (data.authenticated && data.user) {
+        setCurrentUser(data.user);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  }, []);
+
   // Fetch overview data from server using signed httpOnly session cookie
   const fetchOverviewData = useCallback(async () => {
     setIsLoadingOverview(true);
@@ -63,6 +96,7 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
       if (res.status === 401) {
         setIsAuthenticated(false);
         setOverviewData(null);
+        setCurrentUser(null);
         return false;
       }
 
@@ -74,6 +108,7 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
       if (json.success && json.data) {
         setOverviewData(json.data);
         setIsAuthenticated(true);
+        await fetchCurrentUser();
         return true;
       } else {
         throw new Error(json.error || 'Failed to parse overview response');
@@ -85,7 +120,7 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
       setIsLoadingOverview(false);
       setIsVerifyingAuth(false);
     }
-  }, []);
+  }, [fetchCurrentUser]);
 
   // Initial authentication check on component mount & read tab param from URL
   useEffect(() => {
@@ -94,7 +129,21 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
       const params = new URLSearchParams(window.location.search);
       const tab = params.get('tab') as ControlOsSection | null;
       const sub = params.get('subtab');
-      if (tab && ['overview', 'sales', 'catalog', 'worlds', 'operations', 'crm', 'content', 'analytics', 'system'].includes(tab)) {
+      if (
+        tab &&
+        [
+          'overview',
+          'sales',
+          'catalog',
+          'worlds',
+          'operations',
+          'crm',
+          'content',
+          'analytics',
+          'employees',
+          'system',
+        ].includes(tab)
+      ) {
         setActiveTab(tab);
       }
       if (sub) {
@@ -118,31 +167,43 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
   // Handle Login submission
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!passcode.trim()) {
-      setAuthError('Please enter administrative passcode');
-      return;
-    }
-
     setIsSubmittingLogin(true);
     setAuthError(null);
 
     try {
-      const cleanPasscode = passcode.trim();
+      const payload =
+        loginMode === 'employee'
+          ? { email: email.trim(), password }
+          : { passcode: passcode.trim() };
+
+      if (loginMode === 'employee' && (!email.trim() || !password)) {
+        setAuthError('Please enter both your email address and password');
+        setIsSubmittingLogin(false);
+        return;
+      }
+
+      if (loginMode === 'passcode' && !passcode.trim()) {
+        setAuthError('Please enter administrative passcode');
+        setIsSubmittingLogin(false);
+        return;
+      }
+
       const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ passcode: cleanPasscode }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
       if (res.ok && data.success) {
         setIsAuthenticated(true);
+        setPassword('');
         setPasscode('');
         showToast('✓ Control OS session authenticated');
         await fetchOverviewData();
       } else {
-        setAuthError(data.error || 'Invalid passcode. Access denied.');
+        setAuthError(data.error || 'Authentication denied. Please check your credentials.');
       }
     } catch {
       setAuthError('Connection error during authentication.');
@@ -163,13 +224,15 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
     } finally {
       setIsAuthenticated(false);
       setOverviewData(null);
+      setCurrentUser(null);
       setPasscode('');
+      setPassword('');
       showToast('Logged out of Control OS');
     }
   };
 
   // Control OS Navigation Items
-  const tabItems: TabItem[] = [
+  const allTabItems: TabItem[] = [
     {
       id: 'overview',
       label: 'Overview',
@@ -227,6 +290,14 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
       description: 'Database-backed business intelligence, funnel telemetry, and yield analysis',
     },
     {
+      id: 'employees',
+      label: 'Staff & Roles',
+      icon: '👥',
+      badge: 'Active',
+      isImplemented: true,
+      description: 'Employee access control, custom roles, and security authorization matrix',
+    },
+    {
       id: 'system',
       label: 'System',
       icon: '⚙️',
@@ -235,6 +306,42 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
       description: 'Fleet infrastructure health, cloud snapshots, audit logs, and security',
     },
   ];
+
+  // Permission-aware tab filtering
+  const visibleTabItems = allTabItems.filter((item) => {
+    if (!currentUser) return true;
+    if (currentUser.isOwner || currentUser.isBootstrap) return true;
+    if (item.id === 'overview') return true;
+
+    const perms = currentUser.permissions || [];
+    switch (item.id) {
+      case 'employees':
+        return perms.includes('employees.read') || perms.includes('roles.read');
+      case 'sales':
+      case 'crm':
+        return ['orders.read', 'enquiries.read', 'customers.read', 'follow_ups.read'].some((p) =>
+          perms.includes(p)
+        );
+      case 'catalog':
+        return ['products.read', 'inventory.read', 'media.read'].some((p) => perms.includes(p));
+      case 'worlds':
+        return perms.includes('worlds.read');
+      case 'operations':
+        return ['quarantine.read', 'dispatch.read', 'maintenance.read'].some((p) =>
+          perms.includes(p)
+        );
+      case 'content':
+        return ['content.read', 'seo.read'].some((p) => perms.includes(p));
+      case 'analytics':
+        return perms.includes('analytics.read');
+      case 'system':
+        return ['audit.read', 'health.read', 'security.read', 'settings.read', 'backup.manage'].some(
+          (p) => perms.includes(p)
+        );
+      default:
+        return true;
+    }
+  });
 
   // 1. Initial Authentication Verifying Screen (Clean, Fast)
   if (isVerifyingAuth) {
@@ -271,48 +378,140 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
                   Marine Creatures Control OS
                 </h1>
                 <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                  Authorized personnel access to private business telemetry and operational controls.
+                  Role-Based Access Control and operational telemetry.
                 </p>
               </div>
             </div>
 
-            {/* Passcode Form */}
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <label
-                  htmlFor="passcode-input"
-                  className="text-xs font-semibold uppercase tracking-wider text-slate-300 block mb-2"
-                >
-                  Master Passcode
-                </label>
-                <div className="relative">
-                  <input
-                    id="passcode-input"
-                    type={showPasscode ? 'text' : 'password'}
-                    placeholder="Enter administrative passcode"
-                    value={passcode}
-                    onChange={(e) => setPasscode(e.target.value)}
-                    className="w-full h-12 px-4 pr-14 rounded-xl bg-slate-900/90 border border-slate-700 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-colors font-mono"
-                    autoFocus
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPasscode(!showPasscode)}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] flex items-center justify-center text-xs font-medium text-slate-400 hover:text-white transition-colors"
-                    aria-label={showPasscode ? 'Hide passcode' : 'Show passcode'}
-                  >
-                    {showPasscode ? 'Hide' : 'Show'}
-                  </button>
-                </div>
+            {/* Login Mode Switcher */}
+            <div className="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-slate-900/80 border border-slate-800 text-xs font-semibold">
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginMode('employee');
+                  setAuthError(null);
+                }}
+                className={`min-h-[38px] rounded-lg transition-colors flex items-center justify-center gap-1.5 ${
+                  loginMode === 'employee'
+                    ? 'bg-slate-800 text-white font-bold shadow'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <span>👤</span>
+                <span>Staff Login</span>
+              </button>
 
-                {authError && (
-                  <p className="text-xs text-red-400 mt-2 font-medium flex items-center gap-1.5" role="alert">
-                    <span>✕</span>
-                    <span>{authError}</span>
-                  </p>
-                )}
-              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginMode('passcode');
+                  setAuthError(null);
+                }}
+                className={`min-h-[38px] rounded-lg transition-colors flex items-center justify-center gap-1.5 ${
+                  loginMode === 'passcode'
+                    ? 'bg-slate-800 text-white font-bold shadow'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <span>🔑</span>
+                <span>Founder / Passcode</span>
+              </button>
+            </div>
+
+            {/* Login Form */}
+            <form onSubmit={handleLogin} className="space-y-4">
+              {loginMode === 'employee' ? (
+                <>
+                  <div>
+                    <label
+                      htmlFor="email-input"
+                      className="text-xs font-semibold uppercase tracking-wider text-slate-300 block mb-2"
+                    >
+                      Staff Email Address
+                    </label>
+                    <input
+                      id="email-input"
+                      type="email"
+                      placeholder="name@marinecreatures.local"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full h-12 px-4 rounded-xl bg-slate-900/90 border border-slate-700 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-colors font-mono"
+                      autoFocus
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="password-input"
+                      className="text-xs font-semibold uppercase tracking-wider text-slate-300 block mb-2"
+                    >
+                      Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="password-input"
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Enter your account password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full h-12 px-4 pr-14 rounded-xl bg-slate-900/90 border border-slate-700 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-colors font-mono"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] flex items-center justify-center text-xs font-medium text-slate-400 hover:text-white transition-colors"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showPassword ? 'Hide' : 'Show'}
+                      </button>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label
+                      htmlFor="passcode-input"
+                      className="text-xs font-semibold uppercase tracking-wider text-slate-300 block"
+                    >
+                      Founder Passcode
+                    </label>
+                    <span className="text-[10px] font-mono text-cyan-400">Bootstrap / Recovery</span>
+                  </div>
+                  <div className="relative">
+                    <input
+                      id="passcode-input"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter administrative master passcode"
+                      value={passcode}
+                      onChange={(e) => setPasscode(e.target.value)}
+                      className="w-full h-12 px-4 pr-14 rounded-xl bg-slate-900/90 border border-slate-700 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-colors font-mono"
+                      autoFocus
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] flex items-center justify-center text-xs font-medium text-slate-400 hover:text-white transition-colors"
+                      aria-label={showPassword ? 'Hide passcode' : 'Show passcode'}
+                    >
+                      {showPassword ? 'Hide' : 'Show'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {authError && (
+                <p
+                  className="text-xs text-red-400 mt-2 font-medium flex items-center gap-1.5"
+                  role="alert"
+                >
+                  <span>✕</span>
+                  <span>{authError}</span>
+                </p>
+              )}
 
               <button
                 type="submit"
@@ -339,7 +538,7 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
                 <span>←</span>
                 <span>Customer Storefront</span>
               </Link>
-              <span className="font-mono text-[10px]">HMAC-SHA256</span>
+              <span className="font-mono text-[10px]">HMAC-SHA256 • RBAC</span>
             </div>
           </div>
         </div>
@@ -363,45 +562,48 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
         </div>
       )}
 
-      {/* Main Admin Frame */}
-      <div className="flex-1 flex min-h-screen">
-        {/* Left Sidebar */}
+      {/* Control OS Layout Wrapper */}
+      <div className="flex flex-1 min-h-screen">
+        {/* Responsive Left Navigation Sidebar */}
         <AdminSidebar
           activeTab={activeTab}
-          setActiveTab={setActiveTab}
+          setActiveTab={(tab) => {
+            setActiveTab(tab);
+            setActiveSubtab(undefined);
+          }}
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
           desktopSidebarOpen={desktopSidebarOpen}
           setDesktopSidebarOpen={setDesktopSidebarOpen}
-          tabItems={tabItems}
+          tabItems={visibleTabItems}
           handleLogout={handleLogout}
         />
 
-        {/* Content Column */}
+        {/* Main Content Workspace Column */}
         <div className="flex-1 flex flex-col min-w-0 bg-[#06090e]">
-          {/* Top Utility Header */}
+          {/* Top Operational Header */}
           <AdminHeader
             activeTab={activeTab}
-            setActiveTab={setActiveTab}
+            setActiveTab={(tab) => {
+              setActiveTab(tab);
+              setActiveSubtab(undefined);
+            }}
             setSidebarOpen={setSidebarOpen}
             desktopSidebarOpen={desktopSidebarOpen}
             setDesktopSidebarOpen={setDesktopSidebarOpen}
-            onOpenSearch={() => setIsSearchOpen(true)}
-            dbStatus={
-              overviewData
-                ? {
-                    connected: overviewData.system.database.status === 'Healthy',
-                    cluster: overviewData.system.database.cluster,
-                    database: overviewData.system.database.database,
-                    latencyMs: overviewData.system.database.latencyMs,
-                  }
-                : undefined
-            }
+            dbStatus={{
+              connected: overviewData?.system.database.status === 'healthy',
+              cluster: overviewData?.system.database.cluster,
+              database: overviewData?.system.database.database,
+              latencyMs: overviewData?.system.database.latencyMs,
+            }}
             handleLogout={handleLogout}
+            onOpenSearch={() => setIsSearchOpen(true)}
           />
 
-          {/* Main Operational Surface */}
-          <main className="p-3 sm:p-6 lg:p-8 pb-24 sm:pb-28 lg:pb-8 flex-1 max-w-7xl w-full mx-auto">
+          {/* Active Module Screen */}
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto pb-24 lg:pb-8">
+            {/* Overview Command Center Module */}
             {activeTab === 'overview' && (
               <>
                 {overviewError && (
@@ -451,7 +653,7 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
               />
             )}
 
-            {/* Worlds Architecture Module */}
+            {/* Worlds Architecture CMS */}
             {activeTab === 'worlds' && (
               <ControlOsWorlds />
             )}
@@ -477,6 +679,14 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
               <ControlOsAnalytics
                 initialSubtab={activeSubtab as any}
                 showToast={showToast}
+              />
+            )}
+
+            {/* Employees & Access Control Module */}
+            {activeTab === 'employees' && (
+              <ControlOsEmployees
+                showToast={showToast}
+                currentUser={currentUser}
               />
             )}
 

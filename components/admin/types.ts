@@ -6,6 +6,7 @@ export type ControlOsSection =
   | 'operations'
   | 'content'
   | 'analytics'
+  | 'employees'
   | 'system'
   | 'crm'; // Alias preserved for backwards compatibility
 
@@ -16,6 +17,7 @@ export type OperationsSubtab = 'quarantine' | 'dispatch' | 'maintenance' | 'sche
 export type ContentSubtab = 'homepage' | 'banners' | 'seo';
 export type AnalyticsSubtab = 'business' | 'products' | 'customers' | 'traffic';
 export type SystemSubtab = 'audit' | 'backups' | 'health' | 'security' | 'settings';
+export type EmployeeSubtab = 'directory' | 'roles';
 
 export type AdminTab = ControlOsSection;
 

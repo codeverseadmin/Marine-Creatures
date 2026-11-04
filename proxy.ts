@@ -8,7 +8,7 @@ interface RateLimitRecord {
 // In-memory sliding window rate limiter per IP for sensitive routes
 const loginRateLimitMap = new Map<string, RateLimitRecord>();
 
-const MAX_LOGIN_ATTEMPTS = 5;
+const MAX_LOGIN_ATTEMPTS = 30; // 30 attempts per minute per IP to accommodate multi-employee office networks
 const WINDOW_MS = 60 * 1000; // 1 minute
 
 function cleanupExpiredRecords(now: number) {

@@ -3,13 +3,12 @@ import { connectToDatabase, isDatabaseConfigured } from '@/lib/mongodb';
 import { SnapshotModel } from '@/models/Snapshot';
 import { ProductModel } from '@/models/Product';
 import { OrderModel } from '@/models/Order';
-import { isAdminRequest } from '@/lib/auth';
+import { requirePermission, requireAuthenticatedEmployee } from '@/lib/rbac/guard';
 import mongoose from 'mongoose';
 
 export async function GET(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'health.read');
+  if (errorResponse) return errorResponse;
 
   const startTime = Date.now();
 

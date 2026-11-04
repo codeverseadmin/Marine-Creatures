@@ -1,18 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
-import { isAdminRequest } from '@/lib/auth';
+import { requirePermission, requireAuthenticatedEmployee } from '@/lib/rbac/guard';
 import CaseStudyModel from '@/models/CaseStudy';
 import ClientProjectModel from '@/models/ClientProject';
 import { recordAuditLog } from '@/lib/audit';
 import { ensureWorldsSeeded } from '@/lib/data/worlds';
 
 export async function GET(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json(
-      { success: false, error: 'Unauthorized: Valid Control OS admin session required' },
-      { status: 401 }
-    );
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'worlds.read');
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();
@@ -145,12 +141,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json(
-      { success: false, error: 'Unauthorized: Valid Control OS admin session required' },
-      { status: 401 }
-    );
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'worlds.manage');
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();
@@ -398,12 +390,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json(
-      { success: false, error: 'Unauthorized: Valid Control OS admin session required' },
-      { status: 401 }
-    );
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'worlds.manage');
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();
@@ -698,12 +686,8 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json(
-      { success: false, error: 'Unauthorized: Valid Control OS admin session required' },
-      { status: 401 }
-    );
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'worlds.manage');
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();

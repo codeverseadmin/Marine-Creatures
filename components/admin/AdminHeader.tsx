@@ -77,6 +77,13 @@ export function AdminHeader({
           shortTitle: 'Analytics',
           phase: 'Live',
         };
+      case 'employees':
+        return {
+          title: 'Staff & Access Control (RBAC)',
+          desc: 'Individual employee credentials, role permissions, and session revocation',
+          shortTitle: 'Employees',
+          phase: 'Live',
+        };
       case 'system':
         return {
           title: 'System Governance & Fleet',

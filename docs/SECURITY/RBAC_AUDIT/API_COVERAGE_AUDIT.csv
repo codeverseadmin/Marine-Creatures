@@ -1,0 +1,77 @@
+Endpoint,Method,Authentication Guard,Required Permission,Field-Level Restrictions,Audit Logged,401 Unauthenticated,403 Unauthorized,Risk Classification,Audit Findings
+/api/admin/me,GET,resolveAuthContext,None (Any Active Session),Read-only profile payload,No,YES,N/A,SECURE,Returns active employee profile role and granted permissions array
+/api/admin/login,POST,None (Public),None,Email + password OR founder passcode,YES (Failed/Success),N/A,YES,P1_HIGH_RISK,IP rate-limited but lacks account-level (email) rate limiting. Still issues legacy cookie on passcode even when active Owner exists.
+/api/admin/logout,POST,None (Public),None,Clears session cookie,No,N/A,N/A,SECURE,Sets maxAge=0 on session cookie
+/api/admin/employees,GET,requirePermission,employees.read,Directory filtering & pagination,No,YES,YES,SECURE,Excludes passwordHash and invitationTokenHash from projection
+/api/admin/employees,POST,requirePermission,employees.create,Name email roleId customPermissions,YES (EMPLOYEE_INVITED),YES,YES,P1_HIGH_RISK,Prevents non-owner assigning owner role but does not restrict non-owner from assigning arbitrary customPermissions
+/api/admin/employees/[id],GET,requirePermission,employees.read,Read-only employee record,No,YES,YES,SECURE,Sanitizes credentials
+/api/admin/employees/[id],PATCH,requirePermission,employees.update OR employees.suspend,Name roleId status customPermissions,YES,YES,YES,P1_HIGH_RISK,Last-owner protection enforced. Privilege escalation: non-owner can inject customPermissions=['*'] to gain Owner authority. No self-modification barrier.
+/api/admin/employees/[id],DELETE,requirePermission,employees.delete,Self-deletion and last-owner blocked,YES,YES,YES,SECURE,Owner only. Prevents deleting sole active owner.
+/api/admin/employees/[id]/revoke-sessions,POST,requireAnyPermission,security.manage OR employees.suspend,Atomic sessionVersion increment,YES,YES,YES,SECURE,Instant token revocation across all client devices
+/api/admin/employees/[id]/resend-invitation,POST,requirePermission,employees.create,Regenerates token and resets 48h clock,YES,YES,YES,SECURE,Invalidates old token hash in database
+/api/admin/roles,GET,requirePermission,roles.read,Returns system and custom roles,No,YES,YES,SECURE,Lists full permissions matrix
+/api/admin/roles,POST,requirePermission,roles.create,Role id name description permissions,YES (ROLE_CREATED),YES,YES,SECURE,Validates all permissions against PERMISSIONS_REGISTRY
+/api/admin/roles/[id],PATCH,requirePermission,roles.update,Protected against system role edits,YES (ROLE_UPDATED),YES,YES,SECURE,Atomically increments sessionVersion for all employees assigned to updated role
+/api/admin/roles/[id],DELETE,requirePermission,roles.delete,Foreign-key check (in-use roles blocked),YES (ROLE_DELETED),YES,YES,SECURE,Prevents deleting system roles and assigned custom roles
+/api/admin/orders,GET,requirePermission,orders.read,Filter by step isApproved search,No,YES,YES,SECURE,Paginated and restricted to authorized roles
+/api/admin/orders,PATCH,requirePermission,orders.update_status,Fulfillment step tracking notes isApproved,YES (ORDER_STATUS_CHANGED),YES,YES,P2_IMPORTANT,Requires orders.approve for isApproved toggle. Uses legacy audit logger (actor: mc_admin_session).
+/api/admin/orders/[id]/invoice-pdf,GET,requireAnyPermission,orders.invoice.generate OR finance.invoice.generate,A4 PDF generation with POR check,No,YES,YES,SECURE,Strictly gates unresolved POR specimens. Intercepts synthetic QA fixtures.
+/api/admin/orders/[id]/por-pricing,POST,requirePermission,orders.por_price.set,Specimen agreed unit prices,YES,YES,YES,SECURE,Optimistic concurrency versioning (pricingVersion) and invoice revision tracking
+/api/admin/catalog,GET,requirePermission,products.read,Filter search category itemType,No,YES,YES,SECURE,Catalog governance read
+/api/admin/catalog,POST,requirePermission,products.create,Product schema fields,YES (PRODUCT_CREATED),YES,YES,SECURE,Validates pricing and required fields
+/api/admin/catalog,PATCH,requirePermission,products.update,Price specifications media,YES (PRODUCT_UPDATED),YES,YES,SECURE,Audits product modifications
+/api/admin/catalog,DELETE,requirePermission,products.archive,Soft-delete isArchived: true,YES (PRODUCT_ARCHIVED),YES,YES,SECURE,Archive protection
+/api/admin/inventory,GET,requirePermission,inventory.read,Stock quantities and alerts,No,YES,YES,SECURE,Inventory monitoring
+/api/admin/inventory,PATCH,requirePermission,inventory.update,Stock count adjustments,YES,YES,YES,SECURE,Audited inventory adjustment
+/api/admin/customers,GET,requirePermission,customers.read,Customer 360 aggregation dossier,No,YES,YES,SECURE,Combines orders inquiries projects and maintenance
+/api/admin/customers,PATCH,requireAnyPermission,customers.update OR customers.notes.create,Tags internalNotes city address pincode email name,YES,YES,YES,P2_IMPORTANT,Overprivileged: users with only customers.notes.create can overwrite customer legal name and shipping address. Uses legacy audit logger.
+/api/admin/enquiries,GET,requirePermission,enquiries.read,Inquiry listing and status,No,YES,YES,SECURE,Concierge inquiries
+/api/admin/enquiries,PATCH,requirePermission,enquiries.update_status,Status updates notes,YES,YES,YES,SECURE,Audited status progression
+/api/admin/follow-ups,GET,requirePermission,follow_ups.read,Scheduled client reminders,No,YES,YES,SECURE,Follow-up tasks
+/api/admin/follow-ups,POST,requirePermission,follow_ups.manage,Schedule new touchpoint,YES,YES,YES,SECURE,Client relationship reminders
+/api/admin/follow-ups,PATCH,requirePermission,follow_ups.manage,Reschedule or complete task,YES,YES,YES,SECURE,Follow-up task updates
+/api/admin/operations/quarantine,GET,requirePermission,quarantine.read,Livestock health logs and holding tanks,No,YES,YES,SECURE,Biological husbandry monitoring
+/api/admin/operations/quarantine,PATCH,requirePermission,quarantine.update,Prophylactic medication feeding exit clearance,YES,YES,YES,SECURE,Quarantine exit controls
+/api/admin/operations/dispatch,GET,requirePermission,dispatch.read,Courier logistics and manifests,No,YES,YES,SECURE,Air cargo and courier manifest
+/api/admin/operations/dispatch,PATCH,requirePermission,dispatch.update,Courier AWB assignment and disclaimers,YES,YES,YES,SECURE,Logistics dispatch updates
+/api/admin/operations/maintenance,GET,requirePermission,maintenance.read,Client aquarium servicing routes,No,YES,YES,SECURE,Field service routes
+/api/admin/operations/maintenance,PATCH,requirePermission,maintenance.manage,Water chemistry parameters and service tasks,YES,YES,YES,SECURE,Water testing and service logging
+/api/admin/media,GET,requirePermission,media.read,Media library assets,No,YES,YES,SECURE,Asset catalog
+/api/admin/media,POST,requirePermission,media.upload,Image and video metadata,YES,YES,YES,SECURE,Upload tracking
+/api/admin/media/[id],DELETE,requirePermission,media.delete,Media asset removal,YES,YES,YES,SECURE,Media deletion
+/api/admin/upload,POST,requirePermission,media.upload,File size binary magic bytes and SVG sanitization,No,YES,YES,SECURE,Strict anti-XSS and anti-XXE SVG filtering. 25MB limit.
+/api/admin/worlds,GET,requirePermission,worlds.read,Portfolio case studies and briefs,No,YES,YES,SECURE,Architectural projects
+/api/admin/worlds,POST,requirePermission,worlds.manage,Project creation and media curation,YES,YES,YES,SECURE,Case study curation
+/api/admin/worlds,PATCH,requirePermission,worlds.manage,Publish unpublish curate,YES,YES,YES,SECURE,Portfolio project updates
+/api/admin/content/seo,GET,requireAnyPermission,seo.read OR content.read,SEO overrides and banner listings,No,YES,YES,SECURE,Marketing metadata
+/api/admin/content/seo,POST,requireAnyPermission,seo.update OR content.manage,Metadata and banner configurations,YES,YES,YES,SECURE,Marketing and SEO updates
+/api/admin/analytics,GET,requirePermission,analytics.read,Revenue metrics order velocity demand,No,YES,YES,SECURE,Business analytics
+/api/admin/analytics/events,POST,None (Unauthenticated),None,Public event ingestion,No,NO,NO,P1_HIGH_RISK,Under /api/admin/ path but completely unauthenticated and un-rate-limited. Public telemetry flooding risk.
+/api/admin/backup,GET,isAuthorized,backup.manage (MISMATCH),Snapshot listing and download,No,YES,NO (Returns 401),P2_IMPORTANT,Permission string mismatch: checks 'backup.manage' instead of 'backups.read'. Returns 401 instead of 403.
+/api/admin/backup,POST,isAuthorized,backup.manage (MISMATCH),Database snapshot creation,YES,YES,NO (Returns 401),P2_IMPORTANT,Permission string mismatch: checks 'backup.manage' instead of 'backups.create'.
+/api/admin/system/audit,GET,requirePermission,audit.read,Immutable security audit logs,No,YES,YES,SECURE,Read-only audit trail
+/api/admin/system/health,GET,requirePermission,health.read,Atlas latency and connection health,No,YES,YES,SECURE,System telemetry
+/api/admin/system/security,GET,requirePermission,security.read,Security diagnostic metrics,No,YES,YES,SECURE,Security telemetry
+/api/admin/system/settings,GET,requirePermission,settings.read,Business operational parameters,No,YES,YES,SECURE,Business settings
+/api/admin/system/settings,PATCH,requirePermission,settings.update,Whitelisted settings parameters,YES,YES,YES,P2_IMPORTANT,Uses legacy audit logger (actor: mc_admin_session) instead of employee identity.
+/api/admin/overview,GET,resolveAuthContext,None (Any Active Session),Role-filtered KPI summary,No,YES,N/A,SECURE,Aggregates data based on user capabilities
+/api/admin/search,GET,resolveAuthContext,None (Any Active Session),Role-filtered global search,No,YES,N/A,SECURE,Restricts search results to domains user is permitted to view
+/api/auth/invitation/verify,GET,None (Public Rate-Limited),None,Validates token and returns role/email,No,N/A,N/A,SECURE,30 req/min/IP rate limit. Validates 48h expiration.
+/api/auth/invitation/accept,POST,None (Public Rate-Limited),None,Sets scrypt password and activates account,YES (INVITATION_ACCEPTED),N/A,N/A,P1_HIGH_RISK,TOCTOU race condition: uses findOne + save rather than atomic findOneAndUpdate.
+/api/orders,GET,isAdminRequest,None (Legacy Bypass),Customer PII phone address orders,No,YES,NO (Any Admin Cookie),P0_CRITICAL,Bypasses RBAC: Any logged-in employee (e.g. inventory/marketing) can access all orders and customer PII.
+/api/orders,PATCH,isAdminRequest,None (Legacy Bypass),Order fulfillment stage tracking,YES,YES,NO (Any Admin Cookie),P0_CRITICAL,Bypasses RBAC: Any employee can advance order status without orders.update_status permission.
+/api/orders,DELETE,isAdminRequest,None (Legacy Bypass),Permanent order deletion,No,YES,NO (Any Admin Cookie),P0_CRITICAL,Bypasses RBAC: Any employee can permanently delete orders without orders.delete permission.
+/api/orders/[id],GET,isAdminRequest OR token,None (Legacy Bypass),Single order record,No,YES,NO (Any Admin Cookie),P0_CRITICAL,Bypasses RBAC: Any employee session can view customer order without orders.read permission.
+/api/products,POST,isAdminRequest,None (Legacy Bypass),Creates catalog product,No,YES,NO (Any Admin Cookie),P0_CRITICAL,Bypasses RBAC: Any employee can create products without products.create permission.
+/api/products,PUT,isAdminRequest,None (Legacy Bypass),Modifies catalog product,No,YES,NO (Any Admin Cookie),P0_CRITICAL,Bypasses RBAC: Any employee can modify products without products.update permission.
+/api/products,DELETE,isAdminRequest,None (Legacy Bypass),Deletes catalog product,No,YES,NO (Any Admin Cookie),P0_CRITICAL,Bypasses RBAC: Any employee can delete products without products.delete permission.
+/api/inquiries,GET,isAdminRequest,None (Legacy Bypass),Customer inquiries,No,YES,NO (Any Admin Cookie),P0_CRITICAL,Bypasses RBAC: Any employee can view customer inquiries without enquiries.read permission.
+/api/inquiries,PATCH,isAdminRequest,None (Legacy Bypass),Inquiry status,No,YES,NO (Any Admin Cookie),P0_CRITICAL,Bypasses RBAC: Any employee can modify inquiries without enquiries.update_status permission.
+/api/inquiries,DELETE,isAdminRequest,None (Legacy Bypass),Inquiry deletion,No,YES,NO (Any Admin Cookie),P0_CRITICAL,Bypasses RBAC: Any employee can delete inquiries without enquiries.delete permission.
+/api/seed,POST,isAdminRequest,None (Legacy Bypass),WIPES all products and banners,No,YES,NO (Any Admin Cookie),P0_CRITICAL,Bypasses RBAC: Any employee or possessor of historical passcode can execute deleteMany on products and banners.
+/api/settings,POST,isAdminRequest,None (Legacy Bypass),Updates system settings,No,YES,NO (Any Admin Cookie),P0_CRITICAL,Bypasses RBAC: Any employee can overwrite system settings without settings.update permission.
+/api/banners,POST,isAdminRequest,None (Legacy Bypass),Creates promo banner,No,YES,NO (Any Admin Cookie),P0_CRITICAL,Bypasses RBAC: Any employee can create banners without content.manage permission.
+/api/banners,PUT,isAdminRequest,None (Legacy Bypass),Modifies promo banner,No,YES,NO (Any Admin Cookie),P0_CRITICAL,Bypasses RBAC: Any employee can modify banners without content.manage permission.
+/api/banners,DELETE,isAdminRequest,None (Legacy Bypass),Deletes promo banner,No,YES,NO (Any Admin Cookie),P0_CRITICAL,Bypasses RBAC: Any employee can delete banners without content.manage permission.
+/api/worlds,POST,isAdminRequest,None (Legacy Bypass),Creates case study,No,YES,NO (Any Admin Cookie),P0_CRITICAL,Bypasses RBAC: Any employee can create case studies without worlds.manage permission.
+

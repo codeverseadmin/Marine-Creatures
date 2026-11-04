@@ -4,17 +4,13 @@ import { ProductModel } from '@/models/Product';
 import { OrderModel } from '@/models/Order';
 import { InquiryModel } from '@/models/Inquiry';
 import { SnapshotModel } from '@/models/Snapshot';
-import { isAdminRequest } from '@/lib/auth';
+import { requireAuthenticatedEmployee } from '@/lib/rbac/guard';
 import mongoose from 'mongoose';
 
 export async function GET(req: NextRequest) {
-  // 1. Strict Authentication Check: Signed session cookie or verified server secret
-  if (!isAdminRequest(req)) {
-    return NextResponse.json(
-      { success: false, error: 'Unauthorized: Valid Control OS admin session required' },
-      { status: 401 }
-    );
-  }
+  // 1. Strict Authentication Check: Valid employee session or bootstrap
+  const { auth, errorResponse } = await requireAuthenticatedEmployee(req);
+  if (errorResponse) return errorResponse;
 
   const start = Date.now();
 

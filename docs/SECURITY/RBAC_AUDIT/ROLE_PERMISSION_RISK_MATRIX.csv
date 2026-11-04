@@ -1,0 +1,61 @@
+Permission ID,Category,Permission Name,Owner,Operations Manager,Orders & Fulfilment,Inventory Manager,Customer Support,Finance Manager,Content & SEO,Auditor,Data Minimisation Classification,Privilege Escalation Risk,Auditor Mutation Barrier
+orders.read,Orders,View Orders,YES,YES,YES,NO,YES,YES,NO,YES,PII / Financial,LOW,Read-only
+orders.update_status,Orders,Update Order Progress,YES,YES,YES,NO,NO,NO,NO,NO,Operational,MEDIUM,Blocked (403)
+orders.approve,Orders,Approve Orders,YES,YES,YES,NO,NO,NO,NO,NO,Operational / Financial,HIGH,Blocked (403)
+orders.por_price.set,Orders,Set POR Quotation Pricing,YES,NO,NO,NO,NO,YES,NO,NO,Financial,HIGH,Blocked (403)
+orders.invoice.generate,Orders,Generate Tax Invoices,YES,YES,NO,NO,NO,YES,NO,NO,Financial / Legal,HIGH,Blocked (403)
+orders.tracking.update,Orders,Manage Shipping AWBs,YES,YES,YES,NO,NO,NO,NO,NO,Operational,LOW,Blocked (403)
+orders.delete,Orders,Delete Orders,YES,NO,NO,NO,NO,NO,NO,NO,Financial / Compliance,CRITICAL,Blocked (403)
+customers.read,Customers,View Customer 360,YES,YES,YES,NO,YES,YES,NO,YES,PII (Phone/Address/Spend),LOW,Read-only
+customers.update,Customers,Edit Customer Profiles,YES,YES,NO,NO,NO,NO,NO,NO,PII Modification,HIGH,Blocked (403)
+customers.notes.create,Customers,Add Customer Notes,YES,YES,NO,NO,YES,NO,NO,NO,Operational Notes,LOW,Blocked (403)
+enquiries.read,Enquiries,View Concierge Enquiries,YES,YES,NO,NO,YES,NO,NO,YES,PII (Inquiry Dossier),LOW,Read-only
+enquiries.update_status,Enquiries,Update Enquiry Status,YES,YES,NO,NO,YES,NO,NO,NO,Operational,LOW,Blocked (403)
+enquiries.notes.create,Enquiries,Add Enquiry Notes,YES,YES,NO,NO,YES,NO,NO,NO,Operational Notes,LOW,Blocked (403)
+enquiries.delete,Enquiries,Delete Enquiries,YES,NO,NO,NO,NO,NO,NO,NO,PII / Audit Trail,HIGH,Blocked (403)
+follow_ups.read,Follow-ups,View Scheduled Follow-ups,YES,YES,NO,NO,YES,NO,NO,YES,Operational / CRM,LOW,Read-only
+follow_ups.manage,Follow-ups,Manage Follow-up Tasks,YES,YES,NO,NO,YES,NO,NO,NO,Operational / CRM,LOW,Blocked (403)
+products.read,Products,View Catalog,YES,NO,NO,YES,YES,NO,YES,YES,Public Catalog,LOW,Read-only
+products.create,Products,Create Products,YES,NO,NO,YES,NO,NO,NO,NO,Catalog Integrity,MEDIUM,Blocked (403)
+products.update,Products,Update Products,YES,NO,NO,YES,NO,NO,NO,NO,Catalog Integrity,MEDIUM,Blocked (403)
+products.price.update,Products,Update Product Prices,YES,NO,NO,YES,NO,NO,NO,NO,Financial / Revenue,HIGH,Blocked (403)
+products.archive,Products,Archive Products,YES,NO,NO,YES,NO,NO,NO,NO,Catalog Availability,MEDIUM,Blocked (403)
+products.delete,Products,Delete Products,YES,NO,NO,NO,NO,NO,NO,NO,Catalog Availability,HIGH,Blocked (403)
+inventory.read,Inventory,View Stock Levels,YES,YES,YES,YES,NO,NO,NO,YES,Operational Stock,LOW,Read-only
+inventory.update,Inventory,Update Stock Levels,YES,NO,NO,YES,NO,NO,NO,NO,Operational Stock,MEDIUM,Blocked (403)
+media.read,Media,View Media Library,YES,NO,NO,YES,NO,NO,YES,NO,Media Assets,LOW,Read-only
+media.upload,Media,Upload Media Assets,YES,NO,NO,YES,NO,NO,YES,NO,Media Storage,MEDIUM,Blocked (403)
+media.delete,Media,Delete Media Assets,YES,NO,NO,NO,NO,NO,NO,NO,Media Storage,MEDIUM,Blocked (403)
+quarantine.read,Operations,View Quarantine Systems,YES,YES,YES,NO,NO,NO,NO,YES,Livestock Health,LOW,Read-only
+quarantine.update,Operations,Manage Quarantine Husbandry,YES,YES,YES,NO,NO,NO,NO,NO,Livestock Health,MEDIUM,Blocked (403)
+dispatch.read,Operations,View Dispatch Logistics,YES,YES,YES,NO,NO,NO,NO,YES,Courier Logistics,LOW,Read-only
+dispatch.update,Operations,Update Dispatch Records,YES,YES,YES,NO,NO,NO,NO,NO,Courier Logistics,LOW,Blocked (403)
+maintenance.read,Operations,View Maintenance Schedules,YES,YES,NO,NO,NO,NO,NO,YES,Client Addresses / Routes,LOW,Read-only
+maintenance.manage,Operations,Manage Maintenance Visits,YES,YES,NO,NO,NO,NO,NO,NO,Water Chemistry / Visits,LOW,Blocked (403)
+worlds.read,Worlds,View Case Studies & Projects,YES,YES,NO,NO,NO,NO,YES,YES,Architectural Projects,LOW,Read-only
+worlds.manage,Worlds,Manage Case Studies,YES,NO,NO,NO,NO,NO,YES,NO,Public Marketing,LOW,Blocked (403)
+content.read,Content,View Content & Banners,YES,NO,NO,NO,NO,NO,YES,NO,Promotional Banners,LOW,Read-only
+content.manage,Content,Manage Content & Banners,YES,NO,NO,NO,NO,NO,YES,NO,Public Marketing,LOW,Blocked (403)
+seo.read,SEO,View SEO Metadata,YES,NO,NO,NO,NO,NO,YES,NO,SEO Metadata,LOW,Read-only
+seo.update,SEO,Update SEO Metadata,YES,NO,NO,NO,NO,NO,YES,NO,Search Engine Indexing,MEDIUM,Blocked (403)
+analytics.read,Analytics,View Analytics,YES,YES,NO,YES,NO,YES,YES,YES,Business Revenue / Traffic,LOW,Read-only
+finance.read,Finance,View Financial Records,YES,NO,NO,NO,NO,YES,NO,NO,Revenue / Invoices,HIGH,Blocked (403)
+finance.invoice.generate,Finance,Generate Invoices,YES,NO,NO,NO,NO,YES,NO,NO,Financial / Legal,HIGH,Blocked (403)
+employees.read,Employees,View Employees,YES,NO,NO,NO,NO,NO,NO,NO,Staff PII / Roles,HIGH,Blocked (403)
+employees.create,Employees,Invite Employees,YES,NO,NO,NO,NO,NO,NO,NO,Account Provisioning,HIGH,Blocked (403)
+employees.update,Employees,Edit Employees,YES,NO,NO,NO,NO,NO,NO,NO,Role / Permission Mutation,CRITICAL,Blocked (403)
+employees.suspend,Employees,Suspend / Reactivate Employees,YES,NO,NO,NO,NO,NO,NO,NO,Account Status,HIGH,Blocked (403)
+employees.delete,Employees,Delete Employees,YES,NO,NO,NO,NO,NO,NO,NO,Staff Deletion,CRITICAL,Blocked (403)
+roles.read,Roles,View Roles,YES,NO,NO,NO,NO,NO,NO,NO,Security Governance,MEDIUM,Blocked (403)
+roles.create,Roles,Create Custom Roles,YES,NO,NO,NO,NO,NO,NO,NO,Security Governance,HIGH,Blocked (403)
+roles.update,Roles,Edit Custom Roles,YES,NO,NO,NO,NO,NO,NO,NO,Security Governance,CRITICAL,Blocked (403)
+roles.delete,Roles,Delete Custom Roles,YES,NO,NO,NO,NO,NO,NO,NO,Security Governance,HIGH,Blocked (403)
+audit.read,System,View Audit Logs,YES,YES,NO,NO,NO,NO,NO,YES,Security Audit Trail,MEDIUM,Read-only
+backups.read,System,View Backups,YES,NO,NO,NO,NO,NO,NO,NO,Database Snapshots,HIGH,Blocked (403)
+backups.create,System,Create & Restore Backups,YES,NO,NO,NO,NO,NO,NO,NO,Disaster Recovery,CRITICAL,Blocked (403)
+health.read,System,View System Health,YES,YES,NO,NO,NO,NO,NO,YES,Infrastructure Telemetry,LOW,Read-only
+security.read,System,View Security Diagnostics,YES,NO,NO,NO,NO,NO,NO,NO,Security Diagnostics,HIGH,Blocked (403)
+security.manage,System,Manage Security,YES,NO,NO,NO,NO,NO,NO,NO,Global Security Controls,CRITICAL,Blocked (403)
+settings.read,System,View Settings,YES,NO,NO,NO,NO,NO,NO,YES,Business Configuration,LOW,Read-only
+settings.update,System,Update Settings,YES,NO,NO,NO,NO,NO,NO,NO,Business Configuration,HIGH,Blocked (403)
+

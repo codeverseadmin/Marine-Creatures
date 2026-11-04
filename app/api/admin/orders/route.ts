@@ -2,15 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { OrderModel } from '@/models/Order';
 import { CustomerModel } from '@/models/Customer';
-import { isAdminRequest } from '@/lib/auth';
+import { requirePermission } from '@/lib/rbac/guard';
 import { recordAuditLog } from '@/lib/audit';
 
 const VALID_STEPS = ['placed', 'quarantine', 'packed', 'dispatched', 'delivered'] as const;
 
 export async function GET(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'orders.read');
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();
@@ -78,9 +77,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'orders.update_status');
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();
@@ -141,6 +139,12 @@ export async function PATCH(req: NextRequest) {
     if (orderNotes !== undefined) updates.orderNotes = typeof orderNotes === 'string' ? orderNotes.trim() : order.orderNotes;
 
     if (typeof isApproved === 'boolean') {
+      if (!auth!.isOwner && !auth!.permissions.has('orders.approve')) {
+        return NextResponse.json(
+          { success: false, error: 'Forbidden: Missing permission [orders.approve]' },
+          { status: 403 }
+        );
+      }
       updates.isApproved = isApproved;
       if (isApproved && !order.isApproved) {
         updates.approvedAt = new Date().toLocaleDateString('en-IN', {
