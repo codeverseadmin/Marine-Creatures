@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { SITE_CONFIG } from '@/lib/config';
+import { generateBreadcrumbJsonLd } from '@/lib/seo/structuredData';
 
 export const metadata: Metadata = {
   title: 'Bespoke Inquiry & Concierge — Private Consultations | Marine Creatures',
@@ -39,5 +40,18 @@ export default function ContactLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  const breadcrumbJsonLd = generateBreadcrumbJsonLd([
+    { name: 'Home', url: '/' },
+    { name: 'Contact Concierge', url: '/contact' },
+  ]);
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      {children}
+    </>
+  );
 }

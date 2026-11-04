@@ -78,6 +78,9 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
+  },
 };
 
 import { CatalogProvider } from '@/lib/context/CatalogContext';
@@ -109,6 +112,14 @@ export default function RootLayout({
         publisher: {
           '@id': `${SITE_CONFIG.url}/#organization`,
         },
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: `${SITE_CONFIG.url}/marketplace?q={search_term_string}`,
+          },
+          'query-input': 'required name=search_term_string',
+        },
       },
       {
         '@type': 'LocalBusiness',
@@ -132,6 +143,57 @@ export default function RootLayout({
           addressLocality: 'Kolkata',
           addressRegion: 'West Bengal',
           addressCountry: 'IN',
+        },
+        geo: {
+          '@type': 'GeoCoordinates',
+          latitude: 22.5726,
+          longitude: 88.3639,
+        },
+        areaServed: [
+          { '@type': 'Country', name: 'India' },
+          { '@type': 'City', name: 'Kolkata' },
+          { '@type': 'City', name: 'Bengaluru' },
+          { '@type': 'City', name: 'Mumbai' },
+          { '@type': 'City', name: 'Delhi NCR' },
+          { '@type': 'City', name: 'Hyderabad' },
+          { '@type': 'City', name: 'Chennai' },
+        ],
+        openingHoursSpecification: [
+          {
+            '@type': 'OpeningHoursSpecification',
+            dayOfWeek: [
+              'Monday',
+              'Tuesday',
+              'Wednesday',
+              'Thursday',
+              'Friday',
+              'Saturday',
+            ],
+            opens: '10:00',
+            closes: '20:00',
+          },
+        ],
+        hasOfferCatalog: {
+          '@type': 'OfferCatalog',
+          name: 'Marine Living Systems & Luxury Aquarium Services',
+          itemListElement: [
+            {
+              '@type': 'OfferCatalog',
+              name: 'Quarantine-Certified Marine Livestock & Exotic Fish',
+            },
+            {
+              '@type': 'OfferCatalog',
+              name: 'NemoLight Extreme Reef LED Systems',
+            },
+            {
+              '@type': 'OfferCatalog',
+              name: 'Bespoke Architectural Marine Aquarium Design & Installation',
+            },
+            {
+              '@type': 'OfferCatalog',
+              name: 'Reef Tank Renovation & Biology Restoration',
+            },
+          ],
         },
         priceRange: '₹₹₹₹',
         sameAs: [SITE_CONFIG.facebook, SITE_CONFIG.googleMaps],

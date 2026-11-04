@@ -8,7 +8,7 @@ export const SITE_CONFIG = {
   description:
     'Marine Creatures is a luxury marine design house creating living underwater environments. Wild and Captive-bred marine species and ecosystem installation done for exceptional spaces across India. Bringing Ocean at your Doorstep.',
   slogan: 'Bringing Ocean at your Doorstep',
-  url: (process.env.NEXT_PUBLIC_SITE_URL || 'https://marine-creatures-krgsrl5sn-codeverse1.vercel.app').replace(/\/$/, ''),
+  url: (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.marinecreatures.co.in').replace(/\/$/, ''),
   whatsapp: '+919330436603',
   email: 'surajshasmal04@gmail.com',
   phone: '+91 93304 36603',

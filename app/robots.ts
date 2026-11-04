@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
   const baseUrl = (
     process.env.NEXT_PUBLIC_SITE_URL ||
     SITE_CONFIG.url ||
-    'https://marine-creatures-krgsrl5sn-codeverse1.vercel.app'
+    'https://www.marinecreatures.co.in'
   ).replace(/\/$/, '');
 
   return {
