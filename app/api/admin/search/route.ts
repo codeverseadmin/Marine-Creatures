@@ -6,12 +6,11 @@ import { CustomerModel } from '@/models/Customer';
 import { InquiryModel } from '@/models/Inquiry';
 import { ClientProjectModel } from '@/models/ClientProject';
 import { CaseStudyModel } from '@/models/CaseStudy';
-import { isAdminRequest } from '@/lib/auth';
+import { requirePermission, requireAuthenticatedEmployee } from '@/lib/rbac/guard';
 
 export async function GET(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  const { auth, errorResponse } = await requireAuthenticatedEmployee(req);
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();

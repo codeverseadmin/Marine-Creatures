@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { createHmac, timingSafeEqual, randomBytes } from 'crypto';
+import { verifyEmployeeSessionToken } from './rbac/session';
 
 const SESSION_TTL_MS = 8 * 60 * 60 * 1000; // 8 hours
 
@@ -128,6 +129,10 @@ export function verifySessionToken(token: string): boolean {
 export function isAdminAuthenticated(req: NextRequest): boolean {
   const sessionCookie = req.cookies.get(SESSION_COOKIE);
   if (!sessionCookie || !sessionCookie.value) return false;
+  // First check if it's a valid employee session token
+  const employeeSession = verifyEmployeeSessionToken(sessionCookie.value);
+  if (employeeSession) return true;
+  // Fall back to legacy admin session token
   return verifySessionToken(sessionCookie.value);
 }
 

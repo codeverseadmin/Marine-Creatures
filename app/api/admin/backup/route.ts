@@ -7,23 +7,20 @@ import { BannerModel } from '@/models/Banner';
 import { InquiryModel } from '@/models/Inquiry';
 import { SettingModel } from '@/models/Setting';
 import { SnapshotModel } from '@/models/Snapshot';
-import { isAdminRequest } from '@/lib/auth';
+import { requirePermission } from '@/lib/rbac/guard';
 
-function isAuthorized(req: NextRequest): boolean {
-  if (isAdminRequest(req)) return true;
-
-  // Support Vercel Cron / GitHub Actions Bearer Token
+async function isAuthorized(req: NextRequest): Promise<boolean> {
   const cronSecret = process.env.CRON_SECRET;
   const authHeader = req.headers.get('authorization');
   if (cronSecret && authHeader === `Bearer ${cronSecret}`) {
     return true;
   }
-
-  return false;
+  const { auth } = await requirePermission(req, 'backup.manage');
+  return Boolean(auth);
 }
 
 export async function GET(req: NextRequest) {
-  if (!isAuthorized(req)) {
+  if (!await isAuthorized(req)) {
     return NextResponse.json({ success: false, error: 'Unauthorized: Admin or Cron authentication required' }, { status: 401 });
   }
 
@@ -57,7 +54,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!isAuthorized(req)) {
+  if (!await isAuthorized(req)) {
     return NextResponse.json({ success: false, error: 'Unauthorized: Admin or Cron authentication required' }, { status: 401 });
   }
 
@@ -155,10 +152,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-  // Restore strictly requires interactive admin credentials
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ success: false, error: 'Unauthorized: Admin privileges required to restore snapshots' }, { status: 401 });
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'backup.manage');
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();

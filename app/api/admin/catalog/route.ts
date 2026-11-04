@@ -1,16 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ProductModel } from '@/models/Product';
-import { isAdminRequest } from '@/lib/auth';
+import { requirePermission } from '@/lib/rbac/guard';
 import { recordAuditLog } from '@/lib/audit';
 
 export async function GET(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json(
-      { success: false, error: 'Unauthorized: Valid Control OS admin session required' },
-      { status: 401 }
-    );
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'products.read');
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();
@@ -155,12 +151,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json(
-      { success: false, error: 'Unauthorized: Valid Control OS admin session required' },
-      { status: 401 }
-    );
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'products.create');
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();
@@ -277,12 +269,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json(
-      { success: false, error: 'Unauthorized: Valid Control OS admin session required' },
-      { status: 401 }
-    );
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'products.update');
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();
@@ -408,12 +396,8 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json(
-      { success: false, error: 'Unauthorized: Valid Control OS admin session required' },
-      { status: 401 }
-    );
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'products.archive');
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();

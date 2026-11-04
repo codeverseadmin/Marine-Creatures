@@ -40,7 +40,21 @@ export type AuditAction =
   | 'BANNER_DELETED'
   | 'SNAPSHOT_CREATED'
   | 'SNAPSHOT_RESTORED'
-  | 'SYSTEM_SETTINGS_UPDATED';
+  | 'SYSTEM_SETTINGS_UPDATED'
+  | 'EMPLOYEE_CREATED'
+  | 'EMPLOYEE_INVITED'
+  | 'EMPLOYEE_INVITATION_ACCEPTED'
+  | 'EMPLOYEE_UPDATED'
+  | 'EMPLOYEE_SUSPENDED'
+  | 'EMPLOYEE_REACTIVATED'
+  | 'EMPLOYEE_DELETED'
+  | 'EMPLOYEE_SESSIONS_REVOKED'
+  | 'ROLE_CREATED'
+  | 'ROLE_UPDATED'
+  | 'ROLE_DELETED'
+  | 'EMPLOYEE_LOGIN_SUCCESS'
+  | 'EMPLOYEE_LOGIN_FAILED'
+  | 'FIRST_OWNER_BOOTSTRAPPED';
 
 export type AuditEntityType =
   | 'product'
@@ -54,7 +68,9 @@ export type AuditEntityType =
   | 'maintenance'
   | 'follow_up'
   | 'snapshot'
-  | 'security';
+  | 'security'
+  | 'employee'
+  | 'role';
 
 export interface IAuditLogDocument extends Document {
   action: AuditAction;

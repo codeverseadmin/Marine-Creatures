@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { OrderModel } from '@/models/Order';
-import { isAdminRequest } from '@/lib/auth';
+import { requirePermission } from '@/lib/rbac/guard';
 import { recordAuditLog } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
@@ -12,12 +12,8 @@ interface RouteContext {
 
 export async function POST(req: NextRequest, { params }: RouteContext) {
   // 1. Strict Administrator Authorization Gate
-  if (!isAdminRequest(req)) {
-    return NextResponse.json(
-      { success: false, error: 'Unauthorized: Admin authentication required to set POR specimen pricing' },
-      { status: 401 }
-    );
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'orders.por_price.set');
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();

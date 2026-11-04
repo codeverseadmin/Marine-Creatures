@@ -1,0 +1,58 @@
+Permission ID,Category,Permission Name,Description,Owner,Operations Manager,Orders & Fulfilment,Inventory Manager,Customer Support,Finance Manager,Content & SEO,Auditor
+orders.read,Orders,View Orders,Read-only access to customer orders and delivery addresses,YES,YES,YES,NO,YES,YES,NO,YES
+orders.update_status,Orders,Update Order Progress,Advance or revert fulfillment stages,YES,YES,YES,NO,NO,NO,NO,NO
+orders.approve,Orders,Approve Orders,Authorize placed or pending orders for active fulfillment,YES,YES,YES,NO,NO,NO,NO,NO
+orders.por_price.set,Orders,Set POR Quotation Pricing,Set and revise custom prices for Price on Request items,YES,NO,NO,NO,NO,YES,NO,NO
+orders.invoice.generate,Orders,Generate Tax Invoices,Download issue and regenerate official customer invoice PDFs,YES,YES,NO,NO,NO,YES,NO,NO
+orders.tracking.update,Orders,Manage Shipping AWBs,Assign courier names and AWB tracking numbers to orders,YES,YES,YES,NO,NO,NO,NO,NO
+orders.delete,Orders,Delete Orders,Permanently remove cancelled or fraudulent order records,YES,NO,NO,NO,NO,NO,NO,NO
+customers.read,Customers,View Customer 360,Access customer profiles order histories and lifetime spend,YES,YES,YES,NO,YES,YES,NO,YES
+customers.update,Customers,Edit Customer Profiles,Update contact phone shipping addresses and tags,YES,YES,NO,NO,NO,NO,NO,NO
+customers.notes.create,Customers,Add Customer Notes,Append operational communications and relationship notes,YES,YES,NO,NO,YES,NO,NO,NO
+enquiries.read,Enquiries,View Concierge Enquiries,Access bespoke project and acquisition inquiries,YES,YES,NO,NO,YES,NO,NO,YES
+enquiries.update_status,Enquiries,Update Enquiry Status,Mark enquiry status as new contacted quoted or closed,YES,YES,NO,NO,YES,NO,NO,NO
+enquiries.notes.create,Enquiries,Add Enquiry Notes,Log customer correspondence and custom quotations,YES,YES,NO,NO,YES,NO,NO,NO
+follow_ups.read,Follow-ups,View Scheduled Follow-ups,Inspect pending client touchpoints and reminder alerts,YES,YES,NO,NO,YES,NO,NO,YES
+follow_ups.manage,Follow-ups,Manage Follow-up Tasks,Schedule postpone complete and cancel reminders,YES,YES,NO,NO,YES,NO,NO,NO
+products.read,Catalog,View Catalog,Inspect product listings descriptions pricing and stock,YES,NO,NO,YES,YES,NO,YES,YES
+products.create,Catalog,Create Products,Add new equipment live marine fish or aquascaping products,YES,NO,NO,YES,NO,NO,NO,NO
+products.update,Catalog,Update Products,Modify product specifications descriptions prices and images,YES,NO,NO,YES,NO,NO,NO,NO
+products.archive,Catalog,Archive Products,Soft-delete or deactivate catalog listings,YES,NO,NO,YES,NO,NO,NO,NO
+inventory.read,Inventory,View Stock Levels,Inspect current stock quantities and threshold alerts,YES,YES,YES,YES,NO,NO,NO,YES
+inventory.update,Inventory,Update Stock Levels,Perform inventory reconciliations and restocks,YES,NO,NO,YES,NO,NO,NO,NO
+media.read,Media,View Media Library,Inspect uploaded high-resolution imagery and video assets,YES,NO,NO,YES,NO,NO,YES,NO
+media.upload,Media,Upload Media Assets,Upload and optimize images into the media library,YES,NO,NO,YES,NO,NO,YES,NO
+media.delete,Media,Delete Media Assets,Permanently remove images or media files,YES,NO,NO,NO,NO,NO,NO,NO
+quarantine.read,Operations,View Quarantine Systems,Monitor marine livestock health parameters and holding tanks,YES,YES,YES,NO,NO,NO,NO,YES
+quarantine.update,Operations,Manage Quarantine Husbandry,Log medication feeding acceptance and clear for dispatch,YES,YES,YES,NO,NO,NO,NO,NO
+dispatch.read,Operations,View Dispatch Logistics,Inspect packed orders awaiting courier collection or air cargo,YES,YES,YES,NO,NO,NO,NO,YES
+dispatch.update,Operations,Update Dispatch Records,Assign couriers manifest air cargo waybills and disclaimers,YES,YES,YES,NO,NO,NO,NO,NO
+maintenance.read,Operations,View Maintenance Schedules,Inspect client aquarium maintenance visits routes and tasks,YES,YES,NO,NO,NO,NO,NO,YES
+maintenance.manage,Operations,Manage Maintenance Visits,Log water parameters salinity alkalinity and record servicing,YES,YES,NO,NO,NO,NO,NO,NO
+worlds.read,Worlds,View Case Studies & Projects,View portfolio projects living reef case studies briefs,YES,YES,NO,NO,NO,NO,YES,YES
+worlds.manage,Worlds,Manage Case Studies,Create edit curate publish and unpublish portfolio projects,YES,NO,NO,NO,NO,NO,YES,NO
+content.read,Content,View Content & Banners,Inspect promotional banners announcements and marketing notices,YES,NO,NO,NO,NO,NO,YES,NO
+content.manage,Content,Manage Content & Banners,Create edit toggle and delete promotional banner announcements,YES,NO,NO,NO,NO,NO,YES,NO
+seo.read,SEO,View SEO Metadata,Inspect page titles meta descriptions image alt tags and canonicals,YES,NO,NO,NO,NO,NO,YES,NO
+seo.update,SEO,Update SEO Metadata,Edit catalogue SEO overrides keywords and service mappings,YES,NO,NO,NO,NO,NO,YES,NO
+analytics.read,Analytics,View Analytics,Access revenue metrics order velocity and category demand,YES,YES,NO,YES,NO,YES,YES,YES
+finance.read,Finance,View Financial Records,Inspect detailed revenue breakdowns invoice audit logs,YES,NO,NO,NO,NO,YES,NO,NO
+finance.invoice.generate,Finance,Generate Invoices,Generate re-issue and sign official tax invoice PDFs,YES,NO,NO,NO,NO,YES,NO,NO
+employees.read,Employees,View Employees,Access the employee directory assigned roles and activity,YES,NO,NO,NO,NO,NO,NO,NO
+employees.create,Employees,Invite Employees,Create employee accounts and generate secure invitation links,YES,NO,NO,NO,NO,NO,NO,NO
+employees.update,Employees,Edit Employees,Change employee roles edit profile names assign custom perms,YES,NO,NO,NO,NO,NO,NO,NO
+employees.suspend,Employees,Suspend / Reactivate Employees,Immediately revoke system access by suspending accounts,YES,NO,NO,NO,NO,NO,NO,NO
+employees.delete,Employees,Delete Employees,Permanently remove an employee profile from the system,YES,NO,NO,NO,NO,NO,NO,NO
+roles.read,Roles,View Roles,Inspect available system roles and custom role permission matrices,YES,NO,NO,NO,NO,NO,NO,NO
+roles.create,Roles,Create Custom Roles,Create bespoke operational roles with custom permission bundles,YES,NO,NO,NO,NO,NO,NO,NO
+roles.update,Roles,Edit Custom Roles,Modify permission assignments on custom employee roles,YES,NO,NO,NO,NO,NO,NO,NO
+roles.delete,Roles,Delete Custom Roles,Safely delete unassigned custom roles,YES,NO,NO,NO,NO,NO,NO,NO
+audit.read,System,View Audit Logs,Inspect persistent immutable security and operational audit logs,YES,YES,NO,NO,NO,NO,NO,YES
+backups.read,System,View Backups,Inspect snapshot dates backup sizes and restoration points,YES,NO,NO,NO,NO,NO,NO,NO
+backups.create,System,Create & Restore Backups,Trigger immediate database snapshots or restore states,YES,NO,NO,NO,NO,NO,NO,NO
+health.read,System,View System Health,Inspect MongoDB Atlas connectivity cluster latency and edge health,YES,YES,NO,NO,NO,NO,NO,YES
+security.read,System,View Security Diagnostics,View active session states rate limiting metrics,YES,NO,NO,NO,NO,NO,NO,NO
+security.manage,System,Manage Security,Configure security parameters rate limits and revoke active sessions,YES,NO,NO,NO,NO,NO,NO,NO
+settings.read,System,View Settings,View business contact parameters delivery thresholds and GST rates,YES,NO,NO,NO,NO,NO,NO,YES
+settings.update,System,Update Settings,Modify company profile business configuration and system parameters,YES,NO,NO,NO,NO,NO,NO,NO
+

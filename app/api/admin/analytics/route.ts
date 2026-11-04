@@ -6,12 +6,11 @@ import { ProductModel } from '@/models/Product';
 import { ClientProjectModel } from '@/models/ClientProject';
 import { MaintenanceRecordModel } from '@/models/MaintenanceRecord';
 import { AnalyticsEventModel } from '@/models/AnalyticsEvent';
-import { isAdminRequest } from '@/lib/auth';
+import { requirePermission, requireAuthenticatedEmployee } from '@/lib/rbac/guard';
 
 export async function GET(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'analytics.read');
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();

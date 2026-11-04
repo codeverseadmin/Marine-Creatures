@@ -1,0 +1,62 @@
+Endpoint,HTTP Method,Required Permission,Scope / Access Level,Audit Logged,Unauthenticated Response,Unauthorized Response
+/api/admin/me,GET,None (Authenticated Session),Any active employee or bootstrap owner,No,401 Unauthorized,N/A
+/api/admin/login,POST,None (Public),Rate limited (120 req/min/IP),Yes,N/A,401 Unauthorized
+/api/admin/logout,POST,None (Authenticated Session),Clears session cookie,Yes,401 Unauthorized,N/A
+/api/admin/employees,GET,employees.read,Owner only (or delegated HR/Lead),No,401 Unauthorized,403 Forbidden
+/api/admin/employees,POST,employees.create,Owner only,Yes,401 Unauthorized,403 Forbidden
+/api/admin/employees/[id],GET,employees.read,Owner only,No,401 Unauthorized,403 Forbidden
+/api/admin/employees/[id],PATCH,employees.update / employees.suspend,Owner only (self-role change blocked),Yes,401 Unauthorized,403 Forbidden
+/api/admin/employees/[id],DELETE,employees.delete,Owner only (last owner protected),Yes,401 Unauthorized,403 Forbidden
+/api/admin/employees/[id]/revoke-sessions,POST,security.manage / employees.suspend,Owner only,Yes,401 Unauthorized,403 Forbidden
+/api/admin/employees/[id]/resend-invitation,POST,employees.create,Owner only,Yes,401 Unauthorized,403 Forbidden
+/api/admin/roles,GET,roles.read,Owner / Auditor / Operations Manager,No,401 Unauthorized,403 Forbidden
+/api/admin/roles,POST,roles.create,Owner only,Yes,401 Unauthorized,403 Forbidden
+/api/admin/roles/[id],PATCH,roles.update,Owner only,Yes,401 Unauthorized,403 Forbidden
+/api/admin/roles/[id],DELETE,roles.delete,Owner only (in-use roles blocked),Yes,401 Unauthorized,403 Forbidden
+/api/admin/orders,GET,orders.read,Owner / Operations / Fulfilment / Support / Finance / Auditor,No,401 Unauthorized,403 Forbidden
+/api/admin/orders,PATCH,orders.update_status,Owner / Operations / Fulfilment,Yes,401 Unauthorized,403 Forbidden
+/api/admin/orders,DELETE,orders.delete,Owner only,Yes,401 Unauthorized,403 Forbidden
+/api/admin/orders/[id]/invoice-pdf,GET,orders.invoice.generate OR finance.invoice.generate,Owner / Finance Manager / Operations Manager,Yes,401 Unauthorized,403 Forbidden
+/api/admin/orders/[id]/por-pricing,POST,orders.por_price.set,Owner / Finance Manager,Yes,401 Unauthorized,403 Forbidden
+/api/admin/catalog,GET,products.read,Owner / Inventory / Support / Content / Auditor,No,401 Unauthorized,403 Forbidden
+/api/admin/catalog,POST,products.create,Owner / Inventory Manager,Yes,401 Unauthorized,403 Forbidden
+/api/admin/catalog,PATCH,products.update,Owner / Inventory Manager,Yes,401 Unauthorized,403 Forbidden
+/api/admin/catalog,DELETE,products.archive,Owner / Inventory Manager,Yes,401 Unauthorized,403 Forbidden
+/api/admin/inventory,GET,inventory.read,Owner / Operations / Fulfilment / Inventory / Auditor,No,401 Unauthorized,403 Forbidden
+/api/admin/inventory,PATCH,inventory.update,Owner / Inventory Manager,Yes,401 Unauthorized,403 Forbidden
+/api/admin/customers,GET,customers.read,Owner / Operations / Fulfilment / Support / Finance / Auditor,No,401 Unauthorized,403 Forbidden
+/api/admin/customers,PATCH,customers.update,Owner / Operations Manager,Yes,401 Unauthorized,403 Forbidden
+/api/admin/customers,POST,customers.notes.create,Owner / Operations / Customer Support,Yes,401 Unauthorized,403 Forbidden
+/api/admin/enquiries,GET,enquiries.read,Owner / Operations / Support / Auditor,No,401 Unauthorized,403 Forbidden
+/api/admin/enquiries,PATCH,enquiries.update_status,Owner / Operations / Customer Support,Yes,401 Unauthorized,403 Forbidden
+/api/admin/enquiries,POST,enquiries.notes.create,Owner / Operations / Customer Support,Yes,401 Unauthorized,403 Forbidden
+/api/admin/follow-ups,GET,follow_ups.read,Owner / Operations / Support / Auditor,No,401 Unauthorized,403 Forbidden
+/api/admin/follow-ups,POST,follow_ups.manage,Owner / Operations / Customer Support,Yes,401 Unauthorized,403 Forbidden
+/api/admin/follow-ups,PATCH,follow_ups.manage,Owner / Operations / Customer Support,Yes,401 Unauthorized,403 Forbidden
+/api/admin/operations/quarantine,GET,quarantine.read,Owner / Operations / Fulfilment / Auditor,No,401 Unauthorized,403 Forbidden
+/api/admin/operations/quarantine,PATCH,quarantine.update,Owner / Operations / Fulfilment,Yes,401 Unauthorized,403 Forbidden
+/api/admin/operations/dispatch,GET,dispatch.read,Owner / Operations / Fulfilment / Auditor,No,401 Unauthorized,403 Forbidden
+/api/admin/operations/dispatch,PATCH,dispatch.update,Owner / Operations / Fulfilment,Yes,401 Unauthorized,403 Forbidden
+/api/admin/operations/maintenance,GET,maintenance.read,Owner / Operations / Auditor,No,401 Unauthorized,403 Forbidden
+/api/admin/operations/maintenance,PATCH,maintenance.manage,Owner / Operations Manager,Yes,401 Unauthorized,403 Forbidden
+/api/admin/media,GET,media.read,Owner / Inventory / Content & SEO,No,401 Unauthorized,403 Forbidden
+/api/admin/media,POST,media.upload,Owner / Inventory / Content & SEO,Yes,401 Unauthorized,403 Forbidden
+/api/admin/media/[id],DELETE,media.delete,Owner only,Yes,401 Unauthorized,403 Forbidden
+/api/admin/upload,POST,media.upload,Owner / Inventory / Content & SEO,Yes,401 Unauthorized,403 Forbidden
+/api/admin/worlds,GET,worlds.read,Owner / Operations / Content / Auditor,No,401 Unauthorized,403 Forbidden
+/api/admin/worlds,POST,worlds.manage,Owner / Content & SEO Manager,Yes,401 Unauthorized,403 Forbidden
+/api/admin/worlds,PATCH,worlds.manage,Owner / Content & SEO Manager,Yes,401 Unauthorized,403 Forbidden
+/api/admin/content/seo,GET,seo.read OR content.read,Owner / Content & SEO Manager,No,401 Unauthorized,403 Forbidden
+/api/admin/content/seo,POST,seo.update OR content.manage,Owner / Content & SEO Manager,Yes,401 Unauthorized,403 Forbidden
+/api/admin/analytics,GET,analytics.read,Owner / Operations / Inventory / Finance / Content / Auditor,No,401 Unauthorized,403 Forbidden
+/api/admin/backup,GET,backups.read,Owner only,No,401 Unauthorized,403 Forbidden
+/api/admin/backup,POST,backups.create,Owner only,Yes,401 Unauthorized,403 Forbidden
+/api/admin/system/audit,GET,audit.read,Owner / Operations / Auditor,No,401 Unauthorized,403 Forbidden
+/api/admin/system/health,GET,health.read,Owner / Operations / Auditor,No,401 Unauthorized,403 Forbidden
+/api/admin/system/security,GET,security.read,Owner only,No,401 Unauthorized,403 Forbidden
+/api/admin/system/security,POST,security.manage,Owner only,Yes,401 Unauthorized,403 Forbidden
+/api/admin/system/settings,GET,settings.read,Owner / Auditor,No,401 Unauthorized,403 Forbidden
+/api/admin/system/settings,PATCH,settings.update,Owner only,Yes,401 Unauthorized,403 Forbidden
+/api/admin/search,GET,None (Authenticated Session),Filtered by authenticated user capabilities,No,401 Unauthorized,N/A
+/api/admin/overview,GET,None (Authenticated Session),Aggregates metrics matching authorized domains,No,401 Unauthorized,N/A
+

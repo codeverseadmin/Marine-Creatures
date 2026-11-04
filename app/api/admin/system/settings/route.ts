@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { SettingModel } from '@/models/Setting';
-import { isAdminRequest } from '@/lib/auth';
+import { requirePermission, requireAuthenticatedEmployee } from '@/lib/rbac/guard';
 import { recordAuditLog } from '@/lib/audit';
 
 const DEFAULT_SETTINGS = {
@@ -16,9 +16,8 @@ const DEFAULT_SETTINGS = {
 };
 
 export async function GET(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'settings.read');
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();
@@ -34,9 +33,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'settings.update');
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();

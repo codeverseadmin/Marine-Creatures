@@ -6,13 +6,12 @@ import { InquiryModel } from '@/models/Inquiry';
 import { ClientProjectModel } from '@/models/ClientProject';
 import { MaintenanceRecordModel } from '@/models/MaintenanceRecord';
 import { FollowUpModel } from '@/models/FollowUp';
-import { isAdminRequest } from '@/lib/auth';
+import { requirePermission, requireAnyPermission } from '@/lib/rbac/guard';
 import { recordAuditLog } from '@/lib/audit';
 
 export async function GET(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'customers.read');
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();
@@ -98,9 +97,11 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  const { auth, errorResponse } = await requireAnyPermission(req, [
+    'customers.update',
+    'customers.notes.create',
+  ]);
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();

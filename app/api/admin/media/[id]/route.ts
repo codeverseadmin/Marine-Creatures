@@ -2,19 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ProductModel } from '@/models/Product';
 import { MediaModel } from '@/models/Media';
-import { isAdminRequest } from '@/lib/auth';
+import { requirePermission, requireAuthenticatedEmployee } from '@/lib/rbac/guard';
 import { recordAuditLog } from '@/lib/audit';
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json(
-      { success: false, error: 'Unauthorized: Valid Control OS admin session required' },
-      { status: 401 }
-    );
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'media.read');
+  if (errorResponse) return errorResponse;
 
   try {
     const { id } = await params;
@@ -93,12 +89,8 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json(
-      { success: false, error: 'Unauthorized: Valid Control OS admin session required' },
-      { status: 401 }
-    );
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'media.upload');
+  if (errorResponse) return errorResponse;
 
   try {
     const { id } = await params;
@@ -210,12 +202,8 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json(
-      { success: false, error: 'Unauthorized: Valid Control OS admin session required' },
-      { status: 401 }
-    );
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'media.delete');
+  if (errorResponse) return errorResponse;
 
   try {
     const { id } = await params;

@@ -117,6 +117,20 @@ const SECTION_METADATA: Record<
       'Exportable Financial & Inventory Ledger CSV Reports',
     ],
   },
+  employees: {
+    title: 'Staff Access Control & RBAC Matrix',
+    code: 'RBAC_OS',
+    phase: 'Live',
+    icon: '👥',
+    description:
+      'Individual staff authentication, permission resolution, custom role designer, one-time invitation links, and immediate session invalidation.',
+    plannedCapabilities: [
+      'Individual Staff Identity & Password Management (Zero Shared Passcodes)',
+      'Custom Role Creation with Granular 42-Capability Permissions Registry',
+      'One-Time Hashed Invitation Link Generation (48-Hour Auto-Expiry)',
+      'Real-Time Employee Suspension and Instant Session Revocation',
+    ],
+  },
   system: {
     title: 'Fleet Telemetry, Backups & Security',
     code: 'SYSTEM_OS',
