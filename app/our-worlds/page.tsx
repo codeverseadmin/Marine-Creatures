@@ -6,6 +6,7 @@ import { connectToDatabase } from '@/lib/db';
 import CaseStudyModel from '@/models/CaseStudy';
 import { INITIAL_CASE_STUDIES, ensureWorldsSeeded } from '@/lib/data/worlds';
 import { serializePublicCaseStudy } from '@/lib/worlds/serializer';
+import { FoundersVision } from '@/components/our-worlds/FoundersVision';
 
 export const metadata: Metadata = {
   title: 'Our Worlds — Architectural Living Reef Case Studies',
@@ -286,6 +287,9 @@ export default async function OurWorldsPage() {
             </div>
           </article>
         ))}
+
+        {/* ── The Founder's Vision: Suraj Shasmal ───────────────────────── */}
+        <FoundersVision />
 
         {/* ── Master Bottom CTA ───────────────────────────────────────────── */}
         <div className="rounded-3xl border border-cyan-400/30 bg-gradient-to-b from-cyan-950/20 to-[rgba(3,13,20,0.95)] p-8 sm:p-14 text-center max-w-3xl mx-auto shadow-2xl space-y-6">
