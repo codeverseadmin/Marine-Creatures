@@ -10,13 +10,13 @@
 ## 1. Production Canonical Base & Sitemap Specification
 
 ### Canonical Production Base
-- **Current Canonical Host:** `https://marine-creatures-krgsrl5sn-codeverse1.vercel.app`
+- **Current Canonical Host:** `https://www.marinecreatures.co.in`
 - **Environment Variable Override:** `NEXT_PUBLIC_SITE_URL` (configured in `lib/config.ts`)
 - **Future Custom Domain:** Once purchased, update `NEXT_PUBLIC_SITE_URL` in Vercel project environment variables to update all canonical URLs, OpenGraph headers, JSON-LD `@id` elements, and XML sitemaps automatically.
 
 ### Production Sitemap & Robots Endpoints
-- **XML Sitemap:** `https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/sitemap.xml`
-- **Robots.txt:** `https://marine-creatures-krgsrl5sn-codeverse1.vercel.app/robots.txt`
+- **XML Sitemap:** `https://www.marinecreatures.co.in/sitemap.xml`
+- **Robots.txt:** `https://www.marinecreatures.co.in/robots.txt`
 
 ---
 
@@ -25,7 +25,7 @@
 ### Step 1: Add Property in Search Console
 1. Navigate to [Google Search Console](https://search.google.com/search-console).
 2. Choose **URL prefix** property type (required for subdomains / Vercel deployment URLs before apex domain purchase):
-   - Enter `https://marine-creatures-krgsrl5sn-codeverse1.vercel.app`
+   - Enter `https://www.marinecreatures.co.in`
 3. When the custom apex domain is purchased (e.g. `marinecreatures.com`), add a **Domain** property and verify via DNS TXT record.
 
 ### Step 2: Verification Methods
