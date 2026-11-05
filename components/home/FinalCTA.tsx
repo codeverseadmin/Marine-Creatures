@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ScrollReveal } from '@/components/ui/ScrollReveal';
 import { CallbackForm } from '@/components/ui/CallbackForm';
 import { SITE_CONFIG } from '@/lib/config';
@@ -130,11 +131,20 @@ export function FinalCTA() {
 
         {/* Logo / wordmark reveal */}
         <ScrollReveal delay={0.5} className="mt-14 sm:mt-20">
-          <div>
-            <span className="text-[10px] sm:text-xs text-[--color-muted] tracking-[0.4em] uppercase block mb-2">
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 rounded-xl overflow-hidden border border-white/20 bg-white/95 flex-shrink-0 mb-3 shadow-md">
+              <Image
+                src="/logo.png"
+                alt="Marine Creatures"
+                width={48}
+                height={48}
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <span className="text-[11px] sm:text-xs text-white tracking-[0.3em] uppercase block font-body font-bold mb-1">
               MARINE CREATURES
             </span>
-            <span className="font-display text-sm italic text-[--color-muted] opacity-60">
+            <span className="font-body text-[9px] sm:text-[10px] text-[--color-accent] tracking-[0.22em] font-semibold uppercase block">
               {SITE_CONFIG.tagline}
             </span>
           </div>

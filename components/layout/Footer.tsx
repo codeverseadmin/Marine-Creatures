@@ -85,7 +85,7 @@ export function Footer() {
                 <span className="text-label-lg text-[--color-text] tracking-[0.2em] group-hover:text-[--color-accent] transition-colors duration-300 block font-body font-semibold">
                   MARINE CREATURES
                 </span>
-                <span className="text-[10px] text-[--color-muted] tracking-[0.08em] block mt-0.5">
+                <span className="text-[9px] sm:text-[9.5px] text-[--color-accent] tracking-[0.16em] uppercase font-semibold block mt-0.5">
                   {SITE_CONFIG.slogan}
                 </span>
               </div>

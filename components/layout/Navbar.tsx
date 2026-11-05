@@ -51,25 +51,30 @@ export function Navbar() {
       >
         <div className="container-max">
           <div className="flex items-center justify-between h-16 md:h-20">
-            {/* Left — Wordmark */}
+            {/* Left — Wordmark & Official Tagline */}
             <Link
               href="/"
-              className="flex items-center gap-2 group shrink-0 mr-3 lg:mr-4 xl:mr-5"
+              className="flex items-center gap-2.5 sm:gap-3 group shrink-0 mr-3 lg:mr-4 xl:mr-5"
               aria-label="Marine Creatures — Home"
             >
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg overflow-hidden border border-[rgba(255,255,255,0.15)] bg-white/95 flex-shrink-0 group-hover:border-[--color-accent] transition-all shadow-sm">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-lg overflow-hidden border border-[rgba(255,255,255,0.15)] bg-white/95 flex-shrink-0 group-hover:border-[--color-accent] transition-all shadow-sm">
                 <Image
                   src="/logo.png"
                   alt="Marine Creatures"
-                  width={36}
-                  height={36}
+                  width={40}
+                  height={40}
                   className="w-full h-full object-contain"
                   priority
                 />
               </div>
-              <span className="text-[12px] xs:text-[13px] sm:text-sm md:text-base text-white tracking-[0.08em] sm:tracking-[0.12em] group-hover:text-[--color-accent] transition-colors duration-300 font-body font-bold whitespace-nowrap">
-                {SITE_CONFIG.name.toUpperCase()}
-              </span>
+              <div className="flex flex-col justify-center">
+                <span className="text-[12px] xs:text-[13px] sm:text-sm md:text-base text-white tracking-[0.08em] sm:tracking-[0.12em] group-hover:text-[--color-accent] transition-colors duration-300 font-body font-bold whitespace-nowrap leading-tight">
+                  {SITE_CONFIG.name.toUpperCase()}
+                </span>
+                <span className="text-[6.5px] xs:text-[7.5px] sm:text-[8px] md:text-[8.5px] text-[--color-accent] tracking-[0.14em] sm:tracking-[0.18em] font-semibold uppercase leading-tight mt-0.5 whitespace-nowrap">
+                  BRINGING OCEAN AT YOUR DOORSTEP.
+                </span>
+              </div>
             </Link>
 
             {/* Center — Nav links (desktop: xl and up) */}

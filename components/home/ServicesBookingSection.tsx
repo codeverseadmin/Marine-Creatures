@@ -39,7 +39,7 @@ export function ServicesBookingSection() {
                   Turnkey Commission
                 </span>
                 <span className="text-xs sm:text-sm text-[--color-muted]">
-                  From <strong className="text-white">₹1,85,000</strong>
+                  Starting from <strong className="text-white">₹35,000</strong>
                 </span>
               </div>
 
@@ -47,7 +47,7 @@ export function ServicesBookingSection() {
                 Bespoke Aquarium Installation
               </h3>
               <p className="font-body text-xs sm:text-sm text-[--color-muted] leading-relaxed mb-6">
-                Complete architectural delivery including floor load engineering, Schedule 80 concealed plumbing, automated water change plant rooms, biological live rock scaping, and quarantined livestock acclimation.
+                Architectural living reef installations engineered to your space. Includes precision floor load planning, concealed plumbing, biological rock scaping, and quarantined livestock acclimation.
               </p>
 
               {/* Photo */}
@@ -87,7 +87,7 @@ export function ServicesBookingSection() {
               href="/services#booking-portal"
               className="btn-primary w-full text-center block text-xs tracking-wider uppercase font-semibold py-4 rounded-2xl shadow-xl active:scale-[0.98] transition-transform"
             >
-              BOOK NEW INSTALLATION CONSULTATION →
+              DISCUSS YOUR PROJECT →
             </Link>
           </div>
 
@@ -99,7 +99,7 @@ export function ServicesBookingSection() {
                   Ecosystem Revival
                 </span>
                 <span className="text-xs sm:text-sm text-[--color-muted]">
-                  From <strong className="text-white">₹45,000</strong>
+                  Starting from <strong className="text-white">₹15,000</strong>
                 </span>
               </div>
 
@@ -107,7 +107,7 @@ export function ServicesBookingSection() {
                 Aquarium Renovation &amp; Restoration
               </h3>
               <p className="font-body text-xs sm:text-sm text-[--color-muted] leading-relaxed mb-6">
-                Restore troubled, cloudy, algae-ridden, or scratched aquariums to crystal-clear brilliance. We safely house your fish, polish acrylic/glass, replace outdated filtration, and re-scape with fresh biological rock.
+                Revitalize cloudy, scratched, or struggling aquariums into vibrant living reefs. Features diamond glass scratch removal, silent DC pump retrofits, and zero-loss livestock protection.
               </p>
 
               {/* Interactive Before/After Transformation Slider */}
@@ -147,7 +147,7 @@ export function ServicesBookingSection() {
               href="/services#booking-portal"
               className="btn-ghost w-full text-center block text-xs tracking-wider uppercase font-semibold py-4 rounded-2xl border-[--color-gold] text-[--color-gold] hover:bg-[rgba(201,168,76,0.15)] active:scale-[0.98] transition-all"
             >
-              REQUEST RENOVATION QUOTE &amp; AUDIT →
+              REQUEST A CONSULTATION →
             </Link>
           </div>
         </div>

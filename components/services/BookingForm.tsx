@@ -114,13 +114,13 @@ export function BookingForm({ defaultService = 'installation' }: { defaultServic
               id: 'installation',
               title: 'New Installation',
               desc: 'Architectural aquarium design, concealed plumbing, live rock aquascaping & ecosystem cycling.',
-              tag: 'From ₹1,85,000',
+              tag: 'Starting from ₹35,000',
             },
             {
               id: 'renovation',
               title: 'Tank Renovation',
               desc: 'Algae eradication, glass scratch polishing, silent pump & high-PAR NemoLight LED retrofitting.',
-              tag: 'From ₹45,000',
+              tag: 'Starting from ₹15,000',
             },
             {
               id: 'maintenance',

@@ -154,7 +154,7 @@ export function FoundersVision() {
                   className="text-xs sm:text-sm font-mono tracking-[0.2em] font-semibold block uppercase"
                   style={{ color: '#69E7EA' }}
                 >
-                  WHERE THE OCEAN BECOMES ART.
+                  BRINGING OCEAN AT YOUR DOORSTEP.
                 </span>
               </div>
             </ScrollReveal>
