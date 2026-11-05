@@ -269,9 +269,13 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
 
         {/* Bottom Drawer Footer with Safe Area */}
         <div className="pt-6 mt-6 border-t border-[rgba(255,255,255,0.08)] pb-safe flex flex-col gap-3 text-xs">
-          <div className="flex justify-between items-center text-[--color-muted]">
-            <span>{SITE_CONFIG.email}</span>
-            <span className="text-[10px] uppercase tracking-widest text-[--color-accent]">{SITE_CONFIG.tagline.toUpperCase()}</span>
+          <div className="text-[--color-muted]">
+            <a
+              href={`mailto:${SITE_CONFIG.email}`}
+              className="text-xs text-[--color-muted] hover:text-white transition-colors inline-block break-all"
+            >
+              {SITE_CONFIG.email}
+            </a>
           </div>
           {/* Credits */}
           <div className="flex flex-col gap-1">
@@ -324,14 +328,14 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               <span>Find Us on Maps</span>
             </a>
           </div>
-          <div className="flex items-center justify-between pt-2 border-t border-white/5">
-            <p className="font-display italic text-slate-400 text-sm">
+          <div className="flex items-center justify-between pt-2 border-t border-white/5 gap-3">
+            <p className="font-display italic text-slate-400 text-xs sm:text-sm leading-tight pr-1">
               {SITE_CONFIG.tagline}
             </p>
             <Link
               href="/admin"
               onClick={onClose}
-              className="text-[11px] text-slate-400 hover:text-cyan-400 transition-colors flex items-center gap-1.5 py-1 px-2.5 rounded-lg border border-white/10 hover:border-cyan-400/40 bg-white/5"
+              className="text-[11px] text-slate-400 hover:text-cyan-400 transition-colors flex items-center gap-1.5 py-1 px-2.5 rounded-lg border border-white/10 hover:border-cyan-400/40 bg-white/5 flex-shrink-0"
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>

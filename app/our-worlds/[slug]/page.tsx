@@ -426,7 +426,7 @@ export default async function CaseStudyDetailPage({ params, searchParams }: Page
                 Target Biome
               </span>
               <p className="text-xs sm:text-sm text-slate-200">
-                {study.marineWorld.biome || study.biome || 'Indo-Pacific Shallow Coral Atoll'}
+                {study.marineWorld.biome || study.biome || 'Indo-Pacific Shallow Reef Atoll'}
               </p>
             </div>
 
@@ -441,10 +441,10 @@ export default async function CaseStudyDetailPage({ params, searchParams }: Page
 
             <div className="p-5 rounded-2xl border border-white/5 bg-white/[0.02] space-y-2">
               <span className="text-xs font-mono uppercase tracking-wider text-pink-400 block">
-                Cultured Corals
+                Cultured Reef Life
               </span>
               <p className="text-xs sm:text-sm text-slate-200">
-                {study.marineWorld.corals || 'SPS and LPS coral gardens'}
+                {study.marineWorld.corals || 'SPS and LPS reef gardens'}
               </p>
             </div>
           </div>

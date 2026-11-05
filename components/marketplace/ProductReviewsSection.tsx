@@ -64,7 +64,7 @@ function getDefaultReviews(product: Product): ProductReview[] {
         date: '24 Aug 2026',
         title: 'Unbelievable PAR penetration and whisper-quiet operation',
         comment:
-          'Mounted this over my 90cm mixed reef. The shimmer and coral fluorescence under the actinic blue channels are jaw-dropping. The aluminium casing runs surprisingly cool and the mobile app schedule is seamless.',
+          'Mounted this over my 90cm mixed reef. The shimmer and reef fluorescence under the actinic blue channels are jaw-dropping. The aluminium casing runs surprisingly cool and the mobile app schedule is seamless.',
         verifiedPurchase: true,
         images: [
           'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=800&q=80',

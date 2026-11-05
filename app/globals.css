@@ -31,7 +31,7 @@
   --dur-cinematic: 1000ms;
 }
 
-/* Actinic Moonlight Mode: Bioluminescent fluorescent coral lighting */
+/* Actinic Moonlight Mode: Bioluminescent fluorescent reef lighting */
 [data-spectrum="actinic"] {
   --color-primary: #010306;
   --color-secondary: #040d17;

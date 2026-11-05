@@ -469,16 +469,16 @@ export const CATALOG_SEO_MAP: Record<string, ProductSeoRecord> = {
     "brand": "TiCi NatureLab",
     "model": "N/A",
     "category": "salt-chemistry",
-    "categoryLabel": "Live Coral Nutrition",
+    "categoryLabel": "Live Reef Nutrition",
     "subcategory": "Marine Nutrition & Feeds",
-    "productType": "Live Coral Nutrition",
+    "productType": "Live Reef Nutrition",
     "primaryIntent": "TiCi NatureLab Live Marine Phytoplankton marine food",
     "secondaryIntents": [
       "marine fish pellets flakes India",
       "freeze dried mysis marine fish",
-      "live phytoplankton reef corals"
+      "live phytoplankton reef life"
     ],
-    "seoTitle": "TiCi NatureLab Live Marine Phytopla | Live Coral Nutrition",
+    "seoTitle": "TiCi NatureLab Live Marine Phytopla | Live Reef Nutrition",
     "metaDescription": "TiCi NatureLab Live Marine Phytoplankton. Scientifically formulated nutrition delivering essential fatty acids and protein for marine life at Marine Creatures.",
     "h1": "TiCi NatureLab Live Marine Phytoplankton",
     "canonical": "https://www.marinecreatures.co.in/marketplace/tici-live-phytoplankton",
@@ -584,7 +584,7 @@ export const CATALOG_SEO_MAP: Record<string, ProductSeoRecord> = {
     "secondaryIntents": [
       "marine fish pellets flakes India",
       "freeze dried mysis marine fish",
-      "live phytoplankton reef corals"
+      "live phytoplankton reef life"
     ],
     "seoTitle": "Hikari Bio-Pure Frozen Mysis Shrimp | Premium Marine Fish Food",
     "metaDescription": "Hikari Bio-Pure Frozen Mysis Shrimp. Scientifically formulated nutrition delivering essential fatty acids and protein for marine life at Marine Creatures.",
@@ -618,7 +618,7 @@ export const CATALOG_SEO_MAP: Record<string, ProductSeoRecord> = {
     "productType": "Reef Mineral Supplement",
     "primaryIntent": "Seachem Reef Calcium Polygluconate marine aquarium",
     "secondaryIntents": [
-      "concentrated calcium for corals",
+      "concentrated calcium for reef systems",
       "Seachem marine additives India"
     ],
     "seoTitle": "Seachem Reef Calcium Polygluconate | Reef Mineral Supplement",
@@ -693,7 +693,7 @@ export const CATALOG_SEO_MAP: Record<string, ProductSeoRecord> = {
       "fiji rock for reef tank"
     ],
     "seoTitle": "Sensibar Natural Marine Reef Rock | Dry Reef Rock",
-    "metaDescription": "Sensibar Natural Marine Reef Rock. Highly porous natural branch architecture for biological colonization and stable coral perches at Marine Creatures.",
+    "metaDescription": "Sensibar Natural Marine Reef Rock. Highly porous natural branch architecture for biological colonization and stable reef perches at Marine Creatures.",
     "h1": "Sensibar Natural Marine Reef Rock",
     "canonical": "https://www.marinecreatures.co.in/marketplace/sensibar-reef-rock",
     "imageStatus": "VERIFIED",
@@ -711,27 +711,27 @@ export const CATALOG_SEO_MAP: Record<string, ProductSeoRecord> = {
   },
   "blue-treasure-coral-sand": {
     "id": "blue-treasure-coral-sand",
-    "name": "Blue Treasure Natural Coral Aragonite Sand",
+    "name": "Blue Treasure Natural Marine Aragonite Sand",
     "scientificName": "N/A",
     "brand": "Blue Treasure",
     "model": "N/A",
     "category": "rock-sand",
     "categoryLabel": "Substrate & Sand",
-    "subcategory": "Aragonite Coral Sand",
+    "subcategory": "Aragonite Marine Sand",
     "productType": "Marine Aquarium Substrate",
-    "primaryIntent": "Blue Treasure coral sand aquarium",
+    "primaryIntent": "Blue Treasure marine sand aquarium",
     "secondaryIntents": [
       "natural aragonite sand marine aquarium",
       "calcium carbonate reef substrate",
       "marine aquarium sand India"
     ],
-    "seoTitle": "Blue Treasure Natural Coral Aragoni | Marine Aquarium Substrate",
-    "metaDescription": "Blue Treasure Natural Coral Aragonite Sand with natural calcium carbonate grain. Natural pH-buffering aragonite substrate promoting beneficial nitrifying bacteria at Marine Creatures.",
-    "h1": "Blue Treasure Natural Coral Aragonite Sand",
+    "seoTitle": "Blue Treasure Natural Marine Aragoni | Marine Aquarium Substrate",
+    "metaDescription": "Blue Treasure Natural Marine Aragonite Sand with natural calcium carbonate grain. Natural pH-buffering aragonite substrate promoting beneficial nitrifying bacteria at Marine Creatures.",
+    "h1": "Blue Treasure Natural Marine Aragonite Sand",
     "canonical": "https://www.marinecreatures.co.in/marketplace/blue-treasure-coral-sand",
     "imageStatus": "VERIFIED",
     "imageFile": "/images/products/blue-treasure-coral-sand.jpg",
-    "imageAlt": "Blue Treasure Natural Coral Aragonite Sand — Marine Aquarium Substrate",
+    "imageAlt": "Blue Treasure Natural Marine Aragonite Sand — Marine Aquarium Substrate",
     "researchStatus": "READY",
     "serviceLink": "/aquarium-design",
     "serviceText": "Incorporate Natural Substrates into Custom Aquarium Design",
@@ -1187,7 +1187,7 @@ export const CATALOG_SEO_MAP: Record<string, ProductSeoRecord> = {
       "reef tank lighting India"
     ],
     "seoTitle": "Manual Marine Aquarium Light | Marine Aquarium Light",
-    "metaDescription": "Manual Marine Aquarium Light engineered for marine reef systems. Features precision spectrum diodes to support SPS and LPS coral fluorescence at Marine Creatures.",
+    "metaDescription": "Manual Marine Aquarium Light engineered for marine reef systems. Features precision spectrum diodes to support SPS and LPS reef fluorescence at Marine Creatures.",
     "h1": "Manual Marine Aquarium Light Marine Aquarium Light",
     "canonical": "https://www.marinecreatures.co.in/marketplace/manual-marine-light",
     "imageStatus": "NEEDS_MEDIA_ASSET",
@@ -1222,7 +1222,7 @@ export const CATALOG_SEO_MAP: Record<string, ProductSeoRecord> = {
       "reef tank lighting India"
     ],
     "seoTitle": "Luminous Aqua S Flora Ocean Blue Ma | Marine Aquarium Light",
-    "metaDescription": "Luminous Aqua S Flora Ocean Blue Marine Light engineered for marine reef systems. Features precision spectrum diodes to support SPS and LPS coral fluorescence at Marine Creatures.",
+    "metaDescription": "Luminous Aqua S Flora Ocean Blue Marine Light engineered for marine reef systems. Features precision spectrum diodes to support SPS and LPS reef fluorescence at Marine Creatures.",
     "h1": "Luminous Aqua S Flora Ocean Blue Marine Light Marine Aquarium Light",
     "canonical": "https://www.marinecreatures.co.in/marketplace/luminous-aqua-ocean-blue",
     "imageStatus": "VERIFIED",
@@ -1257,7 +1257,7 @@ export const CATALOG_SEO_MAP: Record<string, ProductSeoRecord> = {
       "reef tank lighting India"
     ],
     "seoTitle": "Sessile Comet Manual Aquarium Light | Marine Aquarium Light",
-    "metaDescription": "Sessile Comet Manual Aquarium Light engineered for marine reef systems. Features precision spectrum diodes to support SPS and LPS coral fluorescence at Marine Creatures.",
+    "metaDescription": "Sessile Comet Manual Aquarium Light engineered for marine reef systems. Features precision spectrum diodes to support SPS and LPS reef fluorescence at Marine Creatures.",
     "h1": "Sessile Comet Manual Aquarium Light Marine Aquarium Light",
     "canonical": "https://www.marinecreatures.co.in/marketplace/sessile-comet-light",
     "imageStatus": "VERIFIED",
@@ -1292,7 +1292,7 @@ export const CATALOG_SEO_MAP: Record<string, ProductSeoRecord> = {
       "reef tank lighting India"
     ],
     "seoTitle": "Nemo Extreme Series II Smart Marine | Marine Aquarium Light",
-    "metaDescription": "Nemo Extreme Series II Smart Marine LED engineered for marine reef systems. Features precision spectrum diodes to support SPS and LPS coral fluorescence at Marine Creatures.",
+    "metaDescription": "Nemo Extreme Series II Smart Marine LED engineered for marine reef systems. Features precision spectrum diodes to support SPS and LPS reef fluorescence at Marine Creatures.",
     "h1": "Nemo Extreme Series II Smart Marine LED Marine Aquarium Light",
     "canonical": "https://www.marinecreatures.co.in/marketplace/nemo-extreme-led",
     "imageStatus": "VERIFIED",

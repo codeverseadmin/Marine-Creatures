@@ -18,7 +18,7 @@ const SERVICES = [
   {
     num: '03',
     title: 'Aquascaping',
-    desc: 'Algae management, coral trimming and aquascape maintenance.',
+    desc: 'Algae management, reef trimming and aquascape maintenance.',
   },
   {
     num: '04',

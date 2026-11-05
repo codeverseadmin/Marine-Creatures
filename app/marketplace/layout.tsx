@@ -5,7 +5,7 @@ import { generateBreadcrumbJsonLd } from '@/lib/seo/structuredData';
 export const metadata: Metadata = {
   title: 'Marine Marketplace — Living Reef Specimens & Precision Equipment',
   description:
-    'Discover quarantine-certified marine fish, NemoLight smart LED fixtures, aquacultured corals, living micro-fauna, and precision reef equipment curated for discerning aquarists.',
+    'Discover quarantine-certified marine fish, NemoLight smart LED fixtures, aquacultured reef specimens, living micro-fauna, and precision reef equipment curated for discerning aquarists.',
   alternates: {
     canonical: `${SITE_CONFIG.url}/marketplace`,
   },

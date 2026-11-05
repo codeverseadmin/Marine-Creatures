@@ -104,8 +104,8 @@ const MATERIALS = [
 const BIOMES = [
   {
     id: 'indo-pacific-reef',
-    label: 'Indo-Pacific Living Coral Reef',
-    desc: 'Flourishing photosynthetic SPS & LPS corals, symbiotic sea anemones, and macro-algae.',
+    label: 'Indo-Pacific Living Marine Reef',
+    desc: 'Flourishing photosynthetic SPS & LPS reef species, symbiotic sea anemones, and macro-algae.',
     multiplier: 1.0,
   },
   {
@@ -122,8 +122,8 @@ const BIOMES = [
   },
   {
     id: 'sps-sanctuary',
-    label: 'Hard Coral (SPS) Ultra Sanctuary',
-    desc: 'Ultra-low nutrient biotope tuned for Acropora, Montipora, and delicate reef-crest corals.',
+    label: 'Hard SPS Ultra Reef Sanctuary',
+    desc: 'Ultra-low nutrient biotope tuned for Acropora, Montipora, and delicate reef-crest specimens.',
     multiplier: 1.35,
   },
 ];
@@ -140,9 +140,9 @@ const MARINE_LIFE_SETS = [
     desc: 'High-motion open-water schooling fish creating constant dynamic ocean rhythm.',
   },
   {
-    id: 'rare-corals',
-    label: 'Ultra Coral Collector Frags',
-    desc: 'Torches, hammer corals, blastomussa, and glowing Australian acanthastrea colonies.',
+    id: 'rare-reef-specimens',
+    label: 'Ultra Reef Collector Frags',
+    desc: 'Torches, hammers, blastomussa, and glowing Australian acanthastrea colonies.',
   },
   {
     id: 'apex-predators',
@@ -502,7 +502,7 @@ export function AquariumEstimator() {
               04 Biome — Ecological Atmosphere
             </h3>
             <p className="text-xs text-[--color-muted]">
-              Define the biological micro-climate and coral structure of your installation.
+              Define the biological micro-climate and reef structure of your installation.
             </p>
           </div>
 

@@ -202,7 +202,7 @@ export const ARCHIVED_MOCK_PRODUCTS: Product[] = [
   },
   {
     id: 'red-sea-coral-pro-salt',
-    name: 'Red Sea Coral Pro Salt (22kg Bucket / 660 Liters)',
+    name: 'Red Sea Reef Pro Salt (22kg Bucket / 660 Liters)',
     itemType: 'dry',
     category: 'salt-chemistry',
     categoryLabel: 'Salts & Chemistry',

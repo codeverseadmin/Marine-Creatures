@@ -23,7 +23,7 @@ const FORM_FACTORS = [
     volume: '4,000 Liters / 1,050 Gal',
     material: 'OptiWhite™ Low-Iron German Glass (25mm)',
     image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200&q=85',
-    desc: 'Dual-sided living ocean corridor connecting grand salon and dining galleries with 360-degree coral topography.',
+    desc: 'Dual-sided living ocean corridor connecting grand salon and dining galleries with 360-degree reef topography.',
   },
   {
     id: 'cylinder',
@@ -32,14 +32,14 @@ const FORM_FACTORS = [
     volume: '9,800 Liters / 2,590 Gal',
     material: 'Seamless Cylindrical Polymer',
     image: 'https://images.unsplash.com/photo-1520255870062-bd79d3865de7?w=1200&q=85',
-    desc: 'Centerpiece spiral marine column featuring schooling chromis, anthias, and living Indo-Pacific soft corals.',
+    desc: 'Centerpiece spiral marine column featuring schooling chromis, anthias, and living Indo-Pacific soft reef species.',
   },
 ];
 
 const PROCESS_STEPS = [
   { step: '01', label: 'Architectural Discovery', desc: 'Structural load analysis, interior acoustic mapping, and daylight alignment studies.' },
   { step: '02', label: 'Parametric 3D Engineering', desc: 'Bespoke hydrodynamic CFD simulations, sump layout, and filtration plant schematics.' },
-  { step: '03', label: 'Living Aquascape Artistry', desc: 'Handcrafted ceramic live rock archways, Bahamian aragonite, and cultured coral placement.' },
+  { step: '03', label: 'Living Aquascape Artistry', desc: 'Handcrafted ceramic live rock archways, Bahamian aragonite, and cultured reef placement.' },
   { step: '04', label: 'White-Glove Commissioning', desc: 'Clean installation, automated ecosystem balance, and introduction of quarantined specimen.' },
 ];
 

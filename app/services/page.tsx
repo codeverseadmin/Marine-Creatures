@@ -8,7 +8,7 @@ import { generateBreadcrumbJsonLd } from '@/lib/seo/structuredData';
 export const metadata: Metadata = {
   title: 'Marine Aquarium Services, Installation & Maintenance',
   description:
-    'Comprehensive marine aquarium engineering services: turnkey installations, living coral reef renovations, and white-glove biological concierge maintenance by certified marine curators.',
+    'Comprehensive marine aquarium engineering services: turnkey installations, living marine reef renovations, and white-glove biological concierge maintenance by certified marine curators.',
   alternates: {
     canonical: `${SITE_CONFIG.url}/services`,
   },

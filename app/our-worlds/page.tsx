@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Our Worlds — Architectural Living Reef Case Studies | Marine Creatures',
     description:
-      'Completed luxury marine aquariums, dual-sided living partitions, and bespoke coral reef monoliths across India.',
+      'Completed luxury marine aquariums, dual-sided living partitions, and bespoke marine reef monoliths across India.',
     url: `${SITE_CONFIG.url}/our-worlds`,
     siteName: SITE_CONFIG.name,
     locale: 'en_IN',
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Our Worlds — Architectural Case Studies | Marine Creatures',
     description:
-      'Completed bespoke marine sanctuaries and custom living coral reef installations.',
+      'Completed bespoke marine sanctuaries and custom living marine reef installations.',
     images: [`${SITE_CONFIG.url}/og-image.jpg`],
   },
 };
@@ -228,7 +228,7 @@ export default async function OurWorldsPage() {
                       <span className="text-slate-200">{study.marineWorld.livestock}</span>
                     </div>
                     <div>
-                      <span className="text-[--color-muted] font-medium">Curated Corals: </span>
+                      <span className="text-[--color-muted] font-medium">Curated Reef Life: </span>
                       <span className="text-slate-200">{study.marineWorld.corals}</span>
                     </div>
                   </div>

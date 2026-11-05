@@ -496,7 +496,7 @@ export function ProductDetailView({
                   <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
                     <span className="text-[10px] text-[--color-muted] uppercase tracking-wider block mb-0.5">Reef Safe</span>
                     <span className={`font-semibold text-xs flex items-center gap-1 ${product.careGuide.reefSafe ? 'text-emerald-400' : 'text-amber-400'}`}>
-                      {product.careGuide.reefSafe ? '100% Coral Safe' : 'FOWLR / Monitor'}
+                      {product.careGuide.reefSafe ? '100% Reef Safe' : 'FOWLR / Monitor'}
                     </span>
                   </div>
 
@@ -771,7 +771,7 @@ export function ProductDetailView({
                         {product.careGuide.reefSafe ? (
                           <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-emerald-400">
                             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                            100% Coral Safe
+                            100% Reef Safe
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-amber-400">

@@ -31,7 +31,7 @@ const SERVICE_OPTIONS = [
   },
   {
     id: 'marine_life',
-    label: 'Rare Livestock & Corals',
+    label: 'Rare Livestock & Reef Life',
     desc: 'Acclimated fish, SPS/LPS, anemones',
     icon: (
       <svg className="w-5 h-5 text-cyan-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -208,7 +208,7 @@ function ContactPageInner() {
     } else if (serviceParam === 'maintenance') {
       setSelectedServices(['White-Glove Maintenance']);
     } else if (serviceParam === 'marine_life' || serviceParam === 'livestock') {
-      setSelectedServices(['Rare Livestock & Corals']);
+      setSelectedServices(['Rare Livestock & Reef Life']);
     }
   }, [searchParams]);
 
@@ -817,7 +817,7 @@ function ContactPageInner() {
                         rows={3}
                         value={vision}
                         onChange={(e) => setVision(e.target.value)}
-                        placeholder="Tell us about your room layout, desired coral styles, favorite fish, or target timeline..."
+                        placeholder="Tell us about your room layout, desired reef styles, favorite fish, or target timeline..."
                         className="w-full rounded-2xl border border-white/15 bg-white/[0.04] p-3.5 text-white text-xs placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 transition-colors resize-none leading-relaxed"
                       />
                     </div>

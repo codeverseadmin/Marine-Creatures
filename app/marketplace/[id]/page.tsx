@@ -24,7 +24,7 @@ const NEMO_ALIASES: Record<
     variantId: 'e450',
     title: 'Nemo E450 Aquarium Light — 24W App-Controlled Marine LED (45–60 cm)',
     metaDesc:
-      'Official Nemo E450 smart marine aquarium LED light for 45–60 cm tanks. 24W output, 4-channel Bluetooth app control, sunrise/sunset scheduling, and coral fluorescence.',
+      'Official Nemo E450 smart marine aquarium LED light for 45–60 cm tanks. 24W output, 4-channel Bluetooth app control, sunrise/sunset scheduling, and reef fluorescence.',
   },
   'nemo-e600': {
     parentId: 'nemo-extreme-led',

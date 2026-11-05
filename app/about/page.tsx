@@ -38,7 +38,7 @@ export const metadata: Metadata = {
 };
 
 const VALUES = [
-  { title: 'Marine Biology Expertise', desc: 'In-house marine biologists ensuring ideal water chemistry, symbiotic coral pairings, and healthy livestock longevity.' },
+  { title: 'Marine Biology Expertise', desc: 'In-house marine biologists ensuring ideal water chemistry, symbiotic reef pairings, and healthy livestock longevity.' },
   { title: 'Master Craftsmanship', desc: 'Precision cabinetry, concealed Schedule 80 plumbing, and monolithic viewing panels engineered for decades of reliability.' },
   { title: 'Architectural Harmony', desc: 'Aesthetic designs developed in synergy with luxury interior palettes, custom lighting moods, and spatial acoustics.' },
   { title: 'Lifecycle Concierge', desc: 'Dedicated 24/7 water monitoring, routine automated salt-water exchange, and white-glove ongoing care.' },

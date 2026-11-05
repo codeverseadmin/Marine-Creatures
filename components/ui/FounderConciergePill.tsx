@@ -84,7 +84,7 @@ export function FounderConciergePill() {
               onClick={() => handleOpenWhatsApp('Rare Specimen Availability & Quarantine Video')}
               className="w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-white/10 text-xs text-slate-200 hover:text-cyan-300 text-left flex items-center justify-between transition-colors"
             >
-              <span>🐠 Live Fish &amp; Coral Compatibility</span>
+              <span>🐠 Live Fish &amp; Reef Compatibility</span>
               <span className="text-slate-500">→</span>
             </button>
 

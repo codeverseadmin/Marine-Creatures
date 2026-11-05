@@ -33,7 +33,7 @@ export const SERVICES_DATA: ServiceOffering[] = [
       { step: '02', title: 'Fabrication & Pre-Plumbing', desc: 'Custom tank manufacture, CNC cabinetry framing, and dry-fit testing.' },
       { step: '03', title: 'On-Site Commissioning', desc: 'Delivery, placement, acoustic dampening, and waterproof sealing.' },
       { step: '04', title: 'Living Aquascaping', desc: 'Sculpting bio-active live rock structures and seeding bacterial cultures.' },
-      { step: '05', title: 'Ecosystem Introduction', desc: 'Acclimation of hand-paired clownfish, corals, and invertebrates.' },
+      { step: '05', title: 'Ecosystem Introduction', desc: 'Acclimation of hand-paired clownfish, reef specimens, and invertebrates.' },
     ],
     guarantees: [
       '10-Year Monolithic Tank Structural Seal Warranty',
@@ -61,7 +61,7 @@ export const SERVICES_DATA: ServiceOffering[] = [
     ],
     stages: [
       { step: '01', title: 'Health Diagnostic', desc: 'Water testing and comprehensive equipment performance audit.' },
-      { step: '02', title: 'Safe Livestock Relocation', desc: 'Temporary housing of your fish and corals in climate-controlled tanks.' },
+      { step: '02', title: 'Safe Livestock Relocation', desc: 'Temporary housing of your fish and reef specimens in climate-controlled tanks.' },
       { step: '03', title: 'Deep Restoration', desc: 'Chemical flush, glass scratch polishing, and substrate overhaul.' },
       { step: '04', title: 'Hardware Modernization', desc: 'Installation of silent DC pumps, energy-efficient LEDs, and smart controllers.' },
       { step: '05', title: 'Re-Introduction', desc: 'Gradual acclimation of healthy livestock into a revitalized sanctuary.' },
@@ -81,13 +81,13 @@ export const SERVICES_DATA: ServiceOffering[] = [
     priceStartingFrom: '₹18,500 / Month',
 
     shortDesc: 'Routine weekly or bi-weekly visits by certified marine biologists to keep your ecosystem pristine, balanced, and thriving 365 days a year.',
-    description: 'Enjoy the beauty of an extraordinary living ocean without the complexity of maintenance. Our dedicated specialists handle water changes using laboratory-grade RO/DI and Red Sea salt, filter media replacements, dosing calibrations, coral grooming, and livestock wellness checks.',
+    description: 'Enjoy the beauty of an extraordinary living ocean without the complexity of maintenance. Our dedicated specialists handle water changes using laboratory-grade RO/DI and Red Sea salt, filter media replacements, dosing calibrations, reef grooming, and livestock wellness checks.',
     inclusions: [
       'Bi-Weekly Water Chemical Testing (Ca, Mg, dKH, NO3, PO4, Salinity)',
       'Pre-Mixed Laboratory Grade RO/DI Salt Water Changes',
       'Filter Pad, Carbon, GFO & Protein Skimmer Maintenance',
       'Glass & Acrylic Cleaning with Scratch-Proof Velvet Blades',
-      'Coral Fragging, Algae Management & Sandbed Siphoning',
+      'Reef Propagation, Algae Management & Sandbed Siphoning',
       'Automatic Dosing Reservoir Top-Off & Replenishment',
       '24/7 Priority Emergency Rapid-Response Hotline',
     ],

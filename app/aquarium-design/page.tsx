@@ -48,7 +48,7 @@ const DESIGN_PILLARS = [
   {
     number: '02',
     title: 'Precision Ecosystem Engineering',
-    desc: 'Custom closed-loop filtration, silent pumps, automated dosing, and spectrum-tuned coral reef lighting systems.',
+    desc: 'Custom closed-loop filtration, silent pumps, automated dosing, and spectrum-tuned marine reef lighting systems.',
     image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=800&q=80',
 
   },
@@ -61,7 +61,7 @@ const DESIGN_PILLARS = [
   {
     number: '04',
     title: 'Curated Marine Biodiversity',
-    desc: 'Harmonious cohabitation plans combining rare coral frags, symbiotic invertebrates, and exquisite schooling reef fish.',
+    desc: 'Harmonious cohabitation plans combining rare reef frags, symbiotic invertebrates, and exquisite schooling reef fish.',
     image: 'https://images.unsplash.com/photo-1601459427108-47e20b8dcd65?w=800&q=80',
   },
 ];

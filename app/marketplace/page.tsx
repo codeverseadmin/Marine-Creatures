@@ -14,7 +14,7 @@ interface CategoryOption {
 
 const CATEGORIES: CategoryOption[] = [
   { id: 'all', label: 'All Items' },
-  { id: 'marine-life', label: 'Marine Life & Corals' },
+  { id: 'marine-life', label: 'Fish & Reef Life' },
   { id: 'lighting-tech', label: 'Lighting & Tech' },
   { id: 'rock-sand', label: 'Live Rock & Sand' },
   { id: 'salt-chemistry', label: 'Salts & Chemistry' },
@@ -141,7 +141,7 @@ function MarketplaceContent() {
                 Marine Marketplace
               </h1>
               <p className="font-body text-sm sm:text-base text-[var(--color-muted)] mt-2 sm:mt-3 max-w-xl leading-relaxed">
-                Captive-bred fish, corals, lighting &amp; precision reef gear delivered safely across India.
+                Captive-bred fish, reef life, lighting &amp; precision reef gear delivered safely across India.
               </p>
             </div>
 
@@ -166,7 +166,7 @@ function MarketplaceContent() {
                 </div>
                 <input
                   type="text"
-                  placeholder="Search fish, corals, gear..."
+                  placeholder="Search fish, reef life, gear..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full h-12 pl-10 pr-20 rounded-2xl bg-[var(--color-secondary)] backdrop-blur-xl border border-white/10 text-sm text-[var(--color-text)] placeholder:text-[var(--color-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[rgba(0,184,217,0.2)] transition-all shadow-inner"

@@ -49,7 +49,7 @@ const PILLARS = [
   },
   {
     title: 'Zero Livestock Loss Protocol',
-    description: 'Existing fish and corals are carefully housed in mobile, climate-controlled staging pods during restoration.',
+    description: 'Existing fish and reef specimens are carefully housed in mobile, climate-controlled staging pods during restoration.',
     icon: (
       <svg className="w-5 h-5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -103,7 +103,7 @@ const DIMENSIONS = [
     title: 'Resculpted Living Aquascape',
     subtitle: 'Architectural Negative Space',
     description:
-      'We rebuild congested rock piles into contemporary cantilevered structures, natural swim-through caverns, and terraced coral plates that maximize water circulation while providing secure territories for marine specimens.',
+      'We rebuild congested rock piles into contemporary cantilevered structures, natural swim-through caverns, and terraced reef plates that maximize water circulation while providing secure territories for marine specimens.',
   },
 ];
 
@@ -116,7 +116,7 @@ const PROTOCOL_STEPS = [
   {
     num: '02',
     title: 'Safe Livestock Staging',
-    details: 'Valuable fish and corals are carefully transferred to our mobile, temperature and aeration-controlled holding pods on-site.',
+    details: 'Valuable fish and reef specimens are carefully transferred to our mobile, temperature and aeration-controlled holding pods on-site.',
   },
   {
     num: '03',
@@ -264,7 +264,7 @@ export default function RenovationPage() {
               beforeSrc="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=85"
               afterSrc="https://images.unsplash.com/photo-1544551763-92ab472cad5d?w=1200&q=85"
               beforeAlt="Aquarium before renovation with overgrown algae and imbalanced water"
-              afterAlt="Aquarium after Marine Creatures renovation with thriving corals and crystal water"
+              afterAlt="Aquarium after Marine Creatures renovation with thriving reef life and crystal water"
             />
           </div>
 
@@ -285,7 +285,7 @@ export default function RenovationPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-rose-400 font-bold">×</span>
-                  <span>High nitrate/phosphate levels causing recurring coral and fish losses</span>
+                  <span>High nitrate/phosphate levels causing recurring reef specimen and fish losses</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-rose-400 font-bold">×</span>
@@ -313,7 +313,7 @@ export default function RenovationPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-cyan-400 font-bold">✓</span>
-                  <span>Resculpted architectural aquascape with thriving SPS/LPS coral specimens</span>
+                  <span>Resculpted architectural aquascape with thriving SPS/LPS reef specimens</span>
                 </li>
               </ul>
             </div>

@@ -119,7 +119,7 @@ export function WishlistDrawer() {
                   Your wishlist is empty
                 </h3>
                 <p className="text-xs text-slate-400 max-w-xs mx-auto mb-6 leading-relaxed">
-                  Tap the heart icon on any captive-bred marine fish, SPS coral, or NemoLight fixture to save it here.
+                  Tap the heart icon on any captive-bred marine fish, reef specimen, or NemoLight fixture to save it here.
                 </p>
                 <Link
                   href="/marketplace"

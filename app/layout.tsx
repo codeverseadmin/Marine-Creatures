@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     'Bespoke Aquarium Design Kolkata',
     'Reef Tank Installation India',
     'Live Marine Cargo Dispatch',
-    'Custom Living Coral Reefs',
+    'Custom Living Marine Reefs',
     'Museum Grade Acrylic Aquariums',
     'Suraj Shasmal Marine Creatures',
   ],

@@ -144,7 +144,7 @@ export function CallbackForm() {
           >
             <option value="New Aquarium Installation">New Aquarium Installation</option>
             <option value="Aquarium Renovation & Revival">Aquarium Renovation &amp; Revival</option>
-            <option value="Marine Life & Rare Corals">Marine Life &amp; Rare Corals</option>
+            <option value="Marine Life & Reef Specimens">Marine Life &amp; Reef Specimens</option>
             <option value="NemoLight / Lighting Equipment">NemoLight / Lighting Equipment</option>
             <option value="Maintenance / Water Care">Maintenance / Water Care</option>
           </select>

@@ -376,7 +376,7 @@ export const PRODUCTS: Product[] = [
     images: ['/images/products/banggai-cardinal.jpg'],
     imageStatus: 'VERIFIED',
     shortDesc: 'Stunning geometric black bar patterns with shimmering white pearl accents and elongated fins. 100% reef safe.',
-    description: 'Endemic to the shallow waters of the Banggai Archipelago, the Banggai Cardinalfish is renowned for its tranquil hovering behavior and striking monochrome elegance. Completely peaceful and safe with all corals and delicate invertebrates. Acclimated and conditioned in quarantine.',
+    description: 'Endemic to the shallow waters of the Banggai Archipelago, the Banggai Cardinalfish is renowned for its tranquil hovering behavior and striking monochrome elegance. Completely peaceful and safe with all reef specimens and delicate invertebrates. Acclimated and conditioned in quarantine.',
     deliveryInfo: COMMON_FISH_DELIVERY,
     careGuide: {
       temperature: '24°C - 27°C',
@@ -429,7 +429,7 @@ export const PRODUCTS: Product[] = [
     images: ['/images/products/regal-tang-m.jpg'],
     imageStatus: 'VERIFIED',
     shortDesc: 'Electric royal-blue palette with classic black palette marking and bright yellow wedge tail. Size M.',
-    description: 'The Pacific Regal Blue Tang (Paracanthurus hepatus), made world-famous as "Dory", is an iconic inhabitant of Indo-Pacific coral reefs. This medium specimen features vibrant electric blue coloration and active schooling behavior. Fully quarantined with preventative anti-parasite protocols completed.',
+    description: 'The Pacific Regal Blue Tang (Paracanthurus hepatus), made world-famous as "Dory", is an iconic inhabitant of Indo-Pacific marine reefs. This medium specimen features vibrant electric blue coloration and active schooling behavior. Fully quarantined with preventative anti-parasite protocols completed.',
     deliveryInfo: COMMON_FISH_DELIVERY,
     careGuide: {
       temperature: '24°C - 26°C',
@@ -544,7 +544,7 @@ export const PRODUCTS: Product[] = [
       salinity: '1.023 - 1.025 S.G.',
       ph: '8.1 - 8.4',
       diet: 'Carnivore (Demands meaty rations: chopped krill, mysis, squid, and premium carnivore pellets)',
-      temperament: 'Semi-Aggressive (Safe with corals; will opportunistically hunt small ornamental shrimp and crabs)',
+      temperament: 'Semi-Aggressive (Reef safe; will opportunistically hunt small ornamental shrimp and crabs)',
       minimumTankSize: '300 Litres (80 Gallons)',
       reefSafe: true,
       careLevel: 'Moderate',
@@ -554,7 +554,7 @@ export const PRODUCTS: Product[] = [
       'Rarity Level': 'Rare Specimen',
       'Feeding Status': 'Confirmed Feeding Actively',
       'Geographical Origin': 'Indo-Pacific / Red Sea',
-      'Reef Safety': 'Reef Safe with Caution (Coral safe; invertebrate caution)',
+      'Reef Safety': 'Reef Safe with Caution (Reef safe; invertebrate caution)',
       'Adult Size': 'Up to 8 inches (20 cm)',
     },
     researchStatus: 'READY',
@@ -751,7 +751,7 @@ export const PRODUCTS: Product[] = [
     images: ['/images/products/pink-stripe-wrasse.jpg'],
     imageStatus: 'VERIFIED',
     shortDesc: 'Slender crimson-pink body adorned with fine longitudinal white pinstripes. Rare reef pest utility hunter.',
-    description: 'The Pink-Streaked / Pinstripe Wrasse (Pseudocheilinus evanidus) is an elusive and sought-after cryptobenthic wrasse. Exhibiting a luminous coral-pink body with delicate pinstripes and scarlet eye rings. Renowned for its natural predation on reef aquarium pests including pyramidellid snails, flatworms, and bristleworms.',
+    description: 'The Pink-Streaked / Pinstripe Wrasse (Pseudocheilinus evanidus) is an elusive and sought-after cryptobenthic wrasse. Exhibiting a luminous rose-pink body with delicate pinstripes and scarlet eye rings. Renowned for its natural predation on reef aquarium pests including pyramidellid snails, flatworms, and bristleworms.',
     deliveryInfo: COMMON_FISH_DELIVERY,
     careGuide: {
       temperature: '24°C - 26°C',
@@ -921,7 +921,7 @@ export const PRODUCTS: Product[] = [
     images: ['/images/products/nemo-extreme-led.jpg'],
     imageStatus: 'VERIFIED',
     shortDesc: 'Slimline all-aluminum smart LED fixture with 4-channel Bluetooth app control and sunrise/sunset simulation.',
-    description: 'The NemoLight Extreme Series II is an advanced marine LED fixture featuring an ultra-slim extruded aluminum heatsink and smartphone app control. Offering 4-channel independent spectrum tuning (UV/Violet, Royal Blue, Deep Blue, and Daylight White) to promote vibrant coral fluorescence and healthy photosynthesis. Equipped with adjustable sliding brackets to fit rimless or braced tanks.',
+    description: 'The NemoLight Extreme Series II is an advanced marine LED fixture featuring an ultra-slim extruded aluminum heatsink and smartphone app control. Offering 4-channel independent spectrum tuning (UV/Violet, Royal Blue, Deep Blue, and Daylight White) to promote vibrant reef fluorescence and healthy photosynthesis. Equipped with adjustable sliding brackets to fit rimless or braced tanks.',
     deliveryInfo: COMMON_DRY_DELIVERY,
     installationGuide: {
       difficulty: 'Plug & Play',
@@ -979,7 +979,7 @@ export const PRODUCTS: Product[] = [
     images: ['/images/products/sessile-comet-light.png'],
     imageStatus: 'VERIFIED',
     shortDesc: 'Compact manual clamp LED light designed for nano marine tanks and anemone/fish setups (12–18 inch).',
-    description: 'The Sessile Comet is a robust, straightforward manual LED aquarium light engineered specifically for small marine environments (12–18 inch aquarium width). Delivering actinic blue and daylight spectrums to highlight vibrant fish coloration and support soft corals and anemones with simple plug-and-play manual operation.',
+    description: 'The Sessile Comet is a robust, straightforward manual LED aquarium light engineered specifically for small marine environments (12–18 inch aquarium width). Delivering actinic blue and daylight spectrums to highlight vibrant fish coloration and support soft reef specimens and anemones with simple plug-and-play manual operation.',
     deliveryInfo: COMMON_DRY_DELIVERY,
     installationGuide: {
       difficulty: 'Plug & Play',
@@ -1040,8 +1040,8 @@ export const PRODUCTS: Product[] = [
     ],
     images: ['/images/products/luminous-aqua-ocean-blue.png'],
     imageStatus: 'VERIFIED',
-    shortDesc: 'Deep-ocean actinic spectrum fixture designed for marine livestock contrast and coral pop across 5 sizes.',
-    description: 'The Luminous Aqua S Flora (Q Series) Ocean Blue edition is engineered specifically for saltwater aquariums. Delivering high-intensity deep blue and actinic wavelengths that replicate oceanic reef depths, enhancing natural marine fish vibrancy and coral fluro-proteins.',
+    shortDesc: 'Deep-ocean actinic spectrum fixture designed for marine livestock contrast and reef fluorescence across 5 sizes.',
+    description: 'The Luminous Aqua S Flora (Q Series) Ocean Blue edition is engineered specifically for saltwater aquariums. Delivering high-intensity deep blue and actinic wavelengths that replicate oceanic reef depths, enhancing natural marine fish vibrancy and reef fluro-proteins.',
     deliveryInfo: COMMON_DRY_DELIVERY,
     installationGuide: {
       difficulty: 'Plug & Play',
@@ -1056,7 +1056,7 @@ export const PRODUCTS: Product[] = [
     specifications: {
       Spectrum: 'Ocean Blue Actinic Marine Spectrum',
       Models: 'Q30 (30cm), Q60 (60cm), Q75 (75cm), Q90 (90cm), Q120 (120cm)',
-      Application: 'Marine fish displays, soft coral tanks, and reef aquariums',
+      Application: 'Marine fish displays, soft reef tanks, and marine reef aquariums',
     },
     researchStatus: 'READY',
     researchSources: [
@@ -1646,7 +1646,7 @@ export const PRODUCTS: Product[] = [
 
   {
     id: 'blue-treasure-coral-sand',
-    name: 'Blue Treasure Natural Coral Aragonite Sand',
+    name: 'Blue Treasure Natural Marine Aragonite Sand',
     brand: 'Blue Treasure',
     itemType: 'dry',
     category: 'rock-sand',
@@ -1668,8 +1668,8 @@ export const PRODUCTS: Product[] = [
     ],
     images: ['/images/products/blue-treasure-coral-sand.jpg'],
     imageStatus: 'VERIFIED',
-    shortDesc: 'Pristine South Sea coral aragonite sand rich in calcium and magnesium. Naturally stabilizes pH 8.2–8.4.',
-    description: 'Blue Treasure Coral Sand is harvested from unpolluted South Sea coral reef substrates. Composed of natural calcium carbonate aragonite, it provides continuous biological surface area for nitrifying bacteria and steadily dissolves trace calcium and carbonate to buffer aquarium pH at 8.2–8.4.',
+    shortDesc: 'Pristine South Sea marine aragonite sand rich in calcium and magnesium. Naturally stabilizes pH 8.2–8.4.',
+    description: 'Blue Treasure Marine Aragonite Sand is harvested from unpolluted South Sea marine reef substrates. Composed of natural calcium carbonate aragonite, it provides continuous biological surface area for nitrifying bacteria and steadily dissolves trace calcium and carbonate to buffer aquarium pH at 8.2–8.4.',
     deliveryInfo: {
       estimatedDays: '3-5 Days',
       shippingMethod: 'Surface Heavy Logistics',
@@ -1720,7 +1720,7 @@ export const PRODUCTS: Product[] = [
     specifications: {
       Material: '100% Natural Calcium Carbonate Marine Reef Rock',
       Porosity: 'Ultra-high internal interstitial void ratio',
-      Application: 'Bespoke aquascaping, biological foundation, coral mounting',
+      Application: 'Bespoke aquascaping, biological foundation, reef specimen mounting',
       'Pest Status': 'Dry cured / Zero nuisance hitchhikers',
     },
     researchStatus: 'READY',
@@ -1794,13 +1794,13 @@ export const PRODUCTS: Product[] = [
     images: ['/images/products/seachem-calcium.jpg'],
     imageStatus: 'VERIFIED',
     shortDesc: 'Concentrated 160,000 mg/L bioavailable calcium supplement formulated to maintain reef calcium without depleting alkalinity.',
-    description: 'Seachem Reef Calcium is a concentrated (160,000 mg/L) bioavailable polygluconate-complexed calcium supplement. Polygluconate provides a readily metabolized organic energy source for corals while protecting calcium from precipitating out of solution, allowing enhanced calcification without depressing alkalinity.',
+    description: 'Seachem Reef Calcium is a concentrated (160,000 mg/L) bioavailable polygluconate-complexed calcium supplement. Polygluconate provides a readily metabolized organic energy source for calcifying reef life while protecting calcium from precipitating out of solution, allowing enhanced calcification without depressing alkalinity.',
     deliveryInfo: COMMON_DRY_DELIVERY,
     specifications: {
       Concentration: '160,000 mg/L Bioavailable Calcium',
       Formulation: 'Polygluconate Organic Complexed Calcium',
       'Target Range': 'Maintain reef aquarium calcium between 380–430 mg/L',
-      Application: 'SPS, LPS, soft corals, clams, and coralline algae growth',
+      Application: 'SPS, LPS, soft reef life, clams, and coralline algae growth',
     },
     researchStatus: 'READY',
     researchSources: [
@@ -1944,7 +1944,7 @@ export const PRODUCTS: Product[] = [
     brand: 'TiCi NatureLab',
     itemType: 'dry',
     category: 'salt-chemistry',
-    categoryLabel: 'Live Coral Nutrition',
+    categoryLabel: 'Live Reef Nutrition',
     price: 500,
     compareAtPrice: 525,
     originalPrice: 525,
@@ -1958,8 +1958,8 @@ export const PRODUCTS: Product[] = [
     availabilityNote: 'Cultured by TiCi NatureLab. Fresh live microalgae nutrition.',
     images: [],
     imageStatus: 'NEEDS_MEDIA_ASSET',
-    shortDesc: 'Freshly laboratory-cultured live marine microalgae providing foundational nutrients for filter-feeding corals and microfauna.',
-    description: 'TiCi NatureLab Live Marine Phytoplankton is freshly cultured under controlled laboratory parameters in India. Supplying essential highly unsaturated fatty acids (HUFA, EPA, DHA) directly to SPS/LPS corals, gorgonians, clams, feather dusters, and benthic copepod populations, sustaining the marine food web.',
+    shortDesc: 'Freshly laboratory-cultured live marine microalgae providing foundational nutrients for filter-feeding reef life and microfauna.',
+    description: 'TiCi NatureLab Live Marine Phytoplankton is freshly cultured under controlled laboratory parameters in India. Supplying essential highly unsaturated fatty acids (HUFA, EPA, DHA) directly to SPS/LPS reef specimens, gorgonians, clams, feather dusters, and benthic copepod populations, sustaining the marine food web.',
     deliveryInfo: {
       estimatedDays: '1-2 Days',
       shippingMethod: 'Express Climate Transit',
@@ -1968,7 +1968,7 @@ export const PRODUCTS: Product[] = [
     specifications: {
       Producer: 'TiCi NatureLab (India)',
       Culture: 'Live multispecies marine phytoplankton',
-      Beneficiaries: 'SPS/LPS corals, clams, sponges, zooplankton, and copepod pods',
+      Beneficiaries: 'SPS/LPS reef specimens, clams, sponges, zooplankton, and copepod pods',
       Storage: 'Store refrigerated at 2°C–6°C; gently invert bottle daily to prevent settling',
     },
     researchStatus: 'READY',

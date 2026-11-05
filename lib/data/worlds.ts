@@ -57,7 +57,7 @@ export const INITIAL_CLIENT_PROJECTS = [
     installationStatus: 'completed',
     aquariumVolume: '7800L',
     aquariumType: 'Dual-Sided Monolithic Cast Acrylic',
-    biome: 'Indo-Pacific Shallow Coral Atoll',
+    biome: 'Indo-Pacific Shallow Reef Atoll',
     designStyle: 'Architectural Partition',
     materials: [
       '90mm Monolithic Thermoformed Cast Acrylic viewing panels',
@@ -82,7 +82,7 @@ export const INITIAL_CLIENT_PROJECTS = [
     clientEmail: 'vip.alipore@client-private.marinecreatures.internal',
     projectStartDate: new Date('2024-03-15'),
     projectCompletionDate: new Date('2025-01-20'),
-    internalNotes: 'VIP Concierge tier 1 care contract active. Weekly Wednesday automated parameter auditing and live coral feeding.',
+    internalNotes: 'VIP Concierge tier 1 care contract active. Weekly Wednesday automated parameter auditing and live reef feeding.',
     estimatedBudget: 8500000,
     caseStudyId: 'alipore-penthouse-monolith',
     internalGallery: [
@@ -96,7 +96,7 @@ export const INITIAL_CLIENT_PROJECTS = [
     status: 'completed',
     installationStatus: 'completed',
     aquariumVolume: '4200L',
-    aquariumType: 'Panoramic 360° Cylindrical Coral Column',
+    aquariumType: 'Panoramic 360° Cylindrical Reef Column',
     biome: 'Pelagic Reef & Open Surge Zone',
     designStyle: 'Central Rotunda Column',
     materials: [
@@ -111,7 +111,7 @@ export const INITIAL_CLIENT_PROJECTS = [
       'Architectural LED matrix synchronized to outdoor solar angles and lunar cycles',
       'Integrated ozone injection and UV sterilizer for laboratory water purity',
     ],
-    marineLifeNotes: 'Schooling Blue Chromis, Yellow Tangs, Flame Angels, Cleaner Shrimp colonies. Hardy SPS corals and large polyp stony corals.',
+    marineLifeNotes: 'Schooling Blue Chromis, Yellow Tangs, Flame Angels, Cleaner Shrimp colonies. Hardy SPS specimens and large polyp stony reef species.',
     installationDetails: 'Installed within circular executive boardroom rotunda over weekend shutdown window to avoid corporate disruption.',
     city: 'Kolkata',
     siteType: 'commercial',
@@ -183,7 +183,7 @@ export const INITIAL_CASE_STUDIES: DefaultCaseStudySeed[] = [
     scale: '7,800 Liters / 2,060 Gallons • 4.8m (L) × 1.8m (H)',
     aquariumVolume: '7,800 Liters',
     aquariumType: 'Custom Monolithic Cast Acrylic',
-    biome: 'Indo-Pacific Shallow Coral Atoll',
+    biome: 'Indo-Pacific Shallow Reef Atoll',
     image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1600&q=85',
     gallery: [
       {
@@ -194,19 +194,19 @@ export const INITIAL_CASE_STUDIES: DefaultCaseStudySeed[] = [
       {
         url: 'https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=1600&q=85',
         caption: 'Australian Acropora and schooling Anthias illuminated by simulated sun rays',
-        alt: 'SPS coral garden in Alipore penthouse',
+        alt: 'SPS reef garden in Alipore penthouse',
       },
     ],
     beforeAfter: {
       beforeImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80',
       afterImage: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1200&q=85',
       beforeLabel: 'Concrete Shell & Partition Void',
-      afterLabel: '7,800L Living Coral Monolith',
+      afterLabel: '7,800L Living Reef Monolith',
       caption: 'Transformation of the structural division between reception and private library into a luminescent living marine threshold.',
     },
     imageStatus: 'VERIFIED',
     designIntent:
-      'The client sought a floor-to-ceiling living ocean threshold between the grand reception salon and the private library. The structure needed to provide visual connection without acoustic leakage, allowing sunlight to refract through coral crests into both chambers.',
+      'The client sought a floor-to-ceiling living ocean threshold between the grand reception salon and the private library. The structure needed to provide visual connection without acoustic leakage, allowing sunlight to refract through reef crests into both chambers.',
     materials: [
       '90mm Monolithic Thermoformed Cast Acrylic viewing panels',
       'Italian Calacatta marble cladding with zero-vibration expansion joints',
@@ -220,7 +220,7 @@ export const INITIAL_CASE_STUDIES: DefaultCaseStudySeed[] = [
       'Cloud IoT telemetry with continuous spectrophotometric water chemistry logging',
     ],
     marineWorld: {
-      biome: 'Indo-Pacific Shallow Coral Atoll',
+      biome: 'Indo-Pacific Shallow Reef Atoll',
       livestock: 'Schooling Threadfin Anthias, Blue-Throat Triggerfish, Captive-Bred Ocellaris pairs',
       corals: 'Cultured Australian Acropora millepora, branching Montipora, and Euphyllia torch fields',
     },
@@ -235,7 +235,7 @@ export const INITIAL_CASE_STUDIES: DefaultCaseStudySeed[] = [
     execution:
       'Twelve-month collaborative deployment with Studio Morphogenesis including specialized crane rigging, precision acrylic bonding, and twelve-week prophylactic biological cycling.',
     transformation:
-      'From a stark void in the floor plate to a thriving, biodiverse Indo-Pacific barrier reef supporting over 120 coral colonies and delicate pelagic fish.',
+      'From a stark void in the floor plate to a thriving, biodiverse Indo-Pacific barrier reef supporting over 120 flourishing colonies and delicate pelagic fish.',
     conclusion:
       'The Alipore Penthouse Monolith stands as a world-class demonstration of living marine architecture integrated seamlessly into ultra-luxury living.',
     result:
@@ -252,7 +252,7 @@ export const INITIAL_CASE_STUDIES: DefaultCaseStudySeed[] = [
     id: 'sector-v-corporate-sanctuary',
     slug: 'sector-v-corporate-sanctuary',
     title: 'The Sector V Corporate Sanctuary',
-    subtitle: 'Panoramic 360° Cylindrical Coral Column',
+    subtitle: 'Panoramic 360° Cylindrical Reef Column',
     eyebrow: 'CASE STUDY 02',
     projectId: 'CP-2024-002',
     space: 'Executive Boardroom & International Reception, Salt Lake, Kolkata',
@@ -266,7 +266,7 @@ export const INITIAL_CASE_STUDIES: DefaultCaseStudySeed[] = [
       {
         url: 'https://images.unsplash.com/photo-1520255870062-bd79d3865de7?w=1600&q=85',
         caption: 'Cylindrical 360-degree viewing rotunda in the corporate boardroom',
-        alt: 'Sector V Corporate Sanctuary cylindrical coral aquarium',
+        alt: 'Sector V Corporate Sanctuary cylindrical reef aquarium',
       },
     ],
     beforeAfter: {
@@ -294,7 +294,7 @@ export const INITIAL_CASE_STUDIES: DefaultCaseStudySeed[] = [
     marineWorld: {
       biome: 'Pelagic Reef & Open Surge Zone',
       livestock: 'Schooling Blue Chromis, Yellow Tangs, Flame Angels, Cleaner Shrimp colonies',
-      corals: 'Hardy SPS corals, pulsing Xenias, and large Polyp stony corals',
+      corals: 'Hardy SPS specimens, pulsing Xenias, and large polyp stony reef species',
     },
     introduction:
       'Positioned at the epicenter of Apex Energy Holdings global headquarters in Salt Lake Sector V, this 4,200-liter cylindrical column redefines corporate architecture.',
@@ -324,7 +324,7 @@ export const INITIAL_CASE_STUDIES: DefaultCaseStudySeed[] = [
     id: 'ballygunge-heritage-villa-reef',
     slug: 'ballygunge-heritage-villa-reef',
     title: 'The Ballygunge Heritage Villa Reef',
-    subtitle: 'Integrated Living Coral Reef in Historic Millwork',
+    subtitle: 'Integrated Living Marine Reef in Historic Millwork',
     eyebrow: 'CASE STUDY 03',
     projectId: 'CP-2024-003',
     space: 'Heritage Colonial Bungalow, Ballygunge, Kolkata',
@@ -346,7 +346,7 @@ export const INITIAL_CASE_STUDIES: DefaultCaseStudySeed[] = [
       afterImage: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200&q=85',
       beforeLabel: 'Antique Millwork Alcove',
       afterLabel: 'Protected Micro-Climate Reef',
-      caption: 'Preserving centenarian Burmese teak paneling while inserting an autonomous, zero-humidity living coral ecosystem.',
+      caption: 'Preserving centenarian Burmese teak paneling while inserting an autonomous, zero-humidity living reef ecosystem.',
     },
     imageStatus: 'VERIFIED',
     designIntent:
@@ -388,7 +388,7 @@ export const INITIAL_CASE_STUDIES: DefaultCaseStudySeed[] = [
     published: true,
     publishedAt: new Date('2024-05-24'),
     featured: true,
-    seoTitle: 'The Ballygunge Heritage Villa Reef — Living Coral Case Study | Marine Creatures',
+    seoTitle: 'The Ballygunge Heritage Villa Reef — Living Reef Case Study | Marine Creatures',
     seoDescription:
       'A 3,200-liter bespoke marine reef seamlessly embedded into century-old Burmese teak paneling in Ballygunge, Kolkata.',
   },

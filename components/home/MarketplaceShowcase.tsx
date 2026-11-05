@@ -9,7 +9,7 @@ import { ScrollReveal } from '@/components/ui/ScrollReveal';
 
 const FILTERS = [
   { id: 'all', label: 'All Products' },
-  { id: 'marine-life', label: 'Fish & Corals' },
+  { id: 'marine-life', label: 'Fish & Reef Life' },
   { id: 'lighting-tech', label: 'Lighting & Tech' },
   { id: 'rock-sand', label: 'Live Rock & Sand' },
   { id: 'salt-chemistry', label: 'Salts & Chemistry' },

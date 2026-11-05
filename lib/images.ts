@@ -62,7 +62,7 @@ export const IMAGES = {
   // Materials
   materials: {
     rock: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200&q=85',
-    coral:
+    reef:
       'https://images.unsplash.com/photo-1601459427108-47e20b8dcd65?w=1200&q=85',
     substrate:
       'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1200&q=85',

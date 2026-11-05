@@ -8,7 +8,7 @@ import { PRODUCTS } from '@/lib/data/products';
 export const metadata: Metadata = {
   title: 'Marine Aquarium Lighting & Nemo LED Systems',
   description:
-    'Comprehensive guide to marine aquarium lighting, coral fluorescence, and NemoLight Extreme II smart LED fixtures (E450, E600, E900, E1200). Compare models, tank lengths, and app control.',
+    'Comprehensive guide to marine aquarium lighting, reef fluorescence, and NemoLight Extreme II smart LED fixtures (E450, E600, E900, E1200). Compare models, tank lengths, and app control.',
   alternates: {
     canonical: `${SITE_CONFIG.url}/marketplace/lighting`,
   },
@@ -48,7 +48,7 @@ const NEMO_MODELS = [
     channels: '4 Independent Spectrum Channels',
     material: 'Aircraft-Grade Anodized Aluminum',
     mounting: 'Extendable Sliding Rim Brackets (up to 12mm glass)',
-    useCase: 'Nano marine tanks, LPS/Soft coral nano reefs, clownfish pairs',
+    useCase: 'Nano marine tanks, LPS/Soft reef nano tanks, clownfish pairs',
     inStock: true,
   },
   {
@@ -72,7 +72,7 @@ const NEMO_MODELS = [
     channels: '4 Independent Spectrum Channels',
     material: 'Aircraft-Grade Anodized Aluminum',
     mounting: 'Extendable Sliding Rim Brackets (up to 12mm glass)',
-    useCase: '3-foot display aquariums, vibrant coral gardens, active tangs',
+    useCase: '3-foot display aquariums, vibrant reef gardens, active tangs',
     inStock: true,
   },
   {
@@ -174,7 +174,7 @@ export default function LightingCategoryPage() {
           </h1>
           <p className="font-body text-slate-300 text-base sm:text-lg leading-relaxed max-w-3xl">
             Lighting is the biological heartbeat of a marine aquarium. Captive
-            corals rely on symbiotic zooxanthellae algae that demand targeted
+            photosynthetic reef life relies on symbiotic zooxanthellae algae that demand targeted
             photosynthetically active radiation (PAR) spanning actinic blue,
             violet, and daylight spectrums. Explore the app-controlled NemoLight
             Extreme Series II and discover the exact model engineered for your
@@ -191,10 +191,10 @@ export default function LightingCategoryPage() {
               01
             </div>
             <h2 className="text-white font-medium text-lg">
-              Photosynthesis &amp; Coral Health
+              Photosynthesis &amp; Reef Health
             </h2>
             <p className="text-slate-400 text-sm leading-relaxed">
-              Zooxanthellae inside coral tissue absorb light energy primarily
+              Zooxanthellae inside reef specimen tissue absorb light energy primarily
               between 420nm and 460nm (violet and deep royal blue). Balanced
               marine lighting fuels calcification and stimulates natural
               pigment fluorescence without promoting nuisance brown algae.
