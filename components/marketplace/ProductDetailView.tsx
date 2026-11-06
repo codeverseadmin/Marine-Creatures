@@ -34,6 +34,8 @@ export function ProductDetailView({
 
   // Selected variant state
   const [selectedVariant, setSelectedVariant] = useState<string>(initialVariantId || product.variants?.[0]?.id || '');
+  const selectedVariantObj = product.variants?.find((v) => v.id === selectedVariant);
+  const activePrice = selectedVariantObj?.price !== undefined ? selectedVariantObj.price : product.price;
 
   // Unified Media List (Photos + Videos)
   const mediaItems: ProductMedia[] = React.useMemo(() => {
@@ -127,8 +129,13 @@ export function ProductDetailView({
 
   const handleAddToCart = (e: React.MouseEvent) => {
     const variantObj = product.variants?.find((v) => v.id === selectedVariant);
-    const itemToAdd = variantObj
-      ? { ...product, name: `${product.name} — ${variantObj.name}` }
+    const itemToAdd: Product = variantObj
+      ? {
+          ...product,
+          id: variantObj.price !== undefined ? `${product.id}__${variantObj.id}` : product.id,
+          name: `${product.name} — ${variantObj.name}`,
+          price: variantObj.price !== undefined ? variantObj.price : product.price,
+        }
       : product;
     addToCart(itemToAdd, quantity, e);
     setAdded(true);
@@ -142,8 +149,8 @@ export function ProductDetailView({
     const locInfo = pincode ? ` (Delivery Pincode: ${pincode})` : '';
     const variantObj = product.variants?.find((v) => v.id === selectedVariant);
     const variantText = variantObj ? ` [Variant: ${variantObj.name}]` : '';
-    const hasPrice = product.price > 0 && !product.priceOnRequest;
-    const priceText = hasPrice ? ` (₹${product.price.toLocaleString('en-IN')})` : ' (Price on Request)';
+    const hasPrice = activePrice > 0 && !product.priceOnRequest;
+    const priceText = hasPrice ? ` (₹${activePrice.toLocaleString('en-IN')})` : ' (Price on Request)';
     const message = `Hi Marine Creatures! I would like to inquire about the ${product.name}${variantText}${priceText}${locInfo}.\n\nCan you confirm delivery timing and live availability for my location?`;
     const encoded = encodeURIComponent(message);
     window.open(`https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encoded}`, '_blank');
@@ -369,12 +376,12 @@ export function ProductDetailView({
                 {product.name}
               </h1>
               <div className="flex flex-wrap items-baseline gap-3 sm:gap-4 pt-1">
-                {product.price > 0 && !product.priceOnRequest ? (
+                {activePrice > 0 && !product.priceOnRequest ? (
                   <>
                     <span className="font-display text-2xl sm:text-4xl text-white font-light">
-                      ₹{product.price.toLocaleString('en-IN')}
+                      ₹{activePrice.toLocaleString('en-IN')}
                     </span>
-                    {(product.compareAtPrice || product.originalPrice) && (product.compareAtPrice || product.originalPrice)! > product.price && (
+                    {(product.compareAtPrice || product.originalPrice) && (product.compareAtPrice || product.originalPrice)! > activePrice && (
                       <span className="text-xs sm:text-base text-slate-500 line-through">
                         ₹{(product.compareAtPrice || product.originalPrice)!.toLocaleString('en-IN')}
                       </span>
@@ -467,7 +474,7 @@ export function ProductDetailView({
                               : 'bg-white/[0.03] border-white/10 text-slate-300 hover:border-white/25 hover:text-white'
                           }`}
                         >
-                          {v.name}
+                          {v.name}{v.price !== undefined ? ` — ₹${v.price.toLocaleString('en-IN')}` : ''}
                         </button>
                       );
                     })}
@@ -622,14 +629,14 @@ export function ProductDetailView({
                       ) : product.priceOnRequest || product.price === 0 ? (
                         'ADD TO BAG — PRICE ON REQUEST'
                       ) : (
-                        `ADD TO BAG — ₹${(product.price * quantity).toLocaleString('en-IN')}`
+                        `ADD TO BAG — ₹${(activePrice * quantity).toLocaleString('en-IN')}`
                       )}
                     </button>
                   </>
                 ) : (
                   <a
                     href={`https://wa.me/919330436603?text=${encodeURIComponent(
-                      `Hello Suraj, I am interested in ${product.name}${product.price > 0 && !product.priceOnRequest ? ` (₹${product.price.toLocaleString('en-IN')})` : ' (Price on Request)'}. Please notify me when it is back in stock at Marine Creatures!`
+                      `Hello Suraj, I am interested in ${product.name}${selectedVariantObj ? ` (${selectedVariantObj.name})` : ''}${activePrice > 0 && !product.priceOnRequest ? ` (₹${activePrice.toLocaleString('en-IN')})` : ' (Price on Request)'}. Please notify me when it is back in stock at Marine Creatures!`
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -674,7 +681,7 @@ export function ProductDetailView({
               {/* Request Live Feeding Video button */}
               <button
                 onClick={() => {
-                  const priceStr = product.price > 0 && !product.priceOnRequest ? ` (₹${product.price.toLocaleString('en-IN')})` : ' (Price on Request)';
+                  const priceStr = activePrice > 0 && !product.priceOnRequest ? ` (₹${activePrice.toLocaleString('en-IN')})` : ' (Price on Request)';
                   const message = `Hi Marine Creatures! I am interested in the ${product.name}${priceStr}. Could you please share a quick 10-second quarantine tank feeding clip or live video before I order?`;
                   window.open(`https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
                 }}

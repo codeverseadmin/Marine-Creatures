@@ -32,6 +32,24 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+function resolveCanonicalCartProduct(product: Product): Product {
+  if (!product || !product.id) return product;
+  const [baseId, variantId] = product.id.split('__');
+  const baseProduct = PRODUCTS.find((p) => p.id === baseId);
+  if (!baseProduct) return product;
+  if (variantId) {
+    const variantObj = baseProduct.variants?.find((v) => v.id === variantId);
+    return {
+      ...baseProduct,
+      id: product.id,
+      name: `${baseProduct.name} — ${variantObj?.name || variantId}`,
+      price: variantObj?.price ?? product.price,
+    };
+  }
+  return baseProduct;
+}
+
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -48,7 +66,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         if (Array.isArray(parsed)) {
           // Reconcile with canonical catalog to eradicate any stale/wrong product data
           const reconciled = parsed.map((item: CartItem) => {
-            const canonical = PRODUCTS.find((p) => p.id === item.product?.id);
+            const canonical = resolveCanonicalCartProduct(item.product);
             return canonical ? { ...item, product: canonical } : item;
           });
           setCart(reconciled);
@@ -70,7 +88,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [cart, isMounted]);
 
   const addToCart = (product: Product, quantity = 1, event?: React.MouseEvent) => {
-    const canonical = PRODUCTS.find((p) => p.id === product.id) || product;
+    const canonical = resolveCanonicalCartProduct(product);
     const resolved = resolveProductImage(canonical);
 
     // 1. Trigger Fly-to-Cart Animation if click coordinates exist

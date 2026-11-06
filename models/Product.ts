@@ -54,6 +54,7 @@ export interface IProductDocument extends Document {
     id: string;
     name: string;
     sku?: string;
+    price?: number;
     specs?: Record<string, string>;
     inStock?: boolean;
   }>;
@@ -138,6 +139,7 @@ const ProductSchema = new Schema<IProductDocument>(
         id: String,
         name: String,
         sku: String,
+        price: Number,
         specs: Schema.Types.Mixed,
         inStock: Boolean,
       },
