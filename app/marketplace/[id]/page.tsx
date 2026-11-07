@@ -8,6 +8,8 @@ import { generateProductJsonLd, generateBreadcrumbJsonLd } from '@/lib/seo/struc
 import { CATALOG_SEO_MAP } from '@/lib/seo/catalogSeoData';
 import { resolveAuthoritativeProduct } from '@/lib/services/product-resolution';
 
+export const dynamic = 'force-dynamic';
+
 interface Props {
   params: Promise<{ id: string }>;
 }
@@ -78,6 +80,15 @@ async function resolveProductAndVariant(id: string): Promise<{
   try {
     const mongoDoc = await resolveAuthoritativeProduct(id, { lean: true });
     if (mongoDoc) {
+      // Strip admin-only internalNotes for customer product detail view
+      if (mongoDoc.warranty) {
+        delete (mongoDoc.warranty as any).internalNotes;
+      }
+      if (Array.isArray(mongoDoc.variants)) {
+        mongoDoc.variants.forEach((v: any) => {
+          if (v.warranty) delete v.warranty.internalNotes;
+        });
+      }
       return {
         product: mongoDoc as any,
         canonicalSlug: mongoDoc.slug || mongoDoc.id,

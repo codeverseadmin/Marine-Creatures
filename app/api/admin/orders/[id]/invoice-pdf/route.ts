@@ -173,6 +173,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
           price:         unitPrice,
           quantity:      item.quantity || 1,
           categoryLabel: item.category || '',
+          warranty:      item.warranty,
         };
       }),
       totalAmount:       order.totalAmount,

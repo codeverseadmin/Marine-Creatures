@@ -90,6 +90,24 @@ export function generateProductJsonLd(
     jsonLd.additionalProperty = additionalProperties;
   }
 
+  // Authoritative Warranty Structured Data (MC-FEATURE-PRODUCT-WARRANTY-V1)
+  const effectiveWarranty = selectedVariant?.warranty && selectedVariant.warranty.enabled !== undefined
+    ? selectedVariant.warranty
+    : product.warranty;
+
+  if (effectiveWarranty && effectiveWarranty.enabled) {
+    const unitCode = effectiveWarranty.durationUnit === 'years' ? 'ANN' : effectiveWarranty.durationUnit === 'months' ? 'MON' : 'DAY';
+    jsonLd.warranty = {
+      '@type': 'WarrantyPromise',
+      durationOfWarranty: {
+        '@type': 'QuantitativeValue',
+        value: effectiveWarranty.durationValue || 1,
+        unitCode,
+      },
+      warrantyScope: effectiveWarranty.terms || `${effectiveWarranty.durationValue} ${effectiveWarranty.durationUnit} ${effectiveWarranty.provider} warranty`,
+    };
+  }
+
   return jsonLd;
 }
 

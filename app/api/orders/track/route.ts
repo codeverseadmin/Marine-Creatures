@@ -227,6 +227,7 @@ export async function GET(req: NextRequest) {
               price: typeof it.agreedUnitPrice === 'number' && it.agreedUnitPrice > 0 ? it.agreedUnitPrice : (it.price || 0),
               priceOnRequest: Boolean(it.priceOnRequest),
               pricingStatus: it.pricingStatus || (it.priceOnRequest ? 'PENDING_POR' : 'STANDARD'),
+              warranty: it.warranty,
             })),
           },
         },

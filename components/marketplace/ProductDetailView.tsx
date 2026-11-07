@@ -111,10 +111,20 @@ export function ProductDetailView({
   const [added, setAdded] = useState(false);
   const [pincode, setPincode] = useState('');
   const [pincodeChecked, setPincodeChecked] = useState(false);
+  const [showWarrantyTerms, setShowWarrantyTerms] = useState(false);
   const [dynamicReviewStats, setDynamicReviewStats] = useState<{
     count: number;
     averageRating: number | null;
   } | null>(null);
+
+  // Effective Warranty Resolution (MC-FEATURE-PRODUCT-WARRANTY-V1)
+  // Variant-level override takes precedence if configured; otherwise inherit product-level setting
+  const activeVariantObj = product.variants?.find((v) => v.id.toLowerCase() === selectedVariant.toLowerCase());
+  const effectiveWarranty = (activeVariantObj && activeVariantObj.warranty && typeof activeVariantObj.warranty.enabled === 'boolean')
+    ? activeVariantObj.warranty
+    : product.warranty;
+
+  const isWarrantyEnabled = Boolean(effectiveWarranty && effectiveWarranty.enabled);
 
   useEffect(() => {
     let isMounted = true;
@@ -157,6 +167,7 @@ export function ProductDetailView({
           id: `${product.id}__${variantObj.id}`,
           name: `${product.name} — ${variantObj.name}`,
           price: variantObj.price !== undefined ? variantObj.price : product.price,
+          warranty: variantObj.warranty && variantObj.warranty.enabled !== undefined ? variantObj.warranty : product.warranty,
         }
       : product;
     addToCart(itemToAdd, quantity, e);
@@ -639,6 +650,60 @@ export function ProductDetailView({
               )}
             </div>
 
+            {/* ── Product Warranty Coverage Block (MC-FEATURE-PRODUCT-WARRANTY-V1) ── */}
+            <div className="p-4 sm:p-5 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.7)] space-y-2.5 text-xs">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <div className="flex items-center gap-2 text-white font-medium">
+                  <span className="text-base">🛡️</span>
+                  <span className="font-semibold">Warranty Policy</span>
+                </div>
+
+                {isWarrantyEnabled && effectiveWarranty ? (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 shadow-sm">
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                    {`${effectiveWarranty.durationValue} ${effectiveWarranty.durationUnit} ${effectiveWarranty.provider === 'manufacturer' ? 'Manufacturer' : 'Seller'} Warranty`}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-medium text-slate-400 bg-slate-800/80 border border-slate-700">
+                    No Warranty
+                  </span>
+                )}
+              </div>
+
+              {isWarrantyEnabled && effectiveWarranty ? (
+                <div className="space-y-2 pt-2 border-t border-white/5">
+                  <p className="text-[11px] sm:text-xs text-[--color-muted] leading-relaxed">
+                    This item carries an authentic <strong className="text-white font-medium">{`${effectiveWarranty.durationValue} ${effectiveWarranty.durationUnit}`}</strong> warranty serviced by the <strong className="text-cyan-300 font-medium">{effectiveWarranty.provider === 'manufacturer' ? 'authorized manufacturer' : 'Marine Creatures studio'}</strong>.
+                  </p>
+
+                  {effectiveWarranty.terms ? (
+                    <div>
+                      <button
+                        type="button"
+                        onClick={() => setShowWarrantyTerms((prev) => !prev)}
+                        className="text-[11px] font-semibold text-cyan-400 hover:text-cyan-300 underline inline-flex items-center gap-1 transition-colors"
+                      >
+                        <span>{showWarrantyTerms ? '▲ Hide Warranty Terms' : '▼ View Full Warranty Terms & Coverage Scope'}</span>
+                      </button>
+
+                      <div className={`mt-2.5 p-3.5 rounded-xl bg-black/60 border border-cyan-500/20 text-[11px] text-slate-300 whitespace-pre-line leading-relaxed font-sans shadow-inner ${showWarrantyTerms ? 'block' : 'hidden'}`}>
+                        <strong className="block text-white mb-1.5 uppercase text-[10px] tracking-wider text-cyan-300">
+                          {`Official ${effectiveWarranty.provider === 'manufacturer' ? 'Manufacturer' : 'Seller'} Warranty Terms:`}
+                        </strong>
+                        {effectiveWarranty.terms}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              ) : (
+                <div className="pt-2 border-t border-white/5">
+                  <p className="text-[11px] sm:text-xs text-slate-400 leading-relaxed">
+                    No Warranty applies to this product. Protected under standard live transit &amp; DOA guarantee protocols.
+                  </p>
+                </div>
+              )}
+            </div>
+
             {/* Quantity and Add to Bag */}
             <div className="space-y-3.5 pt-1">
               <div className="flex items-center gap-3 sm:gap-4">
@@ -1055,6 +1120,38 @@ export function ProductDetailView({
                     <p className="text-xs text-[--color-muted] leading-relaxed">
                       Handled via express climate cargo flights directly connecting our aquaculture hubs to your local airport courier depot.
                     </p>
+                  </div>
+
+                  {/* 4b. Product Warranty Details */}
+                  <div className="p-6 rounded-3xl border border-[rgba(255,255,255,0.08)] bg-[rgba(7,21,28,0.7)] backdrop-blur-xl space-y-3 md:col-span-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-semibold text-white flex items-center gap-2">
+                        <span>🛡️</span>
+                        <span>Product Warranty &amp; Coverage Specifications</span>
+                      </h4>
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase ${
+                        isWarrantyEnabled ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700'
+                      }`}>
+                        {isWarrantyEnabled ? 'Active Warranty' : 'No Warranty'}
+                      </span>
+                    </div>
+                    {isWarrantyEnabled && effectiveWarranty ? (
+                      <div className="space-y-2 text-xs">
+                        <p className="text-slate-300">
+                          Coverage: <strong className="text-white font-medium">{`${effectiveWarranty.durationValue} ${effectiveWarranty.durationUnit}`}</strong> ({effectiveWarranty.provider === 'manufacturer' ? 'Authorized Manufacturer Warranty' : 'Seller Warranty via Marine Creatures'})
+                        </p>
+                        {effectiveWarranty.terms ? (
+                          <div className="p-3 rounded-xl bg-black/40 border border-white/5 text-[11px] text-slate-400 leading-relaxed font-sans">
+                            <strong className="block text-slate-300 mb-1 text-[10px] uppercase tracking-wider">Applicable Terms &amp; Scope:</strong>
+                            {effectiveWarranty.terms}
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-[--color-muted] leading-relaxed">
+                        No Warranty is applicable to this catalog record. Standard 100% DOA Live Arrival Guarantee on Priority Air Cargo applies to all livestock.
+                      </p>
+                    )}
                   </div>
                 </div>
 

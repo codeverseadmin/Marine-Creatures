@@ -251,9 +251,10 @@ export async function POST(req: NextRequest) {
       let authoritativeUnitPrice = product.price;
       let authoritativeItemName = product.name;
       let resolvedItemId = product.id;
+      let matchedVariant: any = undefined;
 
       if (variantId) {
-        const matchedVariant = product.variants?.find(
+        matchedVariant = product.variants?.find(
           (v: any) =>
             v.id.toLowerCase() === variantId!.toLowerCase() ||
             (v.sku && v.sku.toLowerCase() === variantId!.toLowerCase())
@@ -330,6 +331,25 @@ export async function POST(req: NextRequest) {
         finalPriceOnRequest = false;
       }
 
+      // Authoritative Warranty Snapshot (MC-FEATURE-PRODUCT-WARRANTY-V1)
+      // Variant-level override takes precedence if explicitly configured; otherwise inherit product-level warranty
+      const itemWarrantySetting = (matchedVariant && matchedVariant.warranty && typeof matchedVariant.warranty.enabled === 'boolean')
+        ? matchedVariant.warranty
+        : product.warranty;
+
+      const hasWarranty = Boolean(itemWarrantySetting && itemWarrantySetting.enabled);
+      const warrantySnapshot = hasWarranty
+        ? {
+            hasWarranty: true,
+            provider: itemWarrantySetting.provider || 'manufacturer',
+            durationValue: typeof itemWarrantySetting.durationValue === 'number' ? itemWarrantySetting.durationValue : 1,
+            durationUnit: itemWarrantySetting.durationUnit || 'years',
+            terms: typeof itemWarrantySetting.terms === 'string' ? itemWarrantySetting.terms : '',
+          }
+        : {
+            hasWarranty: false,
+          };
+
       validatedItems.push({
         id: resolvedItemId,
         name: authoritativeItemName,
@@ -345,6 +365,7 @@ export async function POST(req: NextRequest) {
         priceOnRequest: finalPriceOnRequest,
         agreedUnitPrice,
         pricingStatus: finalPricingStatus,
+        warranty: warrantySnapshot,
       });
     }
 

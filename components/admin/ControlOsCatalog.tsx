@@ -99,6 +99,14 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
       careLevel: 'Moderate',
     },
     specifications: {},
+    warranty: {
+      enabled: false,
+      provider: 'manufacturer',
+      durationValue: 1,
+      durationUnit: 'years',
+      terms: '',
+      internalNotes: '',
+    },
     seoTitle: '',
     seoDescription: '',
     canonicalOverride: '',
@@ -272,6 +280,14 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
         careLevel: 'Moderate',
       },
       specifications: {},
+      warranty: {
+        enabled: false,
+        provider: 'manufacturer',
+        durationValue: 1,
+        durationUnit: 'years',
+        terms: '',
+        internalNotes: '',
+      },
       seoTitle: '',
       seoDescription: '',
       canonicalOverride: '',
@@ -303,6 +319,14 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
         careLevel: 'Moderate',
       },
       specifications: prod.specifications || {},
+      warranty: prod.warranty || {
+        enabled: false,
+        provider: 'manufacturer',
+        durationValue: 1,
+        durationUnit: 'years',
+        terms: '',
+        internalNotes: '',
+      },
       seoTitle: prod.seoTitle || '',
       seoDescription: prod.seoDescription || '',
       canonicalOverride: prod.canonicalOverride || '',
@@ -1454,7 +1478,7 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
                 { step: 1, label: '01 Basic' },
                 { step: 2, label: '02 Catalog' },
                 { step: 3, label: '03 Pricing & Stock' },
-                { step: 4, label: '04 Specifications' },
+                { step: 4, label: '04 Specs & Warranty' },
                 { step: 5, label: '05 Media' },
                 { step: 6, label: '06 SEO Health' },
                 { step: 7, label: '07 Review & Save' },
@@ -1966,16 +1990,17 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label className="font-semibold text-slate-200 block mb-1">Warranty Term</label>
+                          <label className="font-semibold text-slate-200 block mb-1">Operating Voltage / Input</label>
                           <input
                             type="text"
-                            value={formState.specifications?.['Warranty'] || '1 Year Authorized Manufacturer Warranty'}
+                            value={formState.specifications?.['Voltage'] || ''}
                             onChange={(e) =>
                               setFormState((prev) => ({
                                 ...prev,
-                                specifications: { ...prev.specifications, Warranty: e.target.value },
+                                specifications: { ...prev.specifications, Voltage: e.target.value },
                               }))
                             }
+                            placeholder="e.g. AC 100–240V, 50/60Hz"
                             className="w-full min-h-[42px] bg-slate-900 border border-slate-800 focus:border-cyan-400 rounded-xl px-3.5 text-xs text-white"
                           />
                         </div>
@@ -1997,6 +2022,314 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
                       </div>
                     </div>
                   )}
+
+                  {/* ── DEDICATED WARRANTY CONFIGURATION SECTION (MC-FEATURE-PRODUCT-WARRANTY-V1) ── */}
+                  <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-4 pt-4 mt-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+                      <div>
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
+                          <span>🛡️</span>
+                          <span>Product Warranty Governance &amp; Configuration</span>
+                        </h4>
+                        <p className="text-[11px] text-slate-400 mt-0.5">
+                          Configure product-specific warranty claims, duration, customer-facing terms, and internal service notes.
+                        </p>
+                      </div>
+                      <span className={`self-start sm:self-auto px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider border ${
+                        formState.warranty?.enabled
+                          ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                          : 'bg-slate-800 text-slate-400 border-slate-700'
+                      }`}>
+                        {formState.warranty?.enabled ? '✓ WARRANTY ENABLED' : '⊘ NO WARRANTY (DISABLED)'}
+                      </span>
+                    </div>
+
+                    {/* 1. Warranty Applicable Toggle */}
+                    <div className="space-y-2">
+                      <label className="font-semibold text-slate-200 block text-xs">
+                        Warranty Applicable <span className="text-rose-400">*</span>
+                      </label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setFormState((prev) => ({
+                            ...prev,
+                            warranty: {
+                              ...(prev.warranty || { durationValue: 1, durationUnit: 'years', provider: 'manufacturer', terms: '', internalNotes: '' }),
+                              enabled: false,
+                            },
+                          }))}
+                          className={`min-h-[42px] px-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition-all ${
+                            !formState.warranty?.enabled
+                              ? 'bg-slate-800 text-white border-slate-600 shadow'
+                              : 'bg-slate-950/60 text-slate-400 border-slate-800 hover:text-white'
+                          }`}
+                        >
+                          <span>⊘</span>
+                          <span>Disabled (No Warranty)</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setFormState((prev) => ({
+                            ...prev,
+                            warranty: {
+                              ...(prev.warranty || { terms: '', internalNotes: '' }),
+                              enabled: true,
+                              provider: prev.warranty?.provider || 'manufacturer',
+                              durationValue: prev.warranty?.durationValue || 1,
+                              durationUnit: prev.warranty?.durationUnit || 'years',
+                            },
+                          }))}
+                          className={`min-h-[42px] px-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition-all ${
+                            formState.warranty?.enabled
+                              ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400/40 shadow'
+                              : 'bg-slate-950/60 text-slate-400 border-slate-800 hover:text-white'
+                          }`}
+                        >
+                          <span>🛡️</span>
+                          <span>Enabled (Active Warranty)</span>
+                        </button>
+                      </div>
+                      {!formState.warranty?.enabled && (
+                        <p className="text-[11px] text-slate-500 italic pt-0.5">
+                          When disabled, duration and warranty claims are never advertised as active benefits. Default for new products.
+                        </p>
+                      )}
+                    </div>
+
+                    {/* 2. Active Warranty Configuration Fields (Visible when enabled) */}
+                    {formState.warranty?.enabled && (
+                      <div className="space-y-4 pt-3 border-t border-slate-800/60">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {/* Warranty Provider */}
+                          <div>
+                            <label className="font-semibold text-slate-200 block mb-1">
+                              Warranty Provider <span className="text-rose-400">*</span>
+                            </label>
+                            <select
+                              value={formState.warranty?.provider || 'manufacturer'}
+                              onChange={(e) => setFormState((prev) => ({
+                                ...prev,
+                                warranty: {
+                                  ...(prev.warranty || { enabled: true, durationValue: 1, durationUnit: 'years' }),
+                                  provider: e.target.value as 'manufacturer' | 'seller',
+                                },
+                              }))}
+                              className="w-full min-h-[42px] bg-slate-950 border border-slate-800 focus:border-cyan-400 rounded-xl px-3 text-xs text-white"
+                            >
+                              <option value="manufacturer">Manufacturer Warranty</option>
+                              <option value="seller">Seller / Marine Creatures Warranty</option>
+                            </select>
+                          </div>
+
+                          {/* Warranty Duration: Value & Unit */}
+                          <div>
+                            <label className="font-semibold text-slate-200 block mb-1">
+                              Warranty Duration <span className="text-rose-400">*</span>
+                            </label>
+                            <div className="grid grid-cols-2 gap-2">
+                              <input
+                                type="number"
+                                min="1"
+                                max="120"
+                                value={formState.warranty?.durationValue ?? 1}
+                                onChange={(e) => setFormState((prev) => ({
+                                  ...prev,
+                                  warranty: {
+                                    ...(prev.warranty || { enabled: true, provider: 'manufacturer', durationUnit: 'years' }),
+                                    durationValue: Math.max(1, parseInt(e.target.value) || 1),
+                                  },
+                                }))}
+                                className="w-full min-h-[42px] bg-slate-950 border border-slate-800 focus:border-cyan-400 rounded-xl px-3 text-xs font-mono text-white"
+                                placeholder="1"
+                              />
+                              <select
+                                value={formState.warranty?.durationUnit || 'years'}
+                                onChange={(e) => setFormState((prev) => ({
+                                  ...prev,
+                                  warranty: {
+                                    ...(prev.warranty || { enabled: true, provider: 'manufacturer', durationValue: 1 }),
+                                    durationUnit: e.target.value as 'days' | 'months' | 'years',
+                                  },
+                                }))}
+                                className="w-full min-h-[42px] bg-slate-950 border border-slate-800 focus:border-cyan-400 rounded-xl px-3 text-xs text-white"
+                              >
+                                <option value="days">Days</option>
+                                <option value="months">Months</option>
+                                <option value="years">Years</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Customer-Facing Warranty Terms */}
+                        <div>
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="font-semibold text-slate-200 block">
+                              Customer-Facing Warranty Terms &amp; Coverage
+                            </label>
+                            <span className="text-[10px] text-cyan-400 font-mono">Publicly Accessible</span>
+                          </div>
+                          <textarea
+                            rows={3}
+                            value={formState.warranty?.terms || ''}
+                            onChange={(e) => setFormState((prev) => ({
+                              ...prev,
+                              warranty: {
+                                ...(prev.warranty || { enabled: true }),
+                                terms: e.target.value,
+                              },
+                            }))}
+                            placeholder="Enter clear, customer-facing warranty coverage, claim requirements, and exclusions (e.g. 1 year coverage against electrical transformer failure; excludes physical breakage)..."
+                            className="w-full bg-slate-950 border border-slate-800 focus:border-cyan-400 rounded-xl p-3 text-xs text-white placeholder:text-slate-600 resize-y"
+                          />
+                        </div>
+
+                        {/* Internal Warranty Notes (Admin-only) */}
+                        <div>
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="font-semibold text-amber-300 block">
+                              Internal Warranty Notes &amp; RMA Protocol
+                            </label>
+                            <span className="text-[10px] text-amber-400/90 font-mono px-2 py-0.5 rounded bg-amber-500/15 border border-amber-500/30">
+                              🔒 Admin-Only • Never Exposed to Public
+                            </span>
+                          </div>
+                          <textarea
+                            rows={2}
+                            value={formState.warranty?.internalNotes || ''}
+                            onChange={(e) => setFormState((prev) => ({
+                              ...prev,
+                              warranty: {
+                                ...(prev.warranty || { enabled: true }),
+                                internalNotes: e.target.value,
+                              },
+                            }))}
+                            placeholder="Private supplier RMA escalation contact, distributor credit agreement reference, supplier ticket link..."
+                            className="w-full bg-slate-950 border border-amber-500/30 focus:border-amber-400 rounded-xl p-3 text-xs text-white placeholder:text-slate-600 resize-y"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 3. Variant Overrides Section (when product has variants) */}
+                    {formState.variants && formState.variants.length > 0 && (
+                      <div className="pt-4 border-t border-slate-800/80 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <h5 className="font-semibold text-slate-200 text-xs flex items-center gap-1.5">
+                            <span>⚙️</span>
+                            <span>Variant-Level Warranty Overrides ({formState.variants.length} Variants)</span>
+                          </h5>
+                          <span className="text-[10px] text-slate-400 font-mono">Inherits product setting by default</span>
+                        </div>
+
+                        <div className="space-y-2">
+                          {formState.variants.map((variant, vIdx) => {
+                            const hasOverride = variant.warranty !== undefined;
+                            return (
+                              <div key={variant.id || vIdx} className="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80 space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <div>
+                                    <span className="font-bold text-white text-xs">{variant.name}</span>
+                                    <span className="text-[10px] text-slate-500 font-mono ml-2">ID: {variant.id}</span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const updatedVariants = [...(formState.variants || [])];
+                                      if (hasOverride) {
+                                        delete updatedVariants[vIdx].warranty;
+                                      } else {
+                                        updatedVariants[vIdx].warranty = {
+                                          enabled: formState.warranty?.enabled ?? false,
+                                          provider: formState.warranty?.provider || 'manufacturer',
+                                          durationValue: formState.warranty?.durationValue || 1,
+                                          durationUnit: formState.warranty?.durationUnit || 'years',
+                                          terms: formState.warranty?.terms || '',
+                                          internalNotes: '',
+                                        };
+                                      }
+                                      setFormState((prev) => ({ ...prev, variants: updatedVariants }));
+                                    }}
+                                    className="px-2.5 py-1 rounded-lg text-[10px] font-semibold border transition-all text-slate-300 bg-slate-800 border-slate-700 hover:text-white"
+                                  >
+                                    {hasOverride ? 'Reset to Inherit Product Warranty' : '⚙️ Custom Variant Override'}
+                                  </button>
+                                </div>
+
+                                {hasOverride && variant.warranty && (
+                                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-slate-800/60">
+                                    <div>
+                                      <label className="text-[10px] text-slate-400 block mb-0.5">Coverage</label>
+                                      <select
+                                        value={variant.warranty.enabled ? 'true' : 'false'}
+                                        onChange={(e) => {
+                                          const updated = [...(formState.variants || [])];
+                                          updated[vIdx].warranty = { ...updated[vIdx].warranty!, enabled: e.target.value === 'true' };
+                                          setFormState((prev) => ({ ...prev, variants: updated }));
+                                        }}
+                                        className="w-full h-8 bg-slate-900 border border-slate-700 rounded-lg px-2 text-[11px] text-white"
+                                      >
+                                        <option value="true">Warranty Enabled</option>
+                                        <option value="false">No Warranty</option>
+                                      </select>
+                                    </div>
+
+                                    <div>
+                                      <label className="text-[10px] text-slate-400 block mb-0.5">Provider</label>
+                                      <select
+                                        value={variant.warranty.provider || 'manufacturer'}
+                                        onChange={(e) => {
+                                          const updated = [...(formState.variants || [])];
+                                          updated[vIdx].warranty = { ...updated[vIdx].warranty!, provider: e.target.value as any };
+                                          setFormState((prev) => ({ ...prev, variants: updated }));
+                                        }}
+                                        className="w-full h-8 bg-slate-900 border border-slate-700 rounded-lg px-2 text-[11px] text-white"
+                                      >
+                                        <option value="manufacturer">Manufacturer</option>
+                                        <option value="seller">Seller</option>
+                                      </select>
+                                    </div>
+
+                                    <div>
+                                      <label className="text-[10px] text-slate-400 block mb-0.5">Duration</label>
+                                      <div className="flex gap-1">
+                                        <input
+                                          type="number"
+                                          min="1"
+                                          value={variant.warranty.durationValue || 1}
+                                          onChange={(e) => {
+                                            const updated = [...(formState.variants || [])];
+                                            updated[vIdx].warranty = { ...updated[vIdx].warranty!, durationValue: parseInt(e.target.value) || 1 };
+                                            setFormState((prev) => ({ ...prev, variants: updated }));
+                                          }}
+                                          className="w-16 h-8 bg-slate-900 border border-slate-700 rounded-lg px-2 text-[11px] text-white font-mono"
+                                        />
+                                        <select
+                                          value={variant.warranty.durationUnit || 'years'}
+                                          onChange={(e) => {
+                                            const updated = [...(formState.variants || [])];
+                                            updated[vIdx].warranty = { ...updated[vIdx].warranty!, durationUnit: e.target.value as any };
+                                            setFormState((prev) => ({ ...prev, variants: updated }));
+                                          }}
+                                          className="w-full h-8 bg-slate-900 border border-slate-700 rounded-lg px-2 text-[11px] text-white"
+                                        >
+                                          <option value="days">Days</option>
+                                          <option value="months">Months</option>
+                                          <option value="years">Years</option>
+                                        </select>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -2416,6 +2749,14 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
                       <div>
                         <span className="text-slate-500 block text-[10px]">MEDIA ASSETS:</span>
                         <span className="text-slate-300">{formState.images?.length || 0} attached ({formState.imageStatus})</span>
+                      </div>
+                      <div className="col-span-2 pt-1 border-t border-slate-800/60 flex items-center justify-between">
+                        <span className="text-slate-500 text-[10px]">WARRANTY STATUS:</span>
+                        <span className={`text-[11px] font-mono font-bold ${formState.warranty?.enabled ? 'text-emerald-400' : 'text-slate-400'}`}>
+                          {formState.warranty?.enabled
+                            ? `🛡️ ${formState.warranty.durationValue} ${formState.warranty.durationUnit} (${formState.warranty.provider === 'seller' ? 'Seller' : 'Manufacturer'})`
+                            : '⊘ No Warranty'}
+                        </span>
                       </div>
                     </div>
                   </div>

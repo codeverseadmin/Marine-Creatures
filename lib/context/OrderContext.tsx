@@ -14,6 +14,13 @@ export interface OrderItem {
   pricedAt?: string;
   pricedBy?: string;
   originalPriceStatus?: string;
+  warranty?: {
+    hasWarranty: boolean;
+    provider?: 'manufacturer' | 'seller';
+    durationValue?: number;
+    durationUnit?: 'days' | 'months' | 'years';
+    terms?: string;
+  };
 }
 
 export interface StatusUpdateLog {

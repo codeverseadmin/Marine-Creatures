@@ -18,6 +18,15 @@ export interface ProductReview {
   images?: string[];
 }
 
+export interface ProductWarranty {
+  enabled: boolean;
+  provider?: 'manufacturer' | 'seller';
+  durationValue?: number;
+  durationUnit?: 'days' | 'months' | 'years';
+  terms?: string;
+  internalNotes?: string;
+}
+
 export interface ProductVariant {
   id: string;
   name: string;
@@ -25,6 +34,7 @@ export interface ProductVariant {
   price?: number;
   specs?: Record<string, string>;
   inStock?: boolean;
+  warranty?: ProductWarranty;
 }
 
 export interface ResearchSource {
@@ -90,6 +100,7 @@ export interface Product {
     includedInBox: string[];
   };
   specifications: Record<string, string>;
+  warranty?: ProductWarranty;
   recommendedPairings?: string[];
   reviews?: ProductReview[];
   researchStatus?: 'READY' | 'NEEDS_REVIEW' | 'RESEARCH_UNCERTAIN';

@@ -1,5 +1,14 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
+export interface IProductWarranty {
+  enabled: boolean;
+  provider?: 'manufacturer' | 'seller';
+  durationValue?: number;
+  durationUnit?: 'days' | 'months' | 'years';
+  terms?: string;
+  internalNotes?: string;
+}
+
 export interface IProductDocument extends Document {
   id: string;
   slug?: string;
@@ -58,7 +67,9 @@ export interface IProductDocument extends Document {
     price?: number;
     specs?: Record<string, string>;
     inStock?: boolean;
+    warranty?: IProductWarranty;
   }>;
+  warranty?: IProductWarranty;
   imageStatus?: 'VERIFIED' | 'NEEDS_LICENSE_REVIEW' | 'NEEDS_MEDIA_ASSET';
   researchStatus?: 'READY' | 'NEEDS_REVIEW' | 'RESEARCH_UNCERTAIN';
   researchSources?: Array<{
@@ -144,8 +155,30 @@ const ProductSchema = new Schema<IProductDocument>(
         price: Number,
         specs: Schema.Types.Mixed,
         inStock: Boolean,
+        warranty: {
+          type: new Schema(
+            {
+              enabled: { type: Boolean },
+              provider: { type: String, enum: ['manufacturer', 'seller'] },
+              durationValue: { type: Number },
+              durationUnit: { type: String, enum: ['days', 'months', 'years'] },
+              terms: { type: String },
+              internalNotes: { type: String },
+            },
+            { _id: false }
+          ),
+          required: false,
+        },
       },
     ],
+    warranty: {
+      enabled: { type: Boolean, default: false },
+      provider: { type: String, enum: ['manufacturer', 'seller'], default: 'manufacturer' },
+      durationValue: { type: Number, default: 1 },
+      durationUnit: { type: String, enum: ['days', 'months', 'years'], default: 'years' },
+      terms: { type: String, default: '' },
+      internalNotes: { type: String, default: '' },
+    },
     imageStatus: { type: String, default: 'VERIFIED' },
     researchStatus: { type: String, default: 'READY' },
     researchSources: [

@@ -2,6 +2,14 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export type PorPricingStatus = 'STANDARD' | 'PENDING_POR' | 'AGREED';
 
+export interface IOrderWarrantySnapshot {
+  hasWarranty: boolean;
+  provider?: 'manufacturer' | 'seller';
+  durationValue?: number;
+  durationUnit?: 'days' | 'months' | 'years';
+  terms?: string;
+}
+
 export interface IOrderItem {
   id: string;
   name: string;
@@ -15,6 +23,7 @@ export interface IOrderItem {
   pricedAt?: string;
   pricedBy?: string;
   originalPriceStatus?: string;
+  warranty?: IOrderWarrantySnapshot;
 }
 
 export interface IOrderHistory {
@@ -37,6 +46,7 @@ export interface IInvoiceRevision {
     price: number;
     agreedUnitPrice?: number;
     category?: string;
+    warranty?: IOrderWarrantySnapshot;
   }>;
   reason?: string;
 }
@@ -90,6 +100,13 @@ const OrderItemSchema = new Schema<IOrderItem>(
     pricedAt: { type: String },
     pricedBy: { type: String },
     originalPriceStatus: { type: String },
+    warranty: {
+      hasWarranty: { type: Boolean, default: false },
+      provider: { type: String, enum: ['manufacturer', 'seller'] },
+      durationValue: { type: Number },
+      durationUnit: { type: String, enum: ['days', 'months', 'years'] },
+      terms: { type: String },
+    },
   },
   { _id: false }
 );

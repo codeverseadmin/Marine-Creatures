@@ -65,6 +65,7 @@ function mapTrackDataToCustomerOrder(t: any, existingOrder?: CustomerOrder | nul
           pricingStatus: it.pricingStatus,
           pricedAt: it.pricedAt,
           pricedBy: it.pricedBy,
+          warranty: it.warranty,
         };
       })
     : (existingOrder?.items || []);
@@ -551,9 +552,20 @@ export function OrderTrackingModal() {
                             <h5 className="text-xs sm:text-sm font-semibold text-white truncate">
                               {product.name}
                             </h5>
-                            <span className="text-xs text-slate-400">
-                              Qty: <strong className="text-white">{quantity}</strong>
-                            </span>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-xs text-slate-400">
+                                Qty: <strong className="text-white">{quantity}</strong>
+                              </span>
+                              {item.warranty?.hasWarranty ? (
+                                <span className="text-[10px] text-cyan-400 font-medium">
+                                  • 🛡️ {item.warranty.durationValue} {item.warranty.durationUnit} ({item.warranty.provider === 'manufacturer' ? 'Manufacturer' : 'Seller'})
+                                </span>
+                              ) : (
+                                <span className="text-[10px] text-slate-500">
+                                  • No Warranty
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
 

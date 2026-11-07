@@ -515,6 +515,13 @@ export interface ExecutiveInvoiceOrderData {
     pricingStatus?: string;
     pricedAt?: string;
     pricedBy?: string;
+    warranty?: {
+      hasWarranty: boolean;
+      provider?: string;
+      durationValue?: number;
+      durationUnit?: string;
+      terms?: string;
+    };
   }>;
   totalAmount: number;
   subtotal?: number;
@@ -554,6 +561,7 @@ export function InvoicePDFDocument({ order }: { order: ExecutiveInvoiceOrderData
         price:         item.product.price,
         quantity:      item.quantity || 1,
         categoryLabel: item.product.categoryLabel || '',
+        warranty:      item.warranty || (item.product as any)?.warranty,
       };
     }
     return {
@@ -561,6 +569,7 @@ export function InvoicePDFDocument({ order }: { order: ExecutiveInvoiceOrderData
       price:         item.price,
       quantity:      item.quantity || 1,
       categoryLabel: item.categoryLabel || item.category || '',
+      warranty:      item.warranty,
     };
   });
 
@@ -697,6 +706,15 @@ export function InvoicePDFDocument({ order }: { order: ExecutiveInvoiceOrderData
                 {item.categoryLabel ? (
                   <Text style={styles.tableCellSub}>{item.categoryLabel}</Text>
                 ) : null}
+                {item.warranty?.hasWarranty ? (
+                  <Text style={[styles.tableCellSub, { color: C.ocean }]}>
+                    Warranty: {item.warranty.durationValue} {item.warranty.durationUnit} ({item.warranty.provider === 'manufacturer' ? 'Manufacturer' : 'Seller'})
+                  </Text>
+                ) : (
+                  <Text style={[styles.tableCellSub, { color: C.muted }]}>
+                    Warranty: No Warranty
+                  </Text>
+                )}
               </View>
               <Text style={[styles.tableCell, styles.colHsn, { color: C.muted }]}>0301</Text>
               <Text style={[styles.tableCell, styles.tableCellBold, styles.colQty]}>{item.quantity}</Text>

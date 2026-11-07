@@ -218,6 +218,28 @@ export async function POST(req: NextRequest) {
 
     const itemType = body.itemType || (body.category === 'marine-life' ? 'live' : 'dry');
 
+    // Default warranty status for new products: DISABLED until explicitly configured (MC-FEATURE-PRODUCT-WARRANTY-V1)
+    const defaultWarranty = {
+      enabled: false,
+      provider: 'manufacturer' as const,
+      durationValue: 1,
+      durationUnit: 'years' as const,
+      terms: '',
+      internalNotes: '',
+    };
+
+    let validatedWarranty = defaultWarranty;
+    if (body.warranty && typeof body.warranty === 'object') {
+      validatedWarranty = {
+        enabled: Boolean(body.warranty.enabled),
+        provider: ['manufacturer', 'seller'].includes(body.warranty.provider) ? body.warranty.provider : 'manufacturer',
+        durationValue: typeof body.warranty.durationValue === 'number' && body.warranty.durationValue > 0 ? body.warranty.durationValue : 1,
+        durationUnit: ['days', 'months', 'years'].includes(body.warranty.durationUnit) ? body.warranty.durationUnit : 'years',
+        terms: typeof body.warranty.terms === 'string' ? body.warranty.terms.slice(0, 5000) : '',
+        internalNotes: typeof body.warranty.internalNotes === 'string' ? body.warranty.internalNotes.slice(0, 5000) : '',
+      };
+    }
+
     const productPayload = {
       ...body,
       id: slug,
@@ -235,6 +257,7 @@ export async function POST(req: NextRequest) {
       imageStatus: body.imageStatus || 'NEEDS_MEDIA_ASSET',
       researchStatus: body.researchStatus || 'READY',
       isArchived: Boolean(body.isArchived ?? false),
+      warranty: validatedWarranty,
     };
 
     const created = await ProductModel.create(productPayload);
@@ -396,6 +419,39 @@ export async function PATCH(req: NextRequest) {
       updates.price = 0;
     }
 
+    // Warranty payload validation & normalization (MC-FEATURE-PRODUCT-WARRANTY-V1)
+    if (updates.warranty !== undefined) {
+      if (typeof updates.warranty !== 'object' || updates.warranty === null) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid warranty payload. Must be an object.' },
+          { status: 400 }
+        );
+      }
+
+      const enabled = Boolean(updates.warranty.enabled);
+      const provider = ['manufacturer', 'seller'].includes(updates.warranty.provider)
+        ? updates.warranty.provider
+        : 'manufacturer';
+      const durationValue =
+        typeof updates.warranty.durationValue === 'number' && updates.warranty.durationValue > 0
+          ? updates.warranty.durationValue
+          : 1;
+      const durationUnit = ['days', 'months', 'years'].includes(updates.warranty.durationUnit)
+        ? updates.warranty.durationUnit
+        : 'years';
+      const terms = typeof updates.warranty.terms === 'string' ? updates.warranty.terms.slice(0, 5000) : '';
+      const internalNotes = typeof updates.warranty.internalNotes === 'string' ? updates.warranty.internalNotes.slice(0, 5000) : '';
+
+      updates.warranty = {
+        enabled,
+        provider,
+        durationValue,
+        durationUnit,
+        terms,
+        internalNotes,
+      };
+    }
+
     const updated = await ProductModel.findOneAndUpdate({ id: resolvedCanonicalId }, updates, { new: true }).lean();
 
     await recordAuditLog({
@@ -408,6 +464,34 @@ export async function PATCH(req: NextRequest) {
       },
       req,
     });
+
+    // Granular Audit Log for Warranty Configuration Changes (MC-FEATURE-PRODUCT-WARRANTY-V1)
+    if (updates.warranty !== undefined) {
+      const previousWarranty = existing.warranty || {
+        enabled: false,
+        provider: 'manufacturer',
+        durationValue: 1,
+        durationUnit: 'years',
+        terms: '',
+        internalNotes: '',
+      };
+
+      const statusLabel = updates.warranty.enabled ? 'ENABLED' : 'DISABLED';
+      await recordAuditLog({
+        action: 'PRODUCT_WARRANTY_UPDATED',
+        entityType: 'product',
+        entityId: resolvedCanonicalId,
+        entityName: updated?.name || existing.name,
+        summary: `Updated warranty configuration for "${updated?.name || existing.name}" (${resolvedCanonicalId}): ${statusLabel}`,
+        details: {
+          previousWarranty,
+          newWarranty: updates.warranty,
+          actor: auth.actorEmail || 'mc_admin_session',
+          changedAt: new Date().toISOString(),
+        },
+        req,
+      });
+    }
 
     return NextResponse.json({ success: true, data: updated });
   } catch (error: any) {

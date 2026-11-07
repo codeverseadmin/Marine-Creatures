@@ -49,9 +49,28 @@ export async function GET() {
       const genuineStats = statsByProductId.get(p.id);
       const { rating: _legacyRating, reviewsCount: _legacyCount, ...rest } = p;
 
+      // Sanitize admin-only warranty internalNotes for public storefront consumers
+      let publicWarranty = undefined;
+      if (p.warranty) {
+        const { internalNotes: _internalNotes, ...restWarranty } = p.warranty;
+        publicWarranty = restWarranty;
+      }
+
+      const publicVariants = Array.isArray(p.variants)
+        ? p.variants.map((v: any) => {
+            if (v.warranty) {
+              const { internalNotes: _vInternalNotes, ...restVWarranty } = v.warranty;
+              return { ...v, warranty: restVWarranty };
+            }
+            return v;
+          })
+        : p.variants;
+
       return {
         ...rest,
         itemType: (p.category === 'marine-life' || p.itemType === 'live') ? 'live' : 'dry',
+        warranty: publicWarranty,
+        variants: publicVariants,
         ...(genuineStats
           ? { rating: genuineStats.rating, reviewsCount: genuineStats.reviewsCount }
           : { reviewsCount: 0 }),

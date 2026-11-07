@@ -731,7 +731,18 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
                           <ProductThumbnail product={item.product || item} sizeClassName="w-10 h-10 rounded-lg" />
                           <div>
                             <h5 className="font-semibold text-white text-xs">{item.name}</h5>
-                            <span className="text-[10px] text-slate-400">Qty: {item.quantity}</span>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-[10px] text-slate-400">Qty: {item.quantity}</span>
+                              {item.warranty?.hasWarranty ? (
+                                <span className="text-[10px] text-cyan-400 font-mono">
+                                  🛡️ {item.warranty.durationValue} {item.warranty.durationUnit} ({item.warranty.provider === 'manufacturer' ? 'Mfg' : 'Seller'})
+                                </span>
+                              ) : (
+                                <span className="text-[10px] text-slate-500 font-mono">
+                                  No Warranty
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                         <span className="font-mono font-bold text-emerald-400 text-xs">

@@ -554,19 +554,31 @@ export default function InvoicePage({ params }: InvoicePageProps) {
                   <td className="p-3 text-center font-mono text-slate-500 print:text-slate-700">{idx + 1}</td>
                   <td className="p-3">
                     <div className="font-bold text-white print:text-black text-xs sm:text-sm">
-                      {item.product.name}
+                      {item.product?.name || item.name}
                     </div>
                     <div className="text-[11px] text-slate-400 print:text-slate-600">
-                      Category: {item.product.categoryLabel}
+                      Category: {item.product?.categoryLabel || item.category || 'Marine Supplies'}
                     </div>
+                    {(item.warranty?.hasWarranty || item.product?.warranty?.enabled) ? (
+                      <div className="text-[11px] text-cyan-400 print:text-sky-700 font-semibold flex items-center gap-1 mt-0.5">
+                        <span>🛡️</span>
+                        <span>
+                          {item.warranty?.durationValue || item.product?.warranty?.durationValue} {item.warranty?.durationUnit || item.product?.warranty?.durationUnit} ({item.warranty?.provider === 'seller' || item.product?.warranty?.provider === 'seller' ? 'Seller' : 'Manufacturer'} Warranty)
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="text-[11px] text-slate-500 print:text-slate-600 mt-0.5">
+                        Warranty: No Warranty
+                      </div>
+                    )}
                   </td>
                   <td className="p-3 text-center font-mono text-slate-400 print:text-slate-700">0301</td>
                   <td className="p-3 text-center font-mono font-bold text-white print:text-black">{item.quantity}</td>
                   <td className="p-3 text-right font-mono text-slate-300 print:text-black">
-                    ₹{item.product.price.toLocaleString('en-IN')}
+                    ₹{(item.product?.price ?? item.price ?? 0).toLocaleString('en-IN')}
                   </td>
                   <td className="p-3 text-right font-mono font-bold text-cyan-300 print:text-black">
-                    ₹{(item.product.price * item.quantity).toLocaleString('en-IN')}
+                    ₹{((item.product?.price ?? item.price ?? 0) * item.quantity).toLocaleString('en-IN')}
                   </td>
                 </tr>
               ))}
