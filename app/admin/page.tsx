@@ -16,6 +16,7 @@ import { ControlOsAnalytics } from '@/components/admin/ControlOsAnalytics';
 import { ControlOsEmployees } from '@/components/admin/ControlOsEmployees';
 import { ControlOsSystem } from '@/components/admin/ControlOsSystem';
 import { ControlOsReviews } from '@/components/admin/ControlOsReviews';
+import { ControlOsPromotions } from '@/components/admin/ControlOsPromotions';
 import { GlobalSearchModal } from '@/components/admin/GlobalSearchModal';
 
 interface AdminPageProps {
@@ -315,6 +316,14 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
       isImplemented: true,
       description: 'First-party customer review moderation and concierge invitation links',
     },
+    {
+      id: 'promotions',
+      label: 'Promotions',
+      icon: '🏷️',
+      badge: 'Active',
+      isImplemented: true,
+      description: 'Promotional discount coupons, usage limits, customer tiers, and campaign analytics',
+    },
   ];
 
   // Permission-aware tab filtering
@@ -329,6 +338,15 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
         return ['reviews.read', 'reviews.moderate', 'reviews.invite.create'].some((p) =>
           perms.includes(p)
         );
+      case 'promotions':
+        return [
+          'promotions.view',
+          'promotions.create',
+          'promotions.update',
+          'promotions.activate',
+          'promotions.deactivate',
+          'promotions.analytics',
+        ].some((p) => perms.includes(p));
       case 'employees':
         return perms.includes('employees.read') || perms.includes('roles.read');
       case 'sales':
@@ -717,6 +735,15 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
               <ControlOsReviews
                 initialSubtab={activeSubtab as any}
                 showToast={showToast}
+              />
+            )}
+
+            {/* Promotions & Coupon Engine Module */}
+            {activeTab === 'promotions' && (
+              <ControlOsPromotions
+                initialSubtab={activeSubtab as any}
+                showToast={showToast}
+                currentUser={currentUser}
               />
             )}
           </main>

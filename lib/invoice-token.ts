@@ -93,6 +93,17 @@ export function serializeCustomerInvoice(order: any) {
     approvedAt: order.approvedAt || null,
     subtotal: order.subtotal ?? (order.totalAmount || 0),
     totalAmount: order.totalAmount || 0,
+    coupon: order.coupon
+      ? {
+          code: order.coupon.code,
+          discountType: order.coupon.discountType,
+          discountValue: order.coupon.discountValue,
+          discountAmount: order.coupon.discountAmount,
+          eligibleSubtotal: order.coupon.eligibleSubtotal,
+          appliedAt: order.coupon.appliedAt,
+          description: order.coupon.description || undefined,
+        }
+      : undefined,
     items: Array.isArray(order.items)
       ? order.items.map((it: any) => ({
           product: {

@@ -9,6 +9,7 @@ import { requirePermission, requireAnyPermission, resolveAuthContext } from '@/l
 import { recordAuditLog } from '@/lib/audit';
 import { generateInvoiceToken } from '@/lib/invoice-token';
 import { getClientIp, checkRateLimit, rateLimitResponse } from '@/lib/rate-limit';
+import { validateAndCalculateCoupon, recordCouponRedemption } from '@/lib/services/promotion-engine';
 
 export const dynamic = 'force-dynamic';
 
@@ -371,7 +372,34 @@ export async function POST(req: NextRequest) {
 
     // Authoritative subtotal calculation — completely ignores client subtotal & totalAmount
     const subtotal = validatedItems.reduce((sum: number, it: any) => sum + it.price * it.quantity, 0);
-    const totalAmount = subtotal;
+    let totalAmount = subtotal;
+    let couponSnapshot: any = undefined;
+
+    // Optional Promotional Coupon Application
+    const couponCode = typeof body.couponCode === 'string' ? body.couponCode.trim() : undefined;
+    if (couponCode) {
+      const couponValidation = await validateAndCalculateCoupon(couponCode, validatedItems, phone);
+      if (!couponValidation.valid || !couponValidation.coupon) {
+        return NextResponse.json(
+          { success: false, error: couponValidation.error || 'Invalid coupon code.' },
+          { status: 400 }
+        );
+      }
+
+      const validatedCoupon = couponValidation.coupon;
+      totalAmount = Math.max(0, subtotal - validatedCoupon.discountAmount);
+      couponSnapshot = {
+        couponId: validatedCoupon.id,
+        code: validatedCoupon.code,
+        discountType: validatedCoupon.discountType,
+        discountValue: validatedCoupon.discountValue,
+        discountAmount: validatedCoupon.discountAmount,
+        eligibleSubtotal: validatedCoupon.eligibleSubtotal,
+        appliedAt: new Date().toISOString(),
+        description: validatedCoupon.description || '',
+      };
+    }
+
     const hasUnresolvedPorItems = validatedItems.some(
       (i: any) => i.priceOnRequest || i.pricingStatus === 'PENDING_POR'
     );
@@ -452,6 +480,7 @@ export async function POST(req: NextRequest) {
       items: validatedItems,
       subtotal,
       totalAmount,
+      coupon: couponSnapshot,
       currentStep,
       hasUnresolvedPorItems,
       awbNumber,
@@ -495,6 +524,45 @@ export async function POST(req: NextRequest) {
         { success: false, error: 'Failed to create order after collision retries. Please try again.' },
         { status: 409 }
       );
+    }
+
+    // Atomic Coupon Redemption Commitment
+    if (couponSnapshot) {
+      const redemptionResult = await recordCouponRedemption({
+        couponId: couponSnapshot.couponId,
+        couponCode: couponSnapshot.code,
+        orderId: id,
+        customerPhone: phone,
+        customerName,
+        discountAmount: couponSnapshot.discountAmount,
+        eligibleSubtotal: couponSnapshot.eligibleSubtotal,
+        orderTotal: totalAmount,
+      });
+
+      if (!redemptionResult.success) {
+        // Rollback created order to strictly prevent limit bypass or orphaned discount
+        await OrderModel.deleteOne({ id });
+        return NextResponse.json(
+          { success: false, error: redemptionResult.error || 'Coupon usage limit was reached during checkout.' },
+          { status: 409 }
+        );
+      }
+
+      // Record audit log for authoritative coupon redemption
+      await recordAuditLog({
+        action: 'COUPON_REDEEMED',
+        entityType: 'coupon',
+        entityId: couponSnapshot.couponId,
+        entityName: couponSnapshot.code,
+        summary: `Coupon ${couponSnapshot.code} redeemed for Order #${id} (Savings: ₹${couponSnapshot.discountAmount})`,
+        details: {
+          orderId: id,
+          customerPhone: phone.replace(/\D/g, ''),
+          discountAmount: couponSnapshot.discountAmount,
+          orderTotal: totalAmount,
+        },
+        req,
+      });
     }
 
     const newOrder = createdOrderDoc.toObject();

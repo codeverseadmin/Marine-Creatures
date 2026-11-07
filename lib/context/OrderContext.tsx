@@ -52,6 +52,17 @@ export interface CustomerOrder {
   approvedAt?: string;
   invoiceNumber?: string;
   invoiceToken?: string;
+  coupon?: {
+    couponId?: string;
+    code: string;
+    discountType: 'percentage' | 'fixed';
+    discountValue: number;
+    discountAmount: number;
+    eligibleSubtotal: number;
+    appliedAt: string;
+    description?: string;
+  };
+  couponCode?: string;
   hasUnresolvedPorItems?: boolean;
   porPricingResolvedAt?: string;
   porPricingResolvedBy?: string;
@@ -375,6 +386,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ...newOrder,
+        couponCode: orderData.couponCode,
         subtotal,
         totalAmount: newOrder.totalAmount,
         createdAt: now,
@@ -414,6 +426,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
                     invoiceToken: token || o.invoiceToken,
                     subtotal: serverOrder?.subtotal ?? o.subtotal,
                     totalAmount: serverOrder?.totalAmount ?? o.totalAmount,
+                    coupon: serverOrder?.coupon || o.coupon,
                   }
                 : o
             )
@@ -427,6 +440,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
                   invoiceToken: token || curr.invoiceToken,
                   subtotal: serverOrder?.subtotal ?? curr.subtotal,
                   totalAmount: serverOrder?.totalAmount ?? curr.totalAmount,
+                  coupon: serverOrder?.coupon || curr.coupon,
                 }
               : curr
           );

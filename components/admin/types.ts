@@ -9,6 +9,7 @@ export type ControlOsSection =
   | 'employees'
   | 'system'
   | 'reviews'
+  | 'promotions'
   | 'crm'; // Alias preserved for backwards compatibility
 
 export type SalesSubtab = 'orders' | 'enquiries' | 'customers' | 'follow-ups';
@@ -20,6 +21,7 @@ export type AnalyticsSubtab = 'business' | 'products' | 'customers' | 'traffic';
 export type SystemSubtab = 'audit' | 'backups' | 'health' | 'security' | 'settings';
 export type EmployeeSubtab = 'directory' | 'roles';
 export type ReviewsSubtab = 'pending' | 'approved' | 'rejected' | 'invitations';
+export type PromotionsSubtab = 'coupons' | 'analytics' | 'redemptions';
 
 export type AdminTab = ControlOsSection;
 

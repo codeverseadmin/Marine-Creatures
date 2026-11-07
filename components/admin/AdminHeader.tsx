@@ -91,6 +91,13 @@ export function AdminHeader({
           shortTitle: 'System',
           phase: 'Live',
         };
+      case 'promotions':
+        return {
+          title: 'Promotions & Coupons Engine',
+          desc: 'Authoritative discount coupon management, campaign limits, and redemption governance',
+          shortTitle: 'Promotions',
+          phase: 'Live',
+        };
       default:
         return {
           title: 'Control OS',

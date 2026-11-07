@@ -414,6 +414,44 @@ export const PERMISSIONS_REGISTRY: Record<string, PermissionDefinition> = {
     name: 'Generate Review Invitations',
     description: 'Create single-use cryptographic review invitation links for delivered orders and SKUs.',
   },
+
+  // ── Promotions & Coupons ──────────────────────────────────────────────────
+  'promotions.view': {
+    id: 'promotions.view',
+    category: 'Promotions',
+    name: 'View Promotions & Coupons',
+    description: 'Inspect coupon configurations, discount types, validity periods, and usage limits.',
+  },
+  'promotions.create': {
+    id: 'promotions.create',
+    category: 'Promotions',
+    name: 'Create Promotions & Coupons',
+    description: 'Draft new percentage and fixed discount coupons with product and customer eligibility rules.',
+  },
+  'promotions.update': {
+    id: 'promotions.update',
+    category: 'Promotions',
+    name: 'Update Promotions & Coupons',
+    description: 'Modify active or draft coupon parameters, expiry dates, and usage limits.',
+  },
+  'promotions.activate': {
+    id: 'promotions.activate',
+    category: 'Promotions',
+    name: 'Activate Promotions',
+    description: 'Enable draft or paused promotional coupons for public customer redemption.',
+  },
+  'promotions.deactivate': {
+    id: 'promotions.deactivate',
+    category: 'Promotions',
+    name: 'Deactivate / Pause Promotions',
+    description: 'Pause or permanently deactivate coupons to prevent further customer redemptions.',
+  },
+  'promotions.analytics': {
+    id: 'promotions.analytics',
+    category: 'Promotions',
+    name: 'View Promotion Analytics',
+    description: 'Analyze aggregate redemption volume, discount expenditure, and promotion conversion performance.',
+  },
 };
 
 export const ALL_PERMISSIONS: string[] = Object.keys(PERMISSIONS_REGISTRY);
@@ -471,6 +509,10 @@ export const SYSTEM_ROLES: Record<string, SystemRoleDefinition> = {
       'reviews.read',
       'reviews.moderate',
       'reviews.invite.create',
+      'promotions.view',
+      'promotions.activate',
+      'promotions.deactivate',
+      'promotions.analytics',
     ],
   },
 
@@ -529,6 +571,10 @@ export const SYSTEM_ROLES: Record<string, SystemRoleDefinition> = {
       'reviews.read',
       'reviews.moderate',
       'reviews.invite.create',
+      'promotions.view',
+      'promotions.activate',
+      'promotions.deactivate',
+      'promotions.analytics',
     ],
   },
 

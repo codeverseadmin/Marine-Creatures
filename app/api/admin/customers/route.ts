@@ -6,6 +6,7 @@ import { InquiryModel } from '@/models/Inquiry';
 import { ClientProjectModel } from '@/models/ClientProject';
 import { MaintenanceRecordModel } from '@/models/MaintenanceRecord';
 import { FollowUpModel } from '@/models/FollowUp';
+import { CouponRedemptionModel } from '@/models/CouponRedemption';
 import { requirePermission, requireAnyPermission } from '@/lib/rbac/guard';
 import { recordAuditLog } from '@/lib/audit';
 
@@ -36,12 +37,13 @@ export async function GET(req: NextRequest) {
       const phoneRegex = new RegExp(cleanPhone, 'i');
 
       // Aggregate all customer activities across business modules
-      const [orders, enquiries, projects, maintenance, followUps] = await Promise.all([
+      const [orders, enquiries, projects, maintenance, followUps, couponRedemptions] = await Promise.all([
         OrderModel.find({ phone: phoneRegex }).sort({ _id: -1 }).lean(),
         InquiryModel.find({ phone: phoneRegex }).sort({ _id: -1 }).lean(),
         ClientProjectModel.find({ clientPhone: phoneRegex, isArchived: { $ne: true } }).sort({ _id: -1 }).lean(),
         MaintenanceRecordModel.find({ customerPhone: phoneRegex }).sort({ serviceDate: -1 }).lean(),
         FollowUpModel.find({ customerPhone: phoneRegex }).sort({ dueDate: 1 }).lean(),
+        CouponRedemptionModel.find({ customerPhone: phoneRegex }).sort({ redeemedAt: -1 }).lean(),
       ]);
 
       // Calculate total actual spend and order count
@@ -56,11 +58,13 @@ export async function GET(req: NextRequest) {
           enquiriesCount: enquiries.length,
           projectsCount: projects.length,
           maintenanceCount: maintenance.length,
+          couponRedemptionsCount: couponRedemptions.length,
           orders,
           enquiries,
           projects,
           maintenance,
           followUps,
+          couponRedemptions,
         },
       });
     }

@@ -59,7 +59,14 @@ export type AuditAction =
   | 'REVIEW_SUBMITTED'
   | 'REVIEW_APPROVED'
   | 'REVIEW_REJECTED'
-  | 'REVIEW_INVITATION_CREATED';
+  | 'REVIEW_INVITATION_CREATED'
+  | 'COUPON_CREATED'
+  | 'COUPON_UPDATED'
+  | 'COUPON_ACTIVATED'
+  | 'COUPON_PAUSED'
+  | 'COUPON_DEACTIVATED'
+  | 'COUPON_DELETED'
+  | 'COUPON_REDEEMED';
 
 export type AuditEntityType =
   | 'product'
@@ -77,7 +84,9 @@ export type AuditEntityType =
   | 'employee'
   | 'role'
   | 'review'
-  | 'review_invitation';
+  | 'review_invitation'
+  | 'coupon'
+  | 'promotion';
 
 export interface IAuditLogDocument extends Document {
   action: AuditAction;

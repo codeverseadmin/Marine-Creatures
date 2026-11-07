@@ -159,6 +159,20 @@ const SECTION_METADATA: Record<
       'Dynamic Zero-Fabrication Rating Aggregation',
     ],
   },
+  promotions: {
+    title: 'Promotions & Coupons Management',
+    code: 'PROMOTIONS_OS',
+    phase: 'Live',
+    icon: '🏷️',
+    description:
+      'Authoritative discount coupons, campaign limits, eligibility rules, and real-time redemption analytics.',
+    plannedCapabilities: [
+      'Configurable Percentage and Fixed Monetary Discounts',
+      'Exclusion-Precedent Category and Product Restrictions',
+      'Race-Safe Concurrency Protected Usage Accounting',
+      'Customer 360 Redemption History and Immutable Snapshots',
+    ],
+  },
 };
 
 export function ControlOsPlaceholder({

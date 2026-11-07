@@ -354,6 +354,12 @@ const styles = StyleSheet.create({
     fontSize:   10,
     color:      C.white,
   },
+  summaryValDiscount: {
+    fontFamily:    'Helvetica-Bold',
+    fontSize:      8.5,
+    color:         '#059669',
+    letterSpacing: 0.2,
+  },
 
   // ── Footer & Signatory ─────────────────────────────────────────────────────
   footerSection: {
@@ -525,6 +531,14 @@ export interface ExecutiveInvoiceOrderData {
   }>;
   totalAmount: number;
   subtotal?: number;
+  coupon?: {
+    code: string;
+    discountType?: string;
+    discountValue?: number;
+    discountAmount: number;
+    eligibleSubtotal?: number;
+    description?: string;
+  };
   courierName?: string;
   awbNumber?: string;
   estimatedDelivery?: string;
@@ -746,6 +760,12 @@ export function InvoicePDFDocument({ order }: { order: ExecutiveInvoiceOrderData
               <Text style={styles.summaryLabel}>Subtotal</Text>
               <Text style={styles.summaryVal}>{'\u20B9'}{displaySubtotal.toLocaleString('en-IN')}</Text>
             </View>
+            {order.coupon && order.coupon.discountAmount > 0 && (
+              <View style={styles.summaryRow}>
+                <Text style={styles.summaryLabel}>Coupon ({order.coupon.code})</Text>
+                <Text style={styles.summaryValDiscount}>-{'\u20B9'}{order.coupon.discountAmount.toLocaleString('en-IN')}</Text>
+              </View>
+            )}
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Thermal Pod Packaging</Text>
               <Text style={styles.summaryValFree}>Complimentary</Text>

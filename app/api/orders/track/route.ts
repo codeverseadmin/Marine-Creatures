@@ -218,6 +218,12 @@ export async function GET(req: NextRequest) {
             awbNumber: order.awbNumber || null,
             totalAmount: order.totalAmount,
             subtotal: order.subtotal,
+            coupon: order.coupon
+              ? {
+                  code: order.coupon.code,
+                  discountAmount: order.coupon.discountAmount,
+                }
+              : undefined,
             items: (order.items || []).map((it: any) => ({
               id: it.id || it.product?.id,
               name: it.name || it.product?.name,

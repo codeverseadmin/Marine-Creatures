@@ -1069,7 +1069,7 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
                 </div>
 
                 {/* Metrics strip */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 text-center text-xs font-mono">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3 text-center text-xs font-mono">
                   <div className="bg-[#050f18] p-3 rounded-xl border border-slate-800">
                     <span className="text-slate-400 block text-[10px]">Total Spend</span>
                     <strong className="text-emerald-400 text-sm">₹{activeCustomerDossier.totalSpend?.toLocaleString('en-IN')}</strong>
@@ -1085,6 +1085,10 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
                   <div className="bg-[#050f18] p-3 rounded-xl border border-slate-800">
                     <span className="text-slate-400 block text-[10px]">Maintenance Logs</span>
                     <strong className="text-cyan-400 text-sm">{activeCustomerDossier.maintenanceCount}</strong>
+                  </div>
+                  <div className="bg-[#050f18] p-3 rounded-xl border border-slate-800">
+                    <span className="text-slate-400 block text-[10px]">Coupons Used</span>
+                    <strong className="text-amber-400 text-sm">{activeCustomerDossier.couponRedemptionsCount || 0}</strong>
                   </div>
                 </div>
 
@@ -1107,6 +1111,46 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
                           <div className="text-right">
                             <span className="font-mono font-bold text-emerald-400 block">₹{ord.totalAmount?.toLocaleString('en-IN')}</span>
                             <span className="text-[10px] uppercase font-mono text-cyan-300">{ord.currentStep}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Coupon Redemptions History */}
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                    Promotional Coupon Redemptions ({activeCustomerDossier.couponRedemptions?.length || 0})
+                  </h4>
+                  {(!activeCustomerDossier.couponRedemptions || activeCustomerDossier.couponRedemptions.length === 0) ? (
+                    <p className="text-xs text-slate-500 italic">No coupons redeemed by this client.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {activeCustomerDossier.couponRedemptions.map((red: any) => (
+                        <div key={red.id} className="p-3 rounded-xl bg-[#050f18] border border-slate-800 flex items-center justify-between text-xs">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono font-bold text-amber-300">🏷️ {red.couponCode}</span>
+                              <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                                -₹{red.discountAmount?.toLocaleString('en-IN')}
+                              </span>
+                            </div>
+                            <span className="text-[11px] text-slate-400 font-mono block mt-1">
+                              Order: #{red.orderId} • Order Total: ₹{red.orderTotal?.toLocaleString('en-IN')}
+                            </span>
+                          </div>
+                          <div className="text-right">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-300">
+                              {red.status || 'completed'}
+                            </span>
+                            <span className="text-[10px] text-slate-500 block mt-1">
+                              {new Date(red.redeemedAt || red.createdAt).toLocaleDateString('en-IN', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                              })}
+                            </span>
                           </div>
                         </div>
                       ))}

@@ -609,9 +609,17 @@ export default function InvoicePage({ params }: InvoicePageProps) {
             <div className="flex justify-between py-1 border-b border-slate-800/80 print:border-black/20">
               <span className="text-slate-400 print:text-slate-600">Specimen Subtotal:</span>
               <span className="font-mono font-semibold text-white print:text-black">
-                ₹{order.totalAmount.toLocaleString('en-IN')}
+                ₹{(order.subtotal ?? order.totalAmount).toLocaleString('en-IN')}
               </span>
             </div>
+            {order.coupon && order.coupon.discountAmount > 0 && (
+              <div className="flex justify-between py-1 border-b border-slate-800/80 print:border-black/20 text-emerald-400 print:text-emerald-700">
+                <span className="font-medium">Coupon Discount ({order.coupon.code}):</span>
+                <span className="font-mono font-semibold">
+                  -₹{order.coupon.discountAmount.toLocaleString('en-IN')}
+                </span>
+              </div>
+            )}
             <div className="flex justify-between py-1 border-b border-slate-800/80 print:border-black/20">
               <span className="text-slate-400 print:text-slate-600">Applicable Taxes &amp; Packaging:</span>
               <span className="font-mono text-emerald-400 print:text-black font-semibold">

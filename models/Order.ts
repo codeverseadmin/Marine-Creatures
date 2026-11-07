@@ -10,6 +10,17 @@ export interface IOrderWarrantySnapshot {
   terms?: string;
 }
 
+export interface IOrderCouponSnapshot {
+  couponId: string;
+  code: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  discountAmount: number;
+  eligibleSubtotal: number;
+  appliedAt: string;
+  description?: string;
+}
+
 export interface IOrderItem {
   id: string;
   name: string;
@@ -48,6 +59,7 @@ export interface IInvoiceRevision {
     category?: string;
     warranty?: IOrderWarrantySnapshot;
   }>;
+  coupon?: IOrderCouponSnapshot;
   reason?: string;
 }
 
@@ -62,6 +74,7 @@ export interface IOrderDocument extends Document {
   items: IOrderItem[];
   subtotal: number;
   totalAmount: number;
+  coupon?: IOrderCouponSnapshot;
   currentStep: 'placed' | 'quarantine' | 'packed' | 'dispatched' | 'delivered';
   hasUnresolvedPorItems?: boolean;
   porPricingResolvedAt?: string;
@@ -133,6 +146,16 @@ const InvoiceRevisionSchema = new Schema<IInvoiceRevision>(
     subtotal: { type: Number, required: true },
     totalAmount: { type: Number, required: true },
     items: { type: [OrderItemSchema], default: [] },
+    coupon: {
+      couponId: String,
+      code: String,
+      discountType: { type: String, enum: ['percentage', 'fixed'] },
+      discountValue: Number,
+      discountAmount: Number,
+      eligibleSubtotal: Number,
+      appliedAt: String,
+      description: String,
+    },
     reason: { type: String },
   },
   { _id: false }
@@ -150,6 +173,16 @@ const OrderSchema = new Schema<IOrderDocument>(
     items: { type: [OrderItemSchema], default: [] },
     subtotal: { type: Number, default: 0 },
     totalAmount: { type: Number, required: true },
+    coupon: {
+      couponId: { type: String, index: true },
+      code: { type: String, uppercase: true, trim: true, index: true },
+      discountType: { type: String, enum: ['percentage', 'fixed'] },
+      discountValue: { type: Number },
+      discountAmount: { type: Number, default: 0 },
+      eligibleSubtotal: { type: Number, default: 0 },
+      appliedAt: { type: String },
+      description: { type: String },
+    },
     currentStep: {
       type: String,
       enum: ['placed', 'quarantine', 'packed', 'dispatched', 'delivered'],

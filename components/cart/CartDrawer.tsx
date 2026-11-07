@@ -33,6 +33,74 @@ export function CartDrawer() {
   const [placedOrderId, setPlacedOrderId] = useState<string | null>(null);
   const [animating, setAnimating] = useState(false);
 
+  // Promotional Coupon State
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [couponSuccess, setCouponSuccess] = useState<string | null>(null);
+
+  const finalPayableTotal = appliedCoupon
+    ? Math.max(0, cartTotal - (appliedCoupon.discountAmount || 0))
+    : cartTotal;
+
+  const handleApplyCoupon = async (overrideCode?: string) => {
+    const code = (overrideCode || couponInput).trim();
+    if (!code) {
+      setCouponError('Please enter a coupon code');
+      return;
+    }
+
+    if (cart.length === 0) {
+      setCouponError('Your cart is empty');
+      return;
+    }
+
+    setCouponLoading(true);
+    setCouponError(null);
+    setCouponSuccess(null);
+
+    try {
+      const res = await fetch('/api/promotions/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code,
+          items: cart.map((i) => ({
+            id: i.product.id,
+            name: i.product.name,
+            price: i.product.price,
+            quantity: i.quantity,
+            category: i.product.category,
+            priceOnRequest: i.product.priceOnRequest,
+          })),
+          customerPhone: customerPhone.replace(/\D/g, '') || undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.valid && data.coupon) {
+        setAppliedCoupon(data.coupon);
+        setCouponSuccess(`Coupon ${data.coupon.code} applied (-₹${data.coupon.discountAmount.toLocaleString('en-IN')})`);
+        setCouponError(null);
+      } else {
+        setAppliedCoupon(null);
+        setCouponError(data.error || 'Invalid or ineligible coupon code.');
+      }
+    } catch {
+      setCouponError('Unable to validate coupon. Please check connection and retry.');
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponInput('');
+    setCouponError(null);
+    setCouponSuccess(null);
+  };
+
   // Reset step when drawer opens
   useEffect(() => {
     if (isCartOpen) {
@@ -119,7 +187,8 @@ export function CartDrawer() {
       orderNotes: orderNotes.trim() || undefined,
       items: cart.map((i) => ({ product: i.product, quantity: i.quantity })),
       subtotal: cartTotal,
-      totalAmount: cartTotal,
+      totalAmount: finalPayableTotal,
+      couponCode: appliedCoupon?.code,
       estimatedDelivery: 'Tomorrow via Priority Air Cargo',
     });
 
@@ -134,9 +203,18 @@ export function CartDrawer() {
       )
       .join('\n');
 
-    const totalStr = cartTotal > 0 ? `₹${cartTotal.toLocaleString('en-IN')}` : 'Price on Request (Quarantine/Specimen Confirmation)';
+    const totalStr =
+      finalPayableTotal > 0
+        ? `₹${finalPayableTotal.toLocaleString('en-IN')}${
+            appliedCoupon ? ` (Saved ₹${appliedCoupon.discountAmount} with ${appliedCoupon.code})` : ''
+          }`
+        : 'Price on Request (Quarantine/Specimen Confirmation)';
 
-    const message = `🌊 *NEW ORDER / INQUIRY — MARINE CREATURES* 🌊\n*Order ID:* #${newOrder.id}\n\n👤 *CUSTOMER DETAILS:*\n• *Name:* ${customerName.trim()}\n• *Phone:* +91 ${cleanPhone}\n• *Delivery Address:* ${customerAddress.trim()}\n• *City & Pincode:* ${customerCity.trim()} (${customerPincode.trim()})${orderNotes.trim() ? `\n• *Special Notes:* ${orderNotes.trim()}` : ''}\n\n📦 *ORDERED SPECIMENS & ITEMS:*\n${itemsSummary}\n\n*Total Value:* ${totalStr}\n*Thermal Pod Packaging:* Insulated Climate Pod`;
+    const couponLine = appliedCoupon
+      ? `\n• *Promotional Coupon:* ${appliedCoupon.code} (-₹${appliedCoupon.discountAmount.toLocaleString('en-IN')})`
+      : '';
+
+    const message = `🌊 *NEW ORDER / INQUIRY — MARINE CREATURES* 🌊\n*Order ID:* #${newOrder.id}\n\n👤 *CUSTOMER DETAILS:*\n• *Name:* ${customerName.trim()}\n• *Phone:* +91 ${cleanPhone}\n• *Delivery Address:* ${customerAddress.trim()}\n• *City & Pincode:* ${customerCity.trim()} (${customerPincode.trim()})${orderNotes.trim() ? `\n• *Special Notes:* ${orderNotes.trim()}` : ''}\n\n📦 *ORDERED SPECIMENS & ITEMS:*\n${itemsSummary}${couponLine}\n\n*Total Value:* ${totalStr}\n*Thermal Pod Packaging:* Insulated Climate Pod`;
 
     const encoded = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encoded}`;
@@ -334,17 +412,95 @@ export function CartDrawer() {
       {/* Footer — Non-scrolling sticky action region */}
       {cart.length > 0 && (
         <div className="p-5 sm:p-6 border-t border-[rgba(255,255,255,0.08)] bg-[rgba(2,7,11,0.95)] space-y-3 shrink-0 pb-safe">
+          {/* Coupon Code Input / Applied Badge */}
+          <div className="pb-2 border-b border-[rgba(255,255,255,0.06)]">
+            {!appliedCoupon ? (
+              <div className="space-y-1.5">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="PROMO CODE"
+                    value={couponInput}
+                    onChange={(e) => {
+                      setCouponInput(e.target.value.toUpperCase());
+                      if (couponError) setCouponError(null);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleApplyCoupon();
+                      }
+                    }}
+                    className="flex-1 h-9 px-3 rounded-xl bg-black/60 border border-white/10 text-xs font-mono tracking-wider text-white placeholder:text-slate-500 uppercase focus:outline-none focus:border-cyan-400"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleApplyCoupon()}
+                    disabled={couponLoading || !couponInput.trim()}
+                    className="h-9 px-3.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 disabled:opacity-40 text-slate-950 font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center shrink-0 shadow-sm active:scale-95"
+                  >
+                    {couponLoading ? (
+                      <span className="w-3.5 h-3.5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      'APPLY'
+                    )}
+                  </button>
+                </div>
+                {couponError && (
+                  <p className="text-[11px] text-red-400 flex items-center gap-1 pt-0.5">
+                    <span>⚠️</span>
+                    <span>{couponError}</span>
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">🏷️</span>
+                  <div>
+                    <span className="font-mono font-bold text-emerald-300">{appliedCoupon.code}</span>
+                    <span className="text-[11px] text-emerald-400 font-semibold ml-2">
+                      -₹{appliedCoupon.discountAmount.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRemoveCoupon}
+                  className="text-[11px] text-slate-400 hover:text-red-300 font-semibold transition-colors"
+                >
+                  ✕ Remove
+                </button>
+              </div>
+            )}
+          </div>
+
           <div className="flex items-center justify-between">
-            <span className="text-[--color-muted] text-sm font-light">
-              {cartTotal > 0 ? 'Subtotal' : 'Pricing'}
+            <span className="text-[--color-muted] text-xs font-light">
+              {cartTotal > 0 ? 'Specimen Subtotal' : 'Pricing'}
             </span>
-            <span className="font-display text-2xl text-[--color-text] font-light">
+            <span className="font-mono text-sm text-[--color-text]">
               {cartTotal > 0 ? `₹${cartTotal.toLocaleString('en-IN')}` : 'Price on Request'}
             </span>
           </div>
-          <div className="flex items-center justify-between text-xs text-[--color-muted] border-b border-[rgba(255,255,255,0.06)] pb-3">
+
+          {appliedCoupon && appliedCoupon.discountAmount > 0 && (
+            <div className="flex items-center justify-between text-xs text-emerald-400">
+              <span className="font-medium">Coupon Savings ({appliedCoupon.code})</span>
+              <span className="font-mono font-semibold">-₹{appliedCoupon.discountAmount.toLocaleString('en-IN')}</span>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between pt-1 border-t border-[rgba(255,255,255,0.06)]">
+            <span className="text-white text-sm font-semibold">Total Payable</span>
+            <span className="font-display text-2xl text-cyan-300 font-bold">
+              {finalPayableTotal > 0 ? `₹${finalPayableTotal.toLocaleString('en-IN')}` : 'Price on Request'}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between text-xs text-[--color-muted] pb-1">
             <span>Shipping &amp; Live Guarantee</span>
-            <span className="text-[--color-accent] font-medium">Calculated at Dispatch</span>
+            <span className="text-[--color-accent] font-medium">Included at Dispatch</span>
           </div>
 
           <button
@@ -417,12 +573,31 @@ export function CartDrawer() {
                 </span>
               </div>
             ))}
-            <div className="border-t border-[rgba(255,255,255,0.06)] pt-2 flex items-center justify-between">
-              <span className="text-xs text-[--color-muted]">Total</span>
-              <span className="font-display text-lg text-[--color-text] font-semibold">
-                {cartTotal > 0 ? `₹${cartTotal.toLocaleString('en-IN')}` : 'Price on Request'}
-              </span>
-            </div>
+            {appliedCoupon && appliedCoupon.discountAmount > 0 ? (
+              <div className="border-t border-[rgba(255,255,255,0.06)] pt-2 space-y-1">
+                <div className="flex items-center justify-between text-xs text-[--color-muted]">
+                  <span>Subtotal</span>
+                  <span className="font-mono">₹{cartTotal.toLocaleString('en-IN')}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs text-emerald-400 font-medium">
+                  <span>Coupon Savings ({appliedCoupon.code})</span>
+                  <span className="font-mono font-semibold">-₹{appliedCoupon.discountAmount.toLocaleString('en-IN')}</span>
+                </div>
+                <div className="flex items-center justify-between pt-1 border-t border-[rgba(255,255,255,0.06)]">
+                  <span className="text-xs font-semibold text-white">Total Payable</span>
+                  <span className="font-display text-lg text-cyan-300 font-bold">
+                    ₹{finalPayableTotal.toLocaleString('en-IN')}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="border-t border-[rgba(255,255,255,0.06)] pt-2 flex items-center justify-between">
+                <span className="text-xs text-[--color-muted]">Total</span>
+                <span className="font-display text-lg text-[--color-text] font-semibold">
+                  {cartTotal > 0 ? `₹${cartTotal.toLocaleString('en-IN')}` : 'Price on Request'}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Form Section */}
