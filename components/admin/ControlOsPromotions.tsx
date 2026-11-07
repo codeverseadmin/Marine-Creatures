@@ -115,6 +115,17 @@ export function ControlOsPromotions({
   const [formExcludedProducts, setFormExcludedProducts] = useState('');
   const [formInternalNotes, setFormInternalNotes] = useState('');
 
+  // Lock background body scroll when any modal is active
+  useEffect(() => {
+    if (isEditorOpen || inspectedCoupon || deactivatingCoupon) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isEditorOpen, inspectedCoupon, deactivatingCoupon]);
+
   // ── Fetch Coupons ──────────────────────────────────────────────────────────
   const fetchCoupons = useCallback(async () => {
     setLoading(true);
@@ -777,277 +788,321 @@ export function ControlOsPromotions({
 
       {/* ── MODAL 1: CREATE / EDIT COUPON ──────────────────────────────────── */}
       {isEditorOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#0b1622] border border-slate-800 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl p-6 sm:p-8 space-y-6">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-              <div className="flex items-center gap-2">
-                <span className="text-xl">🏷️</span>
-                <h3 className="text-base font-bold text-white">
-                  {editingCoupon ? `Edit Coupon: ${editingCoupon.code}` : 'Create New Promotional Coupon'}
-                </h3>
-              </div>
-              <button
-                onClick={() => setIsEditorOpen(false)}
-                className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-sm"
-              >
-                ✕
-              </button>
-            </div>
-
-            {editorError && (
-              <div className="p-3 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 text-xs flex items-center gap-2">
-                <span>⚠️</span>
-                <span>{editorError}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleSaveCoupon} className="space-y-4 text-xs">
-              {/* Row 1: Code + Status */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-                    Coupon Code *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. CORAL20"
-                    value={formCode}
-                    onChange={(e) => setFormCode(e.target.value.toUpperCase())}
-                    className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white font-mono uppercase focus:outline-none focus:border-cyan-400"
-                  />
-                  <span className="text-[10px] text-slate-500 mt-0.5 block">
-                    Alphanumeric, case-insensitive (e.g. CORAL20)
-                  </span>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm overflow-y-auto"
+          onClick={() => setIsEditorOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-2xl bg-[#0b1622] border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col h-auto max-h-[92vh] sm:max-h-[90vh] my-auto overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <form onSubmit={handleSaveCoupon} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+              {/* Modal Header (Pinned) */}
+              <div className="px-5 sm:px-6 py-4 border-b border-slate-800 flex items-center justify-between shrink-0 bg-[#0b1622]">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🏷️</span>
+                  <h3 className="text-base font-bold text-white">
+                    {editingCoupon ? `Edit Coupon: ${editingCoupon.code}` : 'Create New Promotional Coupon'}
+                  </h3>
                 </div>
-
-                <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-                    Initial Status
-                  </label>
-                  <select
-                    value={formStatus}
-                    onChange={(e) => setFormStatus(e.target.value as any)}
-                    className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white focus:outline-none focus:border-cyan-400"
-                  >
-                    <option value="active">Active (Available for checkout)</option>
-                    <option value="draft">Draft (Inactive)</option>
-                    <option value="paused">Paused (Temporarily disabled)</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Row 2: Description */}
-              <div>
-                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-                  Public Description
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Special 15% inaugural client reward"
-                  value={formDescription}
-                  onChange={(e) => setFormDescription(e.target.value)}
-                  className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white focus:outline-none focus:border-cyan-400"
-                />
-              </div>
-
-              {/* Row 3: Discount Type + Value + Max Cap */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-                    Discount Type *
-                  </label>
-                  <select
-                    value={formDiscountType}
-                    onChange={(e) => setFormDiscountType(e.target.value as any)}
-                    className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white focus:outline-none focus:border-cyan-400"
-                  >
-                    <option value="percentage">Percentage (%)</option>
-                    <option value="fixed">Fixed Monetary (₹ INR)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-                    Discount Value * {formDiscountType === 'percentage' ? '(%)' : '(₹)'}
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min={1}
-                    max={formDiscountType === 'percentage' ? 100 : undefined}
-                    value={formDiscountValue}
-                    onChange={(e) => setFormDiscountValue(e.target.value === '' ? '' : Number(e.target.value))}
-                    className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white font-mono focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-                    Max Cap (₹, optional)
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    disabled={formDiscountType !== 'percentage'}
-                    placeholder="No cap"
-                    value={formMaxDiscount}
-                    onChange={(e) => setFormMaxDiscount(e.target.value === '' ? '' : Number(e.target.value))}
-                    className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white font-mono disabled:opacity-30 focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-              </div>
-
-              {/* Row 4: Minimum Subtotal & Customer Tier */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-                    Min Merchandise Subtotal (₹)
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    value={formMinSubtotal}
-                    onChange={(e) => setFormMinSubtotal(e.target.value === '' ? '' : Number(e.target.value))}
-                    className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white font-mono focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-                    Customer Eligibility
-                  </label>
-                  <select
-                    value={formCustomerEligibility}
-                    onChange={(e) => setFormCustomerEligibility(e.target.value as any)}
-                    className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white focus:outline-none focus:border-cyan-400"
-                  >
-                    <option value="all">All Clients</option>
-                    <option value="first_order">First Order Only</option>
-                    <option value="existing">Existing Clients Only</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Row 5: Start & Expiry Date */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-                    Start Date *
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={formStartDate}
-                    onChange={(e) => setFormStartDate(e.target.value)}
-                    className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white font-mono focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-                    Expiry Date *
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={formExpiryDate}
-                    onChange={(e) => setFormExpiryDate(e.target.value)}
-                    className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white font-mono focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-              </div>
-
-              {/* Row 6: Usage Limits */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-                    Total Global Usage Limit
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    placeholder="Unlimited"
-                    value={formTotalLimit}
-                    onChange={(e) => setFormTotalLimit(e.target.value === '' ? '' : Number(e.target.value))}
-                    className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white font-mono focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-                    Per-Customer Usage Limit
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    value={formPerCustomerLimit}
-                    onChange={(e) => setFormPerCustomerLimit(e.target.value === '' ? '' : Number(e.target.value))}
-                    className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white font-mono focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-              </div>
-
-              {/* Row 7: Category Restrictions */}
-              <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-3">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 block">
-                  Category Restrictions (Comma-separated)
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-[9px] uppercase font-bold text-slate-400 block mb-1">
-                      Included Categories (e.g. marine-life, corals)
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Leave blank for all categories"
-                      value={formIncludedCategories}
-                      onChange={(e) => setFormIncludedCategories(e.target.value)}
-                      className="w-full h-9 px-3 rounded-xl bg-black/40 border border-slate-700 text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[9px] uppercase font-bold text-rose-400 block mb-1">
-                      Excluded Categories (Strict Override)
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. lighting, equipment"
-                      value={formExcludedCategories}
-                      onChange={(e) => setFormExcludedCategories(e.target.value)}
-                      className="w-full h-9 px-3 rounded-xl bg-black/40 border border-slate-700 text-white"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Row 8: Internal Notes */}
-              <div>
-                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-                  Internal Administrative Notes (Never exposed to customers)
-                </label>
-                <textarea
-                  rows={2}
-                  placeholder="Campaign reference, client agreement rationale..."
-                  value={formInternalNotes}
-                  onChange={(e) => setFormInternalNotes(e.target.value)}
-                  className="w-full p-2.5 rounded-xl bg-black/50 border border-slate-700 text-white focus:outline-none focus:border-cyan-400"
-                />
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
                 <button
                   type="button"
                   onClick={() => setIsEditorOpen(false)}
-                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold"
+                  className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-sm transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Modal Body (Scrollable with min-h-0 and overscroll-contain) */}
+              <div className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-6 space-y-4 text-xs overscroll-contain">
+                {editorError && (
+                  <div className="p-3 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 text-xs flex items-center gap-2">
+                    <span>⚠️</span>
+                    <span>{editorError}</span>
+                  </div>
+                )}
+
+                {/* Row 1: Code + Status */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                      Coupon Code *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. CORAL20"
+                      value={formCode}
+                      onChange={(e) => setFormCode(e.target.value.toUpperCase())}
+                      className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white font-mono uppercase focus:outline-none focus:border-cyan-400"
+                    />
+                    <span className="text-[10px] text-slate-500 mt-0.5 block">
+                      Alphanumeric, case-insensitive (e.g. CORAL20)
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                      Initial Status
+                    </label>
+                    <select
+                      value={formStatus}
+                      onChange={(e) => setFormStatus(e.target.value as any)}
+                      className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white focus:outline-none focus:border-cyan-400"
+                    >
+                      <option value="active">Active (Available for checkout)</option>
+                      <option value="draft">Draft (Inactive)</option>
+                      <option value="paused">Paused (Temporarily disabled)</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Row 2: Description */}
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                    Public Description
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Special 15% inaugural client reward"
+                    value={formDescription}
+                    onChange={(e) => setFormDescription(e.target.value)}
+                    className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white focus:outline-none focus:border-cyan-400"
+                  />
+                </div>
+
+                {/* Row 3: Discount Type + Value + Max Cap */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                      Discount Type *
+                    </label>
+                    <select
+                      value={formDiscountType}
+                      onChange={(e) => setFormDiscountType(e.target.value as any)}
+                      className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white focus:outline-none focus:border-cyan-400"
+                    >
+                      <option value="percentage">Percentage (%)</option>
+                      <option value="fixed">Fixed Monetary (₹ INR)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                      Discount Value * {formDiscountType === 'percentage' ? '(%)' : '(₹)'}
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      min={1}
+                      max={formDiscountType === 'percentage' ? 100 : undefined}
+                      value={formDiscountValue}
+                      onChange={(e) => setFormDiscountValue(e.target.value === '' ? '' : Number(e.target.value))}
+                      className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white font-mono focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                      Max Cap (₹, optional)
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      disabled={formDiscountType !== 'percentage'}
+                      placeholder="No cap"
+                      value={formMaxDiscount}
+                      onChange={(e) => setFormMaxDiscount(e.target.value === '' ? '' : Number(e.target.value))}
+                      className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white font-mono disabled:opacity-30 focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+                </div>
+
+                {/* Row 4: Minimum Subtotal & Customer Tier */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                      Min Merchandise Subtotal (₹)
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={formMinSubtotal}
+                      onChange={(e) => setFormMinSubtotal(e.target.value === '' ? '' : Number(e.target.value))}
+                      className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white font-mono focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                      Customer Eligibility
+                    </label>
+                    <select
+                      value={formCustomerEligibility}
+                      onChange={(e) => setFormCustomerEligibility(e.target.value as any)}
+                      className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white focus:outline-none focus:border-cyan-400"
+                    >
+                      <option value="all">All Clients</option>
+                      <option value="first_order">First Order Only</option>
+                      <option value="existing">Existing Clients Only</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Row 5: Start & Expiry Date */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                      Start Date *
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      value={formStartDate}
+                      onChange={(e) => setFormStartDate(e.target.value)}
+                      className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white font-mono focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                      Expiry Date *
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      value={formExpiryDate}
+                      onChange={(e) => setFormExpiryDate(e.target.value)}
+                      className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white font-mono focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+                </div>
+
+                {/* Row 6: Usage Limits */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                      Total Global Usage Limit
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      placeholder="Unlimited"
+                      value={formTotalLimit}
+                      onChange={(e) => setFormTotalLimit(e.target.value === '' ? '' : Number(e.target.value))}
+                      className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white font-mono focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                      Per-Customer Usage Limit
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={formPerCustomerLimit}
+                      onChange={(e) => setFormPerCustomerLimit(e.target.value === '' ? '' : Number(e.target.value))}
+                      className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white font-mono focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+                </div>
+
+                {/* Row 7: Category Restrictions */}
+                <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-3">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 block">
+                    Category Restrictions (Comma-separated)
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[9px] uppercase font-bold text-slate-400 block mb-1">
+                        Included Categories (e.g. marine-life, corals)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Leave blank for all categories"
+                        value={formIncludedCategories}
+                        onChange={(e) => setFormIncludedCategories(e.target.value)}
+                        className="w-full h-9 px-3 rounded-xl bg-black/40 border border-slate-700 text-white focus:outline-none focus:border-cyan-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[9px] uppercase font-bold text-rose-400 block mb-1">
+                        Excluded Categories (Strict Override)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. lighting, equipment"
+                        value={formExcludedCategories}
+                        onChange={(e) => setFormExcludedCategories(e.target.value)}
+                        className="w-full h-9 px-3 rounded-xl bg-black/40 border border-slate-700 text-white focus:outline-none focus:border-cyan-400"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Row 8: Product Restrictions */}
+                <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-3">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 block">
+                    Product Restrictions (Comma-separated IDs)
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[9px] uppercase font-bold text-slate-400 block mb-1">
+                        Included Product IDs
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Leave blank for all products"
+                        value={formIncludedProducts}
+                        onChange={(e) => setFormIncludedProducts(e.target.value)}
+                        className="w-full h-9 px-3 rounded-xl bg-black/40 border border-slate-700 text-white focus:outline-none focus:border-cyan-400 font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[9px] uppercase font-bold text-rose-400 block mb-1">
+                        Excluded Product IDs (Strict Override)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. nemo-extreme-led"
+                        value={formExcludedProducts}
+                        onChange={(e) => setFormExcludedProducts(e.target.value)}
+                        className="w-full h-9 px-3 rounded-xl bg-black/40 border border-slate-700 text-white focus:outline-none focus:border-cyan-400 font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Row 9: Internal Notes */}
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                    Internal Administrative Notes (Never exposed to customers)
+                  </label>
+                  <textarea
+                    rows={2}
+                    placeholder="Campaign reference, client agreement rationale..."
+                    value={formInternalNotes}
+                    onChange={(e) => setFormInternalNotes(e.target.value)}
+                    className="w-full p-2.5 rounded-xl bg-black/50 border border-slate-700 text-white focus:outline-none focus:border-cyan-400"
+                  />
+                </div>
+              </div>
+
+              {/* Modal Footer (Pinned) */}
+              <div className="px-5 sm:px-6 py-3.5 border-t border-slate-800 bg-slate-900/80 flex items-center justify-end gap-3 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setIsEditorOpen(false)}
+                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={savingCoupon}
-                  className="px-5 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 disabled:opacity-40 text-slate-950 font-bold uppercase tracking-wider shadow-lg"
+                  className="px-5 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 disabled:opacity-40 text-slate-950 font-bold uppercase tracking-wider shadow-lg transition-colors"
                 >
                   {savingCoupon ? 'Saving...' : editingCoupon ? 'Save Changes' : 'Create Coupon'}
                 </button>
@@ -1059,8 +1114,14 @@ export function ControlOsPromotions({
 
       {/* ── MODAL 2: CONFIRM DEACTIVATION ──────────────────────────────────── */}
       {deactivatingCoupon && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#0b1622] border border-rose-500/30 rounded-3xl w-full max-w-md shadow-2xl p-6 space-y-4">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm overflow-y-auto"
+          onClick={() => setDeactivatingCoupon(null)}
+        >
+          <div
+            className="bg-[#0b1622] border border-rose-500/30 rounded-2xl sm:rounded-3xl w-full max-w-md shadow-2xl p-6 space-y-4 my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center gap-3 text-rose-400">
               <span className="text-2xl">⚠️</span>
               <h3 className="text-base font-bold text-white">Deactivate Coupon?</h3>
@@ -1075,7 +1136,7 @@ export function ControlOsPromotions({
               <button
                 type="button"
                 onClick={() => setDeactivatingCoupon(null)}
-                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold"
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-colors"
               >
                 Cancel
               </button>
@@ -1083,7 +1144,7 @@ export function ControlOsPromotions({
                 type="button"
                 disabled={deactivatingLoading}
                 onClick={handleConfirmDeactivate}
-                className="px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-400 text-white text-xs font-bold uppercase tracking-wider"
+                className="px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-400 text-white text-xs font-bold uppercase tracking-wider transition-colors"
               >
                 {deactivatingLoading ? 'Deactivating...' : 'Confirm Deactivation'}
               </button>
@@ -1094,9 +1155,15 @@ export function ControlOsPromotions({
 
       {/* ── MODAL 3: INSPECT REDEMPTIONS ───────────────────────────────────── */}
       {inspectedCoupon && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#0b1622] border border-slate-800 rounded-3xl w-full max-w-3xl max-h-[85vh] overflow-y-auto shadow-2xl p-6 sm:p-8 space-y-5">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm overflow-y-auto"
+          onClick={() => setInspectedCoupon(null)}
+        >
+          <div
+            className="relative w-full max-w-3xl bg-[#0b1622] border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col h-auto max-h-[92vh] sm:max-h-[88vh] my-auto overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-5 sm:px-6 py-4 border-b border-slate-800 flex items-center justify-between shrink-0 bg-[#0b1622]">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-lg">📜</span>
@@ -1109,51 +1176,64 @@ export function ControlOsPromotions({
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => setInspectedCoupon(null)}
-                className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-sm"
+                className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-sm transition-colors"
               >
                 ✕
               </button>
             </div>
 
-            {loadingInspected ? (
-              <div className="p-8 text-center text-xs text-slate-400 font-mono">Loading redemption records...</div>
-            ) : inspectedRedemptions.length === 0 ? (
-              <p className="text-xs text-slate-500 italic p-6 text-center">No redemptions recorded for this coupon yet.</p>
-            ) : (
-              <div className="overflow-x-auto rounded-xl border border-slate-800">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="border-b border-slate-800 bg-slate-950/60 text-slate-400 uppercase font-semibold">
-                      <th className="p-2.5">Order ID</th>
-                      <th className="p-2.5">Client Phone</th>
-                      <th className="p-2.5">Eligible Subtotal</th>
-                      <th className="p-2.5">Discount</th>
-                      <th className="p-2.5">Order Total</th>
-                      <th className="p-2.5">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/60 font-mono">
-                    {inspectedRedemptions.map((r) => (
-                      <tr key={r.id} className="hover:bg-slate-900/30">
-                        <td className="p-2.5 text-cyan-300 font-bold">#{r.orderId}</td>
-                        <td className="p-2.5 text-slate-300">{r.customerPhone}</td>
-                        <td className="p-2.5 text-slate-400">₹{r.eligibleSubtotal?.toLocaleString('en-IN')}</td>
-                        <td className="p-2.5 text-emerald-400 font-bold">-₹{r.discountAmount?.toLocaleString('en-IN')}</td>
-                        <td className="p-2.5 text-white">₹{r.orderTotal?.toLocaleString('en-IN')}</td>
-                        <td className="p-2.5 text-slate-400">
-                          {new Date(r.redeemedAt || r.createdAt).toLocaleDateString('en-IN', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric',
-                          })}
-                        </td>
+            <div className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-6 space-y-4 overscroll-contain">
+              {loadingInspected ? (
+                <div className="p-8 text-center text-xs text-slate-400 font-mono">Loading redemption records...</div>
+              ) : inspectedRedemptions.length === 0 ? (
+                <p className="text-xs text-slate-500 italic p-6 text-center">No redemptions recorded for this coupon yet.</p>
+              ) : (
+                <div className="overflow-x-auto rounded-xl border border-slate-800">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-800 bg-slate-950/60 text-slate-400 uppercase font-semibold">
+                        <th className="p-2.5">Order ID</th>
+                        <th className="p-2.5">Client Phone</th>
+                        <th className="p-2.5">Eligible Subtotal</th>
+                        <th className="p-2.5">Discount</th>
+                        <th className="p-2.5">Order Total</th>
+                        <th className="p-2.5">Date</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60 font-mono">
+                      {inspectedRedemptions.map((r) => (
+                        <tr key={r.id} className="hover:bg-slate-900/30">
+                          <td className="p-2.5 text-cyan-300 font-bold">#{r.orderId}</td>
+                          <td className="p-2.5 text-slate-300">{r.customerPhone}</td>
+                          <td className="p-2.5 text-slate-400">₹{r.eligibleSubtotal?.toLocaleString('en-IN')}</td>
+                          <td className="p-2.5 text-emerald-400 font-bold">-₹{r.discountAmount?.toLocaleString('en-IN')}</td>
+                          <td className="p-2.5 text-white">₹{r.orderTotal?.toLocaleString('en-IN')}</td>
+                          <td className="p-2.5 text-slate-400">
+                            {new Date(r.redeemedAt || r.createdAt).toLocaleDateString('en-IN', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric',
+                            })}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            <div className="px-5 sm:px-6 py-3 border-t border-slate-800 bg-slate-900/80 flex items-center justify-end shrink-0">
+              <button
+                type="button"
+                onClick={() => setInspectedCoupon(null)}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-colors"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
