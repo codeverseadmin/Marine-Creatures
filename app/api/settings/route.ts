@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { SettingModel } from '@/models/Setting';
-import { isAdminRequest } from '@/lib/auth';
+import { requirePermission, recordAuditLog } from '@/lib/rbac/guard';
+import { getClientIp } from '@/lib/rate-limit';
 
 export async function GET(req: NextRequest) {
   try {
@@ -27,9 +28,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ success: false, error: 'Unauthorized: Admin authentication required' }, { status: 401 });
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'settings.update');
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();
@@ -45,6 +45,17 @@ export async function POST(req: NextRequest) {
       { value },
       { new: true, upsert: true }
     ).lean();
+
+    await recordAuditLog({
+      action: 'SYSTEM_SETTINGS_UPDATED',
+      entityType: 'setting',
+      entityId: key.trim(),
+      entityName: key.trim(),
+      summary: `Updated system setting [${key.trim()}]`,
+      actor: auth!.actorEmail,
+      ip: getClientIp(req),
+      details: { key: key.trim() },
+    });
 
     return NextResponse.json({ success: true, data: updated });
   } catch (error: any) {

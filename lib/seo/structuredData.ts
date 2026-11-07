@@ -72,7 +72,7 @@ export function generateProductJsonLd(
             },
           }
         : {
-            price: product.price,
+            price: selectedVariant?.price !== undefined ? selectedVariant.price : product.price,
           }),
       availability: product.inStock
         ? 'https://schema.org/InStock'

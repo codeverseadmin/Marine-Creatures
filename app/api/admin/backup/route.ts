@@ -9,18 +9,18 @@ import { SettingModel } from '@/models/Setting';
 import { SnapshotModel } from '@/models/Snapshot';
 import { requirePermission } from '@/lib/rbac/guard';
 
-async function isAuthorized(req: NextRequest): Promise<boolean> {
+async function isAuthorized(req: NextRequest, permission: 'backups.read' | 'backups.create'): Promise<boolean> {
   const cronSecret = process.env.CRON_SECRET;
   const authHeader = req.headers.get('authorization');
   if (cronSecret && authHeader === `Bearer ${cronSecret}`) {
     return true;
   }
-  const { auth } = await requirePermission(req, 'backup.manage');
+  const { auth } = await requirePermission(req, permission);
   return Boolean(auth);
 }
 
 export async function GET(req: NextRequest) {
-  if (!await isAuthorized(req)) {
+  if (!await isAuthorized(req, 'backups.read')) {
     return NextResponse.json({ success: false, error: 'Unauthorized: Admin or Cron authentication required' }, { status: 401 });
   }
 
@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!await isAuthorized(req)) {
+  if (!await isAuthorized(req, 'backups.create')) {
     return NextResponse.json({ success: false, error: 'Unauthorized: Admin or Cron authentication required' }, { status: 401 });
   }
 
@@ -152,7 +152,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-  const { auth, errorResponse } = await requirePermission(req, 'backup.manage');
+  const { auth, errorResponse } = await requirePermission(req, 'backups.create');
   if (errorResponse) return errorResponse;
 
   try {

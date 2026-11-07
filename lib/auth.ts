@@ -19,6 +19,9 @@ export function getAdminPasscode(): string {
   return code.trim();
 }
 
+// Ephemeral process-level secret for local non-production development if none is supplied
+let devLegacyAuthSecret: string | null = null;
+
 /**
  * Server-only session signing key.
  * Requires SESSION_SECRET or ADMIN_PASSCODE environment variable.
@@ -29,7 +32,10 @@ function getSessionSecret(): string {
     if (process.env.NODE_ENV === 'production') {
       throw new Error('SESSION_SECRET environment variable is not configured');
     }
-    return '';
+    if (!devLegacyAuthSecret) {
+      devLegacyAuthSecret = randomBytes(32).toString('hex');
+    }
+    return devLegacyAuthSecret;
   }
   return secret.trim();
 }
@@ -137,19 +143,11 @@ export function isAdminAuthenticated(req: NextRequest): boolean {
 }
 
 /**
- * Validates admin auth from the session cookie or server-to-server header.
+ * Validates admin auth strictly from a signed session cookie.
+ * SEC-RBAC-P0-02: Header passcodes (x-admin-secret) are completely removed from isAdminRequest.
  */
 export function isAdminRequest(req: NextRequest): boolean {
-  // Check signed session cookie first
-  if (isAdminAuthenticated(req)) return true;
-
-  // Server-to-server header fallback (validated against server-side secret)
-  const secretHeader = req.headers.get('x-admin-secret') || req.headers.get('x-admin-passcode');
-  if (secretHeader && verifyPasscode(secretHeader)) {
-    return true;
-  }
-
-  return false;
+  return isAdminAuthenticated(req);
 }
 
 /**

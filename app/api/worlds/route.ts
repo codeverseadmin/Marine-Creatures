@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import CaseStudyModel from '@/models/CaseStudy';
 import { serializePublicCaseStudy, serializePreviewCaseStudy } from '@/lib/worlds/serializer';
-import { isAdminRequest } from '@/lib/auth';
+import { requirePermission } from '@/lib/rbac/guard';
 import { ensureWorldsSeeded } from '@/lib/data/worlds';
 
 export const dynamic = 'force-dynamic';
@@ -18,9 +18,10 @@ export async function GET(req: NextRequest) {
 
     // 1. Single Case Study Request
     if (slug) {
-      // If preview mode requested, strictly require valid admin session
+      // If preview mode requested, strictly require worlds.read permission
       if (isPreview) {
-        if (!isAdminRequest(req)) {
+        const { auth, errorResponse } = await requirePermission(req, 'worlds.read');
+        if (errorResponse) {
           return NextResponse.json({ success: false, error: 'Case Study not found.' }, { status: 404 });
         }
 

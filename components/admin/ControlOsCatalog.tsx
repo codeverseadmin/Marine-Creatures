@@ -239,6 +239,7 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
     setFormState({
       name: '',
       id: '',
+      slug: '',
       sku: '',
       brand: 'Marine Creatures',
       category: 'marine-life',
@@ -290,6 +291,7 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
     setNewImageUrl('');
     setFormState({
       ...prod,
+      slug: (prod as any).slug || prod.id,
       careGuide: prod.careGuide || {
         temperature: '24°C – 26°C',
         salinity: '1.024 – 1.026 SG',
@@ -315,10 +317,12 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
       const updates: Partial<Product> = { name };
       // Only auto-generate slug if creating a new product or slug was previously empty
       if (!editingProduct) {
-        updates.id = name
+        const generated = name
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, '-')
           .replace(/^-+|-+$/g, '');
+        updates.id = generated;
+        (updates as any).slug = generated;
       }
       return { ...prev, ...updates };
     });
@@ -381,10 +385,11 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
 
   // Synchronize media assets whenever Step 5 becomes active
   useEffect(() => {
-    if (isEditorOpen && activeStep === 5 && formState.id) {
-      fetchProductMedia(formState.id);
+    const targetId = editingProduct?.id || formState.id;
+    if (isEditorOpen && activeStep === 5 && targetId) {
+      fetchProductMedia(targetId);
     }
-  }, [isEditorOpen, activeStep, formState.id, fetchProductMedia]);
+  }, [isEditorOpen, activeStep, editingProduct?.id, formState.id, fetchProductMedia]);
 
   // ── Media Handlers (Binary Cloud & Upload Pipeline) ────────────────────────
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -428,8 +433,9 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
         const formData = new FormData();
         formData.append('file', fileToUpload, file.name);
         formData.append('type', 'image');
-        if (formState.id) {
-          formData.append('productId', formState.id);
+        const targetId = editingProduct?.id || formState.id;
+        if (targetId) {
+          formData.append('productId', targetId);
         }
 
         const res = await fetch('/api/admin/upload', {
@@ -550,7 +556,8 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
   const seoHealth = useMemo(() => {
     const title = (formState.seoTitle || formState.name || '').trim();
     const desc = (formState.seoDescription || formState.shortDesc || '').trim();
-    const hasSlug = Boolean((formState.id || '').trim());
+    const effectiveSlug = (((formState as any).slug || formState.id || '') as string).trim();
+    const hasSlug = Boolean(effectiveSlug);
     const hasImages = Array.isArray(formState.images) && formState.images.length > 0;
     const hasFullDesc = Boolean((formState.description || '').trim());
     const isPOR = Boolean(formState.priceOnRequest);
@@ -559,7 +566,7 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
     const checks = [
       { label: 'SEO Title (30–65 chars)', passed: title.length >= 30 && title.length <= 70 },
       { label: 'Meta Description (120–165 chars)', passed: desc.length >= 100 && desc.length <= 175 },
-      { label: 'Clean Canonical Slug', passed: hasSlug && /^[a-z0-9-]+$/.test(formState.id || '') },
+      { label: 'Clean Canonical Slug', passed: hasSlug && /^[a-z0-9-]+$/.test(effectiveSlug) && !/^-|-$/.test(effectiveSlug) },
       { label: 'Primary Commercial Image', passed: hasImages },
       { label: 'Comprehensive Description', passed: hasFullDesc },
       { label: 'Commercial Pricing Validity', passed: validPrice },
@@ -589,11 +596,13 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
     }
 
     // Blocking 2: Unique Slug
-    const slug = (formState.id || '').trim();
-    if (!slug) {
+    const effectiveSlug = (((formState as any).slug || formState.id || '') as string).trim();
+    if (!effectiveSlug) {
       blockingErrors.push('Product Slug / ID is required.');
-    } else if (!/^[a-z0-9-]+$/.test(slug)) {
+    } else if (!/^[a-z0-9-]+$/.test(effectiveSlug)) {
       blockingErrors.push('Slug may only contain lowercase letters, numbers, and hyphens.');
+    } else if (/^-|-$/.test(effectiveSlug)) {
+      blockingErrors.push('Slug cannot begin or end with a hyphen.');
     }
 
     // Blocking 3: Price Validity
@@ -650,9 +659,19 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
       const url = '/api/admin/catalog';
       const method = isEditing ? 'PATCH' : 'POST';
 
+      const canonicalId = editingProduct ? editingProduct.id : (formState.id || '').trim().toLowerCase();
+      const currentSlug = (((formState as any).slug || formState.id || canonicalId) as string)
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9-]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
       const payload = {
         ...formState,
-        id: (formState.id || '').trim().toLowerCase(),
+        canonicalId,
+        id: canonicalId,
+        _id: (editingProduct as any)?._id,
+        slug: currentSlug,
       };
 
       const res = await fetch(url, {
@@ -1479,28 +1498,57 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {editingProduct ? (
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="font-semibold text-slate-200">
+                            Governance ID (Database Key)
+                          </label>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 font-mono border border-cyan-500/20">
+                            IMMUTABLE
+                          </span>
+                        </div>
+                        <div className="w-full min-h-[42px] bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-cyan-400/90 flex items-center select-all">
+                          {editingProduct.id}
+                        </div>
+                        <span className="text-[10px] text-slate-500 block mt-1">
+                          Authoritative internal database identity
+                        </span>
+                      </div>
+                    ) : null}
+
                     <div>
                       <label className="font-semibold text-slate-200 block mb-1">
-                        Canonical Slug / ID <span className="text-rose-400">*</span>
+                        {editingProduct ? 'Public Marketplace Slug' : 'Canonical Slug / ID'} <span className="text-rose-400">*</span>
                       </label>
                       <input
                         type="text"
-                        value={formState.id || ''}
-                        onChange={(e) =>
+                        value={((formState as any).slug ?? formState.id) || ''}
+                        onChange={(e) => {
+                          const val = e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, '-');
                           setFormState((prev) => ({
                             ...prev,
-                            id: e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, '-'),
-                          }))
-                        }
+                            slug: val,
+                            ...(editingProduct ? {} : { id: val }),
+                          }));
+                        }}
+                        onBlur={(e) => {
+                          const val = e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '');
+                          setFormState((prev) => ({
+                            ...prev,
+                            slug: val,
+                            ...(editingProduct ? {} : { id: val }),
+                          }));
+                        }}
                         placeholder="e.g. purple-tang-l"
                         className="w-full min-h-[42px] bg-slate-900 border border-slate-800 focus:border-cyan-400 rounded-xl px-3.5 text-xs font-mono text-cyan-300"
                       />
                       <span className="text-[10px] text-slate-500 block mt-1">
-                        Public URL: /marketplace/{formState.id || 'slug'}
+                        Public URL: /marketplace/{(((formState as any).slug || formState.id || 'slug') as string).replace(/^-+|-+$/g, '')}
                       </span>
                     </div>
 
-                    <div>
+                    <div className={editingProduct ? 'sm:col-span-2' : ''}>
                       <label className="font-semibold text-slate-200 block mb-1">SKU (Stock Keeping Unit)</label>
                       <input
                         type="text"
@@ -2008,7 +2056,8 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
                         type="button"
                         onClick={() => {
                           setMediaError(null);
-                          if (formState.id) fetchProductMedia(formState.id);
+                          const targetId = editingProduct?.id || formState.id;
+                          if (targetId) fetchProductMedia(targetId);
                         }}
                         className="px-2.5 py-1 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-200 text-[11px] font-semibold shrink-0 transition-colors"
                       >
@@ -2080,7 +2129,7 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
                   {isMediaLoading ? (
                     <div className="p-8 text-center rounded-2xl bg-slate-900/40 border border-slate-800 space-y-2">
                       <div className="inline-block w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-                      <p className="text-xs text-slate-400 font-mono">Synchronizing media assets for {formState.id}...</p>
+                      <p className="text-xs text-slate-400 font-mono">Synchronizing media assets for {editingProduct?.id || formState.id}...</p>
                     </div>
                   ) : formState.images && formState.images.length > 0 ? (
                     /* Image Gallery Sequence */
@@ -2338,8 +2387,13 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
 
                     <div className="grid grid-cols-2 gap-3 text-[11px]">
                       <div>
-                        <span className="text-slate-500 block text-[10px]">CANONICAL SLUG:</span>
-                        <span className="text-cyan-300 font-bold">{formState.id}</span>
+                        <span className="text-slate-500 block text-[10px]">GOVERNANCE ID:</span>
+                        <span className="text-cyan-300 font-bold">{editingProduct?.id || formState.id}</span>
+                        {Boolean((formState as any).slug && (formState as any).slug !== (editingProduct?.id || formState.id)) && (
+                          <span className="text-emerald-400 block text-[10px] mt-0.5 font-mono">
+                            SLUG: {(formState as any).slug}
+                          </span>
+                        )}
                       </div>
                       <div>
                         <span className="text-slate-500 block text-[10px]">SKU:</span>

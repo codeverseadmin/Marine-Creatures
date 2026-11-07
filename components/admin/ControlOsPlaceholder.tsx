@@ -145,6 +145,20 @@ const SECTION_METADATA: Record<
       'Maintenance Mode & Storefront Rate Limiting Diagnostics',
     ],
   },
+  reviews: {
+    title: 'Customer Reviews & Moderation',
+    code: 'REVIEWS_OS',
+    phase: 'Live',
+    icon: '⭐',
+    description:
+      'First-party customer review moderation, cryptographic invitation links, and authentic rating governance.',
+    plannedCapabilities: [
+      'Single-Use Cryptographic Review Invitations tied to Delivered Orders',
+      'Concierge Review Moderation & Approval Workflow',
+      'High-Resolution Customer Aquarium Photography Verification',
+      'Dynamic Zero-Fabrication Rating Aggregation',
+    ],
+  },
 };
 
 export function ControlOsPlaceholder({

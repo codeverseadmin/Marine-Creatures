@@ -35,15 +35,18 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 function resolveCanonicalCartProduct(product: Product): Product {
   if (!product || !product.id) return product;
   const [baseId, variantId] = product.id.split('__');
-  const baseProduct = PRODUCTS.find((p) => p.id === baseId);
+  const baseProduct = PRODUCTS.find((p) => p.id.toLowerCase() === baseId.toLowerCase());
   if (!baseProduct) return product;
   if (variantId) {
-    const variantObj = baseProduct.variants?.find((v) => v.id === variantId);
+    const variantObj = baseProduct.variants?.find(
+      (v) => v.id.toLowerCase() === variantId.toLowerCase()
+    );
+    const resolvedPrice = variantObj?.price !== undefined ? variantObj.price : (product.price || baseProduct.price);
     return {
       ...baseProduct,
-      id: product.id,
+      id: `${baseProduct.id}__${variantObj?.id || variantId}`,
       name: `${baseProduct.name} — ${variantObj?.name || variantId}`,
-      price: variantObj?.price ?? product.price,
+      price: resolvedPrice,
     };
   }
   return baseProduct;

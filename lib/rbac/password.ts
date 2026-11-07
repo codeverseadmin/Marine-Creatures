@@ -1,5 +1,7 @@
-import { randomBytes, scryptSync, timingSafeEqual, createHash } from 'crypto';
+import { scrypt, scryptSync, randomBytes, timingSafeEqual, createHash } from 'crypto';
+import { promisify } from 'util';
 
+const scryptAsync = promisify(scrypt);
 const SALT_BYTES = 16;
 const KEY_LEN_BYTES = 64;
 
@@ -30,19 +32,56 @@ export function validatePasswordStrength(password: string): { valid: boolean; me
 }
 
 /**
- * Hashes a plaintext password using Node.js crypto.scryptSync with a unique cryptographically random salt.
+ * Asynchronously hashes a plaintext password using non-blocking crypto.scrypt with a unique random salt.
  * Returns formatted string: <salt_hex>:<derived_key_hex>
  */
-export function hashPassword(password: string): string {
+export async function hashPassword(password: string): Promise<string> {
+  const salt = randomBytes(SALT_BYTES);
+  const derivedKey = (await scryptAsync(password, salt, KEY_LEN_BYTES)) as Buffer;
+  return `${salt.toString('hex')}:${derivedKey.toString('hex')}`;
+}
+
+/**
+ * Synchronous variant for legacy scripts or migration routines only.
+ */
+export function hashPasswordSync(password: string): string {
   const salt = randomBytes(SALT_BYTES);
   const derivedKey = scryptSync(password, salt, KEY_LEN_BYTES);
   return `${salt.toString('hex')}:${derivedKey.toString('hex')}`;
 }
 
 /**
- * Verifies a plaintext password against a stored scrypt hash using timingSafeEqual.
+ * Asynchronously verifies a plaintext password against a stored scrypt hash using timingSafeEqual.
+ * Completely non-blocking to prevent Node.js event-loop starvation.
  */
-export function verifyPassword(password: string, storedHash: string): boolean {
+export async function verifyPassword(password: string, storedHash: string): Promise<boolean> {
+  if (!password || !storedHash) return false;
+
+  const parts = storedHash.split(':');
+  if (parts.length !== 2) return false;
+
+  const [saltHex, expectedKeyHex] = parts;
+  if (!saltHex || !expectedKeyHex) return false;
+
+  try {
+    const salt = Buffer.from(saltHex, 'hex');
+    const expectedKey = Buffer.from(expectedKeyHex, 'hex');
+    const derivedKey = (await scryptAsync(password, salt, KEY_LEN_BYTES)) as Buffer;
+
+    if (derivedKey.length !== expectedKey.length) {
+      return false;
+    }
+
+    return timingSafeEqual(derivedKey, expectedKey);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Synchronous verification variant for legacy tests or fallbacks.
+ */
+export function verifyPasswordSync(password: string, storedHash: string): boolean {
   if (!password || !storedHash) return false;
 
   const parts = storedHash.split(':');
@@ -81,4 +120,3 @@ export function generateInvitationToken(): { rawToken: string; tokenHash: string
   const tokenHash = hashToken(rawToken);
   return { rawToken, tokenHash };
 }
-

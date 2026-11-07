@@ -31,12 +31,14 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
       );
     }
 
-    // ── Synthetic QA Fixture Interceptor (Zero DB Mutation) ──────────────────
+    // ── Synthetic QA Fixture Interceptor (Development only, strictly isolated from production) ─
+    const allowFixtures = process.env.NODE_ENV !== 'production' && process.env.ALLOW_QA_FIXTURES === 'true';
     if (
-      orderId === 'MC-QA-ISOLATED-STANDARD' ||
-      orderId === 'MC-QA-ISOLATED-MULTIPAGE' ||
-      orderId === 'MC-QA-POR-FIXTURE' ||
-      orderId === 'MC-QA-FINANCIAL-RECON'
+      allowFixtures &&
+      (orderId === 'MC-QA-ISOLATED-STANDARD' ||
+        orderId === 'MC-QA-ISOLATED-MULTIPAGE' ||
+        orderId === 'MC-QA-POR-FIXTURE' ||
+        orderId === 'MC-QA-FINANCIAL-RECON')
     ) {
       const { getFixture, saveFixture, resetAllFixtures } = await import('@/lib/invoice-test-fixtures');
       if (req.headers.get('x-reset-fixtures') === 'true') {

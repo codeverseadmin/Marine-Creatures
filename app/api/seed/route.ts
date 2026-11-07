@@ -1,19 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ProductModel } from '@/models/Product';
-import { OrderModel } from '@/models/Order';
 import { BannerModel } from '@/models/Banner';
 import { SettingModel } from '@/models/Setting';
 import { PRODUCTS } from '@/lib/data/products';
 import { DEFAULT_BANNERS } from '@/lib/data/banners';
-import { isAdminRequest } from '@/lib/auth';
+import { requireAuthenticatedEmployee, recordAuditLog } from '@/lib/rbac/guard';
+import { getClientIp } from '@/lib/rate-limit';
 
 export async function POST(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ success: false, error: 'Unauthorized: Admin authentication required' }, { status: 401 });
+  // SEC-RBAC-P0-01 Remediation: Permanent protection against catastrophic catalog data wipes
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json(
+      { success: false, error: 'Forbidden: Database seeding is permanently disabled in production environments' },
+      { status: 403 }
+    );
+  }
+
+  // Non-production seeding strictly requires an explicit environment flag
+  if (process.env.ALLOW_SEEDING !== 'true') {
+    return NextResponse.json(
+      { success: false, error: 'Forbidden: Database seeding is disabled. Set ALLOW_SEEDING=true in local development to enable.' },
+      { status: 403 }
+    );
+  }
+
+  // Must be authenticated Owner
+  const { auth, errorResponse } = await requireAuthenticatedEmployee(req);
+  if (errorResponse) return errorResponse;
+
+  if (!auth!.isOwner) {
+    return NextResponse.json(
+      { success: false, error: 'Forbidden: Only an Owner may trigger development database seeding' },
+      { status: 403 }
+    );
   }
 
   try {
+    const ip = getClientIp(req);
     await connectToDatabase();
 
     // 1. Seed Products
@@ -43,9 +67,19 @@ export async function POST(req: NextRequest) {
       { upsert: true }
     );
 
+    await recordAuditLog({
+      action: 'SYSTEM_SETTINGS_UPDATED',
+      entityType: 'setting',
+      entityId: 'seed',
+      entityName: 'Database Seeder',
+      summary: 'Executed development database seeding for products and banners',
+      actor: auth!.actorEmail,
+      ip,
+    });
+
     return NextResponse.json({
       success: true,
-      message: 'MongoDB Atlas database successfully seeded with official Marine Creatures catalog & banners!',
+      message: 'Development database successfully seeded with official Marine Creatures catalog & banners!',
       counts: {
         products: PRODUCTS.length,
         banners: bannerDocs.length,

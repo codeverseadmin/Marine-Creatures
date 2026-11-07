@@ -5,6 +5,7 @@ import { MediaModel } from '@/models/Media';
 import { CaseStudyModel } from '@/models/CaseStudy';
 import { requirePermission, requireAuthenticatedEmployee } from '@/lib/rbac/guard';
 import { recordAuditLog } from '@/lib/audit';
+import { resolveAuthoritativeProduct } from '@/lib/services/product-resolution';
 
 export async function GET(req: NextRequest) {
   const { auth, errorResponse } = await requirePermission(req, 'media.read');
@@ -17,19 +18,21 @@ export async function GET(req: NextRequest) {
     // ── Dedicated Product Media Query Handler ──
     const productId = searchParams.get('productId');
     if (productId && productId.trim()) {
-      const cleanId = productId.trim().toLowerCase();
-      const product = await ProductModel.findOne({ id: cleanId }).lean();
+      const cleanId = productId.trim();
+      const product = await resolveAuthoritativeProduct(cleanId, { lean: true });
 
-      if (!product) {
+      if (!product || !product.id) {
         return NextResponse.json(
           { success: false, error: `Product "${cleanId}" not found in catalog database.` },
           { status: 404 }
         );
       }
 
+      const canonicalProductId = product.id;
+
       // Find any database-uploaded media associated with this specific product
       const uploadedMedia = await MediaModel.find(
-        { productId: cleanId },
+        { productId: canonicalProductId },
         { data: 0 }
       )
         .sort({ createdAt: -1 })
@@ -245,15 +248,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const cleanProdId = productId.trim().toLowerCase();
-    const product = await ProductModel.findOne({ id: cleanProdId });
+    const cleanProdId = productId.trim();
+    const product = await resolveAuthoritativeProduct(cleanProdId);
 
-    if (!product) {
+    if (!product || !product.id) {
       return NextResponse.json(
         { success: false, error: `Product "${cleanProdId}" not found.` },
         { status: 404 }
       );
     }
+
+    const canonicalProductId = product.id;
 
     const currentImages = Array.isArray(product.images) ? [...product.images] : [];
     let updatedImages: string[];
@@ -275,9 +280,9 @@ export async function POST(req: NextRequest) {
 
     await recordAuditLog({
       action: 'PRODUCT_MEDIA_UPDATED',
-      entityId: cleanProdId,
+      entityId: canonicalProductId,
       entityName: product.name,
-      summary: `Attached image asset to "${product.name}" (${cleanProdId})`,
+      summary: `Attached image asset to "${product.name}" (${canonicalProductId})`,
       details: { attachedUrl: cleanUrl, isPrimary: Boolean(isPrimary), totalImages: updatedImages.length },
       req,
     });
@@ -286,7 +291,7 @@ export async function POST(req: NextRequest) {
       success: true,
       message: 'Media asset attached successfully.',
       data: {
-        productId: cleanProdId,
+        productId: canonicalProductId,
         images: updatedImages,
         imageStatus: product.imageStatus,
       },
@@ -324,14 +329,14 @@ export async function PATCH(req: NextRequest) {
 
       if (typeof altText === 'string') mediaItem.altText = altText.trim();
       if (typeof productId === 'string' && productId.trim()) {
-        const prod = await ProductModel.findOne({ id: productId.trim().toLowerCase() }).lean();
-        if (!prod) {
+        const prod = await resolveAuthoritativeProduct(productId.trim(), { lean: true });
+        if (!prod || !prod.id) {
           return NextResponse.json(
             { success: false, error: `Cannot associate with non-existent product "${productId}".` },
             { status: 404 }
           );
         }
-        mediaItem.productId = productId.trim().toLowerCase();
+        mediaItem.productId = prod.id;
       }
 
       await mediaItem.save();
@@ -357,15 +362,16 @@ export async function PATCH(req: NextRequest) {
 
     // 2. Update Product media attributes (images array, reordering, primary designation, imageStatus)
     if (productId && typeof productId === 'string') {
-      const cleanProdId = productId.trim().toLowerCase();
-      const product = await ProductModel.findOne({ id: cleanProdId });
-      if (!product) {
+      const cleanProdId = productId.trim();
+      const product = await resolveAuthoritativeProduct(cleanProdId);
+      if (!product || !product.id) {
         return NextResponse.json(
           { success: false, error: `Product "${cleanProdId}" not found.` },
           { status: 404 }
         );
       }
 
+      const canonicalProdId = product.id;
       let modified = false;
 
       if (Array.isArray(images)) {
@@ -389,9 +395,9 @@ export async function PATCH(req: NextRequest) {
         await product.save();
         await recordAuditLog({
           action: 'PRODUCT_MEDIA_UPDATED',
-          entityId: cleanProdId,
+          entityId: canonicalProdId,
           entityName: product.name,
-          summary: `Updated media configuration for "${product.name}" (${cleanProdId})`,
+          summary: `Updated media configuration for "${product.name}" (${canonicalProdId})`,
           details: { imageCount: product.images?.length, imageStatus: product.imageStatus },
           req,
         });
@@ -401,7 +407,7 @@ export async function PATCH(req: NextRequest) {
         success: true,
         message: 'Product media configuration updated successfully.',
         data: {
-          productId: cleanProdId,
+          productId: canonicalProdId,
           images: product.images,
           imageStatus: product.imageStatus,
         },
@@ -486,18 +492,19 @@ export async function DELETE(req: NextRequest) {
 
     // 2. If productId and image URL provided, strictly verify product ownership before deletion
     if (productId && url) {
-      const cleanProdId = productId.trim().toLowerCase();
-      const prod = await ProductModel.findOne({ id: cleanProdId });
-      if (!prod) {
+      const cleanProdId = productId.trim();
+      const prod = await resolveAuthoritativeProduct(cleanProdId);
+      if (!prod || !prod.id) {
         return NextResponse.json(
           { success: false, error: `Product "${cleanProdId}" not found.` },
           { status: 404 }
         );
       }
+      const canonicalProdId = prod.id;
 
       if (!prod.images || !prod.images.includes(url)) {
         return NextResponse.json(
-          { success: false, error: `Asset does not belong to product "${cleanProdId}". Cannot delete unrelated asset.` },
+          { success: false, error: `Asset does not belong to product "${canonicalProdId}". Cannot delete unrelated asset.` },
           { status: 404 }
         );
       }
@@ -512,9 +519,9 @@ export async function DELETE(req: NextRequest) {
 
       await recordAuditLog({
         action: 'PRODUCT_MEDIA_UPDATED',
-        entityId: cleanProdId,
+        entityId: canonicalProdId,
         entityName: prod.name,
-        summary: `Removed image asset from product "${prod.name}" (${cleanProdId})`,
+        summary: `Removed image asset from product "${prod.name}" (${canonicalProdId})`,
         details: { removedUrl: url, remainingCount: updatedImages.length },
         req,
       });

@@ -208,13 +208,29 @@ export function ProductCard({ product }: ProductCardProps) {
             <div className="flex items-baseline gap-2">
               {hasPrice ? (
                 <>
-                  <span className="text-base sm:text-lg font-bold text-[var(--color-text)]">
-                    ₹{product.price.toLocaleString('en-IN')}
-                  </span>
-                  {(product.compareAtPrice || product.originalPrice) && (product.compareAtPrice || product.originalPrice)! > product.price && (
-                    <span className="text-xs text-[var(--color-muted)] line-through">
-                      ₹{(product.compareAtPrice || product.originalPrice)!.toLocaleString('en-IN')}
-                    </span>
+                  {product.variants && product.variants.length > 0 && product.variants.some((v) => v.price !== undefined) ? (
+                    <div className="flex flex-col">
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">From</span>
+                        <span className="text-base sm:text-lg font-bold text-[var(--color-text)]">
+                          ₹{Math.min(...product.variants.filter((v) => v.price !== undefined).map((v) => v.price!)).toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-cyan-400 font-medium">
+                        {product.variants.length} models (up to ₹{Math.max(...product.variants.filter((v) => v.price !== undefined).map((v) => v.price!)).toLocaleString('en-IN')})
+                      </span>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="text-base sm:text-lg font-bold text-[var(--color-text)]">
+                        ₹{product.price.toLocaleString('en-IN')}
+                      </span>
+                      {(product.compareAtPrice || product.originalPrice) && (product.compareAtPrice || product.originalPrice)! > product.price && (
+                        <span className="text-xs text-[var(--color-muted)] line-through">
+                          ₹{(product.compareAtPrice || product.originalPrice)!.toLocaleString('en-IN')}
+                        </span>
+                      )}
+                    </>
                   )}
                 </>
               ) : (

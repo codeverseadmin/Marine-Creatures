@@ -3,7 +3,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { EmployeeModel } from '@/models/Employee';
 import { RoleModel } from '@/models/Role';
 import { requirePermission, recordAuditLog } from '@/lib/rbac/guard';
-import { SYSTEM_ROLES } from '@/lib/rbac/permissions';
+import { SYSTEM_ROLES, PERMISSIONS_REGISTRY } from '@/lib/rbac/permissions';
 import { getClientIp } from '@/lib/rate-limit';
 
 interface RouteContext {
@@ -66,6 +66,31 @@ export async function PATCH(req: NextRequest, context: RouteContext) {
       customPermissions: employee.customPermissions,
     };
 
+    // ── Self-Modification & Self-Escalation Guard ────────────────────────────
+    const isSelf = auth!.actorId === id || (auth!.employee && auth!.employee._id.toString() === id);
+    if (isSelf) {
+      if (roleId !== undefined || status !== undefined || customPermissions !== undefined) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Self-escalation forbidden: Employees cannot modify their own role, status, or custom permissions.',
+          },
+          { status: 403 }
+        );
+      }
+    }
+
+    // ── Protected Owner Account Guard ────────────────────────────────────────
+    if (employee.roleId === 'owner' && !auth!.isOwner) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Forbidden: Only an Owner can modify an Owner profile.',
+        },
+        { status: 403 }
+      );
+    }
+
     // ── Last Active Owner Protection ─────────────────────────────────────────
     if (employee.roleId === 'owner' && employee.status === 'active') {
       const willDemote = roleId && roleId !== 'owner';
@@ -118,7 +143,41 @@ export async function PATCH(req: NextRequest, context: RouteContext) {
       employee.sessionVersion = (employee.sessionVersion || 1) + 1;
     }
 
-    if (customPermissions && Array.isArray(customPermissions)) {
+    // ── Custom Permissions Guard (Owner-only & Wildcard Banned) ──────────────
+    if (customPermissions !== undefined) {
+      if (!auth!.isOwner) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Forbidden: Only an Owner can assign or modify custom permissions.',
+          },
+          { status: 403 }
+        );
+      }
+
+      if (!Array.isArray(customPermissions)) {
+        return NextResponse.json(
+          { success: false, error: 'Custom permissions must be an array of permission keys' },
+          { status: 400 }
+        );
+      }
+
+      if (customPermissions.includes('*')) {
+        return NextResponse.json(
+          { success: false, error: "Wildcard '*' permission cannot be assigned via custom permissions." },
+          { status: 400 }
+        );
+      }
+
+      for (const perm of customPermissions) {
+        if (typeof perm !== 'string' || !PERMISSIONS_REGISTRY[perm]) {
+          return NextResponse.json(
+            { success: false, error: `Invalid permission '${perm}' in custom permissions` },
+            { status: 400 }
+          );
+        }
+      }
+
       employee.customPermissions = customPermissions;
       employee.sessionVersion = (employee.sessionVersion || 1) + 1;
     }

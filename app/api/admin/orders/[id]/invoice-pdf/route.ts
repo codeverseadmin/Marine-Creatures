@@ -60,14 +60,16 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     const logoPath = resolveAssetPath('logo.png');
     const signaturePath = resolveAssetPath('signature.png');
 
-    // ── 2a. Isolated Synthetic Test Fixtures (100% Isolated from Customer DB) ─
+    // ── 2a. Isolated Synthetic Test Fixtures (Development only, strictly isolated from production) ─
+    const allowFixtures = process.env.NODE_ENV !== 'production' && process.env.ALLOW_QA_FIXTURES === 'true';
     if (
-      orderId === 'MC-QA-ISOLATED-STANDARD' ||
-      orderId === 'MC-QA-ISOLATED-MULTIPAGE' ||
-      orderId === 'MC-QA-POR-FIXTURE' ||
-      orderId === 'MC-QA-POR-RESOLVED-FIXTURE' ||
-      orderId === 'MC-QA-FINANCIAL-RECON' ||
-      orderId === 'MC-QA-FINANCIAL-RECON-RESOLVED'
+      allowFixtures &&
+      (orderId === 'MC-QA-ISOLATED-STANDARD' ||
+        orderId === 'MC-QA-ISOLATED-MULTIPAGE' ||
+        orderId === 'MC-QA-POR-FIXTURE' ||
+        orderId === 'MC-QA-POR-RESOLVED-FIXTURE' ||
+        orderId === 'MC-QA-FINANCIAL-RECON' ||
+        orderId === 'MC-QA-FINANCIAL-RECON-RESOLVED')
     ) {
       const { getFixture, resetAllFixtures } = await import('@/lib/invoice-test-fixtures');
       if (req.headers.get('x-reset-fixtures') === 'true') {

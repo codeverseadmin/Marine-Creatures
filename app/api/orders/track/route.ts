@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { OrderModel } from '@/models/Order';
-import { isAdminRequest } from '@/lib/auth';
+import { requirePermission } from '@/lib/rbac/guard';
 import { verifyInvoiceTokenHash } from '@/lib/invoice-token';
 import { getClientIp, checkRateLimit, rateLimitResponse } from '@/lib/rate-limit';
 
@@ -20,21 +20,24 @@ export async function GET(req: NextRequest) {
     }
 
     const normalizedId = orderId.startsWith('MC-') ? orderId : `MC-${orderId}`;
-    const isAdmin = isAdminRequest(req);
+    const adminCheck = await requirePermission(req, 'orders.read');
+    const isAdmin = !adminCheck.errorResponse;
 
     const secureHeaders = {
       'Cache-Control': 'no-store, no-cache, must-revalidate, private',
       'X-Content-Type-Options': 'nosniff',
     };
 
-    // ── Synthetic QA Fixture Interceptor (Zero DB Mutation) ──────────────────
+    // ── Synthetic QA Fixture Interceptor (Development only, strictly isolated from production) ─
+    const allowFixtures = process.env.NODE_ENV !== 'production' && process.env.ALLOW_QA_FIXTURES === 'true';
     if (
-      normalizedId === 'MC-QA-ISOLATED-STANDARD' ||
-      normalizedId === 'MC-QA-ISOLATED-MULTIPAGE' ||
-      normalizedId === 'MC-QA-POR-FIXTURE' ||
-      normalizedId === 'MC-QA-POR-RESOLVED-FIXTURE' ||
-      normalizedId === 'MC-QA-FINANCIAL-RECON' ||
-      normalizedId === 'MC-QA-FINANCIAL-RECON-RESOLVED'
+      allowFixtures &&
+      (normalizedId === 'MC-QA-ISOLATED-STANDARD' ||
+        normalizedId === 'MC-QA-ISOLATED-MULTIPAGE' ||
+        normalizedId === 'MC-QA-POR-FIXTURE' ||
+        normalizedId === 'MC-QA-POR-RESOLVED-FIXTURE' ||
+        normalizedId === 'MC-QA-FINANCIAL-RECON' ||
+        normalizedId === 'MC-QA-FINANCIAL-RECON-RESOLVED')
     ) {
       const { getFixture } = await import('@/lib/invoice-test-fixtures');
       const fixture: any = getFixture(normalizedId);

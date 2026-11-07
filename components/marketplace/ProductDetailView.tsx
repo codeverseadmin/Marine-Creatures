@@ -34,7 +34,7 @@ export function ProductDetailView({
 
   // Selected variant state
   const [selectedVariant, setSelectedVariant] = useState<string>(initialVariantId || product.variants?.[0]?.id || '');
-  const selectedVariantObj = product.variants?.find((v) => v.id === selectedVariant);
+  const selectedVariantObj = product.variants?.find((v) => v.id.toLowerCase() === selectedVariant.toLowerCase());
   const activePrice = selectedVariantObj?.price !== undefined ? selectedVariantObj.price : product.price;
 
   // Unified Media List (Photos + Videos)
@@ -111,6 +111,28 @@ export function ProductDetailView({
   const [added, setAdded] = useState(false);
   const [pincode, setPincode] = useState('');
   const [pincodeChecked, setPincodeChecked] = useState(false);
+  const [dynamicReviewStats, setDynamicReviewStats] = useState<{
+    count: number;
+    averageRating: number | null;
+  } | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    fetch(`/api/products/${product.id}/reviews`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (isMounted && data?.success && typeof data.count === 'number') {
+          setDynamicReviewStats({
+            count: data.count,
+            averageRating: data.averageRating,
+          });
+        }
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, [product.id]);
 
   const prevMedia = () => {
     setActiveMediaIndex((prev) => (prev - 1 + mediaItems.length) % mediaItems.length);
@@ -128,11 +150,11 @@ export function ProductDetailView({
   };
 
   const handleAddToCart = (e: React.MouseEvent) => {
-    const variantObj = product.variants?.find((v) => v.id === selectedVariant);
+    const variantObj = product.variants?.find((v) => v.id.toLowerCase() === selectedVariant.toLowerCase());
     const itemToAdd: Product = variantObj
       ? {
           ...product,
-          id: variantObj.price !== undefined ? `${product.id}__${variantObj.id}` : product.id,
+          id: `${product.id}__${variantObj.id}`,
           name: `${product.name} — ${variantObj.name}`,
           price: variantObj.price !== undefined ? variantObj.price : product.price,
         }
@@ -415,14 +437,28 @@ export function ProductDetailView({
 
               {/* Customer Rating Banner */}
               <div className="pt-1">
-                <a
-                  href="#customer-reviews"
-                  className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white transition-colors bg-slate-900/60 hover:bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800"
-                >
-                  <span className="text-yellow-400 font-bold">★ {product.rating || 5.0}</span>
-                  <span className="text-slate-400">({product.reviewsCount || 24} Verified Reviews)</span>
-                  <span className="text-cyan-400 font-semibold text-[11px] ml-1">View Reviews &amp; Photos ↓</span>
-                </a>
+                {((dynamicReviewStats?.count || 0) > 0 || (product.reviews && product.reviews.length > 0)) ? (
+                  <a
+                    href="#customer-reviews"
+                    className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white transition-colors bg-slate-900/60 hover:bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800"
+                  >
+                    <span className="text-yellow-400 font-bold">
+                      ★ {dynamicReviewStats?.averageRating ?? (product.reviews?.length ? (product.reviews.reduce((acc, r) => acc + r.rating, 0) / product.reviews.length).toFixed(1) : '5.0')}
+                    </span>
+                    <span className="text-slate-400">
+                      ({dynamicReviewStats?.count ?? product.reviews?.length ?? 0} {(dynamicReviewStats?.count ?? product.reviews?.length ?? 0) === 1 ? 'Verified Review' : 'Verified Reviews'})
+                    </span>
+                    <span className="text-cyan-400 font-semibold text-[11px] ml-1">View Reviews ↓</span>
+                  </a>
+                ) : (
+                  <a
+                    href="#customer-reviews"
+                    className="inline-flex items-center gap-2 text-xs text-slate-400 hover:text-slate-200 transition-colors bg-slate-900/40 hover:bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-800/80"
+                  >
+                    <span className="text-slate-400">Customer Reviews</span>
+                    <span className="text-cyan-400/90 font-medium text-[11px] ml-0.5">Explore ↓</span>
+                  </a>
+                )}
               </div>
 
               {/* Quick Spec Badges */}
@@ -457,24 +493,41 @@ export function ProductDetailView({
               {/* Available Variants Selector */}
               {product.variants && product.variants.length > 0 && (
                 <div className="space-y-2 pt-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 block">
-                    Available Models &amp; Variants:
-                  </span>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 block">
+                      Available Models &amp; Variants:
+                    </span>
+                    {selectedVariantObj && (
+                      <span className="text-[11px] text-cyan-400 font-mono font-medium">
+                        Selected: {selectedVariantObj.id.toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2.5">
                     {product.variants.map((v) => {
-                      const isSelected = selectedVariant === v.id;
+                      const isSelected = selectedVariant.toLowerCase() === v.id.toLowerCase();
                       return (
                         <button
                           key={v.id}
                           type="button"
                           onClick={() => setSelectedVariant(v.id)}
-                          className={`px-3.5 py-2 rounded-xl text-xs font-medium border transition-all ${
+                          className={`px-3.5 py-2.5 rounded-xl text-xs font-medium border transition-all flex items-center gap-2 cursor-pointer ${
                             isSelected
-                              ? 'bg-[var(--color-accent)]/20 border-[var(--color-accent)] text-white shadow-[0_0_12px_rgba(0,184,217,0.25)]'
-                              : 'bg-white/[0.03] border-white/10 text-slate-300 hover:border-white/25 hover:text-white'
+                              ? 'bg-[var(--color-accent)]/20 border-[var(--color-accent)] text-white shadow-[0_0_14px_rgba(0,184,217,0.3)] ring-1 ring-[var(--color-accent)] font-semibold'
+                              : 'bg-white/[0.03] border-white/10 text-slate-300 hover:border-white/30 hover:text-white'
                           }`}
                         >
-                          {v.name}{v.price !== undefined ? ` — ₹${v.price.toLocaleString('en-IN')}` : ''}
+                          {isSelected && (
+                            <svg className="w-3.5 h-3.5 text-cyan-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                          <span>{v.name}</span>
+                          {v.price !== undefined && (
+                            <span className={`text-[11px] font-bold ${isSelected ? 'text-cyan-300' : 'text-slate-400'}`}>
+                              — ₹{v.price.toLocaleString('en-IN')}
+                            </span>
+                          )}
                         </button>
                       );
                     })}

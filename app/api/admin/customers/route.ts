@@ -112,6 +112,20 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Customer ID is required' }, { status: 400 });
     }
 
+    // SEC-RBAC-P2-01: Field-level permission enforcement
+    const isProfileFieldAttempt = Boolean(tags !== undefined || city !== undefined || address !== undefined || pincode !== undefined || email !== undefined || name !== undefined);
+    const hasProfileUpdatePerm = auth!.isOwner || auth!.permissions.has('customers.update');
+
+    if (isProfileFieldAttempt && !hasProfileUpdatePerm) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Forbidden: Lacking 'customers.update' permission to modify customer identity or contact profile fields",
+        },
+        { status: 403 }
+      );
+    }
+
     const customer = await CustomerModel.findOne({ id });
     if (!customer) {
       return NextResponse.json({ success: false, error: 'Customer not found' }, { status: 404 });

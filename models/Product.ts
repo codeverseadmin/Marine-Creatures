@@ -2,6 +2,7 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export interface IProductDocument extends Document {
   id: string;
+  slug?: string;
   name: string;
   scientificName?: string;
   brand?: string;
@@ -11,8 +12,8 @@ export interface IProductDocument extends Document {
   price: number;
   compareAtPrice?: number;
   originalPrice?: number;
-  rating: number;
-  reviewsCount: number;
+  rating?: number;
+  reviewsCount?: number;
   badge?: string;
   inStock: boolean;
   stockCount: number;
@@ -83,6 +84,7 @@ export interface IProductDocument extends Document {
 const ProductSchema = new Schema<IProductDocument>(
   {
     id: { type: String, required: true, unique: true, index: true },
+    slug: { type: String, index: true, sparse: true },
     sku: { type: String, index: true },
     name: { type: String, required: true },
     scientificName: { type: String },
@@ -93,8 +95,8 @@ const ProductSchema = new Schema<IProductDocument>(
     price: { type: Number, required: true },
     compareAtPrice: { type: Number },
     originalPrice: { type: Number },
-    rating: { type: Number, default: 5.0 },
-    reviewsCount: { type: Number, default: 1 },
+    rating: { type: Number },
+    reviewsCount: { type: Number, default: 0 },
     badge: { type: String },
     inStock: { type: Boolean, default: true },
     stockCount: { type: Number, default: 10 },

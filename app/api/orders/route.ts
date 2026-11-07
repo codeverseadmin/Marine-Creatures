@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { connectToDatabase } from '@/lib/mongodb';
 import { OrderModel } from '@/models/Order';
+import { ProductModel } from '@/models/Product';
+import { PRODUCTS } from '@/lib/data/products';
 import { CustomerModel } from '@/models/Customer';
-import { isAdminRequest } from '@/lib/auth';
+import { requirePermission, requireAnyPermission, resolveAuthContext } from '@/lib/rbac/guard';
 import { recordAuditLog } from '@/lib/audit';
 import { generateInvoiceToken } from '@/lib/invoice-token';
 import { getClientIp, checkRateLimit, rateLimitResponse } from '@/lib/rate-limit';
@@ -79,14 +82,10 @@ const DEFAULT_ORDERS_SEED = [
 ];
 
 export async function GET(req: NextRequest) {
-  // STRICT SECURITY GATE: Bulk order enumeration is strictly restricted to authenticated administrators.
+  // STRICT SECURITY GATE: Bulk order enumeration is strictly restricted to employees with orders.read.
   // Anonymous requests over the public internet are rejected to protect customer PII (phone, address, notes).
-  if (!isAdminRequest(req)) {
-    return NextResponse.json(
-      { success: false, error: 'Unauthorized: Admin authentication required to access orders dataset' },
-      { status: 401 }
-    );
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'orders.read');
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();
@@ -130,24 +129,234 @@ export async function POST(req: NextRequest) {
 
     await connectToDatabase();
     const body = await req.json();
+    const auth = await resolveAuthContext(req);
+    const isAdmin =
+      auth.authenticated &&
+      (auth.isOwner ||
+        auth.permissions.has('orders.create') ||
+        auth.permissions.has('orders.update_status'));
 
-    const rawId = typeof body.id === 'string' ? body.id.trim().slice(0, 50) : '';
-    const id = rawId.startsWith('MC-') ? rawId : `MC-${rawId}`;
+    // 1. Order ID Generation & Overwrite Elimination
+    // Public requests NEVER trust client-supplied IDs. Server generates an authoritative unique reference.
+    // Admin callers may specify an ID, but collision with an existing order is rejected with 409 Conflict.
+    let id = '';
+    if (isAdmin && typeof body.id === 'string' && body.id.trim().length > 0) {
+      const rawId = body.id.trim().slice(0, 50);
+      id = rawId.startsWith('MC-') ? rawId : `MC-${rawId}`;
+      const existing = await OrderModel.findOne({ id }).select('id').lean();
+      if (existing) {
+        return NextResponse.json(
+          { success: false, error: `Order #${id} already exists. Use PATCH to update existing orders.` },
+          { status: 409 }
+        );
+      }
+    } else {
+      // Server-authoritative ID generation for public storefront orders
+      // Format: MC-<timestamp>-<32-character-random-hex> (128 bits of cryptographic randomness)
+      let isUnique = false;
+      let attempts = 0;
+      while (!isUnique && attempts < 5) {
+        attempts++;
+        const tsPart = Date.now().toString();
+        const randHex = crypto.randomBytes(16).toString('hex').toUpperCase();
+        const candidateId = `MC-${tsPart}-${randHex}`;
+        const existing = await OrderModel.findOne({ id: candidateId }).select('id').lean();
+        if (!existing) {
+          id = candidateId;
+          isUnique = true;
+        }
+      }
+      if (!isUnique || !id) {
+        return NextResponse.json(
+          { success: false, error: 'Could not generate unique order reference. Please retry.' },
+          { status: 409 }
+        );
+      }
+    }
+
     const customerName = typeof body.customerName === 'string' ? body.customerName.trim().slice(0, 200) : '';
     const phone = typeof body.phone === 'string' ? body.phone.trim().slice(0, 25) : '';
     const address = typeof body.address === 'string' ? body.address.trim().slice(0, 1000) : '';
 
-    if (!id || !customerName || !phone || !address) {
+    if (!customerName || !phone || !address) {
       return NextResponse.json(
-        { success: false, error: 'Missing required order fields (id, customerName, phone, address)' },
+        { success: false, error: 'Missing required order fields (customerName, phone, address)' },
         { status: 400 }
       );
     }
 
-    const subtotal = Math.max(0, Number(body.subtotal ?? body.totalAmount ?? 0));
-    const totalAmount = Math.max(0, Number(body.totalAmount ?? subtotal ?? 0));
-    const city = typeof body.city === 'string' ? body.city.trim().slice(0, 100) : '';
-    const pincode = typeof body.pincode === 'string' ? body.pincode.trim().slice(0, 20) : '';
+    if (!Array.isArray(body.items) || body.items.length === 0) {
+      return NextResponse.json(
+        { success: false, error: 'Order must contain at least one item.' },
+        { status: 400 }
+      );
+    }
+
+    // 2. Authoritative Item & Pricing Validation
+    // Resolves every item strictly from the server-side catalogue.
+    // Completely ignores client-supplied unit prices, subtotals, and totals.
+    const validatedItems: any[] = [];
+    for (const rawItem of body.items) {
+      const rawItemId = String(rawItem?.id || '').trim();
+      if (!rawItemId) {
+        return NextResponse.json(
+          { success: false, error: 'Item ID is required for all order items.' },
+          { status: 400 }
+        );
+      }
+
+      // Parse variant if present in ID (e.g. "product-id__variant-id") or passed as property
+      let baseProductId = rawItemId;
+      let variantId = typeof rawItem.variantId === 'string' ? rawItem.variantId.trim() : undefined;
+      if (rawItemId.includes('__')) {
+        const parts = rawItemId.split('__');
+        baseProductId = parts[0];
+        variantId = parts[1];
+      }
+
+      // Authoritative lookup: MongoDB first, fallback to static PRODUCTS
+      let product: any = await ProductModel.findOne({ id: baseProductId.toLowerCase() }).lean();
+      if (!product) {
+        product = PRODUCTS.find((p) => p.id === baseProductId.toLowerCase());
+      }
+
+      if (!product) {
+        return NextResponse.json(
+          { success: false, error: `Product '${baseProductId}' does not exist in the official catalogue.` },
+          { status: 400 }
+        );
+      }
+
+      if (product.inStock === false || product.availabilityStatus === 'OUT OF STOCK') {
+        return NextResponse.json(
+          { success: false, error: `Product '${product.name}' is currently unavailable.` },
+          { status: 400 }
+        );
+      }
+
+      // Quantity validation: must be integer between 1 and 100
+      const rawQuantity = Number(rawItem.quantity);
+      if (!Number.isInteger(rawQuantity) || rawQuantity < 1 || rawQuantity > 100) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Invalid quantity for '${product.name}'. Quantity must be an integer between 1 and 100.`,
+          },
+          { status: 400 }
+        );
+      }
+      const quantity = rawQuantity;
+
+      // Variant resolution
+      let authoritativeUnitPrice = product.price;
+      let authoritativeItemName = product.name;
+      let resolvedItemId = product.id;
+
+      if (variantId) {
+        const matchedVariant = product.variants?.find(
+          (v: any) =>
+            v.id.toLowerCase() === variantId!.toLowerCase() ||
+            (v.sku && v.sku.toLowerCase() === variantId!.toLowerCase())
+        );
+
+        if (!matchedVariant) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: `Variant '${variantId}' does not belong to product '${product.name}'.`,
+            },
+            { status: 400 }
+          );
+        }
+
+        if (matchedVariant.inStock === false) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: `Variant '${matchedVariant.name}' of '${product.name}' is currently unavailable.`,
+            },
+            { status: 400 }
+          );
+        }
+
+        if (matchedVariant.price !== undefined) {
+          authoritativeUnitPrice = matchedVariant.price;
+        } else if (product.variants && product.variants.some((v: any) => v.price !== undefined)) {
+          return NextResponse.json(
+            { success: false, error: `Variant '${matchedVariant.name}' of '${product.name}' is missing authoritative pricing.` },
+            { status: 400 }
+          );
+        } else {
+          authoritativeUnitPrice = product.price;
+        }
+
+        authoritativeItemName = `${product.name} — ${matchedVariant.name}`;
+        resolvedItemId = `${product.id}__${matchedVariant.id}`;
+      } else if (
+        product.variants &&
+        product.variants.length > 0 &&
+        (product.price === 0 || product.variants.some((v: any) => v.price !== undefined)) &&
+        !product.priceOnRequest
+      ) {
+        // Multi-variant product with variant-specific pricing requires variant selection — NEVER silently fall back!
+        return NextResponse.json(
+          { success: false, error: `Please select a specific variant for '${product.name}'.` },
+          { status: 400 }
+        );
+      }
+
+      // Price on Request (POR) vs Standard Pricing
+      const isPor = Boolean(product.priceOnRequest || authoritativeUnitPrice === 0);
+      let finalPrice = 0;
+      let finalPricingStatus = 'STANDARD';
+      let finalPriceOnRequest = false;
+      let agreedUnitPrice: number | undefined = undefined;
+
+      if (isPor) {
+        finalPriceOnRequest = true;
+        if (isAdmin && typeof rawItem.agreedUnitPrice === 'number' && rawItem.agreedUnitPrice > 0) {
+          finalPrice = rawItem.agreedUnitPrice;
+          finalPricingStatus = 'AGREED';
+          agreedUnitPrice = rawItem.agreedUnitPrice;
+        } else {
+          // Public customers cannot invent agreed pricing; must be PENDING_POR with 0
+          finalPrice = 0;
+          finalPricingStatus = 'PENDING_POR';
+        }
+      } else {
+        // Authoritative standard price — strictly ignores any client price!
+        finalPrice = authoritativeUnitPrice;
+        finalPricingStatus = 'STANDARD';
+        finalPriceOnRequest = false;
+      }
+
+      validatedItems.push({
+        id: resolvedItemId,
+        name: authoritativeItemName,
+        price: finalPrice,
+        quantity,
+        image:
+          product.images && product.images.length > 0
+            ? product.images[0]
+            : typeof rawItem.image === 'string'
+            ? rawItem.image.slice(0, 1000)
+            : undefined,
+        category: product.category,
+        priceOnRequest: finalPriceOnRequest,
+        agreedUnitPrice,
+        pricingStatus: finalPricingStatus,
+      });
+    }
+
+    // Authoritative subtotal calculation — completely ignores client subtotal & totalAmount
+    const subtotal = validatedItems.reduce((sum: number, it: any) => sum + it.price * it.quantity, 0);
+    const totalAmount = subtotal;
+    const hasUnresolvedPorItems = validatedItems.some(
+      (i: any) => i.priceOnRequest || i.pricingStatus === 'PENDING_POR'
+    );
+
+    const city = typeof body.city === 'string' && body.city.trim() ? body.city.trim().slice(0, 100) : 'Destination City';
+    const pincode = typeof body.pincode === 'string' && body.pincode.trim() ? body.pincode.trim().slice(0, 20) : '700001';
     const orderNotes = typeof body.orderNotes === 'string' ? body.orderNotes.trim().slice(0, 2000) : undefined;
     const createdAt =
       typeof body.createdAt === 'string' && body.createdAt.length < 100
@@ -178,27 +387,40 @@ export async function POST(req: NextRequest) {
             },
           ];
 
-    // Only authenticated admins can create pre-approved orders; public orders are strictly unapproved
-    const isApproved = isAdminRequest(req) ? Boolean(body.isApproved ?? false) : false;
+    // Only authenticated admins can create pre-approved or progressed orders; public orders are strictly unapproved and 'placed'
+    const currentStep =
+      isAdmin && typeof body.currentStep === 'string' && VALID_STEPS.includes(body.currentStep as any)
+        ? body.currentStep
+        : 'placed';
 
-    // Check existing order for token preservation
-    const existingOrder = await OrderModel.findOne({ id }).select('invoiceTokenHash invoiceTokenCreatedAt invoiceTokenExpiresAt').lean();
+    const isApproved = isAdmin ? Boolean(body.isApproved ?? false) : false;
+    const approvedAt = isAdmin && typeof body.approvedAt === 'string' ? body.approvedAt : undefined;
 
-    let issuedToken: string | undefined = undefined;
-    let tokenHashToSave = existingOrder?.invoiceTokenHash;
-    let tokenCreatedAtToSave = existingOrder?.invoiceTokenCreatedAt;
-    let tokenExpiresAtToSave = existingOrder?.invoiceTokenExpiresAt;
+    // Fulfillment & tracking metadata strictly server-controlled
+    const courierName =
+      isAdmin && typeof body.courierName === 'string'
+        ? body.courierName.slice(0, 100)
+        : 'Priority Air Cargo Express';
 
-    if (!tokenHashToSave) {
-      const tokenData = generateInvoiceToken();
-      issuedToken = tokenData.rawToken;
-      tokenHashToSave = tokenData.tokenHash;
-      tokenCreatedAtToSave = tokenData.createdAt;
-      tokenExpiresAtToSave = tokenData.expiresAt;
-    }
+    const estimatedDelivery =
+      isAdmin && typeof body.estimatedDelivery === 'string'
+        ? body.estimatedDelivery.slice(0, 100)
+        : 'Within 24-48 Hours';
 
-    const orderPayload: any = {
-      ...body,
+    const awbNumber = isAdmin && typeof body.awbNumber === 'string' ? body.awbNumber.trim().slice(0, 100) : undefined;
+
+    const invoiceNumber =
+      isAdmin && typeof body.invoiceNumber === 'string' ? body.invoiceNumber.trim().slice(0, 100) : undefined;
+
+    // Fresh Invoice Token generation
+    const tokenData = generateInvoiceToken();
+    const issuedToken = tokenData.rawToken;
+    const tokenHashToSave = tokenData.tokenHash;
+    const tokenCreatedAtToSave = tokenData.createdAt;
+    const tokenExpiresAtToSave = tokenData.expiresAt;
+
+    // Explicit server-controlled order payload — ZERO client-payload spreading
+    const orderPayload = {
       id,
       customerName,
       phone,
@@ -206,44 +428,83 @@ export async function POST(req: NextRequest) {
       city,
       pincode,
       orderNotes,
+      items: validatedItems,
       subtotal,
       totalAmount,
-      createdAt,
+      currentStep,
+      hasUnresolvedPorItems,
+      awbNumber,
+      courierName,
+      estimatedDelivery,
       history,
       isApproved,
+      approvedAt,
+      invoiceNumber,
       invoiceTokenHash: tokenHashToSave,
       invoiceTokenCreatedAt: tokenCreatedAtToSave,
       invoiceTokenExpiresAt: tokenExpiresAtToSave,
+      createdAt,
     };
 
-    // Upsert to handle idempotent creation safely
-    const newOrder = await OrderModel.findOneAndUpdate(
-      { id },
-      { $set: orderPayload },
-      { upsert: true, new: true, runValidators: true }
-    ).lean();
+    // Create order using OrderModel.create — NEVER upsert or overwrite
+    // Safe retry on duplicate-key (E11000) collision (up to 3 insertion attempts)
+    let createdOrderDoc: any = null;
+    let insertAttempts = 0;
+    while (!createdOrderDoc && insertAttempts < 3) {
+      insertAttempts++;
+      try {
+        orderPayload.id = id;
+        if (!orderPayload.invoiceNumber) {
+          orderPayload.invoiceNumber = `INV-${id}`;
+        }
+        const [doc] = await OrderModel.create([orderPayload]);
+        createdOrderDoc = doc;
+      } catch (err: any) {
+        if (err?.code === 11000 && !isAdmin && insertAttempts < 3) {
+          console.warn(`[OrderCreation] Duplicate key collision on ${id}, regenerating with fresh 128-bit entropy...`);
+          id = `MC-${Date.now()}-${crypto.randomBytes(16).toString('hex').toUpperCase()}`;
+          continue;
+        }
+        throw err;
+      }
+    }
+
+    if (!createdOrderDoc) {
+      return NextResponse.json(
+        { success: false, error: 'Failed to create order after collision retries. Please try again.' },
+        { status: 409 }
+      );
+    }
+
+    const newOrder = createdOrderDoc.toObject();
 
     // Prepare response: Never expose invoiceTokenHash to clients
     const responseData: any = { ...newOrder };
     delete responseData.invoiceTokenHash;
-
-    if (issuedToken) {
-      responseData.invoiceToken = issuedToken;
-      responseData.invoiceUrl = `/invoice/${id}?token=${issuedToken}`;
-    }
+    responseData.invoiceToken = issuedToken;
+    responseData.invoiceUrl = `/invoice/${id}?token=${issuedToken}`;
 
     return NextResponse.json({ success: true, data: responseData }, { status: 201 });
   } catch (error: any) {
+    if (error?.code === 11000) {
+      return NextResponse.json(
+        { success: false, error: 'Order reference collision occurred. Please retry.' },
+        { status: 409 }
+      );
+    }
     console.error('Failed to create order in MongoDB:', error.message);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
 
 export async function PATCH(req: NextRequest) {
-  // Protected — only authenticated admins can update order status/fulfillment/tracking
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  // Protected — requires orders.update_status, orders.approve, or orders.tracking.update
+  const { auth, errorResponse } = await requireAnyPermission(req, [
+    'orders.update_status',
+    'orders.approve',
+    'orders.tracking.update',
+  ]);
+  if (errorResponse) return errorResponse;
 
   const secureHeaders = {
     'Cache-Control': 'no-store, no-cache, must-revalidate, private',
@@ -262,14 +523,16 @@ export async function PATCH(req: NextRequest) {
     const rawId = id.trim();
     const orderId = rawId.startsWith('MC-') ? rawId : `MC-${rawId}`;
 
-    // ── Synthetic QA Fixture Interceptor (Zero DB Mutation) ──────────────────
+    // ── Synthetic QA Fixture Interceptor (Zero DB Mutation, Development only) ─
+    const allowFixtures = process.env.NODE_ENV !== 'production' && process.env.ALLOW_QA_FIXTURES === 'true';
     if (
-      orderId === 'MC-QA-ISOLATED-STANDARD' ||
-      orderId === 'MC-QA-ISOLATED-MULTIPAGE' ||
-      orderId === 'MC-QA-POR-FIXTURE' ||
-      orderId === 'MC-QA-POR-RESOLVED-FIXTURE' ||
-      orderId === 'MC-QA-FINANCIAL-RECON' ||
-      orderId === 'MC-QA-FINANCIAL-RECON-RESOLVED'
+      allowFixtures &&
+      (orderId === 'MC-QA-ISOLATED-STANDARD' ||
+        orderId === 'MC-QA-ISOLATED-MULTIPAGE' ||
+        orderId === 'MC-QA-POR-FIXTURE' ||
+        orderId === 'MC-QA-POR-RESOLVED-FIXTURE' ||
+        orderId === 'MC-QA-FINANCIAL-RECON' ||
+        orderId === 'MC-QA-FINANCIAL-RECON-RESOLVED')
     ) {
       const { getFixture, saveFixture } = await import('@/lib/invoice-test-fixtures');
       const baseFixture: any = getFixture(orderId);
@@ -427,10 +690,9 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  // Protected — only admin can delete orders
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  // Protected — strictly requires orders.delete permission
+  const { auth, errorResponse } = await requirePermission(req, 'orders.delete');
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();

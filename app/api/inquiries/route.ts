@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { InquiryModel } from '@/models/Inquiry';
-import { isAdminRequest } from '@/lib/auth';
+import { requirePermission, recordAuditLog } from '@/lib/rbac/guard';
+import { checkRateLimit, getClientIp, rateLimitResponse } from '@/lib/rate-limit';
 
 export async function GET(req: NextRequest) {
-  // Only authenticated admins can view customer inquiries
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ success: false, data: [], error: 'Unauthorized: Admin authentication required' }, { status: 401 });
-  }
+  // Only authenticated employees with enquiries.read can view customer inquiries
+  const { auth, errorResponse } = await requirePermission(req, 'enquiries.read');
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();
@@ -20,6 +20,12 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    const rateLimit = await checkRateLimit(`rate:inquiry:${ip}`, 10, 600);
+    if (!rateLimit.allowed) {
+      return rateLimitResponse(rateLimit.retryAfter, 'Too many inquiry submissions. Please wait.');
+    }
+
     await connectToDatabase();
     const body = await req.json();
 
@@ -63,9 +69,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ success: false, error: 'Unauthorized: Admin authentication required' }, { status: 401 });
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'enquiries.update_status');
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();
@@ -80,6 +85,18 @@ export async function PATCH(req: NextRequest) {
     if (!updated) {
       return NextResponse.json({ success: false, error: 'Inquiry not found' }, { status: 404 });
     }
+
+    await recordAuditLog({
+      action: 'ENQUIRY_STATUS_CHANGED',
+      entityType: 'enquiry',
+      entityId: id,
+      entityName: updated.name || id,
+      summary: `Updated inquiry [${id}] status to [${status}]`,
+      actor: auth!.actorEmail,
+      ip: getClientIp(req),
+      details: { newStatus: status },
+    });
+
     return NextResponse.json({ success: true, data: updated });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -87,9 +104,8 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ success: false, error: 'Unauthorized: Admin authentication required' }, { status: 401 });
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'enquiries.delete');
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();
@@ -101,7 +117,18 @@ export async function DELETE(req: NextRequest) {
     }
 
     await InquiryModel.deleteOne({ id });
-    return NextResponse.json({ success: true, message: `Inquiry ${id} deleted` });
+
+    await recordAuditLog({
+      action: 'ENQUIRY_DELETED',
+      entityType: 'enquiry',
+      entityId: id,
+      entityName: id,
+      summary: `Deleted inquiry [${id}]`,
+      actor: auth!.actorEmail,
+      ip: getClientIp(req),
+    });
+
+    return NextResponse.json({ success: true, message: `Inquiry ${id} removed` });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

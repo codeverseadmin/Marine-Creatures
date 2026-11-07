@@ -4,6 +4,7 @@ import { ProductModel } from '@/models/Product';
 import { MediaModel } from '@/models/Media';
 import { requirePermission, requireAuthenticatedEmployee } from '@/lib/rbac/guard';
 import { recordAuditLog } from '@/lib/audit';
+import { resolveAuthoritativeProduct } from '@/lib/services/product-resolution';
 
 export async function GET(
   req: NextRequest,
@@ -19,12 +20,12 @@ export async function GET(
     }
 
     await connectToDatabase();
-    const cleanId = id.trim().toLowerCase();
+    const cleanId = id.trim();
 
     // 1. Check if ID matches a catalog product
-    const product = await ProductModel.findOne({ id: cleanId }).lean();
-    if (product) {
-      const uploadedMedia = await MediaModel.find({ productId: cleanId }, { data: 0 })
+    const product = await resolveAuthoritativeProduct(cleanId, { lean: true });
+    if (product && product.id) {
+      const uploadedMedia = await MediaModel.find({ productId: product.id }, { data: 0 })
         .sort({ createdAt: -1 })
         .lean();
 

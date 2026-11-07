@@ -3,9 +3,10 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { EmployeeModel, EmployeeStatus } from '@/models/Employee';
 import { RoleModel } from '@/models/Role';
 import { requirePermission, recordAuditLog } from '@/lib/rbac/guard';
-import { SYSTEM_ROLES } from '@/lib/rbac/permissions';
+import { SYSTEM_ROLES, PERMISSIONS_REGISTRY } from '@/lib/rbac/permissions';
 import { generateInvitationToken } from '@/lib/rbac/password';
 import { getClientIp } from '@/lib/rate-limit';
+import { claimBootstrapSeal, sealBootstrap } from '@/lib/rbac/bootstrap';
 
 // ── GET /api/admin/employees ───────────────────────────────────────────────
 export async function GET(req: NextRequest) {
@@ -128,14 +129,55 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. Prevent privilege escalation: Only an Owner can assign the 'owner' role
-    if (cleanRole === 'owner' && !auth!.isOwner) {
-      return NextResponse.json(
-        { success: false, error: 'Only an existing Owner can create or assign the Owner role' },
-        { status: 403 }
-      );
+    if (cleanRole === 'owner') {
+      if (!auth!.isOwner) {
+        return NextResponse.json(
+          { success: false, error: 'Only an existing Owner can create or assign the Owner role' },
+          { status: 403 }
+        );
+      }
+
+      // If in bootstrap mode, atomically claim the bootstrap seal to prevent concurrency races
+      if (auth!.type === 'bootstrap_owner') {
+        const claimed = await claimBootstrapSeal(cleanEmail);
+        if (!claimed) {
+          return NextResponse.json(
+            { success: false, error: 'Bootstrap ownership has already been claimed and sealed.' },
+            { status: 409 }
+          );
+        }
+      }
     }
 
-    // 4. Generate one-time invitation token (48-hour expiration)
+    // 4. Custom Permissions Guard: Only an Owner can assign custom permissions; wildcard '*' is banned
+    const validatedCustomPermissions: string[] = [];
+    if (Array.isArray(customPermissions) && customPermissions.length > 0) {
+      if (!auth!.isOwner) {
+        return NextResponse.json(
+          { success: false, error: 'Forbidden: Only an Owner can assign custom permissions during invitation creation' },
+          { status: 403 }
+        );
+      }
+
+      if (customPermissions.includes('*')) {
+        return NextResponse.json(
+          { success: false, error: "Wildcard '*' permission cannot be assigned via custom permissions." },
+          { status: 400 }
+        );
+      }
+
+      for (const perm of customPermissions) {
+        if (typeof perm !== 'string' || !PERMISSIONS_REGISTRY[perm]) {
+          return NextResponse.json(
+            { success: false, error: `Invalid permission '${perm}' in custom permissions` },
+            { status: 400 }
+          );
+        }
+        validatedCustomPermissions.push(perm);
+      }
+    }
+
+    // 5. Generate one-time invitation token (48-hour expiration)
     const { rawToken, tokenHash } = generateInvitationToken();
     const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
 
@@ -143,13 +185,17 @@ export async function POST(req: NextRequest) {
       name: name.trim(),
       email: cleanEmail,
       roleId: cleanRole,
-      customPermissions: Array.isArray(customPermissions) ? customPermissions : [],
+      customPermissions: validatedCustomPermissions,
       status: 'invited',
       invitationTokenHash: tokenHash,
       invitationExpiresAt: expiresAt,
       sessionVersion: 1,
       invitedBy: auth!.actorEmail,
     });
+
+    if (cleanRole === 'owner') {
+      await sealBootstrap('owner_invitation_created', cleanEmail);
+    }
 
     await recordAuditLog({
       action: 'EMPLOYEE_INVITED',

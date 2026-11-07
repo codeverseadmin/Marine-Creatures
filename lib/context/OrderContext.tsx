@@ -148,8 +148,6 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
                 images: it.image ? [it.image] : [],
                 shortDesc: '',
                 description: '',
-                rating: 5,
-                reviewsCount: 1,
                 priceOnRequest: isPor,
               },
               quantity: it.quantity || 1,
@@ -396,13 +394,35 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
           console.error('[OrderContext] Cloud order create error:', data.error);
         } else {
           console.log('[OrderContext] Order synced with MongoDB:', data.data?.id);
-          if (data.data?.invoiceToken) {
-            const token = data.data.invoiceToken;
-            setOrders((prev) =>
-              prev.map((o) => (o.id === newOrder.id ? { ...o, invoiceToken: token } : o))
-            );
-            setActiveOrder((curr) => (curr?.id === newOrder.id ? { ...curr, invoiceToken: token } : curr));
-          }
+          const serverOrder = data.data;
+          const serverId = serverOrder?.id;
+          const token = serverOrder?.invoiceToken;
+          setOrders((prev) =>
+            prev.map((o) =>
+              o.id === newOrder.id
+                ? {
+                    ...o,
+                    id: serverId || o.id,
+                    invoiceNumber: serverId ? `INV-${serverId}` : o.invoiceNumber,
+                    invoiceToken: token || o.invoiceToken,
+                    subtotal: serverOrder?.subtotal ?? o.subtotal,
+                    totalAmount: serverOrder?.totalAmount ?? o.totalAmount,
+                  }
+                : o
+            )
+          );
+          setActiveOrder((curr) =>
+            curr?.id === newOrder.id
+              ? {
+                  ...curr,
+                  id: serverId || curr.id,
+                  invoiceNumber: serverId ? `INV-${serverId}` : curr.invoiceNumber,
+                  invoiceToken: token || curr.invoiceToken,
+                  subtotal: serverOrder?.subtotal ?? curr.subtotal,
+                  totalAmount: serverOrder?.totalAmount ?? curr.totalAmount,
+                }
+              : curr
+          );
           syncOrdersFromCloud();
         }
       })

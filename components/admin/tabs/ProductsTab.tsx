@@ -139,29 +139,33 @@ export function ProductsTab({ passcode, showToast, createTrigger }: ProductsTabP
       'hardware': 'Equipment & Skimmers',
     };
 
+    const existing = editingProductId ? products.find((p) => p.id === editingProductId) : undefined;
     const newProduct: Product = {
+      ...existing,
+      ...productForm,
       id,
-      name: productForm.name || 'Untitled Product',
-      scientificName: productForm.scientificName || undefined,
-      brand: productForm.brand || undefined,
-      itemType: (productForm.category || 'marine-life') === 'marine-life' ? 'live' : 'dry',
-      category: (productForm.category as any) || 'marine-life',
-      categoryLabel: categoryLabels[productForm.category || 'marine-life'] || 'Marine Store',
-      price: Number(productForm.price) || 0,
-      originalPrice: productForm.originalPrice ? Number(productForm.originalPrice) : undefined,
-      rating: Number(productForm.rating) || 5.0,
-      reviewsCount: Number(productForm.reviewsCount) || 12,
-      badge: productForm.badge || undefined,
-      inStock: productForm.inStock ?? true,
-      stockCount: Number(productForm.stockCount) || 0,
+      name: productForm.name || existing?.name || 'Untitled Product',
+      scientificName: productForm.scientificName ?? existing?.scientificName,
+      brand: productForm.brand ?? existing?.brand,
+      itemType: (productForm.category || existing?.category || 'marine-life') === 'marine-life' ? 'live' : 'dry',
+      category: (productForm.category as any) || existing?.category || 'marine-life',
+      categoryLabel: categoryLabels[productForm.category || existing?.category || 'marine-life'] || existing?.categoryLabel || 'Marine Store',
+      price: Number(productForm.price) || existing?.price || 0,
+      originalPrice: productForm.originalPrice ? Number(productForm.originalPrice) : existing?.originalPrice,
+      rating: productForm.rating ? Number(productForm.rating) : existing?.rating,
+      reviewsCount: productForm.reviewsCount ? Number(productForm.reviewsCount) : (existing?.reviewsCount || 0),
+      badge: productForm.badge ?? existing?.badge,
+      inStock: productForm.inStock ?? existing?.inStock ?? true,
+      stockCount: Number(productForm.stockCount) ?? existing?.stockCount ?? 0,
+      variants: productForm.variants || existing?.variants,
       images: Array.isArray(productForm.images) && productForm.images.length > 0 && productForm.images[0].trim() !== ''
         ? productForm.images
-        : ['https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1000&q=85'],
-      videos: productForm.videos || [],
-      media: productForm.media || [],
-      shortDesc: productForm.shortDesc || '',
-      description: productForm.description || '',
-      deliveryInfo: (productForm.category || 'marine-life') === 'marine-life'
+        : (existing?.images || ['https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1000&q=85']),
+      videos: productForm.videos || existing?.videos || [],
+      media: productForm.media || existing?.media || [],
+      shortDesc: productForm.shortDesc ?? existing?.shortDesc ?? '',
+      description: productForm.description ?? existing?.description ?? '',
+      deliveryInfo: productForm.deliveryInfo || existing?.deliveryInfo || ((productForm.category || 'marine-life') === 'marine-life'
         ? {
             estimatedDays: 'Next-Day Express Dispatch Across India',
             shippingMethod: 'Oxygenated Insulated Thermal Pod Courier',
@@ -171,8 +175,10 @@ export function ProductsTab({ passcode, showToast, createTrigger }: ProductsTabP
             estimatedDays: '2–5 Business Days',
             shippingMethod: 'Standard Tracked Courier',
             guaranteeText: 'Safe Delivery & Damage Protection Guarantee',
-          },
-      specifications: { Origin: 'Indo-Pacific', 'Care Level': 'Reef Safe' },
+          }),
+      specifications: productForm.specifications || existing?.specifications || { Origin: 'Indo-Pacific', 'Care Level': 'Reef Safe' },
+      availabilityStatus: productForm.availabilityStatus || existing?.availabilityStatus || 'AVAILABLE',
+      availabilityNote: productForm.availabilityNote ?? existing?.availabilityNote,
     };
 
     if (editingProductId) {
@@ -368,13 +374,33 @@ export function ProductsTab({ passcode, showToast, createTrigger }: ProductsTabP
                         </span>
                       </td>
                       <td className="py-3 px-3">
-                        <span className="font-bold text-cyan-400 text-sm">
-                          ₹{p.price.toLocaleString('en-IN')}
-                        </span>
-                        {p.originalPrice && (
-                          <span className="text-[10px] text-slate-500 line-through block">
-                            ₹{p.originalPrice.toLocaleString('en-IN')}
-                          </span>
+                        {p.variants && p.variants.length > 0 && p.variants.some((v) => v.price !== undefined) ? (
+                          <div>
+                            <span className="font-bold text-cyan-400 text-sm">
+                              ₹{Math.min(...p.variants.filter((v) => v.price !== undefined).map((v) => v.price!)).toLocaleString('en-IN')} – ₹{Math.max(...p.variants.filter((v) => v.price !== undefined).map((v) => v.price!)).toLocaleString('en-IN')}
+                            </span>
+                            <span className="text-[10px] text-slate-400 block font-medium">
+                              {p.variants.length} variant models
+                            </span>
+                            <div className="flex flex-wrap gap-1 mt-1 max-w-[240px]">
+                              {p.variants.map((v) => (
+                                <span key={v.id} className="text-[9px] px-1.5 py-0.5 rounded bg-slate-850 text-slate-300 font-mono border border-slate-700/60">
+                                  {v.id.toUpperCase()}: ₹{(v.price ?? p.price).toLocaleString('en-IN')}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <span className="font-bold text-cyan-400 text-sm">
+                              ₹{p.price.toLocaleString('en-IN')}
+                            </span>
+                            {p.originalPrice && (
+                              <span className="text-[10px] text-slate-500 line-through block">
+                                ₹{p.originalPrice.toLocaleString('en-IN')}
+                              </span>
+                            )}
+                          </>
                         )}
                       </td>
                       <td className="py-3 px-3">
@@ -495,14 +521,27 @@ export function ProductsTab({ passcode, showToast, createTrigger }: ProductsTabP
                       </p>
                     )}
 
-                    <div className="flex items-baseline gap-2.5 mt-2">
-                      <span className="text-lg sm:text-xl font-extrabold text-cyan-400">
-                        ₹{p.price.toLocaleString('en-IN')}
-                      </span>
-                      {p.originalPrice && (
-                        <span className="text-xs text-slate-500 line-through">
-                          ₹{p.originalPrice.toLocaleString('en-IN')}
-                        </span>
+                    <div className="mt-2">
+                      {p.variants && p.variants.length > 0 && p.variants.some((v) => v.price !== undefined) ? (
+                        <div>
+                          <div className="text-base sm:text-lg font-extrabold text-cyan-400">
+                            ₹{Math.min(...p.variants.filter((v) => v.price !== undefined).map((v) => v.price!)).toLocaleString('en-IN')} – ₹{Math.max(...p.variants.filter((v) => v.price !== undefined).map((v) => v.price!)).toLocaleString('en-IN')}
+                          </div>
+                          <span className="text-[10px] text-slate-400 font-medium">
+                            {p.variants.length} variant models configured
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex items-baseline gap-2.5">
+                          <span className="text-lg sm:text-xl font-extrabold text-cyan-400">
+                            ₹{p.price.toLocaleString('en-IN')}
+                          </span>
+                          {p.originalPrice && (
+                            <span className="text-xs text-slate-500 line-through">
+                              ₹{p.originalPrice.toLocaleString('en-IN')}
+                            </span>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>

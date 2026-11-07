@@ -3,6 +3,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { ProductModel } from '@/models/Product';
 import { requirePermission } from '@/lib/rbac/guard';
 import { recordAuditLog } from '@/lib/audit';
+import { resolveAuthoritativeProduct, validateSlugAvailability, sanitizeSlug } from '@/lib/services/product-resolution';
 
 export async function GET(req: NextRequest) {
   const { auth, errorResponse } = await requirePermission(req, 'products.read');
@@ -166,24 +167,16 @@ export async function POST(req: NextRequest) {
     const cleanName = body.name.trim();
 
     // Generate or validate slug
-    let slug = (body.id || body.slug || '')
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9-]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-
+    let slug = sanitizeSlug(body.id || body.slug || '');
     if (!slug) {
-      slug = cleanName
-        .toLowerCase()
-        .replace(/[^a-z0-9-]+/g, '-')
-        .replace(/^-+|-+$/g, '');
+      slug = sanitizeSlug(cleanName);
     }
 
     // Verify slug uniqueness
-    const existingSlug = await ProductModel.findOne({ id: slug }).lean();
-    if (existingSlug) {
+    const slugCheck = await validateSlugAvailability(slug);
+    if (!slugCheck.available) {
       return NextResponse.json(
-        { success: false, error: `Slug "${slug}" is already in use by product "${existingSlug.name}". Please specify a unique slug.` },
+        { success: false, error: slugCheck.reason || `Slug "${slug}" is already in use.` },
         { status: 409 }
       );
     }
@@ -275,30 +268,33 @@ export async function PATCH(req: NextRequest) {
   try {
     await connectToDatabase();
     const body = await req.json();
-    const { id, action, ...updates } = body;
+    const { id, canonicalId, _id, action, ...updates } = body;
 
-    if (!id || typeof id !== 'string') {
+    const targetIdentifier = canonicalId || _id || id;
+    if (!targetIdentifier || typeof targetIdentifier !== 'string') {
       return NextResponse.json({ success: false, error: 'Product id is required.' }, { status: 400 });
     }
 
-    const existing = await ProductModel.findOne({ id }).lean();
-    if (!existing) {
-      return NextResponse.json({ success: false, error: `Product "${id}" not found.` }, { status: 404 });
+    const existing = await resolveAuthoritativeProduct(targetIdentifier, { lean: true });
+    if (!existing || !existing.id) {
+      return NextResponse.json({ success: false, error: `Product "${targetIdentifier}" not found.` }, { status: 404 });
     }
+
+    const resolvedCanonicalId = existing.id;
 
     // ── Action: ARCHIVE ──────────────────────────────────────────────────────────
     if (action === 'archive') {
       const updated = await ProductModel.findOneAndUpdate(
-        { id },
+        { id: resolvedCanonicalId },
         { isArchived: true, archivedAt: new Date() },
         { new: true }
       ).lean();
 
       await recordAuditLog({
         action: 'PRODUCT_ARCHIVED',
-        entityId: id,
+        entityId: resolvedCanonicalId,
         entityName: existing.name,
-        summary: `Archived catalog product "${existing.name}" (${id})`,
+        summary: `Archived catalog product "${existing.name}" (${resolvedCanonicalId})`,
         req,
       });
 
@@ -308,16 +304,16 @@ export async function PATCH(req: NextRequest) {
     // ── Action: UNARCHIVE ────────────────────────────────────────────────────────
     if (action === 'unarchive') {
       const updated = await ProductModel.findOneAndUpdate(
-        { id },
+        { id: resolvedCanonicalId },
         { isArchived: false, archivedAt: null },
         { new: true }
       ).lean();
 
       await recordAuditLog({
         action: 'PRODUCT_UNARCHIVED',
-        entityId: id,
+        entityId: resolvedCanonicalId,
         entityName: existing.name,
-        summary: `Restored archived product "${existing.name}" (${id}) to active catalog`,
+        summary: `Restored archived product "${existing.name}" (${resolvedCanonicalId}) to active catalog`,
         req,
       });
 
@@ -334,6 +330,7 @@ export async function PATCH(req: NextRequest) {
         ...existing,
         _id: undefined,
         id: newSlug,
+        slug: newSlug,
         name: newName,
         sku: undefined, // Clear SKU to prevent collision
         isArchived: false,
@@ -349,7 +346,7 @@ export async function PATCH(req: NextRequest) {
         entityId: newSlug,
         entityName: newName,
         summary: `Duplicated product "${existing.name}" into new draft "${newName}" (${newSlug})`,
-        details: { originalId: id },
+        details: { originalId: resolvedCanonicalId },
         req,
       });
 
@@ -357,10 +354,34 @@ export async function PATCH(req: NextRequest) {
     }
 
     // ── Action: Standard Updates ─────────────────────────────────────────────────
+    // Prevent client mutation of primary database keys
+    delete (updates as any)._id;
+    delete (updates as any).id;
+    delete (updates as any).canonicalId;
+
+    // Handle public marketplace slug update
+    if (typeof updates.slug === 'string') {
+      const cleanSlug = sanitizeSlug(updates.slug);
+      if (!cleanSlug) {
+        delete updates.slug;
+      } else {
+        updates.slug = cleanSlug;
+        if (cleanSlug !== existing.slug && cleanSlug !== resolvedCanonicalId) {
+          const availability = await validateSlugAvailability(cleanSlug, resolvedCanonicalId, existing._id?.toString());
+          if (!availability.available) {
+            return NextResponse.json(
+              { success: false, error: availability.reason || `Slug "${cleanSlug}" is already in use.` },
+              { status: 409 }
+            );
+          }
+        }
+      }
+    }
+
     // Check SKU uniqueness if changing SKU
     if (updates.sku && updates.sku !== existing.sku) {
       const cleanSku = updates.sku.trim().toUpperCase();
-      const skuConflict = await ProductModel.findOne({ sku: cleanSku, id: { $ne: id } }).lean();
+      const skuConflict = await ProductModel.findOne({ sku: cleanSku, id: { $ne: resolvedCanonicalId } }).lean();
       if (skuConflict) {
         return NextResponse.json(
           { success: false, error: `SKU "${cleanSku}" is already assigned to "${skuConflict.name}".` },
@@ -375,13 +396,13 @@ export async function PATCH(req: NextRequest) {
       updates.price = 0;
     }
 
-    const updated = await ProductModel.findOneAndUpdate({ id }, updates, { new: true }).lean();
+    const updated = await ProductModel.findOneAndUpdate({ id: resolvedCanonicalId }, updates, { new: true }).lean();
 
     await recordAuditLog({
       action: 'PRODUCT_UPDATED',
-      entityId: id,
+      entityId: resolvedCanonicalId,
       entityName: updated?.name || existing.name,
-      summary: `Updated product attributes for "${updated?.name || existing.name}" (${id})`,
+      summary: `Updated product attributes for "${updated?.name || existing.name}" (${resolvedCanonicalId})`,
       details: {
         updatedFields: Object.keys(updates),
       },
@@ -416,22 +437,22 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    const existing = await ProductModel.findOne({ id }).lean();
-    if (!existing) {
+    const existing = await resolveAuthoritativeProduct(id, { lean: true });
+    if (!existing || !existing.id) {
       return NextResponse.json({ success: false, error: `Product "${id}" not found.` }, { status: 404 });
     }
 
-    await ProductModel.deleteOne({ id });
+    await ProductModel.deleteOne({ id: existing.id });
 
     await recordAuditLog({
       action: 'PRODUCT_DELETED',
-      entityId: id,
+      entityId: existing.id,
       entityName: existing.name,
-      summary: `Permanently deleted product "${existing.name}" (${id}) from catalog`,
+      summary: `Permanently deleted product "${existing.name}" (${existing.id}) from catalog`,
       req,
     });
 
-    return NextResponse.json({ success: true, message: `Product ${id} deleted successfully.` });
+    return NextResponse.json({ success: true, message: `Product ${existing.id} deleted successfully.` });
   } catch (error: any) {
     console.error('[AdminCatalog] DELETE error:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

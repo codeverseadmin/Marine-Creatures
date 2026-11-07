@@ -394,6 +394,26 @@ export const PERMISSIONS_REGISTRY: Record<string, PermissionDefinition> = {
     name: 'Update Settings',
     description: 'Modify company profile, business configuration, and system parameters.',
   },
+
+  // ── Customer Reviews & Moderation ─────────────────────────────────────────
+  'reviews.read': {
+    id: 'reviews.read',
+    category: 'Reviews',
+    name: 'View Customer Reviews',
+    description: 'Inspect submitted, pending, approved, and rejected first-party customer reviews.',
+  },
+  'reviews.moderate': {
+    id: 'reviews.moderate',
+    category: 'Reviews',
+    name: 'Moderate Customer Reviews',
+    description: 'Approve or reject customer reviews and customer photography with recorded audit rationale.',
+  },
+  'reviews.invite.create': {
+    id: 'reviews.invite.create',
+    category: 'Reviews',
+    name: 'Generate Review Invitations',
+    description: 'Create single-use cryptographic review invitation links for delivered orders and SKUs.',
+  },
 };
 
 export const ALL_PERMISSIONS: string[] = Object.keys(PERMISSIONS_REGISTRY);
@@ -448,6 +468,9 @@ export const SYSTEM_ROLES: Record<string, SystemRoleDefinition> = {
       'analytics.read',
       'audit.read',
       'health.read',
+      'reviews.read',
+      'reviews.moderate',
+      'reviews.invite.create',
     ],
   },
 
@@ -503,6 +526,9 @@ export const SYSTEM_ROLES: Record<string, SystemRoleDefinition> = {
       'follow_ups.manage',
       'orders.read',
       'products.read',
+      'reviews.read',
+      'reviews.moderate',
+      'reviews.invite.create',
     ],
   },
 
@@ -561,6 +587,7 @@ export const SYSTEM_ROLES: Record<string, SystemRoleDefinition> = {
       'analytics.read',
       'health.read',
       'settings.read',
+      'reviews.read',
     ],
   },
 };

@@ -54,7 +54,11 @@ export type AuditAction =
   | 'ROLE_DELETED'
   | 'EMPLOYEE_LOGIN_SUCCESS'
   | 'EMPLOYEE_LOGIN_FAILED'
-  | 'FIRST_OWNER_BOOTSTRAPPED';
+  | 'FIRST_OWNER_BOOTSTRAPPED'
+  | 'REVIEW_SUBMITTED'
+  | 'REVIEW_APPROVED'
+  | 'REVIEW_REJECTED'
+  | 'REVIEW_INVITATION_CREATED';
 
 export type AuditEntityType =
   | 'product'
@@ -70,7 +74,9 @@ export type AuditEntityType =
   | 'snapshot'
   | 'security'
   | 'employee'
-  | 'role';
+  | 'role'
+  | 'review'
+  | 'review_invitation';
 
 export interface IAuditLogDocument extends Document {
   action: AuditAction;

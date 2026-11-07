@@ -13,17 +13,25 @@ export interface EmployeeSessionPayload {
   nonce: string;
 }
 
+// Ephemeral process-level secret for local non-production development if none is supplied
+let devEphemeralSecret: string | null = null;
+
 /**
  * Resolves session signing secret from environment.
  * Requires SESSION_SECRET or ADMIN_PASSCODE.
+ * Production fails closed immediately if neither is configured.
+ * Development uses an ephemeral process-bound secret rather than a predictable hardcoded string.
  */
 function getSigningSecret(): string {
   const secret = process.env.SESSION_SECRET || process.env.ADMIN_PASSCODE;
   if (!secret) {
     if (process.env.NODE_ENV === 'production') {
-      throw new Error('SESSION_SECRET environment variable is not configured');
+      throw new Error('SESSION_SECRET environment variable is not configured on the server');
     }
-    return 'dev-mc-insecure-session-secret-change-in-production';
+    if (!devEphemeralSecret) {
+      devEphemeralSecret = randomBytes(32).toString('hex');
+    }
+    return devEphemeralSecret;
   }
   return secret.trim();
 }

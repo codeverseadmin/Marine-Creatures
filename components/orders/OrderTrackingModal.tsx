@@ -57,8 +57,6 @@ function mapTrackDataToCustomerOrder(t: any, existingOrder?: CustomerOrder | nul
             images: it.image ? [it.image] : [],
             shortDesc: '',
             description: '',
-            rating: 5,
-            reviewsCount: 1,
             priceOnRequest: isPor,
           },
           quantity: it.quantity || 1,

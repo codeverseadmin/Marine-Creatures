@@ -15,6 +15,7 @@ import { ControlOsContent } from '@/components/admin/ControlOsContent';
 import { ControlOsAnalytics } from '@/components/admin/ControlOsAnalytics';
 import { ControlOsEmployees } from '@/components/admin/ControlOsEmployees';
 import { ControlOsSystem } from '@/components/admin/ControlOsSystem';
+import { ControlOsReviews } from '@/components/admin/ControlOsReviews';
 import { GlobalSearchModal } from '@/components/admin/GlobalSearchModal';
 
 interface AdminPageProps {
@@ -142,6 +143,7 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
           'analytics',
           'employees',
           'system',
+          'reviews',
         ].includes(tab)
       ) {
         setActiveTab(tab);
@@ -305,6 +307,14 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
       isImplemented: true,
       description: 'Fleet infrastructure health, cloud snapshots, audit logs, and security',
     },
+    {
+      id: 'reviews',
+      label: 'Reviews',
+      icon: '⭐',
+      badge: 'Active',
+      isImplemented: true,
+      description: 'First-party customer review moderation and concierge invitation links',
+    },
   ];
 
   // Permission-aware tab filtering
@@ -315,6 +325,10 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
 
     const perms = currentUser.permissions || [];
     switch (item.id) {
+      case 'reviews':
+        return ['reviews.read', 'reviews.moderate', 'reviews.invite.create'].some((p) =>
+          perms.includes(p)
+        );
       case 'employees':
         return perms.includes('employees.read') || perms.includes('roles.read');
       case 'sales':
@@ -693,6 +707,14 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
             {/* System Governance & Fleet Module */}
             {activeTab === 'system' && (
               <ControlOsSystem
+                initialSubtab={activeSubtab as any}
+                showToast={showToast}
+              />
+            )}
+
+            {/* Customer Reviews & Moderation Module */}
+            {activeTab === 'reviews' && (
+              <ControlOsReviews
                 initialSubtab={activeSubtab as any}
                 showToast={showToast}
               />

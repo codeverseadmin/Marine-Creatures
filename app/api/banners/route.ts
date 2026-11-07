@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { BannerModel } from '@/models/Banner';
 import { DEFAULT_BANNERS } from '@/lib/data/banners';
-import { isAdminRequest } from '@/lib/auth';
+import { requirePermission, recordAuditLog } from '@/lib/rbac/guard';
+import { getClientIp } from '@/lib/rate-limit';
 
 export async function GET() {
   try {
@@ -56,9 +57,9 @@ export async function GET() {
  * Requires admin authentication.
  */
 export async function PATCH(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'content.manage');
+  if (errorResponse) return errorResponse;
+
   try {
     await connectToDatabase();
 
@@ -108,9 +109,9 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'content.manage');
+  if (errorResponse) return errorResponse;
+
   try {
     await connectToDatabase();
     const body = await req.json();
@@ -118,6 +119,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'id and title required' }, { status: 400 });
     }
     const banner = await BannerModel.create(body);
+
+    await recordAuditLog({
+      action: 'BANNER_CREATED',
+      entityType: 'banner',
+      entityId: banner.id,
+      entityName: banner.title,
+      summary: `Created promo banner [${banner.title}] (${banner.id})`,
+      actor: auth!.actorEmail,
+      ip: getClientIp(req),
+    });
+
     return NextResponse.json({ success: true, data: banner }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -125,9 +137,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'content.manage');
+  if (errorResponse) return errorResponse;
+
   try {
     await connectToDatabase();
     const body = await req.json();
@@ -136,6 +148,20 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'id required' }, { status: 400 });
     }
     const updated = await BannerModel.findOneAndUpdate({ id }, updates, { new: true, upsert: false }).lean();
+
+    if (updated) {
+      await recordAuditLog({
+        action: 'BANNER_UPDATED',
+        entityType: 'banner',
+        entityId: id,
+        entityName: updated.title || id,
+        summary: `Updated banner [${updated.title || id}]`,
+        actor: auth!.actorEmail,
+        ip: getClientIp(req),
+        details: { updatedFields: Object.keys(updates) },
+      });
+    }
+
     return NextResponse.json({ success: true, data: updated });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -143,9 +169,9 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  }
+  const { auth, errorResponse } = await requirePermission(req, 'content.manage');
+  if (errorResponse) return errorResponse;
+
   try {
     await connectToDatabase();
     const { searchParams } = new URL(req.url);
@@ -154,6 +180,17 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'id required' }, { status: 400 });
     }
     await BannerModel.deleteOne({ id });
+
+    await recordAuditLog({
+      action: 'BANNER_DELETED',
+      entityType: 'banner',
+      entityId: id,
+      entityName: id,
+      summary: `Deleted banner [${id}]`,
+      actor: auth!.actorEmail,
+      ip: getClientIp(req),
+    });
+
     return NextResponse.json({ success: true, message: `Banner ${id} removed` });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

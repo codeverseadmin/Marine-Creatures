@@ -5,6 +5,7 @@ import { hashToken, hashPassword, validatePasswordStrength } from '@/lib/rbac/pa
 import { createEmployeeSessionToken, EMPLOYEE_SESSION_TTL_MS, SESSION_COOKIE } from '@/lib/rbac/session';
 import { recordAuditLog } from '@/lib/rbac/guard';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
+import { sealBootstrap } from '@/lib/rbac/bootstrap';
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
@@ -38,12 +39,49 @@ export async function POST(req: NextRequest) {
     const tokenHash = hashToken(token);
     await connectToDatabase();
 
-    const employee = await EmployeeModel.findOne({
-      invitationTokenHash: tokenHash,
-      status: 'invited',
-    });
+    const hashedPassword = await hashPassword(password);
+
+    // SEC-RBAC-P1-02 Remediation: Atomic invitation redemption via findOneAndUpdate
+    // Guarantees strictly single-use consumption and eliminates TOCTOU race conditions under concurrent requests.
+    const employee = await EmployeeModel.findOneAndUpdate(
+      {
+        invitationTokenHash: tokenHash,
+        status: 'invited',
+        $or: [
+          { invitationExpiresAt: null },
+          { invitationExpiresAt: { $gt: new Date() } },
+        ],
+      },
+      {
+        $set: {
+          passwordHash: hashedPassword,
+          status: 'active',
+          invitationTokenHash: null,
+          invitationExpiresAt: null,
+          sessionVersion: 1,
+          lastLoginAt: new Date(),
+          lastLoginIp: ip,
+        },
+      },
+      { new: true }
+    );
 
     if (!employee) {
+      const expiredCheck = await EmployeeModel.findOne({
+        invitationTokenHash: tokenHash,
+        invitationExpiresAt: { $lte: new Date() },
+      }).lean();
+
+      if (expiredCheck) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'This invitation link has expired. Please request a new invitation link from your administrator.',
+          },
+          { status: 400 }
+        );
+      }
+
       return NextResponse.json(
         {
           success: false,
@@ -52,26 +90,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
-    if (employee.invitationExpiresAt && employee.invitationExpiresAt.getTime() < Date.now()) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'This invitation link has expired. Please request a new invitation link from your administrator.',
-        },
-        { status: 400 }
-      );
-    }
-
-    // Set password, activate account, and invalidate invitation token
-    employee.passwordHash = hashPassword(password);
-    employee.status = 'active';
-    employee.invitationTokenHash = null;
-    employee.invitationExpiresAt = null;
-    employee.sessionVersion = 1;
-    employee.lastLoginAt = new Date();
-    employee.lastLoginIp = ip;
-    await employee.save();
 
     await recordAuditLog({
       action: 'EMPLOYEE_INVITATION_ACCEPTED',
@@ -83,6 +101,10 @@ export async function POST(req: NextRequest) {
       ip,
       details: { roleId: employee.roleId },
     });
+
+    if (employee.roleId === 'owner') {
+      await sealBootstrap('first_owner_activated', employee.email);
+    }
 
     // Create session token and log in immediately
     const sessionToken = createEmployeeSessionToken(employee);

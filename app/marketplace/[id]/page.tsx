@@ -4,11 +4,9 @@ import Link from 'next/link';
 import { PRODUCTS, Product } from '@/lib/data/products';
 import { ProductDetailView } from '@/components/marketplace/ProductDetailView';
 import { SITE_CONFIG } from '@/lib/config';
-import {
-  generateProductJsonLd,
-  generateBreadcrumbJsonLd,
-} from '@/lib/seo/structuredData';
+import { generateProductJsonLd, generateBreadcrumbJsonLd } from '@/lib/seo/structuredData';
 import { CATALOG_SEO_MAP } from '@/lib/seo/catalogSeoData';
+import { resolveAuthoritativeProduct } from '@/lib/services/product-resolution';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -49,13 +47,13 @@ const NEMO_ALIASES: Record<
   },
 };
 
-function resolveProductAndVariant(id: string): {
+async function resolveProductAndVariant(id: string): Promise<{
   product: Product | undefined;
   variantId?: string;
   customTitle?: string;
   customDesc?: string;
   canonicalSlug: string;
-} {
+}> {
   const alias = NEMO_ALIASES[id.toLowerCase()];
   if (alias) {
     const parent = PRODUCTS.find((p) => p.id === alias.parentId);
@@ -68,10 +66,30 @@ function resolveProductAndVariant(id: string): {
     };
   }
 
-  const directProduct = PRODUCTS.find((p) => p.id === id);
+  const directProduct = PRODUCTS.find((p) => p.id === id || (p as any).slug === id);
+  if (directProduct) {
+    return {
+      product: directProduct,
+      canonicalSlug: (directProduct as any).slug || directProduct.id,
+    };
+  }
+
+  // Fallback to MongoDB authoritative resolution
+  try {
+    const mongoDoc = await resolveAuthoritativeProduct(id, { lean: true });
+    if (mongoDoc) {
+      return {
+        product: mongoDoc as any,
+        canonicalSlug: mongoDoc.slug || mongoDoc.id,
+      };
+    }
+  } catch (err) {
+    console.warn('MongoDB product resolution fallback notice:', err);
+  }
+
   return {
-    product: directProduct,
-    canonicalSlug: directProduct ? directProduct.id : id,
+    product: undefined,
+    canonicalSlug: id,
   };
 }
 
@@ -84,7 +102,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const { product, customTitle, customDesc, canonicalSlug } =
-    resolveProductAndVariant(id);
+    await resolveProductAndVariant(id);
 
   if (!product) return {};
 
@@ -149,7 +167,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProductDetailPage({ params }: Props) {
   const { id } = await params;
   const { product, variantId, customTitle, canonicalSlug } =
-    resolveProductAndVariant(id);
+    await resolveProductAndVariant(id);
 
   if (!product) notFound();
 

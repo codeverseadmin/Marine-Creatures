@@ -1,0 +1,56 @@
+import mongoose from 'mongoose';
+import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { execSync } from 'child_process';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const envPath = path.resolve(__dirname, '../.env.local');
+const envContent = fs.readFileSync(envPath, 'utf8');
+const match = envContent.match(/MONGODB_URI=(.*)/);
+const uri = match ? match[1].trim() : process.env.MONGODB_URI;
+
+await mongoose.connect(uri);
+const db = mongoose.connection.db;
+
+const order = await db.collection('orders').findOne({ currentStep: 'delivered' });
+const orderId = order ? order.id : 'MC-8922';
+const item = order?.items?.[0] || { id: 'emperor-angelfish-juvenile', name: 'Emperor Angelfish (Juvenile)' };
+const productId = item.id.split('__')[0];
+
+const rawToken = 'shot_token_' + crypto.randomBytes(20).toString('hex');
+const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+
+await db.collection('review_invitations').insertOne({
+  tokenHash,
+  orderId,
+  productId,
+  productName: item.name,
+  customerName: order ? order.customerName : 'Dr. Ananya Sen',
+  customerPhone: order ? order.phone : '+91 98765 43210',
+  expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  isUsed: false,
+  createdBy: 'Screenshot Generator',
+  createdAt: new Date(),
+});
+
+const artifactDir = 'C:\\Users\\User\\.gemini\\antigravity\\brain\\4b21e052-1863-4d03-9ca4-5042477119bc';
+const chromePath = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+const reviewUrl = `http://localhost:3000/review?token=${rawToken}`;
+const desktopShot = path.join(artifactDir, 'review_page_desktop.png');
+const mobileShot = path.join(artifactDir, 'review_page_mobile.png');
+
+console.log('Capturing Desktop Review Page Screenshot with virtual time budget...');
+execSync(`"${chromePath}" --headless --disable-gpu --virtual-time-budget=3500 --screenshot="${desktopShot}" --window-size=1280,1100 "${reviewUrl}"`, { stdio: 'ignore' });
+
+console.log('Capturing Mobile Review Page Screenshot with virtual time budget...');
+execSync(`"${chromePath}" --headless --disable-gpu --virtual-time-budget=3500 --screenshot="${mobileShot}" --window-size=390,920 "${reviewUrl}"`, { stdio: 'ignore' });
+
+// Clean up token
+await db.collection('review_invitations').deleteOne({ tokenHash });
+await mongoose.disconnect();
+console.log('Finished capturing delayed screenshots.');
+

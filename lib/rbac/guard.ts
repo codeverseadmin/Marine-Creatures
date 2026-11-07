@@ -7,6 +7,7 @@ import { verifyEmployeeSessionToken, SESSION_COOKIE } from './session';
 import { SYSTEM_ROLES, PERMISSIONS_REGISTRY } from './permissions';
 import { isAdminAuthenticated, verifyPasscode } from '@/lib/auth';
 import { getClientIp } from '@/lib/rate-limit';
+import { isBootstrapAllowed } from './bootstrap';
 
 export interface AuthenticatedAuthContext {
   authenticated: true;
@@ -117,7 +118,9 @@ export async function resolveAuthContext(req: NextRequest): Promise<AuthContext>
   }
 
   // 2. Fallback / Bootstrap Authentication
-  // Check for legacy admin session or secret header
+  // SEC-RBAC-P0-02 & MC-PHASE-3.1 Remediation: Permanent Bootstrap Lifecycle.
+  // Master passcode / secret headers are strictly permitted ONLY when isBootstrapAllowed() is true.
+  // Once an initial Owner is created or the seal is set in MongoDB, bootstrap mode is permanently sealed.
   const isLegacyAdminCookie = cookie ? isAdminAuthenticated(req) : false;
   const secretHeader = req.headers.get('x-admin-secret') || req.headers.get('x-admin-passcode');
   const isSecretHeaderValid = secretHeader ? verifyPasscode(secretHeader) : false;
@@ -125,13 +128,10 @@ export async function resolveAuthContext(req: NextRequest): Promise<AuthContext>
   if (isLegacyAdminCookie || isSecretHeaderValid) {
     try {
       await connectToDatabase();
-      const activeOwnerCount = await EmployeeModel.countDocuments({
-        roleId: 'owner',
-        status: 'active',
-      });
+      const allowed = await isBootstrapAllowed();
 
-      // If NO active owner exists, this is the FIRST-OWNER BOOTSTRAP PHASE
-      if (activeOwnerCount === 0) {
+      // ONLY permitted during genuine unsealed first-time initialisation
+      if (allowed) {
         return {
           authenticated: true,
           type: 'bootstrap_owner',
@@ -145,31 +145,17 @@ export async function resolveAuthContext(req: NextRequest): Promise<AuthContext>
         };
       }
 
-      // If active owner exists, allow secretHeader for automated server-to-server operations
-      if (isSecretHeaderValid) {
-        return {
-          authenticated: true,
-          type: 'service',
-          employee: null,
-          actorId: 'system_service',
-          actorName: 'System Service',
-          actorEmail: 'system@marinecreatures.local',
-          roleId: 'owner',
-          permissions: new Set(Object.keys(PERMISSIONS_REGISTRY)),
-          isOwner: true,
-        };
-      }
-
-      // An active owner exists, but user provided an old legacy admin cookie without employee identity
+      // Bootstrap is permanently sealed: Secret header overrides are DEACTIVATED.
       return {
         authenticated: false,
-        error: 'System has been migrated to individual employee accounts. Please sign in with your employee email and password.',
+        error: 'System requires authenticated employee session credentials. Bootstrap mode is permanently deactivated.',
         statusCode: 401,
       };
     } catch {
+      // Strictly fail closed if security state cannot be reliably determined
       return {
         authenticated: false,
-        error: 'Bootstrap check failed',
+        error: 'Security state verification failure',
         statusCode: 500,
       };
     }

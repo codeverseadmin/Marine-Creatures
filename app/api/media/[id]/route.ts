@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { connectToDatabase } from '@/lib/mongodb';
 import { MediaModel } from '@/models/Media';
+import { ProductReviewModel } from '@/models/ProductReview';
+import { ReviewInvitationModel } from '@/models/ReviewInvitation';
+import { resolveAuthContext } from '@/lib/rbac/guard';
 
 export async function GET(
   req: NextRequest,
@@ -12,7 +16,7 @@ export async function GET(
       return new NextResponse('Media ID required', { status: 400 });
     }
 
-    // Strip optional file extension (e.g. "media-1725...jpg" -> "media-1725...")
+    // Strip optional file extension (e.g. "review-1725...jpg" -> "review-1725...")
     const cleanId = id.replace(/\.[^/.]+$/, '');
 
     await connectToDatabase();
@@ -20,6 +24,77 @@ export async function GET(
 
     if (!media || !media.data) {
       return new NextResponse('Media not found', { status: 404 });
+    }
+
+    const isReviewMedia = cleanId.startsWith('review-');
+    let cacheControlHeader = 'public, max-age=31536000, immutable';
+
+    if (isReviewMedia) {
+      // Check if this media is linked to a ProductReview
+      const associatedReview = await ProductReviewModel.findOne({
+        'images.id': cleanId,
+      }).select('status').lean();
+
+      if (associatedReview) {
+        if (associatedReview.status === 'APPROVED') {
+          // Public access permitted for approved reviews
+          cacheControlHeader = 'public, max-age=86400';
+        } else {
+          // PENDING or REJECTED: Deny public, require staff review permissions
+          const auth = await resolveAuthContext(req);
+          const hasStaffAccess =
+            auth.authenticated &&
+            (auth.isOwner ||
+              auth.permissions.has('reviews.read') ||
+              auth.permissions.has('reviews.moderate') ||
+              auth.permissions.has('*'));
+
+          if (!hasStaffAccess) {
+            return new NextResponse('Access denied: Review image is pending moderation.', {
+              status: 403,
+            });
+          }
+          cacheControlHeader = 'private, no-cache, no-store, must-revalidate';
+        }
+      } else {
+        // Unassociated review media (uploaded in draft before review creation):
+        // Allow staff OR valid review invitation bearer
+        const auth = await resolveAuthContext(req);
+        const hasStaffAccess =
+          auth.authenticated &&
+          (auth.isOwner ||
+            auth.permissions.has('reviews.read') ||
+            auth.permissions.has('reviews.moderate') ||
+            auth.permissions.has('*'));
+
+        let hasTokenAccess = false;
+        if (!hasStaffAccess) {
+          const { searchParams } = new URL(req.url);
+          const rawToken =
+            req.headers.get('x-review-token') ||
+            searchParams.get('token') ||
+            req.headers.get('authorization')?.replace(/^Bearer\s+/i, '');
+
+          if (rawToken && rawToken.trim().length >= 16) {
+            const tokenHash = crypto.createHash('sha256').update(rawToken.trim()).digest('hex');
+            const inv = await ReviewInvitationModel.findOne({ tokenHash }).lean();
+            if (inv && !inv.isUsed && new Date() <= new Date(inv.expiresAt)) {
+              // Exact Invitation Ownership Gate:
+              // The media record must be explicitly bound to this exact review invitation
+              if (media.invitationTokenHash && media.invitationTokenHash === tokenHash) {
+                hasTokenAccess = true;
+              }
+            }
+          }
+        }
+
+        if (!hasStaffAccess && !hasTokenAccess) {
+          return new NextResponse('Access denied: Unauthorized media preview.', {
+            status: 403,
+          });
+        }
+        cacheControlHeader = 'private, no-cache, no-store, must-revalidate';
+      }
     }
 
     // Convert BSON Binary / Buffer into standard Uint8Array
@@ -30,7 +105,7 @@ export async function GET(
     const headers: Record<string, string> = {
       'Content-Type': media.contentType || 'image/jpeg',
       'Content-Length': buffer.length.toString(),
-      'Cache-Control': 'public, max-age=31536000, immutable',
+      'Cache-Control': cacheControlHeader,
       'Accept-Ranges': 'bytes',
       'X-Content-Type-Options': 'nosniff',
     };

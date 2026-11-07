@@ -3,6 +3,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { ProductModel } from '@/models/Product';
 import { requirePermission } from '@/lib/rbac/guard';
 import { recordAuditLog } from '@/lib/audit';
+import { resolveAuthoritativeProduct } from '@/lib/services/product-resolution';
 
 export async function GET(req: NextRequest) {
   const { auth, errorResponse } = await requirePermission(req, 'inventory.read');
@@ -86,7 +87,7 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Product ID required' }, { status: 400 });
     }
 
-    const product = await ProductModel.findOne({ id });
+    const product = await resolveAuthoritativeProduct(id);
     if (!product) {
       return NextResponse.json({ success: false, error: 'Product not found' }, { status: 404 });
     }

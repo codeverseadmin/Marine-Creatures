@@ -3,6 +3,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { MediaModel } from '@/models/Media';
 import { ProductModel } from '@/models/Product';
 import { requirePermission, requireAuthenticatedEmployee } from '@/lib/rbac/guard';
+import { resolveAuthoritativeProduct } from '@/lib/services/product-resolution';
 
 // 25 MB max upload limit for specimen photos/videos
 const MAX_FILE_SIZE = 25 * 1024 * 1024;
@@ -225,15 +226,17 @@ export async function POST(req: NextRequest) {
     await connectToDatabase();
 
     // 6. Verify product ownership and association integrity
+    let resolvedProductId: string | undefined = undefined;
     if (productId && productId.trim()) {
-      const cleanProdId = productId.trim().toLowerCase();
-      const productExists = await ProductModel.findOne({ id: cleanProdId }).lean();
-      if (!productExists) {
+      const cleanProdId = productId.trim();
+      const authoritativeProduct = await resolveAuthoritativeProduct(cleanProdId, { lean: true });
+      if (!authoritativeProduct || !authoritativeProduct.id) {
         return NextResponse.json(
           { success: false, error: `Invalid productId: Product "${cleanProdId}" does not exist in the database.` },
           { status: 404 }
         );
       }
+      resolvedProductId = authoritativeProduct.id;
     }
 
     // 7. Option A: Cloudinary CDN Direct Upload (if environment variables configured)
@@ -291,7 +294,7 @@ export async function POST(req: NextRequest) {
 
     await MediaModel.create({
       id: mediaId,
-      productId: productId ? productId.trim().toLowerCase() : undefined,
+      productId: resolvedProductId,
       altText: altText ? altText.trim() : undefined,
       filename: file.name,
       contentType,
@@ -311,7 +314,7 @@ export async function POST(req: NextRequest) {
       size: file.size,
       type: requestedType,
       contentType,
-      productId,
+      productId: resolvedProductId,
     }, { status: 201 });
 
   } catch (error: any) {

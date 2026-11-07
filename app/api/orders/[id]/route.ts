@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { OrderModel } from '@/models/Order';
-import { isAdminRequest } from '@/lib/auth';
+import { requirePermission, requireAnyPermission } from '@/lib/rbac/guard';
 import {
   generateInvoiceToken,
   verifyInvoiceTokenHash,
@@ -23,12 +23,14 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     const rawId = (resolvedParams.id || '').trim();
     const orderId = rawId.startsWith('MC-') ? rawId : `MC-${rawId}`;
 
-    // 0. Isolated Synthetic QA Test Fixture Gatekeeper (Zero DB Mutation / Access)
-    if (orderId === 'MC-QA-ISOLATED-STANDARD' || orderId === 'MC-QA-ISOLATED-MULTIPAGE') {
+    // 0. Isolated Synthetic QA Test Fixture Gatekeeper (Development only, strictly isolated from production)
+    const allowFixtures = process.env.NODE_ENV !== 'production' && process.env.ALLOW_QA_FIXTURES === 'true';
+    if (allowFixtures && (orderId === 'MC-QA-ISOLATED-STANDARD' || orderId === 'MC-QA-ISOLATED-MULTIPAGE')) {
       const { searchParams } = new URL(req.url);
       const token = (searchParams.get('token') || req.headers.get('x-invoice-token') || '').trim();
 
-      if (!isAdminRequest(req) && !token) {
+      const adminCheck = await requirePermission(req, 'orders.read');
+      if (adminCheck.errorResponse && !token) {
         return NextResponse.json(
           {
             success: false,
@@ -43,8 +45,9 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
       return NextResponse.json({ success: true, data: QA_STANDARD_FIXTURE });
     }
 
-    // 1. Authenticated Admin Session has full operational access and bypasses consumer rate limiting
-    if (isAdminRequest(req)) {
+    // 1. Authenticated Employee Session with orders.read has full operational access and bypasses consumer rate limiting
+    const adminCheck = await requirePermission(req, 'orders.read');
+    if (!adminCheck.errorResponse) {
       const order = await OrderModel.findOne({
         $or: [
           { id: orderId },
@@ -162,13 +165,12 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
  * Allows authenticated store managers to issue or rotate an order's access token
  */
 export async function POST(req: NextRequest, { params }: RouteContext) {
-  // Strictly restricted to authenticated admins
-  if (!isAdminRequest(req)) {
-    return NextResponse.json(
-      { success: false, error: 'Unauthorized: Admin authentication required to issue invoice tokens' },
-      { status: 401 }
-    );
-  }
+  // Strictly restricted to authenticated employees with invoice generation or order update permissions
+  const { auth, errorResponse } = await requireAnyPermission(req, [
+    'orders.invoice.generate',
+    'orders.update_status',
+  ]);
+  if (errorResponse) return errorResponse;
 
   try {
     await connectToDatabase();

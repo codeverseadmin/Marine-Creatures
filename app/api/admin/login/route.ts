@@ -6,6 +6,7 @@ import { createEmployeeSessionToken, EMPLOYEE_SESSION_TTL_MS } from '@/lib/rbac/
 import { verifyPassword } from '@/lib/rbac/password';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { recordAuditLog } from '@/lib/rbac/guard';
+import { isBootstrapAllowed } from '@/lib/rbac/bootstrap';
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
@@ -94,8 +95,8 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // Verify password using timingSafeEqual scrypt
-      const isPasswordValid = verifyPassword(password, employee.passwordHash);
+      // Verify password using timingSafeEqual scrypt asynchronously (non-blocking)
+      const isPasswordValid = await verifyPassword(password, employee.passwordHash);
       if (!isPasswordValid) {
         await new Promise((r) => setTimeout(r, 400));
         await recordAuditLog({
@@ -166,20 +167,37 @@ export async function POST(req: NextRequest) {
       }
 
       await connectToDatabase();
-      const activeOwnerCount = await EmployeeModel.countDocuments({
-        roleId: 'owner',
-        status: 'active',
-      });
+      const allowed = await isBootstrapAllowed();
 
-      // Issue legacy session token
+      // SEC-RBAC-P0-02 & MC-PHASE-3.1 Remediation: Master passcode is ONLY permitted during initial unsealed bootstrap
+      // when zero Owner accounts have ever existed. Once sealed or an Owner is created, passcode login is permanently deactivated.
+      if (!allowed) {
+        await recordAuditLog({
+          action: 'EMPLOYEE_LOGIN_FAILED',
+          entityType: 'security',
+          entityId: 'master_passcode',
+          entityName: 'Master Passcode Attempt',
+          summary: 'Rejected master passcode login attempt: Bootstrap mode is permanently sealed.',
+          actor: 'unauthenticated',
+          ip,
+          details: { reason: 'bootstrap_permanently_sealed' },
+        });
+
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Master passcode login is deactivated because bootstrap mode is permanently sealed. Please sign in with your employee email and password.',
+          },
+          { status: 403 }
+        );
+      }
+
+      // Issue temporary bootstrap session token strictly for initial Owner account creation
       const token = createSessionToken();
       const response = NextResponse.json({
         success: true,
-        isBootstrap: activeOwnerCount === 0,
-        message:
-          activeOwnerCount === 0
-            ? 'Bootstrap Mode: No active Owner exists. You may now create the initial Owner account.'
-            : 'Passcode authenticated.',
+        isBootstrap: true,
+        message: 'Bootstrap Mode: No active Owner exists. You may now create the initial Owner account.',
       });
 
       response.cookies.set(SESSION_COOKIE, token, {

@@ -329,6 +329,58 @@ export function ProductFormModal({
             />
           </div>
 
+          {/* Variant-Specific Pricing Section */}
+          {productForm.variants && productForm.variants.length > 0 && (
+            <div className="col-span-1 sm:col-span-2 p-4 rounded-2xl bg-slate-900/80 border border-cyan-500/30 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-cyan-300 block">
+                    Model / Variant-Specific Pricing
+                  </span>
+                  <span className="text-[11px] text-slate-400">
+                    Each variant has independent authoritative catalogue pricing. Base price represents the starting tier.
+                  </span>
+                </div>
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+                  {productForm.variants.length} Variants
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                {productForm.variants.map((v, idx) => (
+                  <div key={v.id || idx} className="p-3 rounded-xl bg-slate-950/70 border border-slate-800 flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <span className="text-xs font-semibold text-white truncate block">
+                        {v.name}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        Model ID: {v.id.toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="w-28 shrink-0">
+                      <div className="relative">
+                        <span className="absolute left-2.5 top-2.5 text-xs text-slate-400 font-bold">₹</span>
+                        <input
+                          type="number"
+                          value={v.price ?? ''}
+                          placeholder={String(productForm.price || 0)}
+                          onChange={(e) => {
+                            const newPrice = Number(e.target.value);
+                            const updated = (productForm.variants || []).map((item, i) =>
+                              i === idx ? { ...item, price: newPrice } : item
+                            );
+                            setProductForm({ ...productForm, variants: updated });
+                          }}
+                          className="w-full h-9 pl-6 pr-2 rounded-lg bg-slate-900 border border-slate-700 text-cyan-300 text-xs font-bold focus:outline-none focus:border-cyan-400"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div>
             <label className="text-xs font-semibold text-slate-300 block mb-1.5 uppercase tracking-wider">
               Original Price / MRP (₹)
