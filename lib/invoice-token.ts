@@ -102,7 +102,15 @@ export function serializeCustomerInvoice(order: any) {
             categoryLabel: it.category || it.product?.categoryLabel || 'Marine Life',
           },
           quantity: Number(it.quantity || 1),
-          warranty: it.warranty,
+          warranty: it.warranty
+            ? {
+                hasWarranty: Boolean(it.warranty.hasWarranty),
+                provider: it.warranty.provider,
+                durationValue: it.warranty.durationValue,
+                durationUnit: it.warranty.durationUnit,
+                terms: it.warranty.terms,
+              }
+            : undefined,
         }))
       : [],
   };

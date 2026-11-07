@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { createHmac, timingSafeEqual, randomBytes } from 'crypto';
-import { verifyEmployeeSessionToken } from './rbac/session';
+import { verifyEmployeeSessionToken, getValidatedSessionSecret } from './rbac/session';
 
 const SESSION_TTL_MS = 8 * 60 * 60 * 1000; // 8 hours
 
@@ -19,25 +19,13 @@ export function getAdminPasscode(): string {
   return code.trim();
 }
 
-// Ephemeral process-level secret for local non-production development if none is supplied
-let devLegacyAuthSecret: string | null = null;
-
 /**
  * Server-only session signing key.
- * Requires SESSION_SECRET or ADMIN_PASSCODE environment variable.
+ * Delegates strictly to getValidatedSessionSecret().
+ * SEC-RBAC-P0-03: ADMIN_PASSCODE is permanently removed as a session-signing fallback.
  */
 function getSessionSecret(): string {
-  const secret = process.env.SESSION_SECRET || process.env.ADMIN_PASSCODE;
-  if (!secret) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('SESSION_SECRET environment variable is not configured');
-    }
-    if (!devLegacyAuthSecret) {
-      devLegacyAuthSecret = randomBytes(32).toString('hex');
-    }
-    return devLegacyAuthSecret;
-  }
-  return secret.trim();
+  return getValidatedSessionSecret();
 }
 
 export const SESSION_COOKIE = 'mc_admin_session';

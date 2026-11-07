@@ -13,27 +13,129 @@ export interface EmployeeSessionPayload {
   nonce: string;
 }
 
+// Minimum cryptographic entropy threshold: exactly 32 bytes (256 bits) of true binary entropy
+export const REQUIRED_SESSION_SECRET_BYTES = 32;
+
 // Ephemeral process-level secret for local non-production development if none is supplied
 let devEphemeralSecret: string | null = null;
 
 /**
- * Resolves session signing secret from environment.
- * Requires SESSION_SECRET or ADMIN_PASSCODE.
- * Production fails closed immediately if neither is configured.
- * Development uses an ephemeral process-bound secret rather than a predictable hardcoded string.
+ * Decodes and validates that a candidate secret string represents exactly 32 bytes (256 bits)
+ * of true cryptographic entropy.
+ *
+ * Supported encodings:
+ * 1. Preferred standard: Exactly 64 hexadecimal characters ([0-9a-fA-F]{64}) -> decodes to exactly 32 bytes.
+ * 2. Supported equivalent: 32-byte Base64 (44 chars ending in '=') or Base64URL (43 chars) -> decodes to exactly 32 bytes.
+ *
+ * Rejects:
+ * - Missing or empty values.
+ * - Malformed hex strings (non-hex characters, length !== 64).
+ * - Plain ASCII strings (e.g. 32 arbitrary ASCII characters, which lack 256 bits of entropy).
+ * - Weak / low-entropy repetitions (e.g. repeated characters like all zeroes, all f's).
+ * - Trivial patterns.
  */
-function getSigningSecret(): string {
-  const secret = process.env.SESSION_SECRET || process.env.ADMIN_PASSCODE;
-  if (!secret) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('SESSION_SECRET environment variable is not configured on the server');
-    }
-    if (!devEphemeralSecret) {
-      devEphemeralSecret = randomBytes(32).toString('hex');
-    }
-    return devEphemeralSecret;
+export function validateSessionSecret(secret: string): { valid: boolean; error?: string } {
+  if (!secret || typeof secret !== 'string') {
+    return { valid: false, error: 'SESSION_SECRET is missing or empty' };
   }
-  return secret.trim();
+
+  const trimmed = secret.trim();
+
+  // 1. Check for 64-character Hexadecimal Encoding (Preferred standard)
+  if (/^[0-9a-fA-F]{64}$/.test(trimmed)) {
+    const buf = Buffer.from(trimmed, 'hex');
+    if (buf.length !== REQUIRED_SESSION_SECRET_BYTES) {
+      return { valid: false, error: `Decoded hex secret yields ${buf.length} bytes (exactly 32 bytes required)` };
+    }
+    // Reject trivial low-entropy patterns (e.g. repeated characters like 0000... or ffff...)
+    const uniqueChars = new Set(trimmed.toLowerCase()).size;
+    if (uniqueChars < 8) {
+      return { valid: false, error: 'SESSION_SECRET has insufficient character entropy (<8 distinct characters)' };
+    }
+    return { valid: true };
+  }
+
+  // 2. Check for 32-byte Base64 / Base64URL Encoding (Supported equivalent)
+  if (/^[A-Za-z0-9+/_-]{43,44}={0,2}$/.test(trimmed)) {
+    try {
+      const normalized = trimmed.replace(/-/g, '+').replace(/_/g, '/');
+      const buf = Buffer.from(normalized, 'base64');
+      if (buf.length === REQUIRED_SESSION_SECRET_BYTES) {
+        const uniqueChars = new Set(trimmed).size;
+        if (uniqueChars < 8) {
+          return { valid: false, error: 'SESSION_SECRET has insufficient character entropy (<8 distinct characters)' };
+        }
+        return { valid: true };
+      }
+    } catch {
+      // Base64 decode failed
+    }
+  }
+
+  // 3. Diagnose specific failure reasons for clear operator guidance without leaking secrets
+  if (/^[0-9a-fA-F]+$/.test(trimmed)) {
+    return {
+      valid: false,
+      error: `Hexadecimal SESSION_SECRET is malformed (${trimmed.length} hex chars; exactly 64 hex characters representing 32 bytes required)`,
+    };
+  }
+
+  return {
+    valid: false,
+    error: `SESSION_SECRET must be a 32-byte cryptographically secure key (prefer 64 hexadecimal characters, e.g. from 'openssl rand -hex 32', or 32-byte base64). Provided value has length ${trimmed.length} with invalid or malformed encoding. Plain ASCII passwords are not accepted as 256-bit keys.`,
+  };
+}
+
+/**
+ * Resolves the authoritative session signing secret from the server environment.
+ * Strict rules:
+ * 1. ADMIN_PASSCODE is NEVER accepted as a session-signing fallback.
+ * 2. SESSION_SECRET is the exclusive session-signing secret.
+ * 3. In production, SESSION_SECRET must represent exactly 32 bytes (256 bits) of true binary entropy.
+ * 4. Production fails closed immediately if SESSION_SECRET is missing, malformed, or weak.
+ * 5. Secret values are NEVER logged.
+ * 6. Development uses a secure in-memory random 32-byte hex secret if none is configured.
+ */
+export function getValidatedSessionSecret(): string {
+  const rawSecret = process.env.SESSION_SECRET;
+  const secret = rawSecret ? rawSecret.trim() : '';
+
+  if (process.env.NODE_ENV === 'production') {
+    if (!secret) {
+      throw new Error(
+        'CRITICAL SECURITY CONFIGURATION ERROR: SESSION_SECRET environment variable is missing on the production server. Server failed closed.'
+      );
+    }
+
+    const validation = validateSessionSecret(secret);
+    if (!validation.valid) {
+      throw new Error(
+        `CRITICAL SECURITY CONFIGURATION ERROR: ${validation.error}. Server failed closed.`
+      );
+    }
+
+    return secret;
+  }
+
+  // Non-production (development / test)
+  if (secret) {
+    const validation = validateSessionSecret(secret);
+    if (!validation.valid) {
+      console.warn(
+        `[SECURITY WARNING] Insecure development SESSION_SECRET detected: ${validation.error}. In production, this will fail closed.`
+      );
+    }
+    return secret;
+  }
+
+  if (!devEphemeralSecret) {
+    devEphemeralSecret = randomBytes(32).toString('hex');
+  }
+  return devEphemeralSecret;
+}
+
+function getSigningSecret(): string {
+  return getValidatedSessionSecret();
 }
 
 /**
