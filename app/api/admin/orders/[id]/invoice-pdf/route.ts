@@ -23,6 +23,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { OrderModel } from '@/models/Order';
 import { requireAnyPermission } from '@/lib/rbac/guard';
 import { InvoicePDFDocument, ExecutiveInvoiceOrderData } from '@/lib/invoice-pdf-template';
+import { getUpiPaymentSettings, resolveOrderInvoicePaymentData } from '@/lib/services/upi-qr';
 
 // Force Node.js runtime — @react-pdf/renderer requires Node (canvas/fs APIs)
 export const runtime = 'nodejs';
@@ -80,7 +81,9 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
         return NextResponse.json({ success: false, error: 'Test fixture not found' }, { status: 404 });
       }
 
-      const fixtureOrder = { ...baseFixture, logoPath, signaturePath };
+      const upiSettings = await getUpiPaymentSettings();
+      const upiPayment = await resolveOrderInvoicePaymentData(baseFixture, upiSettings);
+      const fixtureOrder = { ...baseFixture, upiPayment, logoPath, signaturePath };
 
       // Mandatory POR Pricing Check on synthetic fixture
       const hasUnresolvedPor = fixtureOrder.hasUnresolvedPorItems || (fixtureOrder.items && fixtureOrder.items.some((it: any) =>
@@ -189,6 +192,10 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
       logoPath,
       signaturePath,
     };
+
+    const upiSettings = await getUpiPaymentSettings();
+    const upiPayment = await resolveOrderInvoicePaymentData(order, upiSettings);
+    normalisedOrder.upiPayment = upiPayment;
 
     // ── 4. Render PDF ─────────────────────────────────────────────────────────
     const pdfBuffer = await renderToBuffer(

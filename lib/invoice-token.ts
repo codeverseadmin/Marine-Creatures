@@ -93,6 +93,10 @@ export function serializeCustomerInvoice(order: any) {
     approvedAt: order.approvedAt || null,
     subtotal: order.subtotal ?? (order.totalAmount || 0),
     totalAmount: order.totalAmount || 0,
+    paymentStatus: order.paymentStatus || (order.status === 'cancelled' ? 'cancelled' : 'pending'),
+    amountPaid: typeof order.amountPaid === 'number' && !isNaN(order.amountPaid) ? order.amountPaid : 0,
+    status: order.status || undefined,
+    upiPayment: order.upiPayment || undefined,
     coupon: order.coupon
       ? {
           code: order.coupon.code,

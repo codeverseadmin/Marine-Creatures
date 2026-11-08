@@ -7,6 +7,13 @@ import { useOrder } from '@/lib/context/OrderContext';
 import { SITE_CONFIG } from '@/lib/config';
 import { useInvoicePdfShare } from '@/lib/hooks/useInvoicePdfShare';
 import { formatExecutiveDate } from '@/lib/invoice-pdf-template';
+import {
+  DEFAULT_BUSINESS_UPI_ID,
+  DEFAULT_PAYEE_NAME,
+  calculateOutstandingBalance,
+  buildUpiUri,
+  generateUpiQrDataUrl,
+} from '@/lib/services/upi-qr-common';
 
 interface InvoicePageProps {
   params: Promise<{ id: string }>;
@@ -27,6 +34,10 @@ export default function InvoicePage({ params }: InvoicePageProps) {
 
   const [remoteOrder, setRemoteOrder] = useState<any>(null);
   const [isVerifying, setIsVerifying] = useState(true);
+
+  // UPI Payment State
+  const [copiedUpi, setCopiedUpi] = useState(false);
+  const [clientQrDataUrl, setClientQrDataUrl] = useState<string | null>(null);
 
   // PDF share (admin session required — available when admin views invoice directly)
   const [pdfShareError, setPdfShareError] = useState<string | null>(null);
@@ -130,6 +141,37 @@ export default function InvoicePage({ params }: InvoicePageProps) {
       setTimeout(() => setCopied(false), 2000);
     }
   };
+
+  const handleCopyUpi = (upiId: string) => {
+    if (!upiId) return;
+    if (typeof window !== 'undefined' && navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(upiId);
+      setCopiedUpi(true);
+      setTimeout(() => setCopiedUpi(false), 2500);
+    }
+  };
+
+  // Dynamic QR resolution for local memory orders or remote payloads
+  React.useEffect(() => {
+    if (!order) return;
+    if (order.upiPayment?.qrDataUrl) {
+      setClientQrDataUrl(order.upiPayment.qrDataUrl);
+      return;
+    }
+    const balance = calculateOutstandingBalance(order);
+    if (balance.isEligibleForPayment) {
+      const upiId = order.upiPayment?.upiId || DEFAULT_BUSINESS_UPI_ID;
+      const payeeName = order.upiPayment?.payeeName || DEFAULT_PAYEE_NAME;
+      const uri = buildUpiUri({
+        upiId,
+        payeeName,
+        amount: balance.outstanding,
+        invoiceNumber: order.invoiceNumber || `INV-${order.id}`,
+        orderId: order.id,
+      });
+      generateUpiQrDataUrl(uri).then(setClientQrDataUrl).catch(() => {});
+    }
+  }, [order]);
 
   // Cryptographic Token Verification Gate — strictly prevents public harvesting of customer invoices
   if (!authorized) {
@@ -642,6 +684,170 @@ export default function InvoicePage({ params }: InvoicePageProps) {
             </div>
           </div>
         </div>
+
+        {/* ── UPI Instant Payment & Settlement Section ── */}
+        {(() => {
+          const balance = calculateOutstandingBalance(order);
+          const activeQr = clientQrDataUrl || order.upiPayment?.qrDataUrl;
+          const activeUpiId = order.upiPayment?.upiId || DEFAULT_BUSINESS_UPI_ID;
+          const activePayee = order.upiPayment?.payeeName || DEFAULT_PAYEE_NAME;
+          const activeUri =
+            order.upiPayment?.upiUri ||
+            (balance.isEligibleForPayment
+              ? buildUpiUri({
+                  upiId: activeUpiId,
+                  payeeName: activePayee,
+                  amount: balance.outstanding,
+                  invoiceNumber: order.invoiceNumber || `INV-${order.id}`,
+                  orderId: order.id,
+                })
+              : '');
+
+          if (balance.isEligibleForPayment && activeQr) {
+            return (
+              <div className="p-5 sm:p-6 rounded-2xl bg-[#07131e] border border-cyan-500/30 shadow-2xl print:bg-slate-50 print:border-black/30 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-800/80 print:border-black/20">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-xl">⚡</span>
+                    <div>
+                      <h3 className="text-sm font-bold text-white print:text-black uppercase tracking-wider flex items-center gap-2">
+                        <span>Instant UPI Settlement</span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] bg-cyan-400/10 border border-cyan-400/30 text-cyan-300 print:text-sky-800 font-mono">
+                          NPCI Certified UPI
+                        </span>
+                      </h3>
+                      <p className="text-[11px] text-slate-400 print:text-slate-600">
+                        Scan with Google Pay, PhonePe, Paytm, or any compatible banking application
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-left sm:text-right">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 print:text-slate-600 block">
+                      Outstanding Balance
+                    </span>
+                    <span className="text-lg font-mono font-bold text-cyan-300 print:text-black">
+                      ₹{balance.outstanding.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col md:flex-row items-center gap-6">
+                  {/* Dynamic QR Display */}
+                  <div className="flex flex-col items-center bg-white p-3.5 rounded-2xl border border-white/20 shadow-md shrink-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={activeQr}
+                      alt={`UPI Payment QR for Invoice ${order.invoiceNumber || order.id}`}
+                      className="w-40 h-40 object-contain rounded-lg"
+                    />
+                    <span className="text-[10px] font-mono font-bold text-slate-800 uppercase tracking-widest mt-2 flex items-center gap-1">
+                      <span>🔒</span> Scan to Pay
+                    </span>
+                  </div>
+
+                  {/* Settlement Instructions & Actions */}
+                  <div className="flex-1 space-y-3.5 text-xs w-full">
+                    {balance.isPartial && balance.amountPaid > 0 && (
+                      <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] flex items-center justify-between">
+                        <span>Partially Paid: <strong>₹{balance.amountPaid.toLocaleString('en-IN')}</strong></span>
+                        <span>Remaining Balance: <strong>₹{balance.outstanding.toLocaleString('en-IN')}</strong></span>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-900/60 print:bg-white p-3.5 rounded-xl border border-slate-800 print:border-black/20">
+                      <div>
+                        <span className="text-[10px] uppercase font-bold text-slate-400 print:text-slate-600 block mb-0.5">
+                          Business Payee
+                        </span>
+                        <span className="font-semibold text-white print:text-black">
+                          {activePayee}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] uppercase font-bold text-slate-400 print:text-slate-600 block mb-0.5">
+                          Business UPI ID
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-semibold text-cyan-300 print:text-black">
+                            {activeUpiId}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyUpi(activeUpiId)}
+                            className="px-2 py-0.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-mono transition-colors print:hidden"
+                            title="Copy UPI ID"
+                          >
+                            {copiedUpi ? '✓ Copied' : 'Copy'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3 pt-1">
+                      {activeUri && (
+                        <a
+                          href={activeUri}
+                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold uppercase tracking-wider text-xs shadow-lg shadow-cyan-400/20 transition-all print:hidden"
+                        >
+                          <span>📱</span>
+                          <span>Pay ₹{balance.outstanding.toLocaleString('en-IN')} with UPI</span>
+                        </a>
+                      )}
+
+                      <span className="text-[10px] text-slate-400 print:text-slate-600 italic">
+                        Preferred: Google Pay • Also supports PhonePe, Paytm &amp; all BHIM UPI apps
+                      </span>
+                    </div>
+
+                    <p className="text-[10px] text-slate-500 print:text-slate-600 leading-relaxed pt-1">
+                      🔒 Bank Settlement Verification: Scanning this QR or launching your UPI app initiates a secure transfer directly to Marine Creatures. In accordance with fiscal compliance, invoice records reconcile automatically upon authoritative account confirmation.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
+          if (balance.isFullyPaid || order.upiPayment?.reason === 'FULLY_PAID') {
+            return (
+              <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 print:bg-emerald-50 print:text-emerald-900 print:border-emerald-300 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className="text-xl">✅</span>
+                  <div>
+                    <h4 className="text-xs font-bold uppercase tracking-wider">Payment Settled in Full</h4>
+                    <p className="text-[11px] text-emerald-400/80 print:text-emerald-800">
+                      Total of ₹{(order.totalAmount || 0).toLocaleString('en-IN')} reconciled. No outstanding balance remains. Active payment QR is deactivated.
+                    </p>
+                  </div>
+                </div>
+                <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-mono text-[10px] font-bold uppercase">
+                  PAID
+                </span>
+              </div>
+            );
+          }
+
+          if (balance.isCancelled || order.upiPayment?.reason === 'CANCELLED') {
+            return (
+              <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 print:bg-rose-50 print:text-rose-900 print:border-rose-300 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className="text-xl">⚠️</span>
+                  <div>
+                    <h4 className="text-xs font-bold uppercase tracking-wider">Invoice Cancelled / Void</h4>
+                    <p className="text-[11px] text-rose-400/80 print:text-rose-800">
+                      This order was marked as cancelled. Payment requests are deactivated.
+                    </p>
+                  </div>
+                </div>
+                <span className="px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold uppercase">
+                  VOID
+                </span>
+              </div>
+            );
+          }
+
+          return null;
+        })()}
 
         {/* Bottom Signatory & Verified Consignment Block */}
         <div className="pt-6 border-t border-slate-800 print:border-black/20 flex flex-col sm:flex-row items-center justify-between gap-6">

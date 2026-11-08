@@ -9,6 +9,7 @@ import {
   serializeCustomerInvoice,
 } from '@/lib/invoice-token';
 import { getClientIp, checkRateLimit, rateLimitResponse } from '@/lib/rate-limit';
+import { getUpiPaymentSettings, resolveOrderInvoicePaymentData } from '@/lib/services/upi-qr';
 
 export const dynamic = 'force-dynamic';
 
@@ -61,7 +62,10 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
         return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404 });
       }
 
-      return NextResponse.json({ success: true, data: order, isAdmin: true });
+      const upiSettings = await getUpiPaymentSettings();
+      const upiPayment = await resolveOrderInvoicePaymentData(order, upiSettings);
+
+      return NextResponse.json({ success: true, data: { ...order, upiPayment }, isAdmin: true });
     }
 
     const clientIp = getClientIp(req);
@@ -152,6 +156,9 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     }
 
     // 5. Serialize ONLY the fields required by the invoice page (Zero raw MongoDB leak)
+    const upiSettings = await getUpiPaymentSettings();
+    const upiPayment = await resolveOrderInvoicePaymentData(order, upiSettings);
+    (order as any).upiPayment = upiPayment;
     const sanitizedInvoice = serializeCustomerInvoice(order);
     return NextResponse.json({ success: true, data: sanitizedInvoice });
   } catch (error: any) {

@@ -793,7 +793,7 @@ export function ControlOsPromotions({
           onClick={() => setIsEditorOpen(false)}
         >
           <div
-            className="relative w-full max-w-2xl bg-[#0b1622] border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col h-auto max-h-[92vh] sm:max-h-[90vh] my-auto overflow-hidden"
+            className="relative w-full max-w-2xl bg-[#0b1622] border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col max-h-[85vh] h-full my-auto overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <form onSubmit={handleSaveCoupon} className="flex flex-col flex-1 min-h-0 overflow-hidden">
@@ -814,8 +814,14 @@ export function ControlOsPromotions({
                 </button>
               </div>
 
-              {/* Modal Body (Scrollable with min-h-0 and overscroll-contain) */}
-              <div className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-6 space-y-4 text-xs overscroll-contain">
+              {/* Modal Body (Scrollable with min-h-0, visible scrollbar, and overscroll-contain) */}
+              <div
+                className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-6 space-y-4 text-xs overscroll-contain pr-4"
+                style={{
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: '#06b6d4 rgba(15, 23, 42, 0.6)',
+                }}
+              >
                 {editorError && (
                   <div className="p-3 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 text-xs flex items-center gap-2">
                     <span>⚠️</span>
@@ -1160,7 +1166,7 @@ export function ControlOsPromotions({
           onClick={() => setInspectedCoupon(null)}
         >
           <div
-            className="relative w-full max-w-3xl bg-[#0b1622] border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col h-auto max-h-[92vh] sm:max-h-[88vh] my-auto overflow-hidden"
+            className="relative w-full max-w-3xl bg-[#0b1622] border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col max-h-[85vh] h-full my-auto overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="px-5 sm:px-6 py-4 border-b border-slate-800 flex items-center justify-between shrink-0 bg-[#0b1622]">
@@ -1184,7 +1190,13 @@ export function ControlOsPromotions({
               </button>
             </div>
 
-            <div className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-6 space-y-4 overscroll-contain">
+            <div
+              className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-6 space-y-4 overscroll-contain pr-4"
+              style={{
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#06b6d4 rgba(15, 23, 42, 0.6)',
+              }}
+            >
               {loadingInspected ? (
                 <div className="p-8 text-center text-xs text-slate-400 font-mono">Loading redemption records...</div>
               ) : inspectedRedemptions.length === 0 ? (

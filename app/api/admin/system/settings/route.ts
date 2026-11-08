@@ -13,6 +13,9 @@ const DEFAULT_SETTINGS = {
   defaultCarrier: 'IndiGo CarGo Priority Express',
   orderAlertsEnabled: true,
   defaultCatalogPagination: 25,
+  upiId: 'bithikashasmal261-3@okicici',
+  upiPayeeName: 'MARINE CREATURES',
+  upiEnabled: true,
 };
 
 export async function GET(req: NextRequest) {
@@ -50,6 +53,9 @@ export async function PATCH(req: NextRequest) {
     if (typeof body.defaultCarrier === 'string') safeUpdates.defaultCarrier = body.defaultCarrier.trim();
     if (typeof body.orderAlertsEnabled === 'boolean') safeUpdates.orderAlertsEnabled = body.orderAlertsEnabled;
     if (typeof body.defaultCatalogPagination === 'number') safeUpdates.defaultCatalogPagination = body.defaultCatalogPagination;
+    if (typeof body.upiId === 'string' && body.upiId.trim().length > 0) safeUpdates.upiId = body.upiId.trim();
+    if (typeof body.upiPayeeName === 'string' && body.upiPayeeName.trim().length > 0) safeUpdates.upiPayeeName = body.upiPayeeName.trim();
+    if (typeof body.upiEnabled === 'boolean') safeUpdates.upiEnabled = body.upiEnabled;
 
     const existing = await SettingModel.findOne({ key: 'operational_settings' });
     const merged = { ...(existing?.value || DEFAULT_SETTINGS), ...safeUpdates };

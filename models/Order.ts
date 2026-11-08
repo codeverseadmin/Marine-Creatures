@@ -75,6 +75,15 @@ export interface IOrderDocument extends Document {
   subtotal: number;
   totalAmount: number;
   coupon?: IOrderCouponSnapshot;
+  paymentStatus?: 'pending' | 'partial' | 'paid' | 'cancelled';
+  amountPaid?: number;
+  paymentHistory?: Array<{
+    amount: number;
+    method: string;
+    reference?: string;
+    date: string;
+    notes?: string;
+  }>;
   currentStep: 'placed' | 'quarantine' | 'packed' | 'dispatched' | 'delivered';
   hasUnresolvedPorItems?: boolean;
   porPricingResolvedAt?: string;
@@ -182,6 +191,24 @@ const OrderSchema = new Schema<IOrderDocument>(
       eligibleSubtotal: { type: Number, default: 0 },
       appliedAt: { type: String },
       description: { type: String },
+    },
+    paymentStatus: {
+      type: String,
+      enum: ['pending', 'partial', 'paid', 'cancelled'],
+      default: 'pending',
+    },
+    amountPaid: { type: Number, default: 0 },
+    paymentHistory: {
+      type: [
+        {
+          amount: Number,
+          method: String,
+          reference: String,
+          date: String,
+          notes: String,
+        },
+      ],
+      default: [],
     },
     currentStep: {
       type: String,

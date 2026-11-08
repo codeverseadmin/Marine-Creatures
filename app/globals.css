@@ -755,3 +755,34 @@ body:has(.marine-invoice-view) .grain-overlay {
     padding-top: calc(5rem + 28px);
   }
 }
+
+/* ============================================================================
+   Mobile Category Drawer Animations
+   ============================================================================ */
+
+@keyframes slideLeft {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-slideLeft {
+  animation: slideLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-out forwards;
+}
+

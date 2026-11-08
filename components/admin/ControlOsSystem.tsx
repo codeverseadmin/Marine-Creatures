@@ -45,6 +45,9 @@ export function ControlOsSystem({
     airCargoNotice: 'All live specimens shipped with active oxygen injection.',
     maintenanceBufferDays: 14,
     defaultPaginationLimit: 25,
+    upiId: 'bithikashasmal261-3@okicici',
+    upiPayeeName: 'MARINE CREATURES',
+    upiEnabled: true,
   });
   const [loadingSettings, setLoadingSettings] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
@@ -906,6 +909,70 @@ export function ControlOsSystem({
                   onChange={(e) => setSettings({ ...settings, defaultPaginationLimit: Number(e.target.value) })}
                   className="w-full min-h-[44px] bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono focus:outline-none focus:ring-1 focus:ring-cyan-500"
                 />
+              </div>
+            </div>
+
+            {/* ── UPI Payment Gateway & Invoicing Configuration ── */}
+            <div className="pt-4 border-t border-slate-800">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-base">💳</span>
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                  UPI Payment &amp; Invoice QR Configuration
+                </h3>
+              </div>
+              <p className="text-xs text-slate-400 mb-4">
+                Configure business UPI ID and payee name for dynamic QR generation on client web &amp; PDF invoices.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs max-w-3xl">
+                <div>
+                  <label className="text-slate-300 font-semibold block mb-1">
+                    Business UPI ID (Virtual Payment Address) *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. bithikashasmal261-3@okicici"
+                    value={settings.upiId ?? 'bithikashasmal261-3@okicici'}
+                    onChange={(e) => setSettings({ ...settings, upiId: e.target.value.trim() })}
+                    className="w-full min-h-[44px] bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                  />
+                  <span className="text-[10px] text-slate-500 mt-1 block">
+                    Initial Verified Business UPI ID: bithikashasmal261-3@okicici
+                  </span>
+                </div>
+
+                <div>
+                  <label className="text-slate-300 font-semibold block mb-1">
+                    Business Payee Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. MARINE CREATURES"
+                    value={settings.upiPayeeName ?? 'MARINE CREATURES'}
+                    onChange={(e) => setSettings({ ...settings, upiPayeeName: e.target.value })}
+                    className="w-full min-h-[44px] bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                  />
+                  <span className="text-[10px] text-slate-500 mt-1 block">
+                    Displays as payment recipient in Google Pay &amp; compatible UPI apps.
+                  </span>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="flex items-center gap-2.5 cursor-pointer text-slate-300 font-semibold">
+                    <input
+                      type="checkbox"
+                      checked={settings.upiEnabled !== false}
+                      onChange={(e) => setSettings({ ...settings, upiEnabled: e.target.checked })}
+                      className="w-4 h-4 rounded text-cyan-400 bg-slate-900 border-slate-700 focus:ring-cyan-400 focus:ring-offset-0"
+                    />
+                    <span>Enable Dynamic UPI QR Generation on Invoices</span>
+                  </label>
+                  <span className="text-[10px] text-slate-500 mt-0.5 block pl-6">
+                    When enabled, eligible unpaid and partially paid invoices dynamically present a verifiable UPI QR.
+                  </span>
+                </div>
               </div>
             </div>
 

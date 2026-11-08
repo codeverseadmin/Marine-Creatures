@@ -298,6 +298,96 @@ const styles = StyleSheet.create({
     fontSize:   7.5,
     color:      C.ink,
   },
+  upiPaymentBox: {
+    backgroundColor: C.panelBg,
+    borderWidth:     0.75,
+    borderColor:     C.border,
+    borderRadius:    4,
+    padding:         6,
+    flexDirection:   'row',
+    alignItems:      'center',
+    gap:             8,
+    marginBottom:    8,
+  },
+  upiQrWrapper: {
+    backgroundColor: C.white,
+    padding:         3,
+    borderRadius:    3,
+    borderWidth:     0.5,
+    borderColor:     C.border,
+  },
+  upiQrImage: {
+    width:  52,
+    height: 52,
+  },
+  upiTextWrapper: {
+    flex: 1,
+  },
+  upiHeaderTitle: {
+    fontFamily:    'Helvetica-Bold',
+    fontSize:      7.5,
+    color:         C.navy,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom:  2,
+  },
+  upiDetailLine: {
+    fontFamily:   'Helvetica',
+    fontSize:     6.8,
+    color:        C.body,
+    marginBottom: 1,
+  },
+  upiBoldLabel: {
+    fontFamily: 'Helvetica-Bold',
+    color:      C.navy,
+  },
+  upiAmountLine: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize:   7.5,
+    color:      C.ocean,
+    marginTop:  1,
+  },
+  upiSubNotice: {
+    fontFamily: 'Helvetica',
+    fontSize:   5.8,
+    color:      C.muted,
+    marginTop:  1.5,
+  },
+  settledPaymentBox: {
+    backgroundColor: '#ecfdf5',
+    borderWidth:     0.75,
+    borderColor:     '#a7f3d0',
+    borderRadius:    4,
+    padding:         6,
+    marginBottom:    8,
+  },
+  settledTitle: {
+    fontFamily:    'Helvetica-Bold',
+    fontSize:      7.2,
+    color:         C.emerald,
+    letterSpacing: 0.6,
+    marginBottom:  1,
+  },
+  settledSubtext: {
+    fontFamily: 'Helvetica',
+    fontSize:   6.2,
+    color:      '#065f46',
+  },
+  cancelledPaymentBox: {
+    backgroundColor: '#fff1f2',
+    borderWidth:     0.75,
+    borderColor:     '#fecdd3',
+    borderRadius:    4,
+    padding:         6,
+    marginBottom:    8,
+  },
+  cancelledTitle: {
+    fontFamily:    'Helvetica-Bold',
+    fontSize:      7.2,
+    color:         '#e11d48',
+    letterSpacing: 0.6,
+    marginBottom:  1,
+  },
   protocolNotice: {
     fontSize:   6.8,
     color:      C.muted,
@@ -560,6 +650,18 @@ export interface ExecutiveInvoiceOrderData {
   isTaxInvoiceCompliant?: boolean;
   logoPath?: string;
   signaturePath?: string;
+  upiPayment?: {
+    isEligible: boolean;
+    reason?: string;
+    upiId?: string;
+    payeeName?: string;
+    outstandingBalance?: number;
+    amountPaid?: number;
+    totalAmount?: number;
+    isPartial?: boolean;
+    qrDataUrl?: string;
+    upiUri?: string;
+  };
 }
 
 // ─── Executive PDF Document ──────────────────────────────────────────────────
@@ -749,6 +851,53 @@ export function InvoicePDFDocument({ order }: { order: ExecutiveInvoiceOrderData
               <Text style={styles.amountWordsLabel}>Amount in Words</Text>
               <Text style={styles.amountWordsText}>{numberToWords(order.totalAmount)}</Text>
             </View>
+
+            {/* UPI QR Payment Block or Settlement State */}
+            {order.upiPayment && order.upiPayment.isEligible && order.upiPayment.qrDataUrl ? (
+              <View style={styles.upiPaymentBox}>
+                <View style={styles.upiQrWrapper}>
+                  <Image src={order.upiPayment.qrDataUrl} style={styles.upiQrImage} />
+                </View>
+                <View style={styles.upiTextWrapper}>
+                  <Text style={styles.upiHeaderTitle}>Instant UPI Settlement</Text>
+                  <Text style={styles.upiDetailLine}>
+                    <Text style={styles.upiBoldLabel}>UPI ID: </Text>
+                    {order.upiPayment.upiId}
+                  </Text>
+                  <Text style={styles.upiDetailLine}>
+                    <Text style={styles.upiBoldLabel}>Payee: </Text>
+                    {order.upiPayment.payeeName}
+                  </Text>
+                  <Text style={styles.upiAmountLine}>
+                    Payable: {'\u20B9'}{(order.upiPayment.outstandingBalance ?? order.totalAmount).toLocaleString('en-IN')}
+                  </Text>
+                  {order.upiPayment.isPartial && typeof order.upiPayment.amountPaid === 'number' && order.upiPayment.amountPaid > 0 ? (
+                    <Text style={styles.upiSubNotice}>
+                      Partially Paid: {'\u20B9'}{order.upiPayment.amountPaid.toLocaleString('en-IN')} (Remaining balance above)
+                    </Text>
+                  ) : (
+                    <Text style={styles.upiSubNotice}>
+                      Scan with Google Pay, PhonePe, Paytm or any UPI app
+                    </Text>
+                  )}
+                </View>
+              </View>
+            ) : order.upiPayment && !order.upiPayment.isEligible && order.upiPayment.reason === 'FULLY_PAID' ? (
+              <View style={styles.settledPaymentBox}>
+                <Text style={styles.settledTitle}>[ PAYMENT COMPLETED &amp; RECONCILED ]</Text>
+                <Text style={styles.settledSubtext}>
+                  This invoice has been settled in full. No balance is outstanding.
+                </Text>
+              </View>
+            ) : order.upiPayment && !order.upiPayment.isEligible && order.upiPayment.reason === 'CANCELLED' ? (
+              <View style={styles.cancelledPaymentBox}>
+                <Text style={styles.cancelledTitle}>[ INVOICE VOID &amp; CANCELLED ]</Text>
+                <Text style={styles.settledSubtext}>
+                  This order was cancelled. Payment requests are deactivated.
+                </Text>
+              </View>
+            ) : null}
+
             <Text style={styles.protocolNotice}>
               Live marine cargo certified. Specimens are conditioned in dedicated quarantine facilities
               and packaged in multi-stage oxygenated thermal enclosures.
