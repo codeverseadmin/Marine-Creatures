@@ -115,13 +115,25 @@ export function ControlOsPromotions({
   const [formExcludedProducts, setFormExcludedProducts] = useState('');
   const [formInternalNotes, setFormInternalNotes] = useState('');
 
-  // Lock background body scroll when any modal is active
+  // Lock background body scroll & handle Escape key when any modal is active
   useEffect(() => {
     if (isEditorOpen || inspectedCoupon || deactivatingCoupon) {
       const originalOverflow = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          setIsEditorOpen(false);
+          setInspectedCoupon(null);
+          setDeactivatingCoupon(null);
+        }
+      };
+
+      window.addEventListener('keydown', handleKeyDown);
+
       return () => {
         document.body.style.overflow = originalOverflow;
+        window.removeEventListener('keydown', handleKeyDown);
       };
     }
   }, [isEditorOpen, inspectedCoupon, deactivatingCoupon]);
@@ -789,14 +801,14 @@ export function ControlOsPromotions({
       {/* ── MODAL 1: CREATE / EDIT COUPON ──────────────────────────────────── */}
       {isEditorOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm overflow-y-auto"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm overflow-hidden"
           onClick={() => setIsEditorOpen(false)}
         >
           <div
-            className="relative w-full max-w-2xl bg-[#0b1622] border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col max-h-[85vh] h-full my-auto overflow-hidden"
+            className="relative w-full max-w-2xl bg-[#0b1622] border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col h-[85vh] max-h-[85dvh] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <form onSubmit={handleSaveCoupon} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+            <form onSubmit={handleSaveCoupon} className="h-full flex flex-col min-h-0 overflow-hidden">
               {/* Modal Header (Pinned) */}
               <div className="px-5 sm:px-6 py-4 border-b border-slate-800 flex items-center justify-between shrink-0 bg-[#0b1622]">
                 <div className="flex items-center gap-2">
@@ -816,11 +828,7 @@ export function ControlOsPromotions({
 
               {/* Modal Body (Scrollable with min-h-0, visible scrollbar, and overscroll-contain) */}
               <div
-                className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-6 space-y-4 text-xs overscroll-contain pr-4"
-                style={{
-                  scrollbarWidth: 'thin',
-                  scrollbarColor: '#06b6d4 rgba(15, 23, 42, 0.6)',
-                }}
+                className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-6 space-y-4 text-xs overscroll-contain pr-4 modal-scroll-area"
               >
                 {editorError && (
                   <div className="p-3 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 text-xs flex items-center gap-2">
@@ -904,6 +912,7 @@ export function ControlOsPromotions({
                       min={1}
                       max={formDiscountType === 'percentage' ? 100 : undefined}
                       value={formDiscountValue}
+                      onWheel={(e) => e.currentTarget.blur()}
                       onChange={(e) => setFormDiscountValue(e.target.value === '' ? '' : Number(e.target.value))}
                       className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white font-mono focus:outline-none focus:border-cyan-400"
                     />
@@ -919,6 +928,7 @@ export function ControlOsPromotions({
                       disabled={formDiscountType !== 'percentage'}
                       placeholder="No cap"
                       value={formMaxDiscount}
+                      onWheel={(e) => e.currentTarget.blur()}
                       onChange={(e) => setFormMaxDiscount(e.target.value === '' ? '' : Number(e.target.value))}
                       className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white font-mono disabled:opacity-30 focus:outline-none focus:border-cyan-400"
                     />
@@ -935,6 +945,7 @@ export function ControlOsPromotions({
                       type="number"
                       min={0}
                       value={formMinSubtotal}
+                      onWheel={(e) => e.currentTarget.blur()}
                       onChange={(e) => setFormMinSubtotal(e.target.value === '' ? '' : Number(e.target.value))}
                       className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white font-mono focus:outline-none focus:border-cyan-400"
                     />
@@ -996,6 +1007,7 @@ export function ControlOsPromotions({
                       min={1}
                       placeholder="Unlimited"
                       value={formTotalLimit}
+                      onWheel={(e) => e.currentTarget.blur()}
                       onChange={(e) => setFormTotalLimit(e.target.value === '' ? '' : Number(e.target.value))}
                       className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white font-mono focus:outline-none focus:border-cyan-400"
                     />
@@ -1009,6 +1021,7 @@ export function ControlOsPromotions({
                       type="number"
                       min={1}
                       value={formPerCustomerLimit}
+                      onWheel={(e) => e.currentTarget.blur()}
                       onChange={(e) => setFormPerCustomerLimit(e.target.value === '' ? '' : Number(e.target.value))}
                       className="w-full h-10 px-3 rounded-xl bg-black/50 border border-slate-700 text-white font-mono focus:outline-none focus:border-cyan-400"
                     />
@@ -1162,11 +1175,11 @@ export function ControlOsPromotions({
       {/* ── MODAL 3: INSPECT REDEMPTIONS ───────────────────────────────────── */}
       {inspectedCoupon && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm overflow-y-auto"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm overflow-hidden"
           onClick={() => setInspectedCoupon(null)}
         >
           <div
-            className="relative w-full max-w-3xl bg-[#0b1622] border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col max-h-[85vh] h-full my-auto overflow-hidden"
+            className="relative w-full max-w-3xl bg-[#0b1622] border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col h-[85vh] max-h-[85dvh] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="px-5 sm:px-6 py-4 border-b border-slate-800 flex items-center justify-between shrink-0 bg-[#0b1622]">
@@ -1191,11 +1204,7 @@ export function ControlOsPromotions({
             </div>
 
             <div
-              className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-6 space-y-4 overscroll-contain pr-4"
-              style={{
-                scrollbarWidth: 'thin',
-                scrollbarColor: '#06b6d4 rgba(15, 23, 42, 0.6)',
-              }}
+              className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-6 space-y-4 overscroll-contain pr-4 modal-scroll-area"
             >
               {loadingInspected ? (
                 <div className="p-8 text-center text-xs text-slate-400 font-mono">Loading redemption records...</div>
