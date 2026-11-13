@@ -56,6 +56,7 @@ export async function GET(req: NextRequest) {
             filename: m.filename,
             contentType: m.contentType,
             size: m.size,
+            type: m.type || (m.contentType?.startsWith('video/') ? 'video' : 'image'),
             url: `/api/media/${m.id}`,
             altText: m.altText,
             createdAt: m.createdAt,
@@ -66,18 +67,19 @@ export async function GET(req: NextRequest) {
 
     // ── Global Media Library & Asset Audit Handler ──
     const filter = searchParams.get('filter') || 'all'; // 'all', 'verified', 'blueprint', 'custom_uploads', 'product', 'case_study'
+    const mediaType = searchParams.get('mediaType') || 'all'; // 'all', 'image', 'video'
     const search = (searchParams.get('search') || '').trim();
 
     // 1. Gather all active product media assets
     const products = await ProductModel.find(
       { isArchived: { $ne: true } },
-      { id: 1, name: 1, category: 1, categoryLabel: 1, images: 1, imageStatus: 1, media: 1 }
+      { id: 1, name: 1, category: 1, categoryLabel: 1, images: 1, imageStatus: 1, media: 1, videos: 1, createdAt: 1 }
     ).lean();
 
     // 2. Gather case study media assets
     const caseStudies = await CaseStudyModel.find(
       {},
-      { id: 1, title: 1, coverImage: 1, gallery: 1 }
+      { id: 1, title: 1, coverImage: 1, gallery: 1, createdAt: 1 }
     ).lean();
 
     // 3. Gather database uploaded media (exclude large binary buffer)
@@ -89,6 +91,7 @@ export async function GET(req: NextRequest) {
     const mediaList: Array<{
       id: string;
       sourceType: 'product' | 'case_study' | 'database_upload';
+      type: 'image' | 'video';
       parentName: string;
       parentId: string;
       url: string;
@@ -96,11 +99,14 @@ export async function GET(req: NextRequest) {
       hasRealPhoto: boolean;
       format?: string;
       isPrimary?: boolean;
+      size?: number;
+      createdAt?: string | Date;
     }> = [];
 
-    // Map all product images (preserving multiple images per product)
+    // Map all product images and media (preserving multiple assets per product)
     products.forEach((p) => {
       const pImages = Array.isArray(p.images) ? p.images : [];
+      const pMedia = Array.isArray((p as any).media) ? (p as any).media : [];
       const hasRealPhoto = pImages.length > 0 && Boolean(pImages[0]);
       const status = p.imageStatus === 'VERIFIED' || hasRealPhoto ? 'VERIFIED' : 'NEEDS_MEDIA_ASSET';
 
@@ -109,19 +115,23 @@ export async function GET(req: NextRequest) {
           mediaList.push({
             id: `prod-${p.id}-${imgIdx}`,
             sourceType: 'product',
+            type: 'image',
             parentName: p.name + (pImages.length > 1 ? ` (Asset ${imgIdx + 1})` : ''),
             parentId: p.id,
             url: imgUrl,
             imageStatus: status,
             hasRealPhoto: true,
-            format: imgUrl.split('.').pop()?.toUpperCase() || 'JPEG',
+            format: imgUrl.split('?')[0].split('.').pop()?.toUpperCase() || 'JPEG',
             isPrimary: imgIdx === 0,
+            size: 0,
+            createdAt: (p as any).createdAt,
           });
         });
       } else {
         mediaList.push({
           id: `prod-${p.id}-placeholder`,
           sourceType: 'product',
+          type: 'image',
           parentName: p.name,
           parentId: p.id,
           url: '',
@@ -129,40 +139,71 @@ export async function GET(req: NextRequest) {
           hasRealPhoto: false,
           format: 'SVG_BLUEPRINT',
           isPrimary: true,
+          size: 0,
+          createdAt: (p as any).createdAt,
         });
       }
+
+      // Map any dedicated product videos or media items
+      pMedia.forEach((mItem: any, mIdx: number) => {
+        const isVid = mItem.type === 'video' || /\.(mp4|webm|mov)(\?|$)/i.test(mItem.url || '');
+        if (isVid && mItem.url) {
+          mediaList.push({
+            id: mItem.id || `prod-${p.id}-video-${mIdx}`,
+            sourceType: 'product',
+            type: 'video',
+            parentName: p.name + ` (Video ${mIdx + 1})`,
+            parentId: p.id,
+            url: mItem.url,
+            imageStatus: 'VERIFIED',
+            hasRealPhoto: true,
+            format: mItem.url.split('?')[0].split('.').pop()?.toUpperCase() || 'MP4',
+            isPrimary: false,
+            size: 0,
+            createdAt: (p as any).createdAt,
+          });
+        }
+      });
     });
 
     // Map case studies
     caseStudies.forEach((cs: any) => {
       const cover = cs.coverImage || cs.image;
       if (cover) {
+        const isVid = /\.(mp4|webm|mov)(\?|$)/i.test(cover);
         mediaList.push({
           id: `cs-${cs.id}-cover`,
           sourceType: 'case_study',
+          type: isVid ? 'video' : 'image',
           parentName: cs.title,
           parentId: cs.id,
           url: cover,
           imageStatus: 'VERIFIED',
           hasRealPhoto: true,
-          format: cover.split('.').pop()?.toUpperCase() || 'JPEG',
+          format: cover.split('?')[0].split('.').pop()?.toUpperCase() || (isVid ? 'MP4' : 'JPEG'),
           isPrimary: true,
+          size: 0,
+          createdAt: cs.createdAt,
         });
       }
     });
 
     // Map database uploads
     rawUploadedMedia.forEach((um) => {
+      const isVid = um.type === 'video' || um.contentType?.startsWith('video/');
       mediaList.push({
         id: `upload-${um.id}`,
         sourceType: 'database_upload',
+        type: isVid ? 'video' : 'image',
         parentName: um.filename,
         parentId: um.productId || um.id,
         url: `/api/media/${um.id}`,
         imageStatus: 'VERIFIED',
         hasRealPhoto: true,
-        format: um.contentType?.split('/')[1]?.toUpperCase() || 'IMAGE',
+        format: um.contentType?.split('/')[1]?.toUpperCase() || (isVid ? 'MP4' : 'IMAGE'),
         isPrimary: false,
+        size: um.size || 0,
+        createdAt: um.createdAt,
       });
     });
 
@@ -179,6 +220,12 @@ export async function GET(req: NextRequest) {
       filtered = filtered.filter((m) => m.sourceType === 'case_study');
     }
 
+    if (mediaType === 'image') {
+      filtered = filtered.filter((m) => m.type === 'image');
+    } else if (mediaType === 'video') {
+      filtered = filtered.filter((m) => m.type === 'video');
+    }
+
     if (search) {
       const q = search.toLowerCase();
       filtered = filtered.filter(
@@ -191,11 +238,15 @@ export async function GET(req: NextRequest) {
 
     const verifiedCount = mediaList.filter((m) => m.hasRealPhoto).length;
     const blueprintCount = mediaList.filter((m) => !m.hasRealPhoto).length;
+    const totalImages = mediaList.filter((m) => m.type === 'image').length;
+    const totalVideos = mediaList.filter((m) => m.type === 'video').length;
 
     return NextResponse.json({
       success: true,
       counts: {
         total: mediaList.length,
+        images: totalImages,
+        videos: totalVideos,
         verified: verifiedCount,
         blueprint: blueprintCount,
         customUploads: rawUploadedMedia.length,

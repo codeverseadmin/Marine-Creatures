@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
-import { Product } from '@/lib/data/products';
+import { Product, ProductMedia } from '@/lib/data/products';
 import { optimizeImageForUpload } from '@/lib/image-optimizer';
 
 // Category taxonomy constants
@@ -28,9 +28,22 @@ export interface CatalogMetrics {
 interface ControlOsCatalogProps {
   onReturnToOverview?: () => void;
   showToast?: (msg: string) => void;
+  initialSubtab?: string;
 }
 
-export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: ControlOsCatalogProps) {
+export function ControlOsCatalog({ onReturnToOverview, showToast = () => {}, initialSubtab }: ControlOsCatalogProps) {
+  // ── Navigation & View State ────────────────────────────────────────────────
+  const [catalogView, setCatalogView] = useState<'products' | 'media'>(
+    initialSubtab === 'media' ? 'media' : 'products'
+  );
+
+  useEffect(() => {
+    if (initialSubtab === 'media') {
+      setCatalogView('media');
+    } else if (initialSubtab === 'products') {
+      setCatalogView('products');
+    }
+  }, [initialSubtab]);
   // ── State ──────────────────────────────────────────────────────────────────
   const [products, setProducts] = useState<Product[]>([]);
   const [metrics, setMetrics] = useState<CatalogMetrics>({
@@ -118,13 +131,56 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
   const [duplicateTarget, setDuplicateTarget] = useState<Product | null>(null);
   const [isProcessingAction, setIsProcessingAction] = useState(false);
 
-  // Image Uploading & Media State in Modal
+  // Media Uploading & Asset State (Images & Videos)
+  interface UploadQueueItem {
+    id: string;
+    file: File;
+    name: string;
+    size: number;
+    isVideo: boolean;
+    format: string;
+    status: 'pending' | 'optimizing' | 'uploading' | 'success' | 'error';
+    progress: number;
+    error?: string;
+    url?: string;
+  }
+
+  const [uploadQueue, setUploadQueue] = useState<UploadQueueItem[]>([]);
   const [isUploadingMedia, setIsUploadingMedia] = useState(false);
   const [isMediaLoading, setIsMediaLoading] = useState(false);
   const [mediaError, setMediaError] = useState<string | null>(null);
+  const [isDraggingDropZone, setIsDraggingDropZone] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [previewVideo, setPreviewVideo] = useState<{ url: string; title: string } | null>(null);
   const [newImageUrl, setNewImageUrl] = useState('');
   const [newImageAlt, setNewImageAlt] = useState('');
+  const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
+
+  // Global Media Library & Asset Repository State
+  const [mediaLibraryItems, setMediaLibraryItems] = useState<any[]>([]);
+  const [mediaLibraryCounts, setMediaLibraryCounts] = useState<{
+    total: number;
+    images: number;
+    videos: number;
+    verified: number;
+    blueprint: number;
+    customUploads: number;
+  }>({
+    total: 0,
+    images: 0,
+    videos: 0,
+    verified: 0,
+    blueprint: 0,
+    customUploads: 0,
+  });
+  const [isLoadingMediaLibrary, setIsLoadingMediaLibrary] = useState(false);
+  const [mediaLibraryError, setMediaLibraryError] = useState<string | null>(null);
+  const [mediaLibraryFilter, setMediaLibraryFilter] = useState<string>('all');
+  const [mediaLibraryType, setMediaLibraryType] = useState<'all' | 'image' | 'video'>('all');
+  const [mediaLibrarySearch, setMediaLibrarySearch] = useState('');
+  const [debouncedMediaSearch, setDebouncedMediaSearch] = useState('');
+  const [mediaDeleteTarget, setMediaDeleteTarget] = useState<any | null>(null);
+  const [isDeletingMedia, setIsDeletingMedia] = useState(false);
 
   // ── Debounce Search ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -134,16 +190,23 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedMediaSearch(mediaLibrarySearch.trim());
+    }, 280);
+    return () => clearTimeout(handler);
+  }, [mediaLibrarySearch]);
+
   // Scroll lock when modal dialogs are active
   useEffect(() => {
-    if (isEditorOpen || archiveTarget || duplicateTarget) {
+    if (isEditorOpen || archiveTarget || duplicateTarget || previewVideo || mediaDeleteTarget) {
       const originalOverflow = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
       return () => {
         document.body.style.overflow = originalOverflow;
       };
     }
-  }, [isEditorOpen, archiveTarget, duplicateTarget]);
+  }, [isEditorOpen, archiveTarget, duplicateTarget, previewVideo, mediaDeleteTarget]);
 
   // ── Fetch Authoritative Catalog from MongoDB ───────────────────────────────
   const fetchCatalogData = useCallback(async () => {
@@ -189,6 +252,50 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
   useEffect(() => {
     fetchCatalogData();
   }, [fetchCatalogData]);
+
+  // ── Fetch Authoritative Media Library from MongoDB ─────────────────────────
+  const fetchMediaLibrary = useCallback(async () => {
+    setIsLoadingMediaLibrary(true);
+    setMediaLibraryError(null);
+    try {
+      const params = new URLSearchParams();
+      if (mediaLibraryFilter !== 'all') params.set('filter', mediaLibraryFilter);
+      if (mediaLibraryType !== 'all') params.set('mediaType', mediaLibraryType);
+      if (debouncedMediaSearch) params.set('search', debouncedMediaSearch);
+
+      const res = await fetch(`/api/admin/media?${params.toString()}`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          throw new Error('Administrative session expired. Please re-authenticate.');
+        }
+        throw new Error(`Server returned HTTP ${res.status}`);
+      }
+
+      const json = await res.json();
+      if (json.success) {
+        setMediaLibraryItems(json.data || []);
+        if (json.counts) {
+          setMediaLibraryCounts(json.counts);
+        }
+      } else {
+        throw new Error(json.error || 'Failed to parse media response');
+      }
+    } catch (err: any) {
+      setMediaLibraryError(err.message || 'Operational media synchronization error');
+    } finally {
+      setIsLoadingMediaLibrary(false);
+    }
+  }, [mediaLibraryFilter, mediaLibraryType, debouncedMediaSearch]);
+
+  useEffect(() => {
+    if (catalogView === 'media') {
+      fetchMediaLibrary();
+    }
+  }, [catalogView, fetchMediaLibrary]);
 
   // ── Metric Card Click Handlers ─────────────────────────────────────────────
   const handleMetricClick = (type: 'active' | 'lowStock' | 'outOfStock' | 'archived' | 'needsReview' | 'missingImage') => {
@@ -243,6 +350,8 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
     setMediaError(null);
     setIsMediaLoading(false);
     setPreviewImage(null);
+    setPreviewVideo(null);
+    setUploadQueue([]);
     setNewImageUrl('');
     setFormState({
       name: '',
@@ -267,6 +376,8 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
       rarity: '',
       feedingCondition: '',
       images: [],
+      videos: [],
+      media: [],
       imageStatus: 'VERIFIED',
       researchStatus: 'READY',
       careGuide: {
@@ -304,9 +415,14 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
     setMediaError(null);
     setIsMediaLoading(false);
     setPreviewImage(null);
+    setPreviewVideo(null);
+    setUploadQueue([]);
     setNewImageUrl('');
     setFormState({
       ...prod,
+      images: Array.isArray(prod.images) ? [...prod.images] : [],
+      videos: Array.isArray(prod.videos) ? [...prod.videos] : [],
+      media: Array.isArray(prod.media) ? [...prod.media] : [],
       slug: (prod as any).slug || prod.id,
       careGuide: prod.careGuide || {
         temperature: '24°C – 26°C',
@@ -415,49 +531,174 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
     }
   }, [isEditorOpen, activeStep, editingProduct?.id, formState.id, fetchProductMedia]);
 
-  // ── Media Handlers (Binary Cloud & Upload Pipeline) ────────────────────────
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+  // ── Media Handlers (Unified Image & Video Upload Pipeline) ───────────────────
+  const ALLOWED_MEDIA_MIME = [
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'image/gif',
+    'image/svg+xml',
+    'video/mp4',
+    'video/webm',
+    'video/quicktime',
+  ];
+  const ALLOWED_MEDIA_EXTS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'mp4', 'webm', 'mov'];
+  const MAX_MEDIA_FILE_SIZE = 25 * 1024 * 1024; // 25MB
 
-    const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
-    const MAX_SIZE = 25 * 1024 * 1024; // 25MB
+  // Combined product visual assets (images + videos)
+  const combinedAssets = useMemo(() => {
+    const list: Array<{ id: string; type: 'image' | 'video'; url: string; title?: string }> = [];
+    const seenUrls = new Set<string>();
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      if (file.size > MAX_SIZE) {
-        setMediaError(`File "${file.name}" exceeds the maximum 25MB limit (${(file.size / (1024 * 1024)).toFixed(1)}MB).`);
-        e.target.value = '';
-        return;
-      }
-      if (file.type && !ALLOWED_MIME.includes(file.type)) {
-        setMediaError(`File "${file.name}" has an unsupported format (${file.type}). Allowed formats: JPEG, PNG, WEBP, GIF, SVG.`);
-        e.target.value = '';
-        return;
-      }
+    if (Array.isArray(formState.media) && formState.media.length > 0) {
+      formState.media.forEach((m, idx) => {
+        if (m.url && !seenUrls.has(m.url)) {
+          seenUrls.add(m.url);
+          const isVid = m.type === 'video' || /\.(mp4|webm|mov)(\?|$)/i.test(m.url);
+          list.push({
+            id: m.id || `m-${idx}`,
+            type: isVid ? 'video' : 'image',
+            url: m.url,
+            title: m.title || (isVid ? `Specimen Video ${idx + 1}` : `Asset ${idx + 1}`),
+          });
+        }
+      });
     }
+
+    (formState.images || []).forEach((img, idx) => {
+      if (img && !seenUrls.has(img)) {
+        seenUrls.add(img);
+        const isVid = /\.(mp4|webm|mov)(\?|$)/i.test(img);
+        list.push({
+          id: `img-${idx}`,
+          type: isVid ? 'video' : 'image',
+          url: img,
+          title: isVid ? `Specimen Video ${idx + 1}` : `Asset ${idx + 1}`,
+        });
+      }
+    });
+
+    (formState.videos || []).forEach((vid, idx) => {
+      if (vid && !seenUrls.has(vid)) {
+        seenUrls.add(vid);
+        list.push({
+          id: `vid-${idx}`,
+          type: 'video',
+          url: vid,
+          title: `Specimen Video ${idx + 1}`,
+        });
+      }
+    });
+
+    return list;
+  }, [formState.media, formState.images, formState.videos]);
+
+  const updateProductAssets = (
+    newList: Array<{ id: string; type: 'image' | 'video'; url: string; title?: string }>
+  ) => {
+    const images = newList.filter((a) => a.type === 'image').map((a) => a.url);
+    const videos = newList.filter((a) => a.type === 'video').map((a) => a.url);
+    const media: ProductMedia[] = newList.map((a) => ({
+      id: a.id,
+      type: a.type,
+      url: a.url,
+      title: a.title,
+    }));
+
+    setFormState((prev) => ({
+      ...prev,
+      images,
+      videos,
+      media,
+      imageStatus:
+        images.length > 0
+          ? 'VERIFIED'
+          : prev.imageStatus === 'VERIFIED'
+          ? 'NEEDS_MEDIA_ASSET'
+          : prev.imageStatus,
+    }));
+  };
+
+  const handleSetPrimaryAsset = (index: number) => {
+    if (index < 0 || index >= combinedAssets.length) return;
+    const assets = [...combinedAssets];
+    const [selected] = assets.splice(index, 1);
+    updateProductAssets([selected, ...assets]);
+    showToast(
+      selected.type === 'video'
+        ? '✓ Video moved to top of media sequence'
+        : '✓ Set as primary marketplace thumbnail'
+    );
+  };
+
+  const handleMoveAsset = (index: number, direction: 'left' | 'right') => {
+    const targetIndex = direction === 'left' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= combinedAssets.length) return;
+    const assets = [...combinedAssets];
+    const temp = assets[index];
+    assets[index] = assets[targetIndex];
+    assets[targetIndex] = temp;
+    updateProductAssets(assets);
+  };
+
+  const handleRemoveAsset = (indexToRemove: number) => {
+    const assets = combinedAssets.filter((_, i) => i !== indexToRemove);
+    updateProductAssets(assets);
+    showToast('Asset removed');
+  };
+
+  // Backwards compatible aliases
+  const handleRemoveImage = handleRemoveAsset;
+  const handleSetPrimaryImage = handleSetPrimaryAsset;
+  const handleMoveImage = handleMoveAsset;
+
+  const handleCopyUrl = (url: string) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(url);
+      setCopiedUrl(url);
+      setTimeout(() => setCopiedUrl(null), 2500);
+      showToast('✓ Media asset URL copied to clipboard');
+    }
+  };
+
+  // Upload Queue Worker
+  const executeUploadQueue = async (
+    itemsToUpload: UploadQueueItem[],
+    isStandalone = false
+  ) => {
+    if (itemsToUpload.length === 0) return;
 
     setIsUploadingMedia(true);
     setMediaError(null);
-    showToast(`Optimizing & uploading ${files.length} asset(s)...`);
+    let successCount = 0;
+    let failCount = 0;
 
-    try {
-      const newUrls: string[] = [];
+    for (const item of itemsToUpload) {
+      setUploadQueue((prev) =>
+        prev.map((i) =>
+          i.id === item.id ? { ...i, status: item.isVideo ? 'uploading' : 'optimizing' } : i
+        )
+      );
 
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        let fileToUpload: File | Blob = file;
+      let fileToUpload: File | Blob = item.file;
+      if (!item.isVideo && item.file.type !== 'image/svg+xml') {
         try {
-          fileToUpload = await optimizeImageForUpload(file, 1600, 0.85);
+          fileToUpload = await optimizeImageForUpload(item.file, 1600, 0.85);
         } catch {
-          // If canvas optimization fails (e.g. for SVG or in unsupported runtime), fall back to original file
-          fileToUpload = file;
+          fileToUpload = item.file;
         }
+      }
 
+      setUploadQueue((prev) =>
+        prev.map((i) => (i.id === item.id ? { ...i, status: 'uploading' } : i))
+      );
+
+      try {
         const formData = new FormData();
-        formData.append('file', fileToUpload, file.name);
-        formData.append('type', 'image');
-        const targetId = editingProduct?.id || formState.id;
+        formData.append('file', fileToUpload, item.name);
+        formData.append('type', item.isVideo ? 'video' : 'image');
+
+        const targetId = !isStandalone ? editingProduct?.id || formState.id : undefined;
         if (targetId) {
           formData.append('productId', targetId);
         }
@@ -474,32 +715,129 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
 
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.error || `Upload failed for "${file.name}" (HTTP ${res.status})`);
+          throw new Error(errData.error || `Upload failed for "${item.name}" (HTTP ${res.status})`);
         }
 
         const json = await res.json();
-        if (json.url) {
-          newUrls.push(json.url);
+        if (!json.url) {
+          throw new Error('Server did not return a valid asset URL.');
         }
+
+        setUploadQueue((prev) =>
+          prev.map((i) => (i.id === item.id ? { ...i, status: 'success', url: json.url } : i))
+        );
+        successCount++;
+
+        if (!isStandalone) {
+          setFormState((prev) => {
+            const currentImages = prev.images || [];
+            const currentVideos = prev.videos || [];
+            const currentMedia = prev.media || [];
+            const newMediaItem: ProductMedia = {
+              id: json.mediaId || `media-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+              type: item.isVideo ? 'video' : 'image',
+              url: json.url,
+              title: item.name,
+            };
+
+            return {
+              ...prev,
+              images: item.isVideo ? currentImages : [...currentImages, json.url],
+              videos: item.isVideo ? [...currentVideos, json.url] : currentVideos,
+              media: [...currentMedia, newMediaItem],
+              imageStatus: 'VERIFIED',
+            };
+          });
+        }
+      } catch (err: any) {
+        failCount++;
+        setUploadQueue((prev) =>
+          prev.map((i) =>
+            i.id === item.id ? { ...i, status: 'error', error: err.message || 'Upload failed' } : i
+          )
+        );
+      }
+    }
+
+    setIsUploadingMedia(false);
+
+    if (isStandalone) {
+      fetchMediaLibrary();
+    }
+
+    if (successCount > 0 && failCount === 0) {
+      showToast(`✓ Uploaded ${successCount} asset(s) successfully`);
+    } else if (successCount > 0 && failCount > 0) {
+      showToast(`⚠ Uploaded ${successCount} asset(s), ${failCount} failed`);
+    } else if (failCount > 0) {
+      setMediaError(`Failed to upload ${failCount} asset(s). See details below to retry.`);
+    }
+  };
+
+  const handleFilesSelected = (files: File[], isStandalone = false) => {
+    if (!files || files.length === 0) return;
+
+    const newQueueItems: UploadQueueItem[] = files.map((file) => {
+      const ext = file.name.split('.').pop()?.toLowerCase() || '';
+      const isVideo = file.type.startsWith('video/') || ['mp4', 'webm', 'mov'].includes(ext);
+      const isValidMime = file.type ? ALLOWED_MEDIA_MIME.includes(file.type) : ALLOWED_MEDIA_EXTS.includes(ext);
+      const isTooLarge = file.size > MAX_MEDIA_FILE_SIZE;
+
+      let initialStatus: UploadQueueItem['status'] = 'pending';
+      let initialError: string | undefined = undefined;
+
+      if (isTooLarge) {
+        initialStatus = 'error';
+        initialError = `Exceeds 25MB limit (${(file.size / (1024 * 1024)).toFixed(1)}MB)`;
+      } else if (!isValidMime) {
+        initialStatus = 'error';
+        initialError = `Unsupported format (${file.type || ext}). Allowed: JPEG, PNG, WebP, GIF, SVG, MP4, WebM, MOV`;
       }
 
-      setFormState((prev) => {
-        const currentImages = prev.images || [];
-        const updatedImages = [...currentImages, ...newUrls];
-        return {
-          ...prev,
-          images: updatedImages,
-          imageStatus: 'VERIFIED',
-        };
-      });
+      return {
+        id: `upload-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+        file,
+        name: file.name,
+        size: file.size,
+        isVideo,
+        format: ext || (isVideo ? 'video' : 'image'),
+        status: initialStatus,
+        progress: 0,
+        error: initialError,
+      };
+    });
 
-      showToast(`✓ Uploaded ${newUrls.length} image(s) successfully`);
-    } catch (err: any) {
-      setMediaError(err.message || 'Media upload failed');
-    } finally {
-      setIsUploadingMedia(false);
+    setUploadQueue((prev) => [...prev, ...newQueueItems]);
+
+    const pendingItems = newQueueItems.filter((i) => i.status === 'pending');
+    if (pendingItems.length > 0) {
+      executeUploadQueue(pendingItems, isStandalone);
+    } else {
+      const errors = newQueueItems.filter((i) => i.error).map((i) => `"${i.name}": ${i.error}`);
+      setMediaError(errors.join('; '));
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      handleFilesSelected(Array.from(e.target.files), false);
       e.target.value = '';
     }
+  };
+
+  const handleRetryFailedUploads = (isStandalone = false) => {
+    const failedItems = uploadQueue.filter(
+      (item) => item.status === 'error' && item.file.size <= MAX_MEDIA_FILE_SIZE
+    );
+    if (failedItems.length === 0) return;
+
+    setUploadQueue((prev) =>
+      prev.map((i) =>
+        failedItems.some((f) => f.id === i.id) ? { ...i, status: 'pending', error: undefined } : i
+      )
+    );
+
+    executeUploadQueue(failedItems, isStandalone);
   };
 
   const handleAddExternalImageUrl = () => {
@@ -509,7 +847,7 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
     let isValid = false;
     try {
       if (raw.startsWith('/')) {
-        isValid = true; // Relative local asset path
+        isValid = true;
       } else {
         const parsed = new URL(raw);
         isValid = parsed.protocol === 'http:' || parsed.protocol === 'https:';
@@ -519,61 +857,59 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
     }
 
     if (!isValid) {
-      setMediaError('Invalid URL format. Please enter a valid HTTP/HTTPS web address or absolute path (e.g. https://.../photo.jpg).');
+      setMediaError(
+        'Invalid URL format. Please enter a valid HTTP/HTTPS web address or absolute path (e.g. https://.../photo.jpg or video.mp4).'
+      );
       return;
     }
 
+    const isVid = /\.(mp4|webm|mov)(\?|$)/i.test(raw);
     setMediaError(null);
+
+    const newMediaItem: ProductMedia = {
+      id: `media-ext-${Date.now()}`,
+      type: isVid ? 'video' : 'image',
+      url: raw,
+      title: raw.split('/').pop()?.split('?')[0] || (isVid ? 'External Video' : 'External Asset'),
+    };
+
     setFormState((prev) => {
       const currentImages = prev.images || [];
+      const currentVideos = prev.videos || [];
+      const currentMedia = prev.media || [];
       return {
         ...prev,
-        images: [...currentImages, raw],
+        images: isVid ? currentImages : [...currentImages, raw],
+        videos: isVid ? [...currentVideos, raw] : currentVideos,
+        media: [...currentMedia, newMediaItem],
         imageStatus: prev.imageStatus === 'NEEDS_MEDIA_ASSET' ? 'VERIFIED' : prev.imageStatus,
       };
     });
     setNewImageUrl('');
-    showToast('✓ Added external image reference');
+    showToast(`✓ Added external ${isVid ? 'video' : 'image'} reference`);
   };
 
-  const handleRemoveImage = (indexToRemove: number) => {
-    setFormState((prev) => {
-      const updated = (prev.images || []).filter((_, i) => i !== indexToRemove);
-      return {
-        ...prev,
-        images: updated,
-        imageStatus: updated.length === 0 ? 'NEEDS_MEDIA_ASSET' : prev.imageStatus,
-      };
-    });
-    showToast('Removed image asset');
-  };
-
-  const handleSetPrimaryImage = (index: number) => {
-    setFormState((prev) => {
-      const images = [...(prev.images || [])];
-      if (index < 0 || index >= images.length) return prev;
-      const [selected] = images.splice(index, 1);
-      return {
-        ...prev,
-        images: [selected, ...images],
-      };
-    });
-    showToast('✓ Set as primary marketplace thumbnail');
-  };
-
-  const handleMoveImage = (index: number, direction: 'left' | 'right') => {
-    setFormState((prev) => {
-      const images = [...(prev.images || [])];
-      const targetIndex = direction === 'left' ? index - 1 : index + 1;
-      if (targetIndex < 0 || targetIndex >= images.length) return prev;
-      const temp = images[index];
-      images[index] = images[targetIndex];
-      images[targetIndex] = temp;
-      return {
-        ...prev,
-        images,
-      };
-    });
+  const handleDeleteMediaAsset = async (asset: any) => {
+    if (!asset || !asset.id) return;
+    setIsDeletingMedia(true);
+    try {
+      const cleanId = asset.id.replace(/^upload-/, '');
+      const res = await fetch(`/api/admin/media/${cleanId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `Failed to delete media asset (HTTP ${res.status})`);
+      }
+      showToast(`✓ Deleted "${asset.parentName || asset.id}"`);
+      setMediaDeleteTarget(null);
+      fetchMediaLibrary();
+    } catch (err: any) {
+      alert(`Deletion failed: ${err.message}`);
+    } finally {
+      setIsDeletingMedia(false);
+    }
   };
 
   // ── SEO Health Calculation ─────────────────────────────────────────────────
@@ -826,7 +1162,56 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
         </div>
       </div>
 
-      {/* ── Summary Operational Metric Cards ──────────────────────────────── */}
+      {/* ── View Switcher: Catalog SKUs vs Media & Video Library ──────────── */}
+      <div className="flex items-center gap-2 border-b border-slate-800/80 pb-3">
+        <button
+          type="button"
+          onClick={() => setCatalogView('products')}
+          className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
+            catalogView === 'products'
+              ? 'bg-cyan-400 text-slate-950 font-bold shadow-md'
+              : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+          }`}
+        >
+          <span>🐠</span>
+          <span>Catalog SKUs</span>
+          <span
+            className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
+              catalogView === 'products' ? 'bg-slate-950 text-cyan-300 font-bold' : 'bg-slate-800 text-slate-400'
+            }`}
+          >
+            {metrics.totalProducts}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setCatalogView('media');
+            fetchMediaLibrary();
+          }}
+          className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
+            catalogView === 'media'
+              ? 'bg-cyan-400 text-slate-950 font-bold shadow-md'
+              : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+          }`}
+        >
+          <span>🎬</span>
+          <span>Media & Video Library</span>
+          <span
+            className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
+              catalogView === 'media' ? 'bg-slate-950 text-cyan-300 font-bold' : 'bg-slate-800 text-slate-400'
+            }`}
+          >
+            {mediaLibraryCounts.total > 0 ? mediaLibraryCounts.total : 'Live'}
+          </span>
+        </button>
+      </div>
+
+      {/* ── Catalog SKUs View ──────────────────────────────────────────────── */}
+      {catalogView === 'products' && (
+        <>
+          {/* ── Summary Operational Metric Cards ──────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {/* Metric 1: Active */}
         <button
@@ -1444,6 +1829,454 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
             })}
           </div>
         </>
+      )}
+    </>
+  )}
+
+      {/* ── Media & Video Library View ────────────────────────────────────────── */}
+      {catalogView === 'media' && (
+        <div className="space-y-6">
+          {/* Media Telemetry Metrics */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            <button
+              onClick={() => {
+                setMediaLibraryType('all');
+                setMediaLibraryFilter('all');
+              }}
+              className={`p-3.5 rounded-xl border text-left transition-all ${
+                mediaLibraryType === 'all' && mediaLibraryFilter === 'all'
+                  ? 'bg-cyan-500/10 border-cyan-500/40 text-cyan-300 shadow-sm'
+                  : 'bg-[#070d14] border-slate-800/80 hover:border-slate-700 text-slate-300'
+              }`}
+            >
+              <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Total Assets</div>
+              <div className="text-xl font-bold font-mono text-white mt-1">{mediaLibraryCounts.total}</div>
+              <div className="text-[10px] text-cyan-400 mt-1 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                All repository media
+              </div>
+            </button>
+
+            <button
+              onClick={() => setMediaLibraryType('image')}
+              className={`p-3.5 rounded-xl border text-left transition-all ${
+                mediaLibraryType === 'image'
+                  ? 'bg-blue-500/10 border-blue-500/40 text-blue-300 shadow-sm'
+                  : 'bg-[#070d14] border-slate-800/80 hover:border-slate-700 text-slate-300'
+              }`}
+            >
+              <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Photographs</div>
+              <div className="text-xl font-bold font-mono text-blue-400 mt-1">{mediaLibraryCounts.images}</div>
+              <div className="text-[10px] text-blue-400/80 mt-1 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                JPEG · PNG · WebP · SVG
+              </div>
+            </button>
+
+            <button
+              onClick={() => setMediaLibraryType('video')}
+              className={`p-3.5 rounded-xl border text-left transition-all ${
+                mediaLibraryType === 'video'
+                  ? 'bg-purple-500/10 border-purple-500/40 text-purple-300 shadow-sm'
+                  : 'bg-[#070d14] border-slate-800/80 hover:border-slate-700 text-slate-300'
+              }`}
+            >
+              <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Specimen Videos</div>
+              <div className="text-xl font-bold font-mono text-purple-400 mt-1">{mediaLibraryCounts.videos}</div>
+              <div className="text-[10px] text-purple-400/80 mt-1 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+                MP4 · WebM · QuickTime
+              </div>
+            </button>
+
+            <button
+              onClick={() => {
+                setMediaLibraryType('all');
+                setMediaLibraryFilter('verified');
+              }}
+              className={`p-3.5 rounded-xl border text-left transition-all ${
+                mediaLibraryFilter === 'verified'
+                  ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-300 shadow-sm'
+                  : 'bg-[#070d14] border-slate-800/80 hover:border-slate-700 text-slate-300'
+              }`}
+            >
+              <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Verified Real</div>
+              <div className="text-xl font-bold font-mono text-emerald-400 mt-1">{mediaLibraryCounts.verified}</div>
+              <div className="text-[10px] text-emerald-400/80 mt-1 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                Authentic Photography
+              </div>
+            </button>
+
+            <button
+              onClick={() => {
+                setMediaLibraryType('all');
+                setMediaLibraryFilter('custom_uploads');
+              }}
+              className={`p-3.5 rounded-xl border text-left transition-all ${
+                mediaLibraryFilter === 'custom_uploads'
+                  ? 'bg-amber-500/10 border-amber-500/40 text-amber-300 shadow-sm'
+                  : 'bg-[#070d14] border-slate-800/80 hover:border-slate-700 text-slate-300'
+              }`}
+            >
+              <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Atlas Uploads</div>
+              <div className="text-xl font-bold font-mono text-amber-400 mt-1">{mediaLibraryCounts.customUploads}</div>
+              <div className="text-[10px] text-amber-400/80 mt-1 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                High-performance binary
+              </div>
+            </button>
+          </div>
+
+          {/* Standalone Drag & Drop Upload Zone (Images & Videos) */}
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsDraggingDropZone(true);
+            }}
+            onDragLeave={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsDraggingDropZone(false);
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsDraggingDropZone(false);
+              if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                handleFilesSelected(Array.from(e.dataTransfer.files), true);
+              }
+            }}
+            className={`p-6 rounded-2xl border-2 border-dashed transition-all text-center space-y-3 bg-[#070d14] ${
+              isDraggingDropZone
+                ? 'border-cyan-400 bg-cyan-950/20'
+                : 'border-slate-800/80 hover:border-slate-700'
+            }`}
+          >
+            <input
+              type="file"
+              id="global-media-upload"
+              multiple
+              accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml,video/mp4,video/webm,video/quicktime"
+              onChange={(e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                  handleFilesSelected(Array.from(e.target.files), true);
+                  e.target.value = '';
+                }
+              }}
+              disabled={isUploadingMedia}
+              className="hidden"
+            />
+
+            <div className="space-y-1">
+              <div className="text-3xl">📁 🎥</div>
+              <h3 className="font-bold text-white text-sm">
+                Upload Specimen Photographs & Videos to Media Storage
+              </h3>
+              <p className="text-xs text-slate-400 max-w-xl mx-auto">
+                Drag and drop files here, or browse. Accepts images (JPEG, PNG, WebP, GIF, SVG) and videos (MP4, WebM, MOV) up to 25MB each.
+              </p>
+            </div>
+
+            <label
+              htmlFor="global-media-upload"
+              className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs cursor-pointer shadow-lg transition-all ${
+                isUploadingMedia
+                  ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
+                  : 'bg-cyan-400 hover:bg-cyan-300 text-slate-950 shadow-cyan-950/40'
+              }`}
+            >
+              {isUploadingMedia ? (
+                <>
+                  <span className="inline-block w-3.5 h-3.5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                  <span>Processing & Uploading...</span>
+                </>
+              ) : (
+                <>
+                  <span>＋</span>
+                  <span>Select Photos & Videos</span>
+                </>
+              )}
+            </label>
+          </div>
+
+          {/* Upload Queue Progress for Standalone View */}
+          {uploadQueue.length > 0 && (
+            <div className="p-4 rounded-2xl bg-[#070d14] border border-slate-800/80 space-y-2">
+              <div className="flex items-center justify-between text-xs font-semibold text-slate-300 pb-2 border-b border-slate-800/80">
+                <span>
+                  Upload Batch ({uploadQueue.filter((i) => i.status === 'success').length}/{uploadQueue.length} Finished)
+                </span>
+                <div className="flex items-center gap-2">
+                  {uploadQueue.some((i) => i.status === 'error') && (
+                    <button
+                      type="button"
+                      onClick={() => handleRetryFailedUploads(true)}
+                      disabled={isUploadingMedia}
+                      className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 text-[11px] font-semibold transition-colors disabled:opacity-50"
+                    >
+                      ↻ Retry Failed
+                    </button>
+                  )}
+                  {!isUploadingMedia && (
+                    <button
+                      type="button"
+                      onClick={() => setUploadQueue([])}
+                      className="text-[11px] text-slate-500 hover:text-slate-300 transition-colors"
+                    >
+                      Dismiss
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
+                {uploadQueue.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 text-xs"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span className="text-base shrink-0">{item.isVideo ? '🎥' : '📷'}</span>
+                      <div className="truncate">
+                        <span className="text-white font-medium truncate block">{item.name}</span>
+                        <span className="text-[10px] text-slate-400 font-mono">
+                          {item.isVideo ? 'VIDEO' : 'PHOTO'} · {item.format.toUpperCase()} ·{' '}
+                          {(item.size / (1024 * 1024)).toFixed(2)} MB
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      {item.status === 'pending' && <span className="text-[11px] text-slate-500 font-mono">Queued</span>}
+                      {item.status === 'optimizing' && (
+                        <span className="text-[11px] text-amber-400 font-mono flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
+                          Optimizing...
+                        </span>
+                      )}
+                      {item.status === 'uploading' && (
+                        <span className="text-[11px] text-cyan-400 font-mono flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+                          Uploading...
+                        </span>
+                      )}
+                      {item.status === 'success' && (
+                        <span className="text-[11px] text-emerald-400 font-bold flex items-center gap-1">
+                          ✓ Uploaded
+                        </span>
+                      )}
+                      {item.status === 'error' && (
+                        <span className="text-[11px] text-rose-400 font-medium" title={item.error}>
+                          ✕ {item.error || 'Failed'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Search & Filtering Controls */}
+          <div className="bg-[#070d14] border border-slate-800/80 rounded-2xl p-4 space-y-3">
+            <div className="flex flex-col sm:flex-row gap-3">
+              {/* Media Search */}
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  placeholder="Search media by asset name, product title, ID, or URL..."
+                  value={mediaLibrarySearch}
+                  onChange={(e) => setMediaLibrarySearch(e.target.value)}
+                  className="w-full min-h-[42px] bg-slate-900 border border-slate-800 focus:border-cyan-400 rounded-xl px-4 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-cyan-400 transition-colors"
+                />
+              </div>
+
+              {/* Media Type Filter */}
+              <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setMediaLibraryType('all')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                    mediaLibraryType === 'all'
+                      ? 'bg-cyan-400 text-slate-950 font-bold shadow'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  All Types
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMediaLibraryType('image')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                    mediaLibraryType === 'image'
+                      ? 'bg-cyan-400 text-slate-950 font-bold shadow'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Photos
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMediaLibraryType('video')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                    mediaLibraryType === 'video'
+                      ? 'bg-cyan-400 text-slate-950 font-bold shadow'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Videos
+                </button>
+              </div>
+
+              {/* Source Filter */}
+              <select
+                value={mediaLibraryFilter}
+                onChange={(e) => setMediaLibraryFilter(e.target.value)}
+                className="min-h-[42px] bg-slate-900 border border-slate-800 focus:border-cyan-400 rounded-xl px-3 text-xs text-white font-medium"
+              >
+                <option value="all">Source: All Repository Media</option>
+                <option value="custom_uploads">Source: Atlas Custom Uploads</option>
+                <option value="product">Source: Catalog Products</option>
+                <option value="case_study">Source: Architectural Exhibits</option>
+                <option value="verified">Classification: Verified Real Only</option>
+                <option value="blueprint">Classification: Blueprint / Vector</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Media Items Grid */}
+          {isLoadingMediaLibrary ? (
+            <div className="p-12 text-center rounded-2xl bg-[#070d14] border border-slate-800 space-y-2">
+              <div className="inline-block w-6 h-6 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+              <p className="text-xs text-slate-400 font-mono">Synchronizing media catalog from MongoDB Cluster0...</p>
+            </div>
+          ) : mediaLibraryItems.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              {mediaLibraryItems.map((item) => {
+                const isVideo = item.type === 'video' || /\.(mp4|webm|mov)(\?|$)/i.test(item.url || '');
+                return (
+                  <div
+                    key={item.id}
+                    className="relative rounded-2xl overflow-hidden border border-slate-800/80 bg-[#070d14] hover:border-slate-700 group transition-all flex flex-col justify-between"
+                  >
+                    {/* Media Thumbnail */}
+                    <div
+                      className="cursor-pointer overflow-hidden aspect-square bg-slate-950 flex items-center justify-center relative"
+                      onClick={() => {
+                        if (isVideo) {
+                          setPreviewVideo({
+                            url: item.url,
+                            title: item.parentName || 'Specimen Video',
+                          });
+                        } else if (item.url) {
+                          setPreviewImage(item.url);
+                        }
+                      }}
+                      title={isVideo ? 'Click to play video' : 'Click to preview photo'}
+                    >
+                      {isVideo ? (
+                        <>
+                          <video
+                            src={item.url}
+                            preload="metadata"
+                            muted
+                            className="w-full h-full object-cover pointer-events-none opacity-80"
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-colors">
+                            <div className="w-10 h-10 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center font-bold text-sm shadow-lg pl-0.5">
+                              ▶
+                            </div>
+                          </div>
+                        </>
+                      ) : item.url ? (
+                        <img
+                          src={item.url}
+                          alt={item.parentName || 'Media'}
+                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.opacity = '0.5';
+                          }}
+                        />
+                      ) : (
+                        <div className="p-3 text-center text-[10px] text-slate-500 font-mono">
+                          SVG Blueprint
+                        </div>
+                      )}
+
+                      {/* Format Badge */}
+                      <div className="absolute top-2 left-2 flex items-center gap-1 pointer-events-none">
+                        <span
+                          className={`px-1.5 py-0.5 rounded font-mono text-[9px] font-bold shadow ${
+                            isVideo ? 'bg-purple-500/90 text-white' : 'bg-slate-900/90 text-slate-300'
+                          }`}
+                        >
+                          {isVideo ? '🎥 VIDEO' : '📷 PHOTO'}
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded bg-slate-900/80 text-cyan-300 font-mono text-[9px] uppercase">
+                          {item.format || (isVideo ? 'MP4' : 'IMAGE')}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Metadata & Actions */}
+                    <div className="p-2.5 space-y-1.5">
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-white truncate" title={item.parentName}>
+                          {item.parentName}
+                        </p>
+                        <p className="text-[10px] text-slate-500 font-mono truncate" title={item.parentId}>
+                          {item.sourceType === 'database_upload'
+                            ? `Atlas: ${item.parentId}`
+                            : item.sourceType === 'product'
+                            ? `Product: ${item.parentId}`
+                            : `Exhibit: ${item.parentId}`}
+                        </p>
+                        {item.size ? (
+                          <p className="text-[9px] text-slate-400 font-mono">
+                            {(item.size / (1024 * 1024)).toFixed(2)} MB
+                          </p>
+                        ) : null}
+                      </div>
+
+                      <div className="flex items-center justify-between gap-1 pt-1 border-t border-slate-800/80">
+                        <button
+                          type="button"
+                          onClick={() => handleCopyUrl(item.url)}
+                          className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-semibold flex items-center gap-1 transition-colors"
+                          title="Copy Asset URL"
+                        >
+                          {copiedUrl === item.url ? '✓' : '📋'}
+                          <span>URL</span>
+                        </button>
+
+                        {item.sourceType === 'database_upload' && (
+                          <button
+                            type="button"
+                            onClick={() => setMediaDeleteTarget(item)}
+                            className="px-2 py-1 rounded-lg bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 text-[10px] font-semibold transition-colors"
+                            title="Delete custom uploaded asset"
+                          >
+                            🗑
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="p-12 text-center rounded-2xl bg-[#070d14] border border-dashed border-slate-800 space-y-2">
+              <span className="text-2xl block">🔍</span>
+              <p className="text-white font-medium text-xs">No media assets found matching the selected filters.</p>
+              <p className="text-slate-500 text-[11px]">
+                Try adjusting your search query, switching media types, or uploading a new specimen file above.
+              </p>
+            </div>
+          )}
+        </div>
       )}
 
       {/* ── Add / Edit Product Multi-Section Governance Drawer / Modal ─────── */}
@@ -2399,17 +3232,52 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
                     </div>
                   )}
 
-                  {/* Upload Drop Zone & External Input */}
-                  <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/60 border border-dashed border-slate-700 space-y-3 text-center">
+                  {/* Upload Drop Zone & Drag-and-Drop Area (Images & Videos) */}
+                  <div
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsDraggingDropZone(true);
+                    }}
+                    onDragLeave={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsDraggingDropZone(false);
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsDraggingDropZone(false);
+                      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                        handleFilesSelected(Array.from(e.dataTransfer.files), false);
+                      }
+                    }}
+                    className={`p-5 rounded-2xl border-2 border-dashed transition-all text-center space-y-3 ${
+                      isDraggingDropZone
+                        ? 'border-cyan-400 bg-cyan-950/20'
+                        : 'border-slate-700/80 bg-slate-900/60 hover:border-slate-600'
+                    }`}
+                  >
                     <input
                       type="file"
                       id="catalog-file-upload"
                       multiple
-                      accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
+                      accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml,video/mp4,video/webm,video/quicktime"
                       onChange={handleFileUpload}
                       disabled={isUploadingMedia}
                       className="hidden"
                     />
+
+                    <div className="space-y-1">
+                      <div className="text-2xl">📁 🎥</div>
+                      <div className="font-semibold text-slate-200 text-xs">
+                        Drag & Drop Photos & Videos, or Click to Browse
+                      </div>
+                      <p className="text-[11px] text-slate-400">
+                        Accepted Formats: JPEG, PNG, WebP, GIF, SVG · MP4, WebM, QuickTime MOV (Max 25MB per file)
+                      </p>
+                    </div>
+
                     <label
                       htmlFor="catalog-file-upload"
                       className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs cursor-pointer shadow-md transition-colors ${
@@ -2421,20 +3289,21 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
                       {isUploadingMedia ? (
                         <>
                           <span className="inline-block w-3.5 h-3.5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-                          <span>Optimizing & Uploading...</span>
+                          <span>Processing & Uploading...</span>
                         </>
                       ) : (
                         <>
                           <span>📁</span>
-                          <span>Upload Photos (Client Canvas Optimized)</span>
+                          <span>Select Photos & Videos</span>
                         </>
                       )}
                     </label>
 
+                    {/* External URL Input */}
                     <div className="flex flex-col sm:flex-row items-center gap-2 max-w-lg mx-auto pt-2">
                       <input
                         type="url"
-                        placeholder="Or paste external asset URL (e.g. https://.../photo.jpg)..."
+                        placeholder="Or paste external asset URL (e.g. https://.../photo.jpg or video.mp4)..."
                         value={newImageUrl}
                         onChange={(e) => {
                           setNewImageUrl(e.target.value);
@@ -2458,104 +3327,247 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
                     </div>
                   </div>
 
+                  {/* Upload Queue Progress & Individual Results */}
+                  {uploadQueue.length > 0 && (
+                    <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+                      <div className="flex items-center justify-between text-xs font-semibold text-slate-300 pb-1.5 border-b border-slate-800">
+                        <span>
+                          Upload Queue ({uploadQueue.filter((i) => i.status === 'success').length}/
+                          {uploadQueue.length} Completed)
+                        </span>
+                        <div className="flex items-center gap-2">
+                          {uploadQueue.some((i) => i.status === 'error') && (
+                            <button
+                              type="button"
+                              onClick={() => handleRetryFailedUploads(false)}
+                              disabled={isUploadingMedia}
+                              className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 text-[11px] font-semibold transition-colors disabled:opacity-50"
+                            >
+                              ↻ Retry Failed
+                            </button>
+                          )}
+                          {!isUploadingMedia && (
+                            <button
+                              type="button"
+                              onClick={() => setUploadQueue([])}
+                              className="text-[11px] text-slate-500 hover:text-slate-300 transition-colors"
+                            >
+                              Clear Queue
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                        {uploadQueue.map((item) => (
+                          <div
+                            key={item.id}
+                            className="flex items-center justify-between gap-2 p-2 rounded-xl bg-slate-950/60 border border-slate-800/80 text-xs"
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="text-sm shrink-0">{item.isVideo ? '🎥' : '📷'}</span>
+                              <div className="truncate">
+                                <span className="text-white font-medium truncate block">{item.name}</span>
+                                <span className="text-[10px] text-slate-400 font-mono">
+                                  {item.isVideo ? 'VIDEO' : 'PHOTO'} · {item.format.toUpperCase()} ·{' '}
+                                  {(item.size / (1024 * 1024)).toFixed(2)} MB
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 shrink-0">
+                              {item.status === 'pending' && (
+                                <span className="text-[11px] text-slate-500 font-mono">Queued</span>
+                              )}
+                              {item.status === 'optimizing' && (
+                                <span className="text-[11px] text-amber-400 font-mono flex items-center gap-1">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
+                                  Optimizing...
+                                </span>
+                              )}
+                              {item.status === 'uploading' && (
+                                <span className="text-[11px] text-cyan-400 font-mono flex items-center gap-1">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+                                  Uploading...
+                                </span>
+                              )}
+                              {item.status === 'success' && (
+                                <span className="text-[11px] text-emerald-400 font-bold flex items-center gap-1">
+                                  ✓ Uploaded
+                                </span>
+                              )}
+                              {item.status === 'error' && (
+                                <span className="text-[11px] text-rose-400 font-medium" title={item.error}>
+                                  ✕ {item.error || 'Failed'}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Loading State */}
                   {isMediaLoading ? (
                     <div className="p-8 text-center rounded-2xl bg-slate-900/40 border border-slate-800 space-y-2">
                       <div className="inline-block w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-                      <p className="text-xs text-slate-400 font-mono">Synchronizing media assets for {editingProduct?.id || formState.id}...</p>
+                      <p className="text-xs text-slate-400 font-mono">
+                        Synchronizing media assets for {editingProduct?.id || formState.id}...
+                      </p>
                     </div>
-                  ) : formState.images && formState.images.length > 0 ? (
-                    /* Image Gallery Sequence */
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-                      {formState.images.map((imgUrl, idx) => (
-                        <div
-                          key={`${imgUrl}-${idx}`}
-                          className={`relative rounded-xl overflow-hidden border bg-slate-900 group transition-all ${
-                            idx === 0
-                              ? 'border-cyan-400 ring-2 ring-cyan-400/20 shadow-lg shadow-cyan-950/30'
-                              : 'border-slate-800 hover:border-slate-700'
-                          }`}
-                        >
+                  ) : combinedAssets.length > 0 ? (
+                    /* Visual Assets Gallery Sequence (Photos & Videos) */
+                    <div className="space-y-2 pt-2">
+                      <div className="flex items-center justify-between text-xs text-slate-400">
+                        <span>Attached Visual Assets ({combinedAssets.length})</span>
+                        <span className="text-[10px] font-mono text-cyan-400">
+                          {combinedAssets.filter((a) => a.type === 'image').length} Photo(s) ·{' '}
+                          {combinedAssets.filter((a) => a.type === 'video').length} Video(s)
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        {combinedAssets.map((asset, idx) => (
                           <div
-                            className="cursor-pointer overflow-hidden aspect-video sm:aspect-square bg-slate-950 flex items-center justify-center"
-                            onClick={() => setPreviewImage(imgUrl)}
-                            title="Click to view full preview"
+                            key={`${asset.url}-${idx}`}
+                            className={`relative rounded-xl overflow-hidden border bg-slate-900 group transition-all ${
+                              idx === 0
+                                ? 'border-cyan-400 ring-2 ring-cyan-400/20 shadow-lg shadow-cyan-950/30'
+                                : 'border-slate-800 hover:border-slate-700'
+                            }`}
                           >
-                            <img
-                              src={imgUrl}
-                              alt={`Asset ${idx + 1}`}
-                              className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                              onError={(e) => {
-                                (e.target as HTMLElement).style.opacity = '0.5';
+                            <div
+                              className="cursor-pointer overflow-hidden aspect-video sm:aspect-square bg-slate-950 flex items-center justify-center relative"
+                              onClick={() => {
+                                if (asset.type === 'video') {
+                                  setPreviewVideo({
+                                    url: asset.url,
+                                    title: asset.title || `Specimen Video ${idx + 1}`,
+                                  });
+                                } else {
+                                  setPreviewImage(asset.url);
+                                }
                               }}
-                            />
-                          </div>
-
-                          {idx === 0 ? (
-                            <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-cyan-400 text-slate-950 font-mono text-[9px] font-bold shadow">
-                              PRIMARY
-                            </span>
-                          ) : (
-                            <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-slate-900/80 backdrop-blur-xs text-slate-400 font-mono text-[9px]">
-                              #{idx + 1}
-                            </span>
-                          )}
-
-                          {/* Hover / Persistent Action Bar */}
-                          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-2 flex items-center justify-between gap-1 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                            <div className="flex items-center gap-1">
-                              {idx > 0 && (
+                              title={
+                                asset.type === 'video'
+                                  ? 'Click to play specimen video'
+                                  : 'Click to view high-resolution photo'
+                              }
+                            >
+                              {asset.type === 'video' ? (
                                 <>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleSetPrimaryImage(idx)}
-                                    className="px-1.5 py-1 rounded bg-cyan-500/20 text-cyan-300 text-[10px] font-semibold hover:bg-cyan-500/30 transition-colors"
-                                    title="Make Primary Thumbnail"
-                                  >
-                                    Main
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleMoveImage(idx, 'left')}
-                                    className="px-1.5 py-1 rounded bg-slate-800 text-slate-300 text-[10px] font-semibold hover:bg-slate-700 transition-colors"
-                                    title="Move earlier"
-                                  >
-                                    ←
-                                  </button>
+                                  <video
+                                    src={asset.url}
+                                    preload="metadata"
+                                    muted
+                                    className="w-full h-full object-cover pointer-events-none opacity-80"
+                                  />
+                                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-colors">
+                                    <div className="w-10 h-10 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center font-bold text-sm shadow-lg pl-0.5">
+                                      ▶
+                                    </div>
+                                  </div>
                                 </>
-                              )}
-                              {idx < (formState.images?.length || 0) - 1 && (
-                                <button
-                                  type="button"
-                                  onClick={() => handleMoveImage(idx, 'right')}
-                                  className="px-1.5 py-1 rounded bg-slate-800 text-slate-300 text-[10px] font-semibold hover:bg-slate-700 transition-colors"
-                                  title="Move later"
-                                >
-                                  →
-                                </button>
+                              ) : (
+                                <img
+                                  src={asset.url}
+                                  alt={asset.title || `Asset ${idx + 1}`}
+                                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                  onError={(e) => {
+                                    (e.target as HTMLElement).style.opacity = '0.5';
+                                  }}
+                                />
                               )}
                             </div>
 
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveImage(idx)}
-                              className="px-2 py-1 rounded bg-rose-600/80 text-white text-[10px] font-semibold hover:bg-rose-500 transition-colors"
-                              title="Remove Asset"
-                            >
-                              ✕
-                            </button>
+                            {/* Position & Type Badges */}
+                            <div className="absolute top-2 left-2 flex items-center gap-1 pointer-events-none">
+                              {idx === 0 ? (
+                                <span className="px-1.5 py-0.5 rounded bg-cyan-400 text-slate-950 font-mono text-[9px] font-bold shadow">
+                                  PRIMARY
+                                </span>
+                              ) : (
+                                <span className="px-1.5 py-0.5 rounded bg-slate-900/80 backdrop-blur-xs text-slate-400 font-mono text-[9px]">
+                                  #{idx + 1}
+                                </span>
+                              )}
+                              <span
+                                className={`px-1.5 py-0.5 rounded font-mono text-[9px] font-bold shadow ${
+                                  asset.type === 'video'
+                                    ? 'bg-purple-500/90 text-white'
+                                    : 'bg-slate-900/80 text-slate-300'
+                                }`}
+                              >
+                                {asset.type === 'video' ? '🎥 VIDEO' : '📷 PHOTO'}
+                              </span>
+                            </div>
+
+                            {/* Hover / Persistent Action Bar */}
+                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent p-2 flex items-center justify-between gap-1 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                              <div className="flex items-center gap-1">
+                                {idx > 0 && (
+                                  <>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSetPrimaryAsset(idx)}
+                                      className="px-1.5 py-1 rounded bg-cyan-500/20 text-cyan-300 text-[10px] font-semibold hover:bg-cyan-500/30 transition-colors"
+                                      title="Set as First in Sequence"
+                                    >
+                                      Main
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleMoveAsset(idx, 'left')}
+                                      className="px-1.5 py-1 rounded bg-slate-800 text-slate-300 text-[10px] font-semibold hover:bg-slate-700 transition-colors"
+                                      title="Move earlier"
+                                    >
+                                      ←
+                                    </button>
+                                  </>
+                                )}
+                                {idx < combinedAssets.length - 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleMoveAsset(idx, 'right')}
+                                    className="px-1.5 py-1 rounded bg-slate-800 text-slate-300 text-[10px] font-semibold hover:bg-slate-700 transition-colors"
+                                    title="Move later"
+                                  >
+                                    →
+                                  </button>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => handleCopyUrl(asset.url)}
+                                  className="px-1.5 py-1 rounded bg-slate-800 text-slate-300 text-[10px] font-semibold hover:bg-slate-700 transition-colors"
+                                  title="Copy URL"
+                                >
+                                  {copiedUrl === asset.url ? '✓' : '📋'}
+                                </button>
+                              </div>
+
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveAsset(idx)}
+                                className="px-2 py-1 rounded bg-rose-600/80 text-white text-[10px] font-semibold hover:bg-rose-500 transition-colors"
+                                title="Remove Asset"
+                              >
+                                ✕
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   ) : !mediaError ? (
                     <div className="p-8 text-center rounded-2xl bg-slate-900/40 border border-dashed border-slate-800 space-y-2">
-                      <span className="text-2xl block">📷</span>
+                      <span className="text-2xl block">📷 🎥</span>
                       <p className="text-slate-300 font-medium text-xs">
-                        No media assets currently attached to this catalog record.
+                        No photographic or video assets currently attached to this catalog record.
                       </p>
                       <p className="text-slate-500 text-[11px] max-w-md mx-auto">
-                        Upload a photographic asset above or provide an external image URL. The marketplace will display an authoritative blueprint fallback until verified imagery is provided.
+                        Drag and drop photos or specimen videos above, or provide an external URL. The marketplace
+                        will display an authoritative blueprint fallback until verified imagery is attached.
                       </p>
                     </div>
                   ) : null}
@@ -2818,7 +3830,12 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
-              <span className="text-xs font-semibold text-slate-200">Asset High-Resolution Preview</span>
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-mono text-[10px] font-bold">
+                  📷 PHOTO PREVIEW
+                </span>
+                <span className="text-xs font-semibold text-slate-200">Asset High-Resolution Preview</span>
+              </div>
               <button
                 type="button"
                 onClick={() => setPreviewImage(null)}
@@ -2834,14 +3851,126 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {} }: C
                 className="max-h-[70vh] w-auto max-w-full object-contain rounded-xl"
               />
             </div>
-            <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 pt-1">
-              <span className="truncate max-w-sm">{previewImage}</span>
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] font-mono text-slate-400 pt-1">
+              <span className="truncate max-w-md text-slate-500">{previewImage}</span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleCopyUrl(previewImage)}
+                  className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                >
+                  {copiedUrl === previewImage ? '✓ Copied' : '📋 Copy URL'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewImage(null)}
+                  className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold"
+                >
+                  Close Preview
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── High-Resolution Specimen Video Preview Player Modal ───────────── */}
+      {previewVideo && (
+        <div
+          className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md"
+          onClick={() => setPreviewVideo(null)}
+        >
+          <div
+            className="relative max-w-3xl w-full bg-[#090f17] border border-slate-800 rounded-3xl overflow-hidden shadow-2xl p-4 sm:p-6 space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono text-[10px] font-bold">
+                  🎥 SPECIMEN VIDEO
+                </span>
+                <span className="text-xs font-semibold text-slate-200 truncate">{previewVideo.title}</span>
+              </div>
               <button
                 type="button"
-                onClick={() => setPreviewImage(null)}
-                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold"
+                onClick={() => setPreviewVideo(null)}
+                className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs"
               >
-                Close Preview
+                ✕
+              </button>
+            </div>
+
+            <div className="max-h-[65vh] flex items-center justify-center overflow-hidden rounded-2xl bg-black">
+              <video
+                src={previewVideo.url}
+                controls
+                playsInline
+                preload="metadata"
+                autoPlay={false}
+                className="max-h-[65vh] w-auto max-w-full rounded-xl bg-black"
+              />
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] font-mono text-slate-400 pt-1">
+              <span className="truncate max-w-md text-slate-500">{previewVideo.url}</span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleCopyUrl(previewVideo.url)}
+                  className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                >
+                  {copiedUrl === previewVideo.url ? '✓ Copied' : '📋 Copy URL'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewVideo(null)}
+                  className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Delete Media Asset Confirmation Modal ─────────────────────────── */}
+      {mediaDeleteTarget && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-[#090f17] border border-slate-800 rounded-3xl p-6 space-y-4 shadow-2xl">
+            <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 flex items-center justify-center text-xl">
+              🗑
+            </div>
+
+            <div>
+              <h3 className="text-base font-bold text-white">Delete Media Asset?</h3>
+              <p className="text-xs text-slate-400 mt-1">
+                Are you sure you want to permanently delete &quot;{mediaDeleteTarget.parentName || mediaDeleteTarget.id}&quot;?
+                This will remove the binary asset from high-performance MongoDB storage. This action cannot be undone.
+              </p>
+            </div>
+
+            <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 font-mono text-[11px] space-y-1">
+              <div className="text-slate-400">ID: {mediaDeleteTarget.id}</div>
+              <div className="text-slate-500 truncate">URL: {mediaDeleteTarget.url}</div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setMediaDeleteTarget(null)}
+                disabled={isDeletingMedia}
+                className="px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white text-xs font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDeleteMediaAsset(mediaDeleteTarget)}
+                disabled={isDeletingMedia}
+                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition-colors flex items-center gap-1.5"
+              >
+                {isDeletingMedia ? 'Deleting...' : 'Delete Permanently'}
               </button>
             </div>
           </div>

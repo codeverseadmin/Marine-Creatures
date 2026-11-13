@@ -112,8 +112,8 @@ export function ProductFormModal({
     if (!files || files.length === 0) return;
     const file = files[0];
 
-    if (file.size > 4.5 * 1024 * 1024) {
-      alert('Direct video upload is limited to 4.5MB. For larger videos, paste an MP4 or YouTube URL into the media list.');
+    if (file.size > 25 * 1024 * 1024) {
+      alert('Direct video upload is limited to 25MB. For larger videos, paste an MP4 or YouTube URL into the media list.');
       return;
     }
 
@@ -478,7 +478,7 @@ export function ProductFormModal({
                   <span>Upload Video</span>
                   <input
                     type="file"
-                    accept="video/mp4,video/webm,video/ogg"
+                    accept="video/mp4,video/webm,video/ogg,video/quicktime"
                     disabled={uploadingMedia}
                     onChange={handleVideoUpload}
                     className="hidden"

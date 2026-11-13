@@ -682,6 +682,7 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
               <ControlOsCatalog
                 onReturnToOverview={() => setActiveTab('overview')}
                 showToast={showToast}
+                initialSubtab={activeSubtab}
               />
             )}
 

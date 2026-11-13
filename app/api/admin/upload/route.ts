@@ -84,7 +84,22 @@ function detectFileSignature(buf: Buffer): string | null {
     buf[6] === 0x79 &&
     buf[7] === 0x70
   ) {
+    // Check if brand is QuickTime (qt  )
+    if (buf.length >= 12 && buf[8] === 0x71 && buf[9] === 0x74 && buf[10] === 0x20 && buf[11] === 0x20) {
+      return 'video/quicktime';
+    }
     return 'video/mp4';
+  }
+
+  // QuickTime MOV classic container headers (moov, wide, mdat, free)
+  if (
+    buf.length >= 8 &&
+    ((buf[4] === 0x6d && buf[5] === 0x6f && buf[6] === 0x6f && buf[7] === 0x76) || // moov
+      (buf[4] === 0x77 && buf[5] === 0x69 && buf[6] === 0x64 && buf[7] === 0x65) || // wide
+      (buf[4] === 0x6d && buf[5] === 0x64 && buf[6] === 0x61 && buf[7] === 0x74) || // mdat
+      (buf[4] === 0x66 && buf[5] === 0x72 && buf[6] === 0x65 && buf[7] === 0x65))   // free
+  ) {
+    return 'video/quicktime';
   }
 
   // WebM: 1A 45 DF A3
@@ -149,7 +164,8 @@ export async function POST(req: NextRequest) {
     // 2. Parse form data
     const formData = await req.formData();
     const file = formData.get('file') as File | null;
-    const requestedType = ((formData.get('type') as string) || 'image').toLowerCase();
+    const rawType = (formData.get('type') as string) || '';
+    const requestedType = rawType.trim().toLowerCase();
     const productId = (formData.get('productId') as string) || undefined;
     const altText = (formData.get('altText') as string) || undefined;
 
@@ -187,7 +203,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (requestedType === 'image' && !ALLOWED_IMAGE_TYPES.includes(detectedType)) {
+    // Determine media type (image or video)
+    let finalMediaType: 'image' | 'video';
+    if (ALLOWED_VIDEO_TYPES.includes(detectedType)) {
+      finalMediaType = 'video';
+    } else if (ALLOWED_IMAGE_TYPES.includes(detectedType)) {
+      finalMediaType = 'image';
+    } else {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `File signature mismatch for "${file.name}". Detected type ${detectedType} is not supported.`,
+        },
+        { status: 400 }
+      );
+    }
+
+    if (requestedType === 'image' && finalMediaType !== 'image') {
       return NextResponse.json(
         {
           success: false,
@@ -197,7 +229,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (requestedType === 'video' && !ALLOWED_VIDEO_TYPES.includes(detectedType)) {
+    if (requestedType === 'video' && finalMediaType !== 'video') {
       return NextResponse.json(
         {
           success: false,
@@ -261,7 +293,7 @@ export async function POST(req: NextRequest) {
         cloudFormData.append('folder', 'marine-creatures');
 
         const cloudRes = await fetch(
-          `https://api.cloudinary.com/v1_1/${cloudName}/${requestedType === 'video' ? 'video' : 'image'}/upload`,
+          `https://api.cloudinary.com/v1_1/${cloudName}/${finalMediaType === 'video' ? 'video' : 'image'}/upload`,
           {
             method: 'POST',
             body: cloudFormData,
@@ -276,7 +308,7 @@ export async function POST(req: NextRequest) {
             url: cloudData.secure_url || cloudData.url,
             filename: file.name,
             size: file.size,
-            type: requestedType,
+            type: finalMediaType,
             contentType,
             productId,
           });
@@ -289,7 +321,7 @@ export async function POST(req: NextRequest) {
     // 8. Option B: High-Performance MongoDB Atlas Binary Storage
     // Unrelated asset overwrite protection: Cryptographically unguessable media ID
     const extMatch = file.name.match(/\.([0-9a-z]+)$/i);
-    const ext = extMatch ? extMatch[1].toLowerCase() : (requestedType === 'video' ? 'mp4' : 'jpg');
+    const ext = extMatch ? extMatch[1].toLowerCase() : (finalMediaType === 'video' ? 'mp4' : 'jpg');
     const mediaId = `media-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
     await MediaModel.create({
@@ -300,7 +332,7 @@ export async function POST(req: NextRequest) {
       contentType,
       size: file.size,
       data: buffer,
-      type: requestedType === 'video' ? 'video' : 'image',
+      type: finalMediaType,
     });
 
     const permanentUrl = `/api/media/${mediaId}.${ext}`;
@@ -312,7 +344,7 @@ export async function POST(req: NextRequest) {
       mediaId,
       filename: file.name,
       size: file.size,
-      type: requestedType,
+      type: finalMediaType,
       contentType,
       productId: resolvedProductId,
     }, { status: 201 });

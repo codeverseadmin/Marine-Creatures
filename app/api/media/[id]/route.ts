@@ -100,11 +100,55 @@ export async function GET(
     // Convert BSON Binary / Buffer into standard Uint8Array
     const rawData = (media.data as any).buffer || media.data;
     const buffer = Buffer.isBuffer(rawData) ? rawData : Buffer.from(rawData);
+    const totalSize = buffer.length;
 
     const isSvg = media.contentType === 'image/svg+xml';
+    const rangeHeader = req.headers.get('range');
+
+    // HTTP 206 Partial Content Range streaming (vital for video playback and seek operations)
+    if (rangeHeader && rangeHeader.startsWith('bytes=')) {
+      const parts = rangeHeader.replace(/bytes=/, '').split('-');
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : totalSize - 1;
+
+      // Handle unsatisfiable range
+      if (isNaN(start) || isNaN(end) || start > end || start >= totalSize) {
+        return new NextResponse(null, {
+          status: 416,
+          headers: {
+            'Content-Range': `bytes */${totalSize}`,
+            'Accept-Ranges': 'bytes',
+          },
+        });
+      }
+
+      const clampedEnd = Math.min(end, totalSize - 1);
+      const chunkSize = clampedEnd - start + 1;
+      const slicedBuffer = buffer.subarray(start, clampedEnd + 1);
+
+      const rangeHeaders: Record<string, string> = {
+        'Content-Type': media.contentType || 'application/octet-stream',
+        'Content-Length': chunkSize.toString(),
+        'Content-Range': `bytes ${start}-${clampedEnd}/${totalSize}`,
+        'Cache-Control': cacheControlHeader,
+        'Accept-Ranges': 'bytes',
+        'X-Content-Type-Options': 'nosniff',
+      };
+
+      if (isSvg) {
+        rangeHeaders['Content-Security-Policy'] = "default-src 'none'; style-src 'unsafe-inline'";
+        rangeHeaders['X-Frame-Options'] = 'DENY';
+      }
+
+      return new NextResponse(slicedBuffer, {
+        status: 206,
+        headers: rangeHeaders,
+      });
+    }
+
     const headers: Record<string, string> = {
       'Content-Type': media.contentType || 'image/jpeg',
-      'Content-Length': buffer.length.toString(),
+      'Content-Length': totalSize.toString(),
       'Cache-Control': cacheControlHeader,
       'Accept-Ranges': 'bytes',
       'X-Content-Type-Options': 'nosniff',

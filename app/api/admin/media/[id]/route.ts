@@ -44,6 +44,7 @@ export async function GET(
             filename: m.filename,
             contentType: m.contentType,
             size: m.size,
+            type: m.type || (m.contentType?.startsWith('video/') ? 'video' : 'image'),
             url: `/api/media/${m.id}`,
             altText: m.altText,
             createdAt: m.createdAt,
@@ -229,7 +230,13 @@ export async function DELETE(
       const mediaUrlPattern = new RegExp(cleanMediaId);
       await ProductModel.updateOne(
         { id: mediaItem.productId },
-        { $pull: { images: { $regex: mediaUrlPattern } } }
+        {
+          $pull: {
+            images: { $regex: mediaUrlPattern },
+            videos: { $regex: mediaUrlPattern },
+            media: { url: { $regex: mediaUrlPattern } },
+          } as any,
+        }
       );
     }
 
