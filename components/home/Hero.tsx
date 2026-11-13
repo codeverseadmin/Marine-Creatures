@@ -9,6 +9,102 @@ import { gsap } from 'gsap';
 const PARTICLE_COUNT_MOBILE = 15;
 const PARTICLE_COUNT_DESKTOP = 40;
 
+function MobileHeroVideo() {
+  const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+    const mql = window.matchMedia('(max-width: 767px)');
+    const updateMobile = () => setIsMobile(mql.matches);
+    updateMobile();
+    mql.addEventListener('change', updateMobile);
+
+    const motionMql = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const updateMotion = () => setPrefersReducedMotion(motionMql.matches);
+    updateMotion();
+    motionMql.addEventListener('change', updateMotion);
+
+    return () => {
+      mql.removeEventListener('change', updateMobile);
+      motionMql.removeEventListener('change', updateMotion);
+    };
+  }, []);
+
+  // IntersectionObserver to pause/resume playback when scrolled in/out of view
+  useEffect(() => {
+    if (!mounted || !isMobile || !containerRef.current) return;
+
+    const videoEl = videoRef.current;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!videoEl) return;
+        if (entry.isIntersecting) {
+          const playPromise = videoEl.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(() => {
+              // Autoplay policy prevented playback; poster remains visible
+            });
+          }
+        } else {
+          videoEl.pause();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [mounted, isMobile]);
+
+  // Zero desktop download guarantee: Do NOT render anything during SSR or on devices ≥768px
+  if (!mounted || !isMobile) return null;
+
+  return (
+    <div
+      ref={containerRef}
+      className="absolute inset-0 z-0 md:hidden overflow-hidden pointer-events-none"
+      aria-hidden="true"
+    >
+      {prefersReducedMotion || hasError ? (
+        <img
+          src="/videos/hero-clownfish-mobile-poster.jpg"
+          alt="Marine Creatures clownfish and anemone"
+          className="absolute inset-0 w-full h-full object-cover object-[center_35%]"
+          loading="eager"
+        />
+      ) : (
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          poster="/videos/hero-clownfish-mobile-poster.jpg"
+          onError={() => setHasError(true)}
+          className="absolute inset-0 w-full h-full object-cover object-[center_35%]"
+        >
+          <source src="/videos/hero-clownfish-mobile.mp4" type="video/mp4" />
+        </video>
+      )}
+
+      {/* Subtle deep ocean gradient overlay preserving clownfish vibrancy while keeping text legible */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            'linear-gradient(to bottom, rgba(2,7,11,0.60) 0%, rgba(2,7,11,0.20) 40%, rgba(2,7,11,0.75) 85%, rgba(2,7,11,1) 100%)',
+        }}
+      />
+    </div>
+  );
+}
+
 function Particles() {
   const [mounted, setMounted] = React.useState(false);
   const [count, setCount] = React.useState(PARTICLE_COUNT_DESKTOP);
@@ -279,8 +375,8 @@ export function Hero() {
         aria-hidden="true"
       />
 
-      {/* Layer 1 — Background ocean image */}
-      <div ref={layer1Ref} className="absolute inset-0 z-0" aria-hidden="true">
+      {/* Layer 1 — Background ocean image (Desktop & Tablet: hidden on mobile) */}
+      <div ref={layer1Ref} className="absolute inset-0 z-0 hidden md:block" aria-hidden="true">
         <div
           ref={imageRef}
           className="absolute inset-0 opacity-0 bg-cover bg-[center_35%] md:bg-center"
@@ -297,6 +393,9 @@ export function Hero() {
           }}
         />
       </div>
+
+      {/* Layer 1b — Mobile-Only Clownfish & Anemone Video Hero (<768px ONLY) */}
+      <MobileHeroVideo />
 
       {/* Layer 2 — Light rays */}
       <div ref={layer2Ref} className="absolute inset-0 z-1" aria-hidden="true">
