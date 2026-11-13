@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { CouponModel, ICouponDocument, IProductRestrictions, DiscountType } from '@/models/Coupon';
+import { CouponModel, ICouponDocument, IProductRestrictions, DiscountType, CustomerEligibility } from '@/models/Coupon';
 import { CouponRedemptionModel } from '@/models/CouponRedemption';
 import { OrderModel } from '@/models/Order';
 import { ProductModel } from '@/models/Product';
@@ -19,6 +19,16 @@ export interface ValidatedCartItem {
 export interface CouponValidationResult {
   valid: boolean;
   error?: string;
+  reason?:
+    | 'first_order_ineligible'
+    | 'existing_customer_required'
+    | 'per_customer_limit_reached'
+    | 'usage_limit_reached'
+    | 'min_subtotal_unmet'
+    | 'expired'
+    | 'invalid'
+    | 'status_blocked';
+  customerEligibility?: CustomerEligibility;
   coupon?: {
     id: string;
     code: string;
@@ -32,6 +42,8 @@ export interface CouponValidationResult {
     excludedSubtotal: number;
     finalPayable: number;
     eligibleItemIds: string[];
+    customerEligibility: CustomerEligibility;
+    validatedForPhone?: string;
   };
 }
 
@@ -158,31 +170,36 @@ export async function validateAndCalculateCoupon(
   }
 
   const cleanPhone = (customerPhone || '').replace(/\D/g, '');
+  const searchPhone = cleanPhone.length >= 10 ? cleanPhone.slice(-10) : cleanPhone;
 
   // 2. Customer Eligibility Checks
   if (coupon.customerEligibility === 'first_order') {
-    if (cleanPhone && cleanPhone.length >= 10) {
+    if (searchPhone && searchPhone.length >= 10) {
       const pastOrdersCount = await OrderModel.countDocuments({
-        phone: new RegExp(cleanPhone, 'i'),
+        phone: new RegExp(searchPhone, 'i'),
         status: { $ne: 'cancelled' },
       });
       if (pastOrdersCount > 0) {
         return {
           valid: false,
           error: 'This coupon is exclusively reserved for your first order.',
+          reason: 'first_order_ineligible',
+          customerEligibility: 'first_order',
         };
       }
     }
   } else if (coupon.customerEligibility === 'existing') {
-    if (cleanPhone && cleanPhone.length >= 10) {
+    if (searchPhone && searchPhone.length >= 10) {
       const pastOrdersCount = await OrderModel.countDocuments({
-        phone: new RegExp(cleanPhone, 'i'),
+        phone: new RegExp(searchPhone, 'i'),
         status: { $ne: 'cancelled' },
       });
       if (pastOrdersCount === 0) {
         return {
           valid: false,
           error: 'This coupon is valid only for existing clients with a previous order.',
+          reason: 'existing_customer_required',
+          customerEligibility: 'existing',
         };
       }
     }
@@ -298,6 +315,8 @@ export async function validateAndCalculateCoupon(
       excludedSubtotal,
       finalPayable,
       eligibleItemIds: eligibleItems.map((i) => i.id),
+      customerEligibility: coupon.customerEligibility || 'all',
+      validatedForPhone: searchPhone && searchPhone.length >= 10 ? searchPhone : undefined,
     },
   };
 }

@@ -77,7 +77,11 @@ interface OrderContextType {
   setActiveOrder: React.Dispatch<React.SetStateAction<CustomerOrder | null>>;
   isTrackingOpen: boolean;
   setIsTrackingOpen: (open: boolean) => void;
-  createOrder: (orderData: Omit<CustomerOrder, 'id' | 'currentStep' | 'statusHistory' | 'createdAt'>) => CustomerOrder;
+  createOrder: (
+    orderData: Omit<CustomerOrder, 'id' | 'currentStep' | 'statusHistory' | 'createdAt'> & {
+      idempotencyKey?: string;
+    }
+  ) => Promise<{ success: boolean; data?: CustomerOrder; error?: string }>;
   updateOrderStatus: (orderId: string, nextStep: OrderProgressStep, note?: string) => Promise<void>;
   updateOrderTracking: (orderId: string, awbNumber: string, courierName: string) => void;
   setOrderPorPricing: (
@@ -312,9 +316,11 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     }
   }, [orders, isMounted]);
 
-  const createOrder = (orderData: Omit<CustomerOrder, 'id' | 'currentStep' | 'statusHistory' | 'createdAt'>): CustomerOrder => {
-    // Timestamp-based ID: last 6 digits of ms timestamp + 2 random chars = effectively collision-free
-    const id = `MC-${Date.now().toString().slice(-6)}${Math.random().toString(36).slice(2, 4).toUpperCase()}`;
+  const createOrder = async (
+    orderData: Omit<CustomerOrder, 'id' | 'currentStep' | 'statusHistory' | 'createdAt'> & {
+      idempotencyKey?: string;
+    }
+  ): Promise<{ success: boolean; data?: CustomerOrder; error?: string }> => {
     const now = new Date().toLocaleDateString('en-IN', {
       day: 'numeric',
       month: 'short',
@@ -323,133 +329,82 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
       minute: '2-digit',
     });
 
-    const calculatedItemsTotal = orderData.items && orderData.items.length > 0
-      ? orderData.items.reduce((sum, it) => sum + (it.product?.price || 0) * (it.quantity || 1), 0)
-      : orderData.totalAmount;
+    const calculatedItemsTotal =
+      orderData.items && orderData.items.length > 0
+        ? orderData.items.reduce((sum, it) => sum + (it.product?.price || 0) * (it.quantity || 1), 0)
+        : orderData.totalAmount;
     const subtotal = orderData.subtotal ?? (calculatedItemsTotal || orderData.totalAmount);
 
-    const newOrder: CustomerOrder = {
-      ...orderData,
-      id,
-      subtotal,
-      address: orderData.address || 'Address pending verification',
-      invoiceNumber: `INV-${id}`,
-      isApproved: false,
-      currentStep: 'placed',
-      estimatedDelivery: orderData.estimatedDelivery || '1–2 Business Days (Express Air Cargo)',
-      createdAt: now,
-      statusHistory: [
-        {
-          status: 'placed',
-          title: 'Order Confirmed',
-          description: 'Your marine order has been registered and verified by Marine Creatures.',
-          timestamp: 'Just now',
-          completed: true,
-        },
-        {
-          status: 'quarantine',
-          title: 'Quarantine Health Inspection',
-          description: 'Specimen undergoing parasite check and active feeding verification.',
-          timestamp: 'Pending',
-          completed: false,
-        },
-        {
-          status: 'packed',
-          title: 'Oxygen Thermal Pod Packaging',
-          description: 'Insulated climate-controlled packing with activated carbon and pure oxygen.',
-          timestamp: 'Pending',
-          completed: false,
-        },
-        {
-          status: 'dispatched',
-          title: 'Air Cargo Dispatch',
-          description: 'Priority flight transfer from Kolkata to destination airport.',
-          timestamp: 'Pending',
-          completed: false,
-        },
-        {
-          status: 'delivered',
-          title: 'Safe Live Arrival',
-          description: 'Doorstep handover with 48-Hour Live Arrival Guarantee.',
-          timestamp: 'Pending',
-          completed: false,
-        },
-      ],
-    };
+    try {
+      // 1. Authoritative MongoDB order creation — persistence gate before storefront confirmation
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerName: orderData.customerName,
+          phone: orderData.phone,
+          address: orderData.address || 'Address pending verification',
+          city: orderData.city,
+          pincode: orderData.pincode,
+          orderNotes: orderData.orderNotes,
+          couponCode: orderData.couponCode,
+          subtotal,
+          totalAmount: orderData.totalAmount,
+          idempotencyKey: orderData.idempotencyKey,
+          createdAt: now,
+          items: orderData.items.map((it) => ({
+            id: it.product.id,
+            name: it.product.name,
+            price: it.product.price,
+            quantity: it.quantity,
+            image: it.product.images?.[0] || '',
+            category: it.product.category,
+          })),
+          history: [
+            {
+              step: 'placed',
+              timestamp: now,
+              note: 'Order confirmed and registered via storefront',
+            },
+          ],
+        }),
+      });
 
-    setOrders((prev) => [newOrder, ...prev]);
-    setActiveOrder(newOrder);
+      const data = await res.json().catch(() => ({}));
 
-    // Persist to MongoDB orders collection with full schema compatibility
-    fetch('/api/orders', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...newOrder,
-        couponCode: orderData.couponCode,
-        subtotal,
-        totalAmount: newOrder.totalAmount,
-        createdAt: now,
-        items: newOrder.items.map((it) => ({
-          id: it.product.id,
-          name: it.product.name,
-          price: it.product.price,
-          quantity: it.quantity,
-          image: it.product.images?.[0] || '',
-          category: it.product.category,
-        })),
-        history: [
-          {
-            step: 'placed',
-            timestamp: now,
-            note: 'Order confirmed and registered via storefront',
-          },
-        ],
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (!data.success) {
-          console.error('[OrderContext] Cloud order create error:', data.error);
-        } else {
-          console.log('[OrderContext] Order synced with MongoDB:', data.data?.id);
-          const serverOrder = data.data;
-          const serverId = serverOrder?.id;
-          const token = serverOrder?.invoiceToken;
-          setOrders((prev) =>
-            prev.map((o) =>
-              o.id === newOrder.id
-                ? {
-                    ...o,
-                    id: serverId || o.id,
-                    invoiceNumber: serverId ? `INV-${serverId}` : o.invoiceNumber,
-                    invoiceToken: token || o.invoiceToken,
-                    subtotal: serverOrder?.subtotal ?? o.subtotal,
-                    totalAmount: serverOrder?.totalAmount ?? o.totalAmount,
-                    coupon: serverOrder?.coupon || o.coupon,
-                  }
-                : o
-            )
-          );
-          setActiveOrder((curr) =>
-            curr?.id === newOrder.id
-              ? {
-                  ...curr,
-                  id: serverId || curr.id,
-                  invoiceNumber: serverId ? `INV-${serverId}` : curr.invoiceNumber,
-                  invoiceToken: token || curr.invoiceToken,
-                  subtotal: serverOrder?.subtotal ?? curr.subtotal,
-                  totalAmount: serverOrder?.totalAmount ?? curr.totalAmount,
-                  coupon: serverOrder?.coupon || curr.coupon,
-                }
-              : curr
-          );
-          syncOrdersFromCloud();
+      if (!res.ok || !data.success || !data.data) {
+        const errorMsg = data.error || `Failed to create order (HTTP ${res.status})`;
+        console.error('[OrderContext] Cloud order create rejected:', errorMsg);
+        return { success: false, error: errorMsg };
+      }
+
+      // 2. Server persistence confirmed. Normalize and update client state with authoritative record
+      const serverOrder = data.data;
+      const normalizedList = normalizeCloudOrders([serverOrder]);
+      const normalizedOrder: CustomerOrder = normalizedList[0] || serverOrder;
+
+      setOrders((prev) => {
+        const exists = prev.some((o) => o.id === normalizedOrder.id);
+        const nextList = exists
+          ? prev.map((o) => (o.id === normalizedOrder.id ? normalizedOrder : o))
+          : [normalizedOrder, ...prev];
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(nextList));
         }
-      })
-      .catch((err) => console.warn('Cloud order create error:', err));
+        return nextList;
+      });
 
-    return newOrder;
+      setActiveOrder(normalizedOrder);
+      syncOrdersFromCloud();
+
+      return { success: true, data: normalizedOrder };
+    } catch (err: any) {
+      console.error('[OrderContext] Network exception during order creation:', err);
+      return {
+        success: false,
+        error: 'Unable to connect to order service. Please check your internet connection and retry.',
+      };
+    }
   };
 
   const updateOrderStatus = async (orderId: string, nextStep: OrderProgressStep, note?: string) => {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/lib/context/CartContext';
 import { useOrder } from '@/lib/context/OrderContext';
@@ -32,6 +32,9 @@ export function CartDrawer() {
   const [formError, setFormError] = useState<string | null>(null);
   const [placedOrderId, setPlacedOrderId] = useState<string | null>(null);
   const [animating, setAnimating] = useState(false);
+  const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
+  const [lastWhatsAppUrl, setLastWhatsAppUrl] = useState<string | null>(null);
+  const [couponWarning, setCouponWarning] = useState<string | null>(null);
 
   // Promotional Coupon State
   const [couponInput, setCouponInput] = useState('');
@@ -39,6 +42,15 @@ export function CartDrawer() {
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
   const [couponSuccess, setCouponSuccess] = useState<string | null>(null);
+
+  // First-Time Customer Coupon Restriction Modal State
+  const [isFirstOrderModalOpen, setIsFirstOrderModalOpen] = useState(false);
+  const [ineligibleCouponCode, setIneligibleCouponCode] = useState<string | null>(null);
+  const [isVerifyingEligibility, setIsVerifyingEligibility] = useState(false);
+  const [verificationError, setVerificationError] = useState<string | null>(null);
+
+  const activeRequestSeqRef = useRef<number>(0);
+  const activeAbortCtrlRef = useRef<AbortController | null>(null);
 
   const finalPayableTotal = appliedCoupon
     ? Math.max(0, cartTotal - (appliedCoupon.discountAmount || 0))
@@ -59,8 +71,10 @@ export function CartDrawer() {
     setCouponLoading(true);
     setCouponError(null);
     setCouponSuccess(null);
+    setVerificationError(null);
 
     try {
+      const cleanPhone = customerPhone.replace(/\D/g, '') || undefined;
       const res = await fetch('/api/promotions/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -74,18 +88,33 @@ export function CartDrawer() {
             category: i.product.category,
             priceOnRequest: i.product.priceOnRequest,
           })),
-          customerPhone: customerPhone.replace(/\D/g, '') || undefined,
+          customerPhone: cleanPhone,
         }),
       });
 
       const data = await res.json();
       if (data.valid && data.coupon) {
-        setAppliedCoupon(data.coupon);
+        setAppliedCoupon({
+          ...data.coupon,
+          validatedForPhone: cleanPhone && cleanPhone.length >= 10 ? cleanPhone : undefined,
+        });
         setCouponSuccess(`Coupon ${data.coupon.code} applied (-₹${data.coupon.discountAmount.toLocaleString('en-IN')})`);
         setCouponError(null);
+        setIneligibleCouponCode(null);
       } else {
         setAppliedCoupon(null);
-        setCouponError(data.error || 'Invalid or ineligible coupon code.');
+        const isFirstOrderIneligible =
+          data.reason === 'first_order_ineligible' ||
+          data.customerEligibility === 'first_order' ||
+          Boolean(data.error?.toLowerCase().includes('first order'));
+
+        if (isFirstOrderIneligible && cleanPhone && cleanPhone.length >= 10) {
+          setIneligibleCouponCode(code);
+          setIsFirstOrderModalOpen(true);
+          setCouponError(null);
+        } else {
+          setCouponError(data.error || 'Invalid or ineligible coupon code.');
+        }
       }
     } catch {
       setCouponError('Unable to validate coupon. Please check connection and retry.');
@@ -99,13 +128,173 @@ export function CartDrawer() {
     setCouponInput('');
     setCouponError(null);
     setCouponSuccess(null);
+    setCouponWarning(null);
+    setVerificationError(null);
+    setIneligibleCouponCode(null);
   };
 
-  // Reset step when drawer opens
+  const handleDismissFirstOrderModal = () => {
+    setIsFirstOrderModalOpen(false);
+    setIneligibleCouponCode(null);
+    handleRemoveCoupon();
+  };
+
+  const handleGoBackToCartFromModal = () => {
+    setIsFirstOrderModalOpen(false);
+    setIneligibleCouponCode(null);
+    handleRemoveCoupon();
+    goToStep('cart');
+  };
+
+  // Authoritative server-side verification of coupon eligibility against order history
+  const triggerEligibilityVerification = useCallback(
+    async (phoneToVerify: string) => {
+      const cleanPhone = phoneToVerify.replace(/\D/g, '').slice(0, 10);
+      if (cleanPhone.length < 10 || !appliedCoupon) {
+        setIsVerifyingEligibility(false);
+        setVerificationError(null);
+        return;
+      }
+
+      // Cancel any active in-flight verification request
+      if (activeAbortCtrlRef.current) {
+        activeAbortCtrlRef.current.abort();
+      }
+
+      const controller = new AbortController();
+      activeAbortCtrlRef.current = controller;
+      activeRequestSeqRef.current += 1;
+      const currentSeq = activeRequestSeqRef.current;
+
+      setIsVerifyingEligibility(true);
+      setVerificationError(null);
+
+      try {
+        const res = await fetch('/api/promotions/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal,
+          body: JSON.stringify({
+            code: appliedCoupon.code,
+            items: cart.map((i) => ({
+              id: i.product.id,
+              name: i.product.name,
+              price: i.product.price,
+              quantity: i.quantity,
+              category: i.product.category,
+              priceOnRequest: i.product.priceOnRequest,
+            })),
+            customerPhone: cleanPhone,
+          }),
+        });
+
+        const data = await res.json();
+
+        // Stale response check: discard if newer request was initiated
+        if (currentSeq !== activeRequestSeqRef.current) {
+          return;
+        }
+
+        setIsVerifyingEligibility(false);
+
+        if (res.ok && data.valid && data.coupon) {
+          // Authoritative acceptance
+          setAppliedCoupon({
+            ...data.coupon,
+            validatedForPhone: cleanPhone,
+          });
+          setCouponSuccess(`Coupon ${data.coupon.code} applied (-₹${data.coupon.discountAmount.toLocaleString('en-IN')})`);
+          setCouponError(null);
+          setCouponWarning(null);
+          setVerificationError(null);
+        } else {
+          // Check for first-order restriction
+          const isFirstOrderIneligible =
+            data.reason === 'first_order_ineligible' ||
+            data.customerEligibility === 'first_order' ||
+            appliedCoupon.customerEligibility === 'first_order' ||
+            Boolean(data.error?.toLowerCase().includes('first order'));
+
+          if (isFirstOrderIneligible && (data.reason === 'first_order_ineligible' || data.error?.toLowerCase().includes('first order'))) {
+            // Ineligible returning customer: immediately mark ineligible, detach discount & open restriction modal
+            const rejectedCode = appliedCoupon.code;
+            setIneligibleCouponCode(rejectedCode);
+            setAppliedCoupon(null);
+            setCouponSuccess(null);
+            setCouponError(null);
+            setCouponWarning(null);
+            setVerificationError(null);
+            setIsFirstOrderModalOpen(true);
+          } else {
+            // Regular/other coupon rule rejection
+            setAppliedCoupon(null);
+            setCouponSuccess(null);
+            setCouponWarning(data.error || 'This coupon could not be applied.');
+          }
+        }
+      } catch (err: any) {
+        if (err.name === 'AbortError') {
+          return;
+        }
+        if (currentSeq !== activeRequestSeqRef.current) {
+          return;
+        }
+        setIsVerifyingEligibility(false);
+        // Error handling: do not falsely claim customer has already ordered
+        setVerificationError('Unable to verify coupon eligibility due to a network connection error. Please retry verification.');
+      }
+    },
+    [appliedCoupon, cart]
+  );
+
+  // Re-verify coupon eligibility whenever customer enters or changes phone number
+  useEffect(() => {
+    const cleanPhone = customerPhone.replace(/\D/g, '').slice(0, 10);
+    if (!appliedCoupon) {
+      setIsVerifyingEligibility(false);
+      setVerificationError(null);
+      return;
+    }
+
+    // Incomplete phone number (< 10 digits): no eligibility decision yet (Section 9 Test 8)
+    if (cleanPhone.length < 10) {
+      if (activeAbortCtrlRef.current) {
+        activeAbortCtrlRef.current.abort();
+      }
+      setIsVerifyingEligibility(false);
+      setVerificationError(null);
+      return;
+    }
+
+    // Trigger verification if this coupon has not yet been validated for this exact phone
+    if (appliedCoupon.validatedForPhone !== cleanPhone) {
+      triggerEligibilityVerification(cleanPhone);
+    }
+  }, [customerPhone, appliedCoupon?.code, triggerEligibilityVerification]);
+
+  // Keyboard accessibility: Escape key closes First-Order Eligibility Modal
+  useEffect(() => {
+    if (!isFirstOrderModalOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        handleDismissFirstOrderModal();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFirstOrderModalOpen]);
+
+  // Reset step and errors when drawer opens
   useEffect(() => {
     if (isCartOpen) {
       setStep('cart');
       setFormError(null);
+      setCouponWarning(null);
+      setVerificationError(null);
+      setIsSubmittingOrder(false);
+      setIsVerifyingEligibility(false);
+      setIsFirstOrderModalOpen(false);
     }
   }, [isCartOpen]);
 
@@ -152,7 +341,8 @@ export function CartDrawer() {
     setTimeout(() => setStep('cart'), 400);
   };
 
-  const handleWhatsAppCheckout = () => {
+  const handleWhatsAppCheckout = async () => {
+    if (isSubmittingOrder || isVerifyingEligibility) return;
     if (cart.length === 0) return;
 
     if (!customerName.trim()) {
@@ -176,53 +366,105 @@ export function CartDrawer() {
       return;
     }
 
+    // Guard: Prevent proceeding with unverified or mismatched first-order coupon
+    if (appliedCoupon?.customerEligibility === 'first_order') {
+      if (verificationError) {
+        setFormError('Please verify your first-order coupon eligibility or remove the coupon to proceed.');
+        return;
+      }
+      if (appliedCoupon.validatedForPhone !== cleanPhone) {
+        setFormError('Verifying coupon eligibility for this phone number. Please wait...');
+        await triggerEligibilityVerification(cleanPhone);
+        return;
+      }
+    }
+
     setFormError(null);
+    setIsSubmittingOrder(true);
 
-    const newOrder = createOrder({
-      customerName: customerName.trim(),
-      phone: cleanPhone,
-      address: customerAddress.trim(),
-      city: customerCity.trim(),
-      pincode: customerPincode.trim(),
-      orderNotes: orderNotes.trim() || undefined,
-      items: cart.map((i) => ({ product: i.product, quantity: i.quantity })),
-      subtotal: cartTotal,
-      totalAmount: finalPayableTotal,
-      couponCode: appliedCoupon?.code,
-      estimatedDelivery: 'Tomorrow via Priority Air Cargo',
-    });
+    try {
+      // Deterministic idempotency key per checkout attempt to prevent duplicates
+      const idempotencyKey = `chk_${cleanPhone}_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 
-    const itemsSummary = cart
-      .map(
-        ({ product, quantity }) =>
-          `• ${product.name} (Qty: ${quantity}) - ${
-            product.price > 0 && !product.priceOnRequest
-              ? `₹${(product.price * quantity).toLocaleString('en-IN')}`
-              : 'Price on Request'
-          }`
-      )
-      .join('\n');
+      const result = await createOrder({
+        customerName: customerName.trim(),
+        phone: cleanPhone,
+        address: customerAddress.trim(),
+        city: customerCity.trim(),
+        pincode: customerPincode.trim(),
+        orderNotes: orderNotes.trim() || undefined,
+        items: cart.map((i) => ({ product: i.product, quantity: i.quantity })),
+        subtotal: cartTotal,
+        totalAmount: finalPayableTotal,
+        couponCode: appliedCoupon?.code,
+        idempotencyKey,
+        estimatedDelivery: 'Tomorrow via Priority Air Cargo',
+      });
 
-    const totalStr =
-      finalPayableTotal > 0
-        ? `₹${finalPayableTotal.toLocaleString('en-IN')}${
-            appliedCoupon ? ` (Saved ₹${appliedCoupon.discountAmount} with ${appliedCoupon.code})` : ''
-          }`
-        : 'Price on Request (Quarantine/Specimen Confirmation)';
+      if (!result.success || !result.data) {
+        setIsSubmittingOrder(false);
+        const errMessage = result.error || 'Failed to place order. Please review your details and try again.';
+        if (errMessage.toLowerCase().includes('first order')) {
+          const rejectedCode = appliedCoupon?.code || 'COUPON';
+          setIneligibleCouponCode(rejectedCode);
+          setAppliedCoupon(null);
+          setIsFirstOrderModalOpen(true);
+        } else {
+          setFormError(errMessage);
+        }
+        return;
+      }
 
-    const couponLine = appliedCoupon
-      ? `\n• *Promotional Coupon:* ${appliedCoupon.code} (-₹${appliedCoupon.discountAmount.toLocaleString('en-IN')})`
-      : '';
+      const authoritativeOrder = result.data;
+      const orderId = authoritativeOrder.id;
+      const verifiedTotal = authoritativeOrder.totalAmount;
 
-    const message = `🌊 *NEW ORDER / INQUIRY — MARINE CREATURES* 🌊\n*Order ID:* #${newOrder.id}\n\n👤 *CUSTOMER DETAILS:*\n• *Name:* ${customerName.trim()}\n• *Phone:* +91 ${cleanPhone}\n• *Delivery Address:* ${customerAddress.trim()}\n• *City & Pincode:* ${customerCity.trim()} (${customerPincode.trim()})${orderNotes.trim() ? `\n• *Special Notes:* ${orderNotes.trim()}` : ''}\n\n📦 *ORDERED SPECIMENS & ITEMS:*\n${itemsSummary}${couponLine}\n\n*Total Value:* ${totalStr}\n*Thermal Pod Packaging:* Insulated Climate Pod`;
+      const itemsSummary = cart
+        .map(
+          ({ product, quantity }) =>
+            `• ${product.name} (Qty: ${quantity}) - ${
+              product.price > 0 && !product.priceOnRequest
+                ? `₹${(product.price * quantity).toLocaleString('en-IN')}`
+                : 'Price on Request'
+            }`
+        )
+        .join('\n');
 
-    const encoded = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encoded}`;
-    window.open(whatsappUrl, '_blank');
+      const couponSnapshot = authoritativeOrder.coupon || appliedCoupon;
+      const totalStr =
+        verifiedTotal > 0
+          ? `₹${verifiedTotal.toLocaleString('en-IN')}${
+              couponSnapshot?.discountAmount
+                ? ` (Saved ₹${couponSnapshot.discountAmount} with ${couponSnapshot.code})`
+                : ''
+            }`
+          : 'Price on Request (Quarantine/Specimen Confirmation)';
 
-    setPlacedOrderId(newOrder.id);
-    clearCart();
-    goToStep('success');
+      const couponLine = couponSnapshot?.discountAmount
+        ? `\n• *Promotional Coupon:* ${couponSnapshot.code} (-₹${couponSnapshot.discountAmount.toLocaleString('en-IN')})`
+        : '';
+
+      const message = `🌊 *NEW ORDER / INQUIRY — MARINE CREATURES* 🌊\n*Order ID:* #${orderId}\n\n👤 *CUSTOMER DETAILS:*\n• *Name:* ${customerName.trim()}\n• *Phone:* +91 ${cleanPhone}\n• *Delivery Address:* ${customerAddress.trim()}\n• *City & Pincode:* ${customerCity.trim()} (${customerPincode.trim()})${orderNotes.trim() ? `\n• *Special Notes:* ${orderNotes.trim()}` : ''}\n\n📦 *ORDERED SPECIMENS & ITEMS:*\n${itemsSummary}${couponLine}\n\n*Total Value:* ${totalStr}\n*Thermal Pod Packaging:* Insulated Climate Pod`;
+
+      const encoded = encodeURIComponent(message);
+      const whatsappUrl = `https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encoded}`;
+      setLastWhatsAppUrl(whatsappUrl);
+
+      // Attempt immediate popup
+      try {
+        window.open(whatsappUrl, '_blank');
+      } catch {
+        // Fallback provided in success step
+      }
+
+      setPlacedOrderId(orderId);
+      clearCart();
+      setIsSubmittingOrder(false);
+      goToStep('success');
+    } catch (err: any) {
+      setIsSubmittingOrder(false);
+      setFormError(err?.message || 'Unexpected checkout error. Please try again.');
+    }
   };
 
   // ─── Shared Header ────────────────────────────────────────────────────────
@@ -611,10 +853,68 @@ export function CartDrawer() {
               </span>
             </div>
 
+            {verificationError && (
+              <div className="p-3 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span>⚠️</span>
+                  <span>{verificationError}</span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => triggerEligibilityVerification(customerPhone)}
+                    className="text-cyan-300 hover:text-white text-xs underline font-semibold"
+                  >
+                    Retry Verification
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setVerificationError(null);
+                      handleRemoveCoupon();
+                    }}
+                    className="text-slate-400 hover:text-white text-xs underline"
+                  >
+                    Remove Coupon
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {couponWarning && (
+              <div className="p-3 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span>⚠️</span>
+                  <span>{couponWarning}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setCouponWarning(null)}
+                  className="text-amber-400 hover:text-white text-xs underline font-semibold shrink-0"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
+
             {formError && (
-              <div className="p-2.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 text-xs flex items-center gap-2">
-                <span>⚠️</span>
-                <span>{formError}</span>
+              <div className="p-3 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 text-xs flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <span>⚠️</span>
+                  <span>{formError}</span>
+                </div>
+                {appliedCoupon && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleRemoveCoupon();
+                      setFormError(null);
+                    }}
+                    className="self-start text-[11px] font-semibold text-white bg-red-500/30 hover:bg-red-500/50 px-2.5 py-1 rounded-lg border border-red-400/40 transition-colors"
+                  >
+                    Remove Ineligible Coupon &amp; Continue
+                  </button>
+                )}
               </div>
             )}
 
@@ -739,10 +1039,25 @@ export function CartDrawer() {
       <div className="p-5 sm:p-6 border-t border-[rgba(255,255,255,0.08)] bg-[rgba(2,7,11,0.95)] shrink-0 pb-safe">
         <button
           onClick={handleWhatsAppCheckout}
-          className="btn-primary w-full justify-center text-xs py-4 px-4 rounded-xl flex items-center gap-2.5 shadow-xl active:scale-[0.98] transition-transform font-bold tracking-wider uppercase"
+          disabled={isSubmittingOrder || isVerifyingEligibility}
+          className="btn-primary w-full justify-center text-xs py-4 px-4 rounded-xl flex items-center gap-2.5 shadow-xl active:scale-[0.98] transition-transform font-bold tracking-wider uppercase disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <span className="text-base">💬</span>
-          <span>PLACE ORDER &amp; OPEN WHATSAPP →</span>
+          {isSubmittingOrder ? (
+            <>
+              <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+              <span>CONFIRMING &amp; PERSISTING ORDER…</span>
+            </>
+          ) : isVerifyingEligibility ? (
+            <>
+              <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+              <span>VERIFYING COUPON ELIGIBILITY…</span>
+            </>
+          ) : (
+            <>
+              <span className="text-base">💬</span>
+              <span>PLACE ORDER &amp; OPEN WHATSAPP →</span>
+            </>
+          )}
         </button>
         <p className="text-[10px] text-[--color-muted] text-center opacity-60 leading-tight mt-3">
           🔒 Verified Quarantine Husbandry • Live arrival policy applies to express air cargo
@@ -792,6 +1107,17 @@ export function CartDrawer() {
       </div>
 
       <div className="flex flex-col gap-2.5 w-full max-w-xs">
+        {lastWhatsAppUrl && (
+          <a
+            href={lastWhatsAppUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-xs uppercase tracking-wider transition-colors shadow-lg active:scale-95"
+          >
+            <span>💬</span>
+            <span>Open in WhatsApp</span>
+          </a>
+        )}
         <button
           onClick={() => {
             setIsTrackingOpen(true);
@@ -862,6 +1188,100 @@ export function CartDrawer() {
           )}
         </div>
       </div>
+
+      {/* First-Order Customer Coupon Restriction Modal */}
+      {isFirstOrderModalOpen && (
+        <div
+          className="fixed inset-0 z-[100000] flex items-center justify-center p-4 sm:p-6 overflow-y-auto overscroll-contain animate-fadeIn"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="first-order-modal-title"
+          aria-describedby="first-order-modal-desc"
+        >
+          {/* Backdrop with dark blur */}
+          <div
+            className="fixed inset-0 bg-black/85 backdrop-blur-md transition-opacity duration-300"
+            onClick={handleDismissFirstOrderModal}
+          />
+
+          {/* Modal Container */}
+          <div className="relative w-full max-w-md bg-[rgba(5,14,22,0.98)] border border-[rgba(0,184,217,0.3)] shadow-[0_20px_60px_rgba(0,0,0,0.8),0_0_40px_rgba(0,184,217,0.15)] rounded-2xl overflow-hidden p-6 sm:p-7 text-center z-10 animate-scaleUp">
+            {/* Ambient cyan glow */}
+            <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-48 h-48 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none" />
+
+            {/* Close button */}
+            <button
+              onClick={handleDismissFirstOrderModal}
+              className="absolute top-4 right-4 w-9 h-9 rounded-full border border-white/10 bg-white/5 hover:border-white/30 text-slate-400 hover:text-white flex items-center justify-center transition-all focus:outline-none focus:ring-2 focus:ring-cyan-400"
+              aria-label="Close eligibility notice"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+
+            {/* Badge / Icon */}
+            <div className="mx-auto w-16 h-16 rounded-2xl bg-amber-500/15 border border-amber-400/30 flex items-center justify-center mb-5 text-2xl shadow-inner">
+              <span>🏷️</span>
+            </div>
+
+            {/* Ineligible coupon pill */}
+            {ineligibleCouponCode && (
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-300 text-[11px] font-mono font-semibold tracking-wider uppercase mb-3">
+                <span>Coupon:</span>
+                <span className="font-bold text-amber-200">{ineligibleCouponCode}</span>
+                <span className="text-[10px] text-amber-400/80">• First-Order Only</span>
+              </div>
+            )}
+
+            {/* Title */}
+            <h3
+              id="first-order-modal-title"
+              className="font-display text-xl sm:text-2xl text-white font-medium tracking-tight mb-3 leading-snug"
+            >
+              This Coupon Is Exclusively for First-Time Customers.
+            </h3>
+
+            {/* Body */}
+            <div
+              id="first-order-modal-desc"
+              className="space-y-2.5 text-xs text-slate-300 leading-relaxed mb-6 px-1"
+            >
+              <p>
+                Our records show that this phone number{' '}
+                <span className="font-mono font-semibold text-cyan-300">
+                  {customerPhone ? `(+91 ${customerPhone.replace(/\D/g, '')})` : ''}
+                </span>{' '}
+                has already placed an order with Marine Creatures.
+              </p>
+              <p className="text-slate-400">
+                This promotional coupon cannot be applied to your order. You can remove the coupon and continue checkout at the regular price.
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col gap-2.5">
+              <button
+                type="button"
+                onClick={handleDismissFirstOrderModal}
+                className="btn-primary w-full justify-center text-xs py-3.5 px-4 rounded-xl flex items-center gap-2 font-bold tracking-wider uppercase shadow-lg active:scale-[0.98] transition-transform focus:outline-none focus:ring-2 focus:ring-cyan-400"
+              >
+                <span>Remove Coupon &amp; Continue</span>
+                <span>→</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleGoBackToCartFromModal}
+                className="w-full justify-center text-xs py-3 px-4 rounded-xl border border-white/12 bg-white/4 hover:bg-white/8 hover:border-white/25 text-slate-300 hover:text-white font-semibold tracking-wider transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-400"
+              >
+                Go Back to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

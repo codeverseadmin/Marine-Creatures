@@ -101,8 +101,23 @@ export interface IOrderDocument extends Document {
   invoiceTokenHash?: string;
   invoiceTokenCreatedAt?: Date;
   invoiceTokenExpiresAt?: Date;
+  idempotencyKey?: string;
   createdAt: string;
 }
+
+const OrderCouponSchema = new Schema(
+  {
+    couponId: { type: String, index: true },
+    code: { type: String, uppercase: true, trim: true, index: true },
+    discountType: { type: String, enum: ['percentage', 'fixed'] },
+    discountValue: { type: Number },
+    discountAmount: { type: Number, default: 0 },
+    eligibleSubtotal: { type: Number, default: 0 },
+    appliedAt: { type: String },
+    description: { type: String },
+  },
+  { _id: false }
+);
 
 const OrderItemSchema = new Schema<IOrderItem>(
   {
@@ -182,16 +197,8 @@ const OrderSchema = new Schema<IOrderDocument>(
     items: { type: [OrderItemSchema], default: [] },
     subtotal: { type: Number, default: 0 },
     totalAmount: { type: Number, required: true },
-    coupon: {
-      couponId: { type: String, index: true },
-      code: { type: String, uppercase: true, trim: true, index: true },
-      discountType: { type: String, enum: ['percentage', 'fixed'] },
-      discountValue: { type: Number },
-      discountAmount: { type: Number, default: 0 },
-      eligibleSubtotal: { type: Number, default: 0 },
-      appliedAt: { type: String },
-      description: { type: String },
-    },
+    coupon: { type: OrderCouponSchema, default: undefined },
+    idempotencyKey: { type: String, index: true, sparse: true },
     paymentStatus: {
       type: String,
       enum: ['pending', 'partial', 'paid', 'cancelled'],

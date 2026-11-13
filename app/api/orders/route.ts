@@ -121,6 +121,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   // Public — customer order creation is allowed without admin auth
+  let idempotencyKey: string | undefined = undefined;
   try {
     const clientIp = getClientIp(req);
     const postRateLimit = await checkRateLimit(`rate:orders:create:ip:${clientIp}`, 20, 600);
@@ -136,6 +137,23 @@ export async function POST(req: NextRequest) {
       (auth.isOwner ||
         auth.permissions.has('orders.create') ||
         auth.permissions.has('orders.update_status'));
+
+    // 0. Idempotency Gate: if client submits with an idempotencyKey, return existing order
+    idempotencyKey =
+      typeof body.idempotencyKey === 'string' && body.idempotencyKey.trim().length > 0
+        ? body.idempotencyKey.trim().slice(0, 100)
+        : typeof body.clientOrderId === 'string' && body.clientOrderId.trim().length > 0
+        ? body.clientOrderId.trim().slice(0, 100)
+        : undefined;
+
+    if (idempotencyKey) {
+      const existingByIdempotency = await OrderModel.findOne({ idempotencyKey }).lean();
+      if (existingByIdempotency) {
+        const responseData: any = { ...existingByIdempotency };
+        delete responseData.invoiceTokenHash;
+        return NextResponse.json({ success: true, data: responseData, idempotent: true }, { status: 200 });
+      }
+    }
 
     // 1. Order ID Generation & Overwrite Elimination
     // Public requests NEVER trust client-supplied IDs. Server generates an authoritative unique reference.
@@ -493,6 +511,7 @@ export async function POST(req: NextRequest) {
       invoiceTokenHash: tokenHashToSave,
       invoiceTokenCreatedAt: tokenCreatedAtToSave,
       invoiceTokenExpiresAt: tokenExpiresAtToSave,
+      idempotencyKey,
       createdAt,
     };
 
@@ -510,6 +529,15 @@ export async function POST(req: NextRequest) {
         const [doc] = await OrderModel.create([orderPayload]);
         createdOrderDoc = doc;
       } catch (err: any) {
+        if (idempotencyKey && (err?.keyPattern?.idempotencyKey || err?.message?.includes('idempotencyKey'))) {
+          await new Promise((resolve) => setTimeout(resolve, 200));
+          const existing = await OrderModel.findOne({ idempotencyKey }).lean();
+          if (existing) {
+            const responseData: any = { ...existing };
+            delete responseData.invoiceTokenHash;
+            return NextResponse.json({ success: true, data: responseData, idempotent: true }, { status: 200 });
+          }
+        }
         if (err?.code === 11000 && !isAdmin && insertAttempts < 3) {
           console.warn(`[OrderCreation] Duplicate key collision on ${id}, regenerating with fresh 128-bit entropy...`);
           id = `MC-${Date.now()}-${crypto.randomBytes(16).toString('hex').toUpperCase()}`;
@@ -573,8 +601,43 @@ export async function POST(req: NextRequest) {
     responseData.invoiceToken = issuedToken;
     responseData.invoiceUrl = `/invoice/${id}?token=${issuedToken}`;
 
+    // Upsert customer record in CustomerModel for Customer 360 visibility
+    const cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone) {
+      await CustomerModel.findOneAndUpdate(
+        { phone: cleanPhone },
+        {
+          $setOnInsert: {
+            id: `CUST-${cleanPhone}`,
+            firstContactDate: new Date(),
+          },
+          $set: {
+            name: customerName,
+            city,
+            address,
+            pincode,
+            lastActiveDate: new Date(),
+          },
+          $inc: {
+            totalOrdersCount: 1,
+            totalSpend: totalAmount,
+          },
+        },
+        { upsert: true }
+      ).catch((err: any) => console.warn('[OrderCreation] Failed to upsert customer:', err));
+    }
+
     return NextResponse.json({ success: true, data: responseData }, { status: 201 });
   } catch (error: any) {
+    if (idempotencyKey && (error?.keyPattern?.idempotencyKey || error?.message?.includes('idempotencyKey'))) {
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      const existing = await OrderModel.findOne({ idempotencyKey }).lean();
+      if (existing) {
+        const responseData: any = { ...existing };
+        delete responseData.invoiceTokenHash;
+        return NextResponse.json({ success: true, data: responseData, idempotent: true }, { status: 200 });
+      }
+    }
     if (error?.code === 11000) {
       return NextResponse.json(
         { success: false, error: 'Order reference collision occurred. Please retry.' },

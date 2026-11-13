@@ -50,6 +50,8 @@ export async function POST(req: NextRequest) {
           success: false,
           valid: false,
           error: result.error || 'This coupon code could not be applied.',
+          reason: result.reason,
+          customerEligibility: result.customerEligibility,
         },
         { status: 400 }
       );
