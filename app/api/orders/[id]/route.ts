@@ -102,6 +102,30 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
       return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404 });
     }
 
+    // Strict POR Invoice Gating: An invoice CANNOT be viewed or generated for an order
+    // containing unresolved Price on Request (POR) items.
+    const hasUnresolvedPor = Boolean(
+      order.hasUnresolvedPorItems ||
+      (Array.isArray(order.items) &&
+        order.items.some(
+          (it: any) =>
+            (it.priceOnRequest || it.pricingStatus === 'PENDING_POR' || it.price === 0) &&
+            (!it.agreedUnitPrice || it.agreedUnitPrice <= 0)
+        ))
+    );
+
+    if (hasUnresolvedPor) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Invoice generation is blocked because one or more Price on Request items still require admin price settlement.',
+          code: 'POR_PRICING_PENDING',
+          requiresPorPricing: true,
+        },
+        { status: 409 }
+      );
+    }
+
     // 4. Customer Access: STRICT Token-Based Authorization (Min 128-bit CSPRNG entropy)
     // Legacy 4-digit phone matching is REMOVED as an authorization mechanism.
     const { searchParams } = new URL(req.url);
@@ -191,6 +215,30 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
 
     if (!order) {
       return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404 });
+    }
+
+    // Strict POR Invoice Gating: An invoice CANNOT be viewed or generated for an order
+    // containing unresolved Price on Request (POR) items.
+    const hasUnresolvedPor = Boolean(
+      order.hasUnresolvedPorItems ||
+      (Array.isArray(order.items) &&
+        order.items.some(
+          (it: any) =>
+            (it.priceOnRequest || it.pricingStatus === 'PENDING_POR' || it.price === 0) &&
+            (!it.agreedUnitPrice || it.agreedUnitPrice <= 0)
+        ))
+    );
+
+    if (hasUnresolvedPor) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Invoice generation is blocked because one or more Price on Request items still require admin price settlement.',
+          code: 'POR_PRICING_PENDING',
+          requiresPorPricing: true,
+        },
+        { status: 409 }
+      );
     }
 
     // Generate fresh cryptographically random token (256 bits entropy)

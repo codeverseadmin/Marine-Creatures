@@ -32,6 +32,10 @@ export default function InvoicePage({ params }: InvoicePageProps) {
   const [tokenError, setTokenError] = useState<string | null>(null);
   const [verifyAttempts, setVerifyAttempts] = useState(0);
 
+  // Price on Request Settlement Gating State
+  const [isPorPending, setIsPorPending] = useState(false);
+  const [porPendingMessage, setPorPendingMessage] = useState<string | null>(null);
+
   const [remoteOrder, setRemoteOrder] = useState<any>(null);
   const [isVerifying, setIsVerifying] = useState(true);
 
@@ -77,6 +81,14 @@ export default function InvoicePage({ params }: InvoicePageProps) {
         try {
           const res = await fetch(`/api/orders/${encodeURIComponent(orderId)}?token=${encodeURIComponent(urlToken.trim())}`);
           const json = await res.json();
+          if (res.status === 409 || json.code === 'POR_PRICING_PENDING') {
+            if (isMounted) {
+              setIsPorPending(true);
+              setPorPendingMessage(json.error || 'Invoice generation is blocked because one or more Price on Request items still require admin price settlement.');
+              setIsVerifying(false);
+            }
+            return;
+          }
           if (json.success && json.data && isMounted) {
             setRemoteOrder(json.data);
             setAuthorized(true);
@@ -99,6 +111,14 @@ export default function InvoicePage({ params }: InvoicePageProps) {
             credentials: 'include',
           });
           const orderJson = await orderRes.json();
+          if (orderRes.status === 409 || orderJson.code === 'POR_PRICING_PENDING') {
+            if (isMounted) {
+              setIsPorPending(true);
+              setPorPendingMessage(orderJson.error || 'Invoice generation is blocked because one or more Price on Request items still require admin price settlement.');
+              setIsVerifying(false);
+            }
+            return;
+          }
           if (orderJson.success && orderJson.data && isMounted) {
             setRemoteOrder(orderJson.data);
             setAuthorized(true);
@@ -173,6 +193,67 @@ export default function InvoicePage({ params }: InvoicePageProps) {
     }
   }, [order]);
 
+  // Gating Screen: Strictly block invoice rendering if order contains unresolved POR specimens
+  const orderHasUnresolvedPor = Boolean(
+    isPorPending ||
+    (order && (
+      order.hasUnresolvedPorItems ||
+      (Array.isArray(order.items) && order.items.some((it: any) =>
+        (it.priceOnRequest || it.pricingStatus === 'PENDING_POR' || it.product?.price === 0 || it.price === 0) &&
+        (!it.agreedUnitPrice || it.agreedUnitPrice <= 0)
+      ))
+    ))
+  );
+
+  if (orderHasUnresolvedPor) {
+    return (
+      <div className="min-h-screen bg-[#02070c] text-white flex items-center justify-center p-4">
+        <meta name="referrer" content="no-referrer" />
+        <div className="max-w-lg w-full bg-[#071520] border border-amber-500/30 rounded-3xl p-8 space-y-6 shadow-2xl">
+          <div className="text-center space-y-3">
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-3xl">
+              ⏳
+            </div>
+            <div className="inline-block px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] font-mono font-bold uppercase tracking-wider text-amber-400">
+              Price on Request Settlement Pending
+            </div>
+            <h2 className="text-xl font-bold text-white">Invoice Not Yet Available</h2>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Order <span className="font-mono text-cyan-400 font-bold">#{orderId}</span> contains rare specimen(s) whose bespoke pricing is currently being confirmed by our Marine Specialist Concierge.
+            </p>
+            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 text-[11px] text-slate-300 text-left space-y-1">
+              <span className="font-semibold text-amber-300 block">✦ Marine Creatures Financial Gating Active:</span>
+              <p className="text-slate-400">
+                Invoices cannot be issued with zero or unconfirmed prices. Once agreed pricing is settled and verified in Control OS, your official tax invoice and dispatch manifest will be immediately accessible here.
+              </p>
+            </div>
+          </div>
+
+          <div className="pt-2 border-t border-slate-800/80 space-y-3">
+            <a
+              href={`https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Hello Marine Creatures Concierge, I am inquiring about the price settlement for my order #${orderId}.`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/30 hover:bg-emerald-500/25 text-emerald-300 text-xs font-semibold flex items-center justify-center gap-2 transition-all"
+            >
+              <span>💬</span>
+              <span>Connect with Concierge on WhatsApp</span>
+            </a>
+
+            <div className="flex justify-between items-center text-xs text-slate-500 pt-1">
+              <Link href="/marketplace" className="hover:text-slate-300 transition-colors">
+                ← Return to Storefront
+              </Link>
+              <Link href="/admin" className="hover:text-cyan-400 transition-colors">
+                Admin Control OS →
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Cryptographic Token Verification Gate — strictly prevents public harvesting of customer invoices
   if (!authorized) {
     const handleVerify = async (e: React.FormEvent) => {
@@ -188,6 +269,12 @@ export default function InvoicePage({ params }: InvoicePageProps) {
       try {
         const res = await fetch(`/api/orders/${encodeURIComponent(orderId)}?token=${encodeURIComponent(cleanToken)}`);
         const result = await res.json();
+        if (res.status === 409 || result.code === 'POR_PRICING_PENDING') {
+          setIsPorPending(true);
+          setPorPendingMessage(result.error || 'Invoice generation is blocked because one or more Price on Request items still require admin price settlement.');
+          setIsVerifying(false);
+          return;
+        }
         if (result.success && result.data) {
           setRemoteOrder(result.data);
           setAuthorized(true);
@@ -617,10 +704,20 @@ export default function InvoicePage({ params }: InvoicePageProps) {
                   <td className="p-3 text-center font-mono text-slate-400 print:text-slate-700">0301</td>
                   <td className="p-3 text-center font-mono font-bold text-white print:text-black">{item.quantity}</td>
                   <td className="p-3 text-right font-mono text-slate-300 print:text-black">
-                    ₹{(item.product?.price ?? item.price ?? 0).toLocaleString('en-IN')}
+                    ₹{(() => {
+                      const unitPrice = typeof item.agreedUnitPrice === 'number' && item.agreedUnitPrice > 0
+                        ? item.agreedUnitPrice
+                        : (item.price && item.price > 0 ? item.price : (item.product?.price || 0));
+                      return unitPrice.toLocaleString('en-IN');
+                    })()}
                   </td>
                   <td className="p-3 text-right font-mono font-bold text-cyan-300 print:text-black">
-                    ₹{((item.product?.price ?? item.price ?? 0) * item.quantity).toLocaleString('en-IN')}
+                    ₹{(() => {
+                      const unitPrice = typeof item.agreedUnitPrice === 'number' && item.agreedUnitPrice > 0
+                        ? item.agreedUnitPrice
+                        : (item.price && item.price > 0 ? item.price : (item.product?.price || 0));
+                      return (unitPrice * item.quantity).toLocaleString('en-IN');
+                    })()}
                   </td>
                 </tr>
               ))}

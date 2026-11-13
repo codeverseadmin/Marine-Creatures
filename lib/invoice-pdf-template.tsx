@@ -670,11 +670,13 @@ export function InvoicePDFDocument({ order }: { order: ExecutiveInvoiceOrderData
   const formattedDate = formatExecutiveDate(order.approvedAt || order.createdAt);
 
   // Normalise product rows
-  const items = (order.items || []).map((item) => {
+  const items = (order.items || []).map((item: any) => {
+    const agreedPrice = typeof item.agreedUnitPrice === 'number' && item.agreedUnitPrice > 0 ? item.agreedUnitPrice : null;
     if (item.product) {
+      const pPrice = agreedPrice ?? (typeof item.product.price === 'number' && item.product.price > 0 ? item.product.price : (item.price || 0));
       return {
         name:          item.product.name,
-        price:         item.product.price,
+        price:         pPrice,
         quantity:      item.quantity || 1,
         categoryLabel: item.product.categoryLabel || '',
         warranty:      item.warranty || (item.product as any)?.warranty,
@@ -682,7 +684,7 @@ export function InvoicePDFDocument({ order }: { order: ExecutiveInvoiceOrderData
     }
     return {
       name:          item.name,
-      price:         item.price,
+      price:         agreedPrice ?? (item.price || 0),
       quantity:      item.quantity || 1,
       categoryLabel: item.categoryLabel || item.category || '',
       warranty:      item.warranty,

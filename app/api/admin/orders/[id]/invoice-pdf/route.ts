@@ -87,18 +87,19 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
 
       // Mandatory POR Pricing Check on synthetic fixture
       const hasUnresolvedPor = fixtureOrder.hasUnresolvedPorItems || (fixtureOrder.items && fixtureOrder.items.some((it: any) =>
-        (it.priceOnRequest || it.price === 0) && (!it.agreedUnitPrice || it.agreedUnitPrice <= 0)
+        (it.priceOnRequest || it.pricingStatus === 'PENDING_POR' || it.price === 0) && (!it.agreedUnitPrice || it.agreedUnitPrice <= 0)
       ));
 
       if (hasUnresolvedPor) {
         return NextResponse.json(
           {
             success: false,
-            error: 'Cannot generate invoice: Order contains specimens with unresolved Price on Request (POR). Please set agreed pricing before releasing invoice.',
+            error: 'Invoice generation is blocked because one or more Price on Request items still require admin price settlement.',
+            code: 'POR_PRICING_PENDING',
             requiresPorPricing: true,
             orderId: fixtureOrder.id,
           },
-          { status: 400 }
+          { status: 409 }
         );
       }
 
@@ -137,18 +138,22 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     // Under business rules, an Executive Invoice CANNOT be generated while any
     // line item has an unresolved Price on Request (POR) status.
     const unresolvedPor = (order.items || []).filter(
-      (it: any) => (it.priceOnRequest === true || it.pricingStatus === 'PENDING_POR' || (it.price === 0 && (!it.agreedUnitPrice || it.agreedUnitPrice <= 0)))
+      (it: any) =>
+        it.pricingStatus === 'PENDING_POR' ||
+        ((it.priceOnRequest === true || it.price === 0) && (!it.agreedUnitPrice || it.agreedUnitPrice <= 0))
     );
 
-    if (unresolvedPor.length > 0) {
+    if (order.hasUnresolvedPorItems || unresolvedPor.length > 0) {
       return NextResponse.json(
         {
           success: false,
-          error: `Cannot generate invoice: Order contains ${unresolvedPor.length} unresolved Price on Request (POR) specimen(s). Please agree on order-specific pricing before issuing an invoice.`,
+          error: 'Invoice generation is blocked because one or more Price on Request items still require admin price settlement.',
+          code: 'POR_PRICING_PENDING',
           requiresPorPricing: true,
+          orderId: order.id,
           unresolvedItems: unresolvedPor.map((it: any) => ({ id: it.id, name: it.name, quantity: it.quantity })),
         },
-        { status: 400 }
+        { status: 409 }
       );
     }
 

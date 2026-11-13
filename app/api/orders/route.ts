@@ -419,7 +419,7 @@ export async function POST(req: NextRequest) {
     }
 
     const hasUnresolvedPorItems = validatedItems.some(
-      (i: any) => i.priceOnRequest || i.pricingStatus === 'PENDING_POR'
+      (i: any) => i.priceOnRequest || i.pricingStatus === 'PENDING_POR' || (i.price === 0 && (!i.agreedUnitPrice || i.agreedUnitPrice <= 0))
     );
 
     const city = typeof body.city === 'string' && body.city.trim() ? body.city.trim().slice(0, 100) : 'Destination City';
@@ -479,12 +479,21 @@ export async function POST(req: NextRequest) {
     const invoiceNumber =
       isAdmin && typeof body.invoiceNumber === 'string' ? body.invoiceNumber.trim().slice(0, 100) : undefined;
 
-    // Fresh Invoice Token generation
-    const tokenData = generateInvoiceToken();
-    const issuedToken = tokenData.rawToken;
-    const tokenHashToSave = tokenData.tokenHash;
-    const tokenCreatedAtToSave = tokenData.createdAt;
-    const tokenExpiresAtToSave = tokenData.expiresAt;
+    // Fresh Invoice Token generation (strictly withheld if order contains unresolved POR items)
+    let issuedToken: string | undefined = undefined;
+    let tokenHashToSave: string | undefined = undefined;
+    let tokenCreatedAtToSave: Date | undefined = undefined;
+    let tokenExpiresAtToSave: Date | undefined = undefined;
+
+    if (!hasUnresolvedPorItems) {
+      const tokenData = generateInvoiceToken();
+      issuedToken = tokenData.rawToken;
+      tokenHashToSave = tokenData.tokenHash;
+      tokenCreatedAtToSave = tokenData.createdAt;
+      tokenExpiresAtToSave = tokenData.expiresAt;
+    }
+
+    const initialInvoiceNumber = hasUnresolvedPorItems ? undefined : invoiceNumber;
 
     // Explicit server-controlled order payload — ZERO client-payload spreading
     const orderPayload = {
@@ -507,7 +516,7 @@ export async function POST(req: NextRequest) {
       history,
       isApproved,
       approvedAt,
-      invoiceNumber,
+      invoiceNumber: initialInvoiceNumber,
       invoiceTokenHash: tokenHashToSave,
       invoiceTokenCreatedAt: tokenCreatedAtToSave,
       invoiceTokenExpiresAt: tokenExpiresAtToSave,
@@ -523,7 +532,7 @@ export async function POST(req: NextRequest) {
       insertAttempts++;
       try {
         orderPayload.id = id;
-        if (!orderPayload.invoiceNumber) {
+        if (!hasUnresolvedPorItems && !orderPayload.invoiceNumber) {
           orderPayload.invoiceNumber = `INV-${id}`;
         }
         const [doc] = await OrderModel.create([orderPayload]);
@@ -598,8 +607,14 @@ export async function POST(req: NextRequest) {
     // Prepare response: Never expose invoiceTokenHash to clients
     const responseData: any = { ...newOrder };
     delete responseData.invoiceTokenHash;
-    responseData.invoiceToken = issuedToken;
-    responseData.invoiceUrl = `/invoice/${id}?token=${issuedToken}`;
+    if (hasUnresolvedPorItems) {
+      responseData.invoiceToken = null;
+      responseData.invoiceUrl = null;
+      responseData.requiresPorPricing = true;
+    } else {
+      responseData.invoiceToken = issuedToken;
+      responseData.invoiceUrl = `/invoice/${id}?token=${issuedToken}`;
+    }
 
     // Upsert customer record in CustomerModel for Customer 360 visibility
     const cleanPhone = phone.replace(/\D/g, '');
@@ -789,7 +804,14 @@ export async function PATCH(req: NextRequest) {
           hour: '2-digit',
           minute: '2-digit',
         });
-        if (!order.invoiceNumber) {
+        const hasUnresolved = Boolean(
+          order.hasUnresolvedPorItems ||
+          (Array.isArray(order.items) && order.items.some((it: any) =>
+            (it.pricingStatus === 'PENDING_POR' || it.priceOnRequest || it.price === 0) &&
+            (!it.agreedUnitPrice || it.agreedUnitPrice <= 0)
+          ))
+        );
+        if (!hasUnresolved && !order.invoiceNumber) {
           updates.invoiceNumber = `INV-${order.id}`;
         }
       }

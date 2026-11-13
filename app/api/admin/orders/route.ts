@@ -154,7 +154,14 @@ export async function PATCH(req: NextRequest) {
           hour: '2-digit',
           minute: '2-digit',
         });
-        if (!order.invoiceNumber) {
+        const hasUnresolved = Boolean(
+          order.hasUnresolvedPorItems ||
+          (Array.isArray(order.items) && order.items.some((it: any) =>
+            (it.pricingStatus === 'PENDING_POR' || it.priceOnRequest || it.price === 0) &&
+            (!it.agreedUnitPrice || it.agreedUnitPrice <= 0)
+          ))
+        );
+        if (!hasUnresolved && !order.invoiceNumber) {
           updates.invoiceNumber = `INV-${order.id}`;
         }
       }

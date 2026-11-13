@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { OrderModel } from '@/models/Order';
+import { CustomerModel } from '@/models/Customer';
 import { requirePermission } from '@/lib/rbac/guard';
 import { recordAuditLog } from '@/lib/audit';
+import { generateInvoiceToken } from '@/lib/invoice-token';
 
 export const dynamic = 'force-dynamic';
 
@@ -278,12 +280,25 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
 
     // Check if any items remain unresolved
     const hasUnresolved = order.items.some(
-      (it: any) => (it.priceOnRequest || it.price === 0) && (!it.agreedUnitPrice || it.agreedUnitPrice <= 0)
+      (it: any) => (it.priceOnRequest || it.price === 0 || it.pricingStatus === 'PENDING_POR') && (!it.agreedUnitPrice || it.agreedUnitPrice <= 0)
     );
 
     order.hasUnresolvedPorItems = hasUnresolved;
-    order.porPricingResolvedAt = new Date().toISOString();
-    order.porPricingResolvedBy = pricedBy || 'Admin Concierge';
+    if (!hasUnresolved) {
+      order.porPricingResolvedAt = new Date().toISOString();
+      order.porPricingResolvedBy = pricedBy || 'Admin Concierge';
+      // Issue baseline invoice number if not already present
+      if (!order.invoiceNumber) {
+        order.invoiceNumber = `INV-${order.id}`;
+      }
+      // Generate secure invoice access token if not present
+      if (!order.invoiceTokenHash) {
+        const tokenData = generateInvoiceToken();
+        order.invoiceTokenHash = tokenData.tokenHash;
+        order.invoiceTokenCreatedAt = tokenData.createdAt;
+        order.invoiceTokenExpiresAt = tokenData.expiresAt;
+      }
+    }
     order.pricingVersion = currentVersion + 1;
 
     // Recalculate Subtotal & Total Amount from persisted line items (prevents double counting)
@@ -293,9 +308,26 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     }, 0);
 
     order.subtotal = Math.round(calculatedSubtotal * 100) / 100;
-    order.totalAmount = Math.round(calculatedSubtotal * 100) / 100;
+
+    // Preserve coupon discount if present
+    const couponDiscount = order.coupon?.discountAmount || 0;
+    order.totalAmount = Math.max(0, Math.round((order.subtotal - couponDiscount) * 100) / 100);
 
     await order.save();
+
+    // Sync Customer 360 totalSpend delta if phone is present
+    if (order.phone) {
+      const cleanPhone = order.phone.replace(/\D/g, '');
+      if (cleanPhone) {
+        const diff = order.totalAmount - (oldTotal || 0);
+        if (diff !== 0) {
+          await CustomerModel.updateOne(
+            { phone: cleanPhone },
+            { $inc: { totalSpend: diff }, $set: { lastActiveDate: new Date() } }
+          ).catch((err: any) => console.warn('[PORPricing] Customer sync error:', err));
+        }
+      }
+    }
 
     // ── Persist Traceable Audit Trail ────────────────────────────────────────
     await recordAuditLog({
