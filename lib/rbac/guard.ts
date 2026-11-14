@@ -46,6 +46,13 @@ export async function resolveAuthContext(req: NextRequest): Promise<AuthContext>
     if (payload) {
       try {
         await connectToDatabase();
+        if (!payload.sub || !/^[0-9a-fA-F]{24}$/.test(payload.sub)) {
+          return {
+            authenticated: false,
+            error: 'Invalid employee session subject',
+            statusCode: 401,
+          };
+        }
         const employee = await EmployeeModel.findById(payload.sub);
 
         if (!employee) {

@@ -104,7 +104,7 @@ export async function uploadFileChunked(
 
     const start = chunkIndex * chunkSize;
     const end = Math.min(start + chunkSize, size);
-    const chunkBlob = file.slice(start, end);
+    const chunkBlob = file.slice(start, end, contentType);
     const chunkBytes = end - start;
 
     let chunkSuccess = false;
@@ -126,12 +126,28 @@ export async function uploadFileChunked(
         formData.append('expiresAt', expiresAt.toString());
         formData.append('chunk', chunkBlob, `${filename}.part${chunkIndex}`);
 
-        const chunkRes = await fetch('/api/admin/upload/chunk', {
-          method: 'POST',
-          credentials: 'include',
-          body: formData,
-          signal: options.signal,
-        });
+        const chunkAbortController = new AbortController();
+        const timeoutId = setTimeout(() => chunkAbortController.abort(), 45000);
+
+        const onUserAbort = () => chunkAbortController.abort();
+        if (options.signal) {
+          options.signal.addEventListener('abort', onUserAbort, { once: true });
+        }
+
+        let chunkRes: Response;
+        try {
+          chunkRes = await fetch('/api/admin/upload/chunk', {
+            method: 'POST',
+            credentials: 'include',
+            body: formData,
+            signal: chunkAbortController.signal,
+          });
+        } finally {
+          clearTimeout(timeoutId);
+          if (options.signal) {
+            options.signal.removeEventListener('abort', onUserAbort);
+          }
+        }
 
         if (!chunkRes.ok) {
           const errData = await chunkRes.json().catch(() => ({}));
@@ -143,18 +159,25 @@ export async function uploadFileChunked(
       } catch (err: any) {
         lastError = err;
         if (options.signal?.aborted) throw err;
-        // Exponential backoff before retry
+        console.warn(`[ChunkedUpload] Chunk ${chunkIndex + 1}/${totalChunks} attempt ${attempt} failed:`, err?.message || err);
+        // Exponential backoff before retry (1s, 2s, 3s)
         if (attempt < maxRetries) {
-          await new Promise((r) => setTimeout(r, Math.min(attempt * 500, 2000)));
+          await new Promise((r) => setTimeout(r, Math.min(attempt * 1000, 3000)));
         }
       }
     }
 
     if (!chunkSuccess) {
+      const isFetchErr =
+        lastError?.name === 'TypeError' ||
+        lastError?.name === 'AbortError' ||
+        (lastError?.message && lastError.message.toLowerCase().includes('fetch'));
+      const networkHint = isFetchErr
+        ? 'Connection interrupted or server restarting. Please click Retry.'
+        : lastError?.message || 'Network error';
+
       throw new Error(
-        `Failed to upload chunk ${chunkIndex + 1}/${totalChunks} after ${maxRetries} attempts: ${
-          lastError?.message || 'Network error'
-        }`
+        `Failed to upload chunk ${chunkIndex + 1}/${totalChunks} after ${maxRetries} attempts: ${networkHint}`
       );
     }
 

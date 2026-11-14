@@ -9,6 +9,7 @@ import {
   TRACKING_STEPS_META,
 } from '@/lib/context/OrderContext';
 import { useInvoicePdfShare } from '@/lib/hooks/useInvoicePdfShare';
+import PorPriceSettlementModal from '@/components/admin/PorPriceSettlementModal';
 
 interface OrdersTabProps {
   showToast: (message: string) => void;
@@ -38,11 +39,8 @@ export default function OrdersTab({ showToast }: OrdersTabProps) {
   const [shareError, setShareError] = useState<string | null>(null);
   const [desktopNoticeOrderId, setDesktopNoticeOrderId] = useState<string | null>(null);
 
-  // ── POR Pricing Modal State ─────────────────────────────────────────────
+  // ── POR Pricing Settlement Modal State ─────────────────────────────────────
   const [pricingModalOrder, setPricingModalOrder] = useState<CustomerOrder | null>(null);
-  const [pricingInputs, setPricingInputs] = useState<Record<string, string>>({});
-  const [isSavingPricing, setIsSavingPricing] = useState(false);
-  const [pricingError, setPricingError] = useState<string | null>(null);
   const [pendingActionAfterPricing, setPendingActionAfterPricing] = useState<(() => void) | null>(null);
 
   const orderHasUnresolvedPor = useCallback((order: CustomerOrder): boolean => {
@@ -61,19 +59,6 @@ export default function OrdersTab({ showToast }: OrdersTabProps) {
   }, []);
 
   const handleOpenPricingModal = useCallback((order: CustomerOrder, pendingAction?: () => void) => {
-    const initialInputs: Record<string, string> = {};
-    order.items.forEach((it) => {
-      const key = it.product.id;
-      if (typeof it.agreedUnitPrice === 'number' && it.agreedUnitPrice > 0) {
-        initialInputs[key] = String(it.agreedUnitPrice);
-      } else if (typeof it.product.price === 'number' && it.product.price > 0) {
-        initialInputs[key] = String(it.product.price);
-      } else {
-        initialInputs[key] = '';
-      }
-    });
-    setPricingInputs(initialInputs);
-    setPricingError(null);
     setPricingModalOrder(order);
     setPendingActionAfterPricing(pendingAction ? () => pendingAction : null);
   }, []);
@@ -131,43 +116,11 @@ export default function OrdersTab({ showToast }: OrdersTabProps) {
     });
   }, [sharingOrderId, sharePdf, orderHasUnresolvedPor, handleOpenPricingModal, showToast]);
 
-  const handleSavePorPricing = async () => {
-    if (!pricingModalOrder) return;
-    setIsSavingPricing(true);
-    setPricingError(null);
-
-    const itemsToUpdate: Array<{ id: string; agreedUnitPrice: number }> = [];
-
-    for (const item of pricingModalOrder.items) {
-      const key = item.product.id;
-      const rawPrice = pricingInputs[key];
-      const parsedPrice = parseFloat(rawPrice);
-
-      const isPor = Boolean(
-        item.priceOnRequest ||
-        item.pricingStatus === 'PENDING_POR' ||
-        item.product.price === 0
-      );
-
-      if (isPor && (isNaN(parsedPrice) || parsedPrice <= 0)) {
-        setPricingError(`Please specify a valid agreed price greater than ₹0 for "${item.product.name}"`);
-        setIsSavingPricing(false);
-        return;
-      }
-
-      if (!isNaN(parsedPrice) && parsedPrice > 0) {
-        itemsToUpdate.push({
-          id: key,
-          agreedUnitPrice: Math.round(parsedPrice * 100) / 100,
-        });
-      }
-    }
-
-    if (itemsToUpdate.length === 0) {
-      setPricingError('No valid line item prices provided.');
-      setIsSavingPricing(false);
-      return;
-    }
+  const handleSavePricingFromModal = async (
+    itemsToUpdate: Array<{ id: string; name: string; agreedUnitPrice: number }>,
+    isFullSettlement: boolean
+  ): Promise<{ success: boolean; error?: string }> => {
+    if (!pricingModalOrder) return { success: false, error: 'No order selected.' };
 
     const result = await setOrderPorPricing(
       pricingModalOrder.id,
@@ -177,21 +130,37 @@ export default function OrdersTab({ showToast }: OrdersTabProps) {
     );
 
     if (!result.success) {
-      setPricingError(result.error || 'Failed to save agreed POR pricing');
-      setIsSavingPricing(false);
-      return;
+      return { success: false, error: result.error || 'Failed to save agreed POR pricing.' };
     }
 
-    setIsSavingPricing(false);
-    setPricingModalOrder(null);
-    showToast(`✓ Agreed pricing saved for #${pricingModalOrder.id}`);
-
-    // If an invoice or approval action was pending, trigger it now
-    if (pendingActionAfterPricing) {
-      pendingActionAfterPricing();
-      setPendingActionAfterPricing(null);
+    if (isFullSettlement) {
+      showToast(`✓ Pricing settled and official invoice generated for #${pricingModalOrder.id}`);
+      if (pendingActionAfterPricing) {
+        pendingActionAfterPricing();
+        setPendingActionAfterPricing(null);
+      }
+    } else {
+      const remainingCount = (pricingModalOrder.items || []).filter((it) => {
+        const isPor = it.priceOnRequest || it.pricingStatus === 'PENDING_POR' || it.product?.price === 0;
+        const updated = itemsToUpdate.find((u) => u.id === (it.product.id || (it as any).id) || u.name === it.product.name);
+        return isPor && !updated;
+      }).length;
+      showToast(`✓ Saved partial pricing. ${remainingCount} item(s) still pending settlement.`);
     }
+
+    return { success: true };
   };
+
+  const handleGenerateInvoiceClick = useCallback((order: CustomerOrder) => {
+    if (orderHasUnresolvedPor(order)) {
+      showToast('⚠️ Price On Request settlement is pending. Please confirm agreed prices.');
+      handleOpenPricingModal(order, () => {
+        window.open(`/invoice/${order.id}`, '_blank');
+      });
+    } else {
+      window.open(`/invoice/${order.id}`, '_blank');
+    }
+  }, [orderHasUnresolvedPor, handleOpenPricingModal, showToast]);
 
   const [orderSearch, setOrderSearch] = useState('');
   const [orderStatusFilter, setOrderStatusFilter] = useState<string>('all');
@@ -606,6 +575,7 @@ export default function OrdersTab({ showToast }: OrdersTabProps) {
                       {/* Set / Edit POR Pricing Button */}
                       {orderHasAnyPor(order) && (
                         <button
+                          type="button"
                           onClick={() => handleOpenPricingModal(order)}
                           className={`h-10 px-3.5 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 transition-all shadow-sm ${
                             orderHasUnresolvedPor(order)
@@ -618,28 +588,24 @@ export default function OrdersTab({ showToast }: OrdersTabProps) {
                         </button>
                       )}
 
-                      {orderHasUnresolvedPor(order) ? (
-                        <button
-                          onClick={() => {
-                            showToast('⚠️ Please agree on POR pricing before viewing invoice');
-                            handleOpenPricingModal(order);
-                          }}
-                          className="h-10 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-300/80 border border-amber-500/30 text-xs font-semibold inline-flex items-center gap-1.5 transition-all shadow-sm"
-                          title="POR pricing is pending for this order"
-                        >
-                          <span>🔒</span>
-                          <span>Invoice (Pending Pricing)</span>
-                        </button>
-                      ) : (
-                        <Link
-                          href={`/invoice/${order.id}`}
-                          target="_blank"
-                          className="h-10 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-slate-700 text-xs font-semibold inline-flex items-center gap-1.5 transition-all shadow-sm"
-                        >
-                          <span>🧾</span>
-                          <span>View Invoice ↗</span>
-                        </Link>
-                      )}
+                      {/* Primary Generate / View Invoice Action */}
+                      <button
+                        type="button"
+                        onClick={() => handleGenerateInvoiceClick(order)}
+                        className={`h-10 px-4 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 transition-all shadow-sm active:scale-95 ${
+                          orderHasUnresolvedPor(order)
+                            ? 'bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-500/40 shadow-[0_0_10px_rgba(245,158,11,0.15)]'
+                            : 'bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40'
+                        }`}
+                        title={
+                          orderHasUnresolvedPor(order)
+                            ? 'Mandatory: Settle pending POR pricing before generating invoice'
+                            : 'View or print official customer invoice'
+                        }
+                      >
+                        <span>{orderHasUnresolvedPor(order) ? '🔒' : '🧾'}</span>
+                        <span>{orderHasUnresolvedPor(order) ? 'Generate Invoice (POR Pending)' : 'Generate Invoice ↗'}</span>
+                      </button>
 
                       {/* ── WhatsApp PDF Share Button ─────────────────────── */}
                       <button
@@ -787,199 +753,17 @@ export default function OrdersTab({ showToast }: OrdersTabProps) {
         </div>
       )}
 
-      {/* ── Mandatory POR Agreed Pricing Modal ──────────────────────── */}
+      {/* ── Mandatory POR Agreed Pricing Settlement Modal ─────────────── */}
       {pricingModalOrder && (
-        <div
-          className="fixed inset-0 z-[99995] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6"
-          role="dialog"
-          aria-modal="true"
-          onClick={() => {
-            if (!isSavingPricing) setPricingModalOrder(null);
+        <PorPriceSettlementModal
+          order={pricingModalOrder}
+          isOpen={Boolean(pricingModalOrder)}
+          onClose={() => setPricingModalOrder(null)}
+          onSavePricing={handleSavePricingFromModal}
+          onInvoiceGenerated={(orderId) => {
+            window.open(`/invoice/${orderId}`, '_blank');
           }}
-        >
-          <div
-            className="w-full max-w-2xl bg-[#051119] border border-cyan-400/30 rounded-2xl shadow-2xl p-5 sm:p-6 space-y-5 text-white max-h-[90vh] flex flex-col"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="flex items-start justify-between border-b border-slate-800/80 pb-4 shrink-0">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="w-8 h-8 rounded-lg bg-cyan-400/15 border border-cyan-400/30 text-cyan-400 flex items-center justify-center text-sm font-bold">
-                    🏷️
-                  </span>
-                  <h3 className="text-base sm:text-lg font-bold text-white tracking-wide">
-                    Agreed Specimen Pricing — #{pricingModalOrder.id}
-                  </h3>
-                </div>
-                <p className="text-xs text-slate-400">
-                  Customer: <strong className="text-white">{pricingModalOrder.customerName}</strong> ({pricingModalOrder.city})
-                </p>
-                <p className="text-[11px] text-cyan-400/80">
-                  Set customer-agreed unit prices for rare Price on Request (POR) specimens. Affects this order only; catalog products remain unaffected.
-                </p>
-              </div>
-
-              <button
-                onClick={() => {
-                  if (!isSavingPricing) setPricingModalOrder(null);
-                }}
-                disabled={isSavingPricing}
-                className="w-8 h-8 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs transition-colors disabled:opacity-50 shrink-0 ml-2"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Error banner */}
-            {pricingError && (
-              <div className="p-3 rounded-xl bg-red-500/15 border border-red-500/30 text-xs text-red-300 flex items-center gap-2 shrink-0">
-                <span>⚠️</span>
-                <span>{pricingError}</span>
-              </div>
-            )}
-
-            {/* Line items list */}
-            <div className="space-y-3 overflow-y-auto pr-1 flex-1 min-h-0">
-              {pricingModalOrder.items.map((item, idx) => {
-                const key = item.product.id;
-                const isPor = Boolean(
-                  item.priceOnRequest ||
-                  item.pricingStatus === 'PENDING_POR' ||
-                  item.product.price === 0
-                );
-                const currentVal = pricingInputs[key] ?? '';
-                const numVal = parseFloat(currentVal);
-                const lineTotal = !isNaN(numVal) && numVal > 0 ? numVal * item.quantity : 0;
-
-                return (
-                  <div
-                    key={idx}
-                    className={`p-3.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                      isPor
-                        ? 'bg-slate-950/80 border-amber-500/30'
-                        : 'bg-slate-950/40 border-slate-800/80'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <img
-                        src={item.product.images?.[0] || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=100&q=80'}
-                        alt={item.product.name}
-                        className="w-10 h-10 rounded-lg object-cover bg-slate-800 shrink-0"
-                      />
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <p className="font-semibold text-white text-xs sm:text-sm truncate">
-                            {item.product.name}
-                          </p>
-                          {isPor ? (
-                            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase">
-                              POR Specimen
-                            </span>
-                          ) : (
-                            <span className="text-[9px] font-medium px-1.5 py-0.2 rounded bg-slate-800 text-slate-400">
-                              Catalog
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-[11px] text-slate-400">
-                          Qty: <strong className="text-white">{item.quantity}</strong>
-                          {!isPor && item.product.price > 0 && ` • Catalog Rate: ₹${item.product.price.toLocaleString('en-IN')}`}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3 self-end sm:self-center shrink-0">
-                      <div className="flex flex-col items-end">
-                        <label className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">
-                          Agreed Unit Price (₹)
-                        </label>
-                        <div className="relative">
-                          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-mono">
-                            ₹
-                          </span>
-                          <input
-                            type="number"
-                            min="1"
-                            step="0.01"
-                            placeholder="e.g. 25000"
-                            value={currentVal}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              setPricingInputs((prev) => ({ ...prev, [key]: val }));
-                              setPricingError(null);
-                            }}
-                            className="h-9 w-32 pl-6 pr-2.5 rounded-lg bg-slate-900 border border-slate-700 text-xs font-mono font-bold text-cyan-300 focus:outline-none focus:border-cyan-400"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="w-24 text-right">
-                        <span className="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">
-                          Line Total
-                        </span>
-                        <span className="text-xs sm:text-sm font-mono font-bold text-white block">
-                          ₹{lineTotal.toLocaleString('en-IN')}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Recalculated Order Totals Card */}
-            {(() => {
-              let computedTotal = 0;
-              pricingModalOrder.items.forEach((it) => {
-                const key = it.product.id;
-                const v = parseFloat(pricingInputs[key]);
-                if (!isNaN(v) && v > 0) {
-                  computedTotal += v * it.quantity;
-                } else if (it.product.price > 0) {
-                  computedTotal += it.product.price * it.quantity;
-                }
-              });
-
-              return (
-                <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between text-xs sm:text-sm shrink-0">
-                  <span className="text-slate-400">Recalculated Order Total (INR):</span>
-                  <span className="font-display text-lg sm:text-xl font-bold text-cyan-400 font-mono">
-                    ₹{computedTotal.toLocaleString('en-IN')}
-                  </span>
-                </div>
-              );
-            })()}
-
-            {/* Actions */}
-            <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-800/80 shrink-0">
-              <button
-                onClick={() => setPricingModalOrder(null)}
-                disabled={isSavingPricing}
-                className="h-10 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 text-xs font-semibold transition-all disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSavePorPricing}
-                disabled={isSavingPricing}
-                className="h-10 px-5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-md transition-all active:scale-95 disabled:opacity-50"
-              >
-                {isSavingPricing ? (
-                  <>
-                    <span className="animate-spin text-sm">⏳</span>
-                    <span>Saving Agreed Pricing…</span>
-                  </>
-                ) : (
-                  <>
-                    <span>✓</span>
-                    <span>Save &amp; Apply Agreed Pricing</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
+        />
       )}
     </div>
   );

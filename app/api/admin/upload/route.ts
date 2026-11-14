@@ -6,6 +6,9 @@ import { ProductModel } from '@/models/Product';
 import { requirePermission, requireAuthenticatedEmployee } from '@/lib/rbac/guard';
 import { resolveAuthoritativeProduct } from '@/lib/services/product-resolution';
 
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
+
 // 25 MB max upload limit for specimen photos/videos
 const MAX_FILE_SIZE = 25 * 1024 * 1024;
 

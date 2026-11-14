@@ -7,7 +7,50 @@ import { getValidatedSessionSecret } from '@/lib/rbac/session';
  */
 
 export const MAX_MEDIA_FILE_SIZE = 25 * 1024 * 1024; // 25 MB
-export const UPLOAD_CHUNK_SIZE = 2 * 1024 * 1024; // 2 MB per chunk (well below Vercel's 4.5 MB body limit)
+export const UPLOAD_CHUNK_SIZE = 1 * 1024 * 1024; // 1 MB per chunk (optimal for fast, reliable serverless writes & consumer uplinks)
+
+/**
+ * Resolves standard CORS headers for admin media upload endpoints.
+ * Explicitly allows legitimate admin origins (including local LAN, localhost, and production) with credentials.
+ */
+export function getUploadCorsHeaders(req: Request): Record<string, string> {
+  const origin = req.headers.get('origin') || '';
+  const host = req.headers.get('host') || '';
+
+  let isAllowed = false;
+  if (origin) {
+    try {
+      const url = new URL(origin);
+      const hostname = url.hostname.toLowerCase();
+      const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+      const isLan =
+        hostname.startsWith('192.168.') ||
+        hostname.startsWith('10.') ||
+        /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname);
+      const isOfficial =
+        hostname === 'www.marinecreatures.co.in' ||
+        hostname === 'marinecreatures.co.in' ||
+        hostname.endsWith('.vercel.app');
+      const matchesHost =
+        host &&
+        (url.host.toLowerCase() === host.toLowerCase() ||
+          hostname === host.split(':')[0].toLowerCase());
+
+      isAllowed = isLocalhost || isLan || isOfficial || Boolean(matchesHost);
+    } catch {
+      isAllowed = false;
+    }
+  }
+
+  const allowOrigin = isAllowed && origin ? origin : (origin || 'https://www.marinecreatures.co.in');
+
+  return {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, Cookie, Range',
+    'Access-Control-Allow-Credentials': 'true',
+  };
+}
 
 export const ALLOWED_IMAGE_TYPES = [
   'image/jpeg',

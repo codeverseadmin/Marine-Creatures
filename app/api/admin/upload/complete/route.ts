@@ -13,13 +13,29 @@ import {
   ALLOWED_IMAGE_TYPES,
   ALLOWED_VIDEO_TYPES,
   verifyUploadSignature,
+  getUploadCorsHeaders,
 } from '@/lib/services/media-security';
 
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
+
+export async function OPTIONS(req: NextRequest) {
+  return new NextResponse(null, {
+    status: 204,
+    headers: getUploadCorsHeaders(req),
+  });
+}
+
 export async function POST(req: NextRequest) {
+  const corsHeaders = getUploadCorsHeaders(req);
+
   try {
     // 1. Authenticate admin with media.upload permission
     const { auth, errorResponse } = await requirePermission(req, 'media.upload');
-    if (errorResponse) return errorResponse;
+    if (errorResponse) {
+      Object.entries(corsHeaders).forEach(([k, v]) => errorResponse.headers.set(k, v));
+      return errorResponse;
+    }
 
     const body = await req.json().catch(() => ({}));
     const { uploadId, filename, contentType, size, totalChunks, signature, expiresAt, productId, altText } = body;
@@ -27,7 +43,7 @@ export async function POST(req: NextRequest) {
     if (!uploadId || !filename || !totalChunks) {
       return NextResponse.json(
         { success: false, error: 'Missing required parameters: uploadId, filename, totalChunks.' },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -36,7 +52,7 @@ export async function POST(req: NextRequest) {
       if (Date.now() > Number(expiresAt)) {
         return NextResponse.json(
           { success: false, error: 'Upload authorization session has expired.' },
-          { status: 401 }
+          { status: 401, headers: corsHeaders }
         );
       }
 
@@ -52,7 +68,7 @@ export async function POST(req: NextRequest) {
       if (!isSignatureValid) {
         return NextResponse.json(
           { success: false, error: 'Invalid or tampered upload authorization signature.' },
-          { status: 401 }
+          { status: 401, headers: corsHeaders }
         );
       }
     }
@@ -66,7 +82,7 @@ export async function POST(req: NextRequest) {
       if (productId && existingMedia.productId && productId !== existingMedia.productId) {
         return NextResponse.json(
           { success: false, error: 'Upload has already been finalized with a different product association.' },
-          { status: 400 }
+          { status: 400, headers: corsHeaders }
         );
       }
 
@@ -82,7 +98,7 @@ export async function POST(req: NextRequest) {
         type: existingMedia.type,
         contentType: existingMedia.contentType,
         productId: existingMedia.productId,
-      }, { status: 200 });
+      }, { status: 200, headers: corsHeaders });
     }
 
     // 3. Retrieve all uploaded chunks for this uploadId
@@ -103,7 +119,7 @@ export async function POST(req: NextRequest) {
           error: `Upload incomplete: received ${chunks.length} of ${expectedTotal} chunks.`,
           missingChunks: missingIndices,
         },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -123,7 +139,7 @@ export async function POST(req: NextRequest) {
           success: false,
           error: `File signature verification failed for "${filename}". Unrecognized or corrupted format.`,
         },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -139,7 +155,7 @@ export async function POST(req: NextRequest) {
           success: false,
           error: `File signature mismatch for "${filename}". Type "${detectedType}" is not supported.`,
         },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -157,7 +173,7 @@ export async function POST(req: NextRequest) {
             success: false,
             error: `SVG upload rejected for security reasons: ${svgCheck.reason}`,
           },
-          { status: 400 }
+          { status: 400, headers: corsHeaders }
         );
       }
     }
@@ -169,7 +185,7 @@ export async function POST(req: NextRequest) {
       if (!authoritativeProduct || !authoritativeProduct.id) {
         return NextResponse.json(
           { success: false, error: `Invalid productId: Product "${productId}" does not exist.` },
-          { status: 404 }
+          { status: 404, headers: corsHeaders }
         );
       }
       resolvedProductId = authoritativeProduct.id;
@@ -282,13 +298,13 @@ export async function POST(req: NextRequest) {
         contentType: detectedType,
         productId: resolvedProductId,
       },
-      { status: 201 }
+      { status: 201, headers: corsHeaders }
     );
   } catch (error: any) {
     console.error('[UploadComplete] error:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to complete media upload.' },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

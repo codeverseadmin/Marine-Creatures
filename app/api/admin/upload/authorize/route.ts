@@ -8,15 +8,32 @@ import {
   ALLOWED_IMAGE_TYPES,
   ALLOWED_VIDEO_TYPES,
   generateUploadSignature,
+  getUploadCorsHeaders,
 } from '@/lib/services/media-security';
 import { resolveAuthoritativeProduct } from '@/lib/services/product-resolution';
 import { connectToDatabase } from '@/lib/mongodb';
 
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
+
+export async function OPTIONS(req: NextRequest) {
+  return new NextResponse(null, {
+    status: 204,
+    headers: getUploadCorsHeaders(req),
+  });
+}
+
 export async function POST(req: NextRequest) {
+  const corsHeaders = getUploadCorsHeaders(req);
+
   try {
     // 1. Authenticate admin with media.upload permission
     const { auth, errorResponse } = await requirePermission(req, 'media.upload');
-    if (errorResponse) return errorResponse;
+    if (errorResponse) {
+      // Merge CORS headers into auth error response
+      Object.entries(corsHeaders).forEach(([k, v]) => errorResponse.headers.set(k, v));
+      return errorResponse;
+    }
 
     const body = await req.json().catch(() => ({}));
     const { filename, contentType, size, productId, altText } = body;
@@ -24,14 +41,14 @@ export async function POST(req: NextRequest) {
     if (!filename || typeof filename !== 'string') {
       return NextResponse.json(
         { success: false, error: 'Filename is required for upload authorization.' },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
     if (!contentType || typeof contentType !== 'string') {
       return NextResponse.json(
         { success: false, error: 'Content-Type is required for upload authorization.' },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -41,7 +58,7 @@ export async function POST(req: NextRequest) {
     if (isNaN(cleanSize) || cleanSize <= 0) {
       return NextResponse.json(
         { success: false, error: 'Valid file size in bytes is required.' },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -52,7 +69,7 @@ export async function POST(req: NextRequest) {
           success: false,
           error: `File "${filename}" exceeds the maximum 25MB limit (${(cleanSize / (1024 * 1024)).toFixed(1)}MB).`,
         },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -68,7 +85,7 @@ export async function POST(req: NextRequest) {
           success: false,
           error: `File format "${cleanContentType}" (.${ext}) is not supported. Allowed: JPEG, PNG, WebP, GIF, SVG, MP4, WebM, MOV.`,
         },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -80,7 +97,7 @@ export async function POST(req: NextRequest) {
       if (!product || !product.id) {
         return NextResponse.json(
           { success: false, error: `Invalid productId: Product "${productId}" does not exist in catalog.` },
-          { status: 404 }
+          { status: 404, headers: corsHeaders }
         );
       }
       resolvedProductId = product.id;
@@ -88,7 +105,7 @@ export async function POST(req: NextRequest) {
 
     // 5. Generate secure upload session
     const uploadId = `mc_up_${Date.now()}_${crypto.randomBytes(8).toString('hex')}`;
-    const chunkSize = UPLOAD_CHUNK_SIZE; // 2 MB
+    const chunkSize = UPLOAD_CHUNK_SIZE; // 1 MB
     const totalChunks = Math.ceil(cleanSize / chunkSize);
     const expiresAt = Date.now() + 3600 * 1000; // 1 hour validity
 
@@ -112,12 +129,12 @@ export async function POST(req: NextRequest) {
       filename,
       contentType: cleanContentType,
       size: cleanSize,
-    });
+    }, { headers: corsHeaders });
   } catch (error: any) {
     console.error('[UploadAuthorize] error:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to authorize upload session.' },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }
