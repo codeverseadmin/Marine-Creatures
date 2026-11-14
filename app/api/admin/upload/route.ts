@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import { connectToDatabase } from '@/lib/mongodb';
 import { MediaModel } from '@/models/Media';
 import { ProductModel } from '@/models/Product';
@@ -318,11 +319,42 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 8. Option B: High-Performance MongoDB Atlas Binary Storage
+    // 8. Option B: High-Performance MongoDB Atlas GridFS / Binary Storage
     // Unrelated asset overwrite protection: Cryptographically unguessable media ID
     const extMatch = file.name.match(/\.([0-9a-z]+)$/i);
     const ext = extMatch ? extMatch[1].toLowerCase() : (finalMediaType === 'video' ? 'mp4' : 'jpg');
     const mediaId = `media-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
+    let gridFsFileId: any = undefined;
+    let storageProvider: 'mongodb-binary' | 'mongodb-gridfs' | 'cloudinary' = 'mongodb-binary';
+    let dataBuffer: Buffer | undefined = buffer;
+
+    // Use GridFS for all videos or files > 1 MB to prevent large BSON documents
+    if (finalMediaType === 'video' || file.size > 1024 * 1024) {
+      const db = mongoose.connection.db;
+      if (db) {
+        const bucket = new mongoose.mongo.GridFSBucket(db, { bucketName: 'media_files' });
+        const uploadStream = bucket.openUploadStream(file.name, {
+          metadata: {
+            contentType,
+            productId: resolvedProductId,
+            uploadedBy: auth?.actorId || 'admin',
+            originalSize: file.size,
+          },
+        });
+
+        await new Promise<void>((resolve, reject) => {
+          uploadStream.on('error', reject);
+          uploadStream.on('finish', () => resolve());
+          uploadStream.write(buffer);
+          uploadStream.end();
+        });
+
+        gridFsFileId = uploadStream.id;
+        storageProvider = 'mongodb-gridfs';
+        dataBuffer = undefined; // Do not store raw binary in the document
+      }
+    }
 
     await MediaModel.create({
       id: mediaId,
@@ -331,7 +363,9 @@ export async function POST(req: NextRequest) {
       filename: file.name,
       contentType,
       size: file.size,
-      data: buffer,
+      data: dataBuffer,
+      gridFsFileId,
+      storageProvider,
       type: finalMediaType,
     });
 
@@ -339,7 +373,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      provider: 'mongodb-binary',
+      provider: storageProvider,
       url: permanentUrl,
       mediaId,
       filename: file.name,

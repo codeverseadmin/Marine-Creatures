@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ProductModel } from '@/models/Product';
 import { MediaModel } from '@/models/Media';
@@ -521,6 +522,16 @@ export async function DELETE(req: NextRequest) {
 
       await MediaModel.deleteOne({ id: cleanMediaId });
       deletedFromDb = true;
+
+      // Clean up GridFS storage bucket if file was stored in GridFS
+      if (mediaItem.gridFsFileId && mongoose.connection.db) {
+        try {
+          const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, { bucketName: 'media_files' });
+          await bucket.delete(new mongoose.Types.ObjectId(mediaItem.gridFsFileId));
+        } catch (gridErr) {
+          console.warn('[AdminMedia] GridFS delete warning:', gridErr);
+        }
+      }
 
       // If it was linked to a product, also clean the product reference
       if (mediaItem.productId) {

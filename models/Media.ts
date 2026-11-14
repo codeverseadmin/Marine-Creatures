@@ -9,9 +9,13 @@ export interface IMedia extends Document {
   filename: string;
   contentType: string;
   size: number;
-  data: Buffer;
+  data?: Buffer;
+  gridFsFileId?: mongoose.Types.ObjectId | string;
+  storageProvider?: 'mongodb-binary' | 'mongodb-gridfs' | 'cloudinary';
+  uploadId?: string;
   type: 'image' | 'video';
   createdAt: Date;
+  updatedAt?: Date;
 }
 
 const MediaSchema = new Schema<IMedia>(
@@ -24,7 +28,14 @@ const MediaSchema = new Schema<IMedia>(
     filename: { type: String, required: true },
     contentType: { type: String, required: true },
     size: { type: Number, required: true },
-    data: { type: Buffer, required: true },
+    data: { type: Buffer, required: false },
+    gridFsFileId: { type: Schema.Types.ObjectId, index: true },
+    storageProvider: {
+      type: String,
+      enum: ['mongodb-binary', 'mongodb-gridfs', 'cloudinary'],
+      default: 'mongodb-binary',
+    },
+    uploadId: { type: String, index: true },
     type: { type: String, enum: ['image', 'video'], default: 'image' },
     createdAt: { type: Date, default: Date.now },
   },
@@ -32,6 +43,10 @@ const MediaSchema = new Schema<IMedia>(
     timestamps: true,
   }
 );
+
+if (mongoose.models.Media) {
+  delete (mongoose.models as any).Media;
+}
 
 export const MediaModel: Model<IMedia> =
   mongoose.models.Media || mongoose.model<IMedia>('Media', MediaSchema);

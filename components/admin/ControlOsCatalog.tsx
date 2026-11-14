@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { Product, ProductMedia } from '@/lib/data/products';
 import { optimizeImageForUpload } from '@/lib/image-optimizer';
+import { uploadFileChunked } from '@/lib/services/chunked-upload';
 
 // Category taxonomy constants
 export const CATALOG_CATEGORIES = [
@@ -694,37 +695,53 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {}, ini
       );
 
       try {
-        const formData = new FormData();
-        formData.append('file', fileToUpload, item.name);
-        formData.append('type', item.isVideo ? 'video' : 'image');
-
         const targetId = !isStandalone ? editingProduct?.id || formState.id : undefined;
-        if (targetId) {
-          formData.append('productId', targetId);
+        let json: any;
+
+        // Route through resilient chunked pipeline for videos and files > 2MB
+        // to prevent HTTP 413 from Vercel's 4.5MB serverless body ceiling
+        if (item.isVideo || fileToUpload.size > 2 * 1024 * 1024) {
+          json = await uploadFileChunked(fileToUpload, item.name, {
+            productId: targetId,
+            onProgress: (progress) => {
+              setUploadQueue((prev) =>
+                prev.map((i) => (i.id === item.id ? { ...i, progress: progress.percent } : i))
+              );
+            },
+          });
+        } else {
+          const formData = new FormData();
+          formData.append('file', fileToUpload, item.name);
+          formData.append('type', item.isVideo ? 'video' : 'image');
+
+          if (targetId) {
+            formData.append('productId', targetId);
+          }
+
+          const res = await fetch('/api/admin/upload', {
+            method: 'POST',
+            credentials: 'include',
+            body: formData,
+          });
+
+          if (res.status === 401) {
+            throw new Error('Admin session expired. Please sign in again.');
+          }
+
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error || `Upload failed for "${item.name}" (HTTP ${res.status})`);
+          }
+
+          json = await res.json();
         }
 
-        const res = await fetch('/api/admin/upload', {
-          method: 'POST',
-          credentials: 'include',
-          body: formData,
-        });
-
-        if (res.status === 401) {
-          throw new Error('Admin session expired. Please sign in again.');
-        }
-
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.error || `Upload failed for "${item.name}" (HTTP ${res.status})`);
-        }
-
-        const json = await res.json();
         if (!json.url) {
           throw new Error('Server did not return a valid asset URL.');
         }
 
         setUploadQueue((prev) =>
-          prev.map((i) => (i.id === item.id ? { ...i, status: 'success', url: json.url } : i))
+          prev.map((i) => (i.id === item.id ? { ...i, status: 'success', progress: 100, url: json.url } : i))
         );
         successCount++;
 

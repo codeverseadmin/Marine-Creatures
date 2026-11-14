@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Product, ProductMedia } from '@/lib/data/products';
 import { optimizeImageForUpload } from '@/lib/image-optimizer';
+import { uploadFileChunked } from '@/lib/services/chunked-upload';
 
 interface ProductFormModalProps {
   isOpen: boolean;
@@ -46,38 +47,44 @@ export function ProductFormModal({
         const file = files[i];
         const fileToUpload = await optimizeImageForUpload(file, 1600, 0.85);
 
-        if (fileToUpload.size > 4.5 * 1024 * 1024) {
-          alert(`"${file.name}" is too large for upload (>4.5MB). Please select a smaller photo.`);
-          continue;
-        }
+        let data: any;
+        if (fileToUpload.size > 2 * 1024 * 1024) {
+          data = await uploadFileChunked(fileToUpload, {
+            productId: productForm.id,
+            onProgress: (p) => {
+              showToast(`Uploading photo ${i + 1}/${files.length}: ${p.percent}%...`);
+            },
+          });
+        } else {
+          const formData = new FormData();
+          formData.append('file', fileToUpload);
+          formData.append('type', 'image');
+          if (productForm.id) formData.append('productId', productForm.id);
 
-        const formData = new FormData();
-        formData.append('file', fileToUpload);
-        formData.append('type', 'image');
+          const res = await fetch('/api/admin/upload', {
+            method: 'POST',
+            credentials: 'include',
+            body: formData,
+          });
 
-        const res = await fetch('/api/admin/upload', {
-          method: 'POST',
-          credentials: 'include',
-          body: formData,
-        });
-
-        if (!res.ok) {
-          let errorMsg = `Upload failed for ${file.name}`;
-          try {
-            const err = await res.json();
-            errorMsg = err.error || errorMsg;
-          } catch {
-            const text = await res.text().catch(() => '');
-            if (res.status === 413 || text.includes('PAYLOAD_TOO_LARGE')) {
-              errorMsg = `"${file.name}" exceeds server payload limit (max 4.5MB).`;
-            } else if (res.status === 401) {
-              errorMsg = 'Admin authentication required. Please re-enter your passcode.';
+          if (!res.ok) {
+            let errorMsg = `Upload failed for ${file.name}`;
+            try {
+              const err = await res.json();
+              errorMsg = err.error || errorMsg;
+            } catch {
+              const text = await res.text().catch(() => '');
+              if (res.status === 413 || text.includes('PAYLOAD_TOO_LARGE')) {
+                errorMsg = `"${file.name}" exceeds server payload limit.`;
+              } else if (res.status === 401) {
+                errorMsg = 'Admin authentication required. Please re-enter your passcode.';
+              }
             }
+            throw new Error(errorMsg);
           }
-          throw new Error(errorMsg);
-        }
 
-        const data = await res.json();
+          data = await res.json();
+        }
         uploadedMediaItems.push({
           id: data.mediaId || `media-${Date.now()}-${i}`,
           type: 'image',
@@ -118,36 +125,16 @@ export function ProductFormModal({
     }
 
     setUploadingMedia(true);
-    showToast(`Uploading specimen video "${file.name}"...`);
+    showToast(`Uploading specimen video "${file.name}" (0%)...`);
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('type', 'video');
-
-      const res = await fetch('/api/admin/upload', {
-        method: 'POST',
-        credentials: 'include',
-        body: formData,
+      const data = await uploadFileChunked(file, {
+        productId: productForm.id,
+        onProgress: (p) => {
+          showToast(`Uploading "${file.name}": ${p.percent}%...`);
+        },
       });
 
-      if (!res.ok) {
-        let errorMsg = `Video upload failed for ${file.name}`;
-        try {
-          const err = await res.json();
-          errorMsg = err.error || errorMsg;
-        } catch {
-          const text = await res.text().catch(() => '');
-          if (res.status === 413 || text.includes('PAYLOAD_TOO_LARGE')) {
-            errorMsg = 'Video exceeds 4.5MB limit. Please compress or link directly.';
-          } else if (res.status === 401) {
-            errorMsg = 'Admin authentication required. Please re-enter your passcode.';
-          }
-        }
-        throw new Error(errorMsg);
-      }
-
-      const data = await res.json();
       const newMediaItem: ProductMedia = {
         id: data.mediaId || `media-vid-${Date.now()}`,
         type: 'video',
