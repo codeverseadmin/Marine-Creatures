@@ -42,10 +42,8 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
 
   // Login form state
-  const [loginMode, setLoginMode] = useState<'employee' | 'passcode'>('employee');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [passcode, setPasscode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [isSubmittingLogin, setIsSubmittingLogin] = useState(false);
@@ -173,36 +171,25 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
     setIsSubmittingLogin(true);
     setAuthError(null);
 
+    const cleanEmail = email.trim();
+    if (!cleanEmail || !password) {
+      setAuthError('Please enter both your administrative email address and password');
+      setIsSubmittingLogin(false);
+      return;
+    }
+
     try {
-      const payload =
-        loginMode === 'employee'
-          ? { email: email.trim(), password }
-          : { passcode: passcode.trim() };
-
-      if (loginMode === 'employee' && (!email.trim() || !password)) {
-        setAuthError('Please enter both your email address and password');
-        setIsSubmittingLogin(false);
-        return;
-      }
-
-      if (loginMode === 'passcode' && !passcode.trim()) {
-        setAuthError('Please enter administrative passcode');
-        setIsSubmittingLogin(false);
-        return;
-      }
-
       const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ email: cleanEmail, password }),
       });
 
       const data = await res.json();
       if (res.ok && data.success) {
         setIsAuthenticated(true);
         setPassword('');
-        setPasscode('');
         showToast('✓ Control OS session authenticated');
         await fetchOverviewData();
       } else {
@@ -228,7 +215,6 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
       setIsAuthenticated(false);
       setOverviewData(null);
       setCurrentUser(null);
-      setPasscode('');
       setPassword('');
       showToast('Logged out of Control OS');
     }
@@ -415,125 +401,63 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
               </div>
             </div>
 
-            {/* Login Mode Switcher */}
-            <div className="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-slate-900/80 border border-slate-800 text-xs font-semibold">
-              <button
-                type="button"
-                onClick={() => {
-                  setLoginMode('employee');
-                  setAuthError(null);
-                }}
-                className={`min-h-[38px] rounded-lg transition-colors flex items-center justify-center gap-1.5 ${
-                  loginMode === 'employee'
-                    ? 'bg-slate-800 text-white font-bold shadow'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <span>👤</span>
-                <span>Staff Login</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setLoginMode('passcode');
-                  setAuthError(null);
-                }}
-                className={`min-h-[38px] rounded-lg transition-colors flex items-center justify-center gap-1.5 ${
-                  loginMode === 'passcode'
-                    ? 'bg-slate-800 text-white font-bold shadow'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <span>🔑</span>
-                <span>Founder / Passcode</span>
-              </button>
+            {/* Authentication Portal Badge */}
+            <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                <span className="font-semibold text-slate-200">Control OS Sign-In</span>
+              </div>
+              <span className="text-[11px] font-mono text-cyan-400">Staff &amp; Founder</span>
             </div>
 
             {/* Login Form */}
             <form onSubmit={handleLogin} className="space-y-4">
-              {loginMode === 'employee' ? (
-                <>
-                  <div>
-                    <label
-                      htmlFor="email-input"
-                      className="text-xs font-semibold uppercase tracking-wider text-slate-300 block mb-2"
-                    >
-                      Staff Email Address
-                    </label>
-                    <input
-                      id="email-input"
-                      type="email"
-                      placeholder="name@marinecreatures.local"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full h-12 px-4 rounded-xl bg-slate-900/90 border border-slate-700 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-colors font-mono"
-                      autoFocus
-                      required
-                    />
-                  </div>
+              <div>
+                <label
+                  htmlFor="email-input"
+                  className="text-xs font-semibold uppercase tracking-wider text-slate-300 block mb-2"
+                >
+                  Administrative Email Address
+                </label>
+                <input
+                  id="email-input"
+                  type="email"
+                  placeholder="name@marinecreatures.local"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full h-12 px-4 rounded-xl bg-slate-900/90 border border-slate-700 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-colors font-mono"
+                  autoFocus
+                  required
+                />
+              </div>
 
-                  <div>
-                    <label
-                      htmlFor="password-input"
-                      className="text-xs font-semibold uppercase tracking-wider text-slate-300 block mb-2"
-                    >
-                      Password
-                    </label>
-                    <div className="relative">
-                      <input
-                        id="password-input"
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="Enter your account password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full h-12 px-4 pr-14 rounded-xl bg-slate-900/90 border border-slate-700 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-colors font-mono"
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] flex items-center justify-center text-xs font-medium text-slate-400 hover:text-white transition-colors"
-                        aria-label={showPassword ? 'Hide password' : 'Show password'}
-                      >
-                        {showPassword ? 'Hide' : 'Show'}
-                      </button>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label
-                      htmlFor="passcode-input"
-                      className="text-xs font-semibold uppercase tracking-wider text-slate-300 block"
-                    >
-                      Founder Passcode
-                    </label>
-                    <span className="text-[10px] font-mono text-cyan-400">Bootstrap / Recovery</span>
-                  </div>
-                  <div className="relative">
-                    <input
-                      id="passcode-input"
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter administrative master passcode"
-                      value={passcode}
-                      onChange={(e) => setPasscode(e.target.value)}
-                      className="w-full h-12 px-4 pr-14 rounded-xl bg-slate-900/90 border border-slate-700 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-colors font-mono"
-                      autoFocus
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] flex items-center justify-center text-xs font-medium text-slate-400 hover:text-white transition-colors"
-                      aria-label={showPassword ? 'Hide passcode' : 'Show passcode'}
-                    >
-                      {showPassword ? 'Hide' : 'Show'}
-                    </button>
-                  </div>
+              <div>
+                <label
+                  htmlFor="password-input"
+                  className="text-xs font-semibold uppercase tracking-wider text-slate-300 block mb-2"
+                >
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    id="password-input"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Enter your account password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full h-12 px-4 pr-14 rounded-xl bg-slate-900/90 border border-slate-700 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-colors font-mono"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] flex items-center justify-center text-xs font-medium text-slate-400 hover:text-white transition-colors"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? 'Hide' : 'Show'}
+                  </button>
                 </div>
-              )}
+              </div>
 
               {authError && (
                 <p
