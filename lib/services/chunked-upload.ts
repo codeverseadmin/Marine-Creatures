@@ -70,6 +70,19 @@ export async function uploadFileChunked(
     throw new Error('Upload cancelled by user.');
   }
 
+  // ── Step 0: Pre-flight Local File Readability Check ──
+  // Immediately detects offline cloud placeholders (e.g. OneDrive / iCloud Files On-Demand)
+  // or locked files before creating a remote upload session.
+  try {
+    const testSlice = file.slice(0, Math.min(4096, size));
+    await testSlice.arrayBuffer();
+  } catch (diskErr: any) {
+    throw new Error(
+      `Cannot read "${filename}" from your computer (${diskErr?.name || 'File Access Error'}: ${diskErr?.message || 'Access Denied'}). ` +
+      `If this file is in OneDrive or cloud storage, right-click the file in File Explorer and click "Always keep on this device", or copy it to your local disk.`
+    );
+  }
+
   // ── Step A: Authorize Upload Session ──
   const authRes = await fetch('/api/admin/upload/authorize', {
     method: 'POST',
@@ -107,6 +120,19 @@ export async function uploadFileChunked(
     const chunkBlob = file.slice(start, end, contentType);
     const chunkBytes = end - start;
 
+    // Buffer chunk into memory (ArrayBuffer) to guarantee:
+    // 1. Any local disk/cloud placeholder read error is caught immediately with an exact diagnosis.
+    // 2. The network request streams pure memory bytes, immune to background filesystem locks.
+    let chunkBuffer: ArrayBuffer;
+    try {
+      chunkBuffer = await chunkBlob.arrayBuffer();
+    } catch (readErr: any) {
+      throw new Error(
+        `Failed to read chunk ${chunkIndex + 1}/${totalChunks} from computer disk (${readErr?.name || 'File Read Error'}: ${readErr?.message || 'Access Denied'}). ` +
+        `If this file is stored in OneDrive or cloud storage, right-click the file in Windows Explorer, choose "Always keep on this device", or copy it to a local folder.`
+      );
+    }
+
     let chunkSuccess = false;
     let lastError: Error | null = null;
 
@@ -124,7 +150,11 @@ export async function uploadFileChunked(
         formData.append('contentType', contentType);
         formData.append('signature', signature);
         formData.append('expiresAt', expiresAt.toString());
-        formData.append('chunk', chunkBlob, `${filename}.part${chunkIndex}`);
+        formData.append(
+          'chunk',
+          new Blob([chunkBuffer], { type: contentType }),
+          `${filename}.part${chunkIndex}`
+        );
 
         const chunkAbortController = new AbortController();
         const timeoutId = setTimeout(() => chunkAbortController.abort(), 60000);
@@ -173,7 +203,7 @@ export async function uploadFileChunked(
         lastError?.name === 'AbortError' ||
         (lastError?.message && lastError.message.toLowerCase().includes('fetch'));
       const networkHint = isFetchErr
-        ? 'Connection interrupted or server compiling. Click ↻ Retry Failed.'
+        ? `Browser network request failed (${lastError?.name || 'FetchError'}: ${lastError?.message || 'Failed to fetch'}). Please check your connection or CORS settings.`
         : lastError?.message || 'Network error';
 
       throw new Error(
