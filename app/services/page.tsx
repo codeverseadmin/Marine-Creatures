@@ -3,7 +3,11 @@ import Link from 'next/link';
 import { SERVICES_DATA } from '@/lib/data/services';
 import { BookingForm } from '@/components/services/BookingForm';
 import { SITE_CONFIG } from '@/lib/config';
-import { generateBreadcrumbJsonLd } from '@/lib/seo/structuredData';
+import {
+  generateBreadcrumbJsonLd,
+  generateServiceJsonLd,
+  generateFaqJsonLd,
+} from '@/lib/seo/structuredData';
 
 export const metadata: Metadata = {
   title: 'Marine Aquarium Services, Installation & Maintenance',
@@ -38,6 +42,34 @@ export const metadata: Metadata = {
   },
 };
 
+const SERVICES_FAQS = [
+  {
+    question: 'How frequently should a luxury marine aquarium be maintained?',
+    answer:
+      'We recommend scheduled care visits every 14 days (bi-weekly) for living coral reef systems, or weekly for densely stocked predator setups. Routine care includes pre-mixed 0-TDS RO/DI and probiotic salt water changes, testing alkalinity, calcium, magnesium, nitrate, and phosphate, replacing chemical adsorption media, and cleaning protein skimmers.',
+  },
+  {
+    question: 'What are the confirmed starting prices for Marine Creatures services?',
+    answer:
+      'Turnkey bespoke marine aquarium installations start from ₹35,000 INR. Aquarium renovation, glass scratch polishing, and biological revivals start from ₹15,000 INR. Ongoing White-Glove Marine Concierge maintenance subscriptions start from ₹18,500 / month INR.',
+  },
+  {
+    question: 'Which areas do Marine Creatures service for on-site aquarium care?',
+    answer:
+      'Marine Creatures provides direct on-site installation, renovation, and concierge maintenance throughout the Kolkata Metropolitan Area (including Alipore, Ballygunge, Salt Lake / Sector V, New Town, Southern Avenue, and Park Street) and across West Bengal. Specialized architectural consultations are also available for luxury projects across Eastern India.',
+  },
+  {
+    question: 'What is included in an on-site forensic diagnostic assessment?',
+    answer:
+      'During an on-site assessment, Founder Suraj Shasmal inspects structural load distribution, tests water chemistry across 7 critical parameters, analyzes existing pump flow dynamics and acoustic dampening, checks electrical grounding, and delivers a fixed-scope engineering blueprint.',
+  },
+  {
+    question: 'What emergency support does Marine Creatures provide for clients?',
+    answer:
+      'All concierge maintenance clients receive 24/7 priority emergency response support with an on-site arrival window for sudden equipment failures, power disruptions, or life-support malfunctions.',
+  },
+];
+
 export default function ServicesPage() {
   const breadcrumbs = [
     { name: 'Home', url: '/' },
@@ -45,12 +77,45 @@ export default function ServicesPage() {
   ];
 
   const breadcrumbJsonLd = generateBreadcrumbJsonLd(breadcrumbs);
+  const installationServiceJsonLd = generateServiceJsonLd({
+    name: 'Turnkey Marine Aquarium Installation & Commissioning',
+    description:
+      'Architectural living reef installations tailored to your interior space. Includes precision structural planning, Schedule 80 plumbing, and biological commissioning. Starts from ₹35,000.',
+    url: '/installation',
+    serviceType: 'AquariumInstallationService',
+    startingPrice: 35000,
+    priceCurrency: 'INR',
+    priceDescription: 'Starting baseline price for turnkey bespoke marine aquarium installation',
+  });
+  const renovationServiceJsonLd = generateServiceJsonLd({
+    name: 'Aquarium Renovation & Biological Restoration',
+    description:
+      'Complete ecosystem revival without replacing your cabinetry or tank. Features optical glass scratch removal, silent DC filtration upgrades, and zero-loss livestock relocation. Starts from ₹15,000.',
+    url: '/renovation',
+    serviceType: 'AquariumRenovationService',
+    startingPrice: 15000,
+    priceCurrency: 'INR',
+    priceDescription: 'Starting baseline price for marine aquarium renovation and revival',
+  });
+  const faqJsonLd = generateFaqJsonLd(SERVICES_FAQS);
 
   return (
     <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(installationServiceJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(renovationServiceJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
 
       {/* Visual Breadcrumbs */}
@@ -208,6 +273,42 @@ export default function ServicesPage() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* ── Frequently Asked Questions (Answer Engine Optimization) ────────── */}
+      <div className="container-max pb-20">
+        <div className="pt-16 border-t border-[rgba(255,255,255,0.08)]">
+          <div className="max-w-3xl mb-12">
+            <span className="text-label text-[--color-accent] block mb-2">
+              SERVICE POLICIES &amp; PRICING SPECIFICATIONS
+            </span>
+            <h2 className="font-display text-display-sm text-[--color-text] font-light">
+              Frequently Asked Service Questions
+            </h2>
+            <p className="font-body text-xs sm:text-sm text-[--color-muted] mt-2">
+              Authoritative answers regarding maintenance frequency, baseline installation and renovation pricing, and emergency coverage across Kolkata.
+            </p>
+          </div>
+
+          <div className="space-y-4 max-w-4xl">
+            {SERVICES_FAQS.map((faq, idx) => (
+              <details
+                key={idx}
+                className="group p-6 rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[rgba(7,21,28,0.5)] open:bg-[rgba(7,21,28,0.8)] open:border-cyan-500/30 transition-all duration-200"
+              >
+                <summary className="flex items-center justify-between cursor-pointer list-none text-base sm:text-lg font-light text-[--color-text] group-hover:text-cyan-300">
+                  <span className="pr-4">{faq.question}</span>
+                  <span className="text-cyan-400 text-xl font-mono shrink-0 transition-transform duration-200 group-open:rotate-45">
+                    +
+                  </span>
+                </summary>
+                <p className="mt-4 font-body font-light text-xs sm:text-sm text-[--color-muted] leading-relaxed border-t border-[rgba(255,255,255,0.05)] pt-4">
+                  {faq.answer}
+                </p>
+              </details>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Booking Form Section */}

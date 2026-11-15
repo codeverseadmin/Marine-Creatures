@@ -2,7 +2,11 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import { SITE_CONFIG } from '@/lib/config';
-import { generateBreadcrumbJsonLd, generateServiceJsonLd } from '@/lib/seo/structuredData';
+import {
+  generateBreadcrumbJsonLd,
+  generateServiceJsonLd,
+  generateFaqJsonLd,
+} from '@/lib/seo/structuredData';
 
 export const metadata: Metadata = {
   title: 'Turnkey Marine Aquarium Installation & Commissioning',
@@ -70,6 +74,34 @@ const STAGES = [
   },
 ];
 
+const INSTALLATION_FAQS = [
+  {
+    question: 'What happens during a new marine aquarium installation?',
+    answer:
+      'A new marine aquarium installation by Marine Creatures follows an exacting 6-stage architectural protocol: (1) Site engineering & live floor load assessment, (2) Laser-leveled cabinetry and monolithic tank positioning, (3) Acoustic-damped Schedule 80 PVC sump hard-plumbing with dual fail-safe BeanAnimal drains, (4) Zero-TDS reverse osmosis hydration and laboratory-grade reef salt synthesis, (5) Artistic living rock aquascaping and nitrogen cycle bacterial augmentation, and (6) Quarantined livestock introduction and smart IoT smartphone automation.',
+  },
+  {
+    question: 'What affects the cost of a new marine aquarium installation?',
+    answer:
+      'Turnkey marine aquarium installations at Marine Creatures start from ₹35,000 for standard custom systems. The overall project cost is governed by tank dimensions and water volume, optical glass clarity (OptiWhite low-iron vs thermoformed monolithic acrylic), filtration complexity (DC variable-speed protein skimmers, auto-top-off, titanium chillers), smart app-controlled LED lighting intensity, and the rarity of quarantined livestock selected.',
+  },
+  {
+    question: 'How long does the marine nitrogen cycling process take before introducing fish?',
+    answer:
+      'Biological nitrogen cycling typically takes 10 to 14 days under our bio-augmentation protocol. We inoculate the tank with live nitrifying bacteria strains and monitor ammonia (NH3) and nitrite (NO2) until both reach 0.0 ppm, ensuring safe conditions before any delicate marine species or corals are introduced.',
+  },
+  {
+    question: 'What preparations should customers complete before installation day?',
+    answer:
+      'Before our white-glove installation crew arrives, ensure that the chosen installation site has verified structural floor load capacity (often exceeding 1,000 kg per cubic meter of water), two dedicated 15A/16A grounded electrical power points on a separate circuit breaker, clear transit corridors from entry to the placement zone, and access to a clean freshwater inlet for reverse osmosis filtration.',
+  },
+  {
+    question: 'How are marine fish and corals quarantined before introduction?',
+    answer:
+      'All living marine specimens are acclimated and monitored in our specialized aquaculture quarantine facility in Kolkata for a minimum of 14 to 21 days. We verify active feeding, prophylactic pathogen screening, and optimal osmotic adaptation before VIP client delivery and drip acclimation.',
+  },
+];
+
 export default function InstallationPage() {
   const breadcrumbs = [
     { name: 'Home', url: '/' },
@@ -80,10 +112,14 @@ export default function InstallationPage() {
   const serviceJsonLd = generateServiceJsonLd({
     name: 'Turnkey Marine Aquarium Installation & Life Support Commissioning',
     description:
-      'Complete architectural marine aquarium installation including Schedule 80 plumbing, OptiWhite glass placement, automated cycling, and biological introduction.',
+      'Complete architectural marine aquarium installation including Schedule 80 plumbing, OptiWhite glass placement, automated cycling, and biological introduction. Turnkey projects start from ₹35,000.',
     url: '/installation',
     serviceType: 'AquariumInstallationService',
+    startingPrice: 35000,
+    priceCurrency: 'INR',
+    priceDescription: 'Starting baseline price for turnkey bespoke marine aquarium installation',
   });
+  const faqJsonLd = generateFaqJsonLd(INSTALLATION_FAQS);
 
   return (
     <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>
@@ -94,6 +130,10 @@ export default function InstallationPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
 
       {/* Visual Breadcrumbs */}
@@ -146,9 +186,20 @@ export default function InstallationPage() {
 
           <div className="lg:col-span-5">
             <span className="text-label text-[--color-accent] block mb-3">OUR PROTOCOL</span>
-            <h2 className="font-display text-display-sm text-[--color-text] font-light leading-snug mb-6">
+            <h2 className="font-display text-display-sm text-[--color-text] font-light leading-snug mb-4">
               Flawless execution at every millimeter.
             </h2>
+            <div className="p-4 mb-6 rounded-xl border border-cyan-500/20 bg-cyan-950/20">
+              <span className="text-[11px] font-mono text-cyan-400 uppercase tracking-widest block mb-1">
+                CONFIRMED BASELINE PRICING
+              </span>
+              <span className="text-xl sm:text-2xl font-light text-white block">
+                Starting from ₹35,000
+              </span>
+              <span className="text-[11px] text-[--color-muted] mt-1 block">
+                Turnkey architectural installations scaled to your interior space and water volume.
+              </span>
+            </div>
             <p className="font-body font-light text-[--color-muted] leading-loose mb-6" style={{ fontSize: '0.9375rem' }}>
               Marine installations require a rare synthesis of heavy civil engineering, delicate marine biochemistry, and immaculate architectural finish.
             </p>
@@ -195,6 +246,40 @@ export default function InstallationPage() {
           <div>
             <span className="font-display text-3xl text-[--color-accent] block mb-2">10-YR</span>
             <span className="text-label text-[--color-muted]">STRUCTURAL SEAM WARRANTY</span>
+          </div>
+        </div>
+
+        {/* ── Frequently Asked Questions (Answer Engine Optimization) ────────── */}
+        <div className="mt-20 pt-16 border-t border-[rgba(255,255,255,0.08)]">
+          <div className="max-w-3xl mb-12">
+            <span className="text-label text-[--color-accent] block mb-2">
+              EXPERT CONSULTATION &amp; SPECIFICATIONS
+            </span>
+            <h2 className="font-display text-display-sm text-[--color-text] font-light">
+              Frequently Asked Installation Questions
+            </h2>
+            <p className="font-body text-xs sm:text-sm text-[--color-muted] mt-2">
+              Everything you need to know about our turnkey architectural marine installations, structural requirements, and biological commissioning.
+            </p>
+          </div>
+
+          <div className="space-y-4 max-w-4xl">
+            {INSTALLATION_FAQS.map((faq, idx) => (
+              <details
+                key={idx}
+                className="group p-6 rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[rgba(7,21,28,0.5)] open:bg-[rgba(7,21,28,0.8)] open:border-cyan-500/30 transition-all duration-200"
+              >
+                <summary className="flex items-center justify-between cursor-pointer list-none text-base sm:text-lg font-light text-[--color-text] group-hover:text-cyan-300">
+                  <span className="pr-4">{faq.question}</span>
+                  <span className="text-cyan-400 text-xl font-mono shrink-0 transition-transform duration-200 group-open:rotate-45">
+                    +
+                  </span>
+                </summary>
+                <p className="mt-4 font-body font-light text-xs sm:text-sm text-[--color-muted] leading-relaxed border-t border-[rgba(255,255,255,0.05)] pt-4">
+                  {faq.answer}
+                </p>
+              </details>
+            ))}
           </div>
         </div>
       </div>

@@ -120,12 +120,12 @@ export default function AboutPage() {
             </p>
             <div className="grid grid-cols-2 gap-4 border-t border-[rgba(255,255,255,0.06)] pt-6">
               <div>
-                <span className="font-display text-3xl text-[--color-accent] block">15+</span>
-                <span className="text-label text-[--color-muted]">YEARS IN OCEAN DESIGN</span>
+                <span className="font-display text-3xl text-[--color-accent] block">5+</span>
+                <span className="text-label text-[--color-muted]">YEARS OF EXPERTISE</span>
               </div>
               <div>
-                <span className="font-display text-3xl text-[--color-accent] block">200+</span>
-                <span className="text-label text-[--color-muted]">WORLDS DELIVERED</span>
+                <span className="font-display text-3xl text-[--color-accent] block">50+</span>
+                <span className="text-label text-[--color-muted]">AQUARIUMS CREATED</span>
               </div>
             </div>
           </div>

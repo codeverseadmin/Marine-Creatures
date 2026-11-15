@@ -78,17 +78,28 @@ function MarketplaceContent() {
   const { products } = useCatalog();
   const searchParams = useSearchParams();
   const sectionParam = searchParams.get('section');
+  const categoryParam = searchParams.get('category');
+  const queryParam = searchParams.get('q') || searchParams.get('search');
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('featured');
 
-  // Handle section query param if linked from elsewhere
+  // Handle category and section query params if linked from elsewhere
   useEffect(() => {
     if (sectionParam === 'live') {
       setSelectedCategory('marine-life');
+    } else if (categoryParam) {
+      setSelectedCategory(categoryParam);
     }
-  }, [sectionParam]);
+  }, [sectionParam, categoryParam]);
+
+  // Handle search query param (e.g. from schema.org SearchAction or direct links)
+  useEffect(() => {
+    if (queryParam) {
+      setSearchQuery(queryParam);
+    }
+  }, [queryParam]);
 
   const filteredProducts = useMemo(() => {
     return products

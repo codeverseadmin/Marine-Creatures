@@ -8,17 +8,58 @@ export default function robots(): MetadataRoute.Robots {
     'https://www.marinecreatures.co.in'
   ).replace(/\/$/, '');
 
+  const disallowList = [
+    '/admin',
+    '/admin/*',
+    '/invoice',
+    '/invoice/*',
+    '/api/*',
+    '/checkout',
+    '/checkout/*',
+  ];
+
   return {
     rules: [
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin', '/admin/*', '/invoice', '/invoice/*', '/api/*'],
+        disallow: disallowList,
       },
       {
         userAgent: 'Googlebot',
         allow: '/',
-        disallow: ['/admin', '/admin/*', '/invoice', '/invoice/*', '/api/*'],
+        disallow: disallowList,
+      },
+      {
+        userAgent: 'Bingbot',
+        allow: '/',
+        disallow: disallowList,
+      },
+      // Explicit AI Answer Engine & Citation Retrieval Directives (AEO)
+      {
+        userAgent: 'GPTBot',
+        allow: '/',
+        disallow: disallowList,
+      },
+      {
+        userAgent: 'ChatGPT-User',
+        allow: '/',
+        disallow: disallowList,
+      },
+      {
+        userAgent: 'PerplexityBot',
+        allow: '/',
+        disallow: disallowList,
+      },
+      {
+        userAgent: 'ClaudeBot',
+        allow: '/',
+        disallow: disallowList,
+      },
+      {
+        userAgent: 'Applebot-Extended',
+        allow: '/',
+        disallow: disallowList,
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,

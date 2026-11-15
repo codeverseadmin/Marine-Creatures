@@ -100,6 +100,128 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const orgJsonLd = {
+    '@type': 'LocalBusiness',
+    '@id': `${SITE_CONFIG.url}/#organization`,
+    name: SITE_CONFIG.name,
+    alternateName: 'MARINE CREATURES',
+    url: SITE_CONFIG.url,
+    logo: `${SITE_CONFIG.url}/logo.png`,
+    image: `${SITE_CONFIG.url}/og-image.jpg`,
+    description: SITE_CONFIG.description,
+    slogan: SITE_CONFIG.slogan,
+    telephone: SITE_CONFIG.phone,
+    email: SITE_CONFIG.email,
+    founder: {
+      '@type': 'Person',
+      name: SITE_CONFIG.founder,
+    },
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Marine Creatures Aquaculture Studio',
+      addressLocality: 'Kolkata',
+      addressRegion: 'West Bengal',
+      addressCountry: 'IN',
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: 22.5726,
+      longitude: 88.3639,
+    },
+    areaServed: [
+      { '@type': 'City', name: 'Kolkata' },
+      { '@type': 'AdministrativeArea', name: 'West Bengal' },
+      { '@type': 'Country', name: 'India' },
+    ],
+    openingHoursSpecification: [
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: [
+          'Monday',
+          'Tuesday',
+          'Wednesday',
+          'Thursday',
+          'Friday',
+          'Saturday',
+        ],
+        opens: '10:00',
+        closes: '20:00',
+      },
+    ],
+    makesOffer: [
+      {
+        '@type': 'Offer',
+        name: 'Turnkey Marine Aquarium Installation & Commissioning',
+        description:
+          'Bespoke architectural reef aquarium engineering, Schedule 80 concealed plumbing, automated cycling, and biological commissioning.',
+        price: 35000,
+        priceCurrency: 'INR',
+        priceSpecification: {
+          '@type': 'UnitPriceSpecification',
+          price: 35000,
+          priceCurrency: 'INR',
+          description: 'Starting baseline price for turnkey marine aquarium installation',
+        },
+        availability: 'https://schema.org/InStock',
+      },
+      {
+        '@type': 'Offer',
+        name: 'Aquarium Renovation & Biological Restoration',
+        description:
+          'Transform troubled or imbalanced marine aquariums with optical glass polishing, DC life-support retrofitting, and zero-livestock-loss holding.',
+        price: 15000,
+        priceCurrency: 'INR',
+        priceSpecification: {
+          '@type': 'UnitPriceSpecification',
+          price: 15000,
+          priceCurrency: 'INR',
+          description: 'Starting baseline price for marine aquarium renovation',
+        },
+        availability: 'https://schema.org/InStock',
+      },
+      {
+        '@type': 'Offer',
+        name: 'White-Glove Marine Concierge Maintenance',
+        description:
+          'Routine scheduled biological care, laboratory-grade RO/DI and salt water exchange, and 24/7 priority emergency response.',
+        price: 18500,
+        priceCurrency: 'INR',
+        priceSpecification: {
+          '@type': 'UnitPriceSpecification',
+          price: 18500,
+          priceCurrency: 'INR',
+          unitText: 'MONTH',
+          description: 'Monthly concierge care subscription',
+        },
+        availability: 'https://schema.org/InStock',
+      },
+    ],
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Marine Living Systems & Luxury Aquarium Services',
+      itemListElement: [
+        {
+          '@type': 'OfferCatalog',
+          name: 'Quarantine-Certified Marine Livestock & Exotic Fish',
+        },
+        {
+          '@type': 'OfferCatalog',
+          name: 'NemoLight Extreme Reef LED Systems',
+        },
+        {
+          '@type': 'OfferCatalog',
+          name: 'Bespoke Architectural Marine Aquarium Design & Installation',
+        },
+        {
+          '@type': 'OfferCatalog',
+          name: 'Reef Tank Renovation & Biology Restoration',
+        },
+      ],
+    },
+    priceRange: '₹₹₹₹',
+    sameAs: [SITE_CONFIG.facebook, SITE_CONFIG.googleMaps].filter(Boolean),
+  };
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -121,83 +243,7 @@ export default function RootLayout({
           'query-input': 'required name=search_term_string',
         },
       },
-      {
-        '@type': 'LocalBusiness',
-        '@id': `${SITE_CONFIG.url}/#organization`,
-        name: SITE_CONFIG.name,
-        alternateName: 'Marine Creatures Aquatics Private Limited',
-        url: SITE_CONFIG.url,
-        logo: `${SITE_CONFIG.url}/logo.png`,
-        image: `${SITE_CONFIG.url}/og-image.jpg`,
-        description: SITE_CONFIG.description,
-        slogan: SITE_CONFIG.slogan,
-        telephone: SITE_CONFIG.phone,
-        email: SITE_CONFIG.email,
-        founder: {
-          '@type': 'Person',
-          name: SITE_CONFIG.founder,
-        },
-        address: {
-          '@type': 'PostalAddress',
-          streetAddress: 'Registered Aquaculture Studio',
-          addressLocality: 'Kolkata',
-          addressRegion: 'West Bengal',
-          addressCountry: 'IN',
-        },
-        geo: {
-          '@type': 'GeoCoordinates',
-          latitude: 22.5726,
-          longitude: 88.3639,
-        },
-        areaServed: [
-          { '@type': 'Country', name: 'India' },
-          { '@type': 'City', name: 'Kolkata' },
-          { '@type': 'City', name: 'Bengaluru' },
-          { '@type': 'City', name: 'Mumbai' },
-          { '@type': 'City', name: 'Delhi NCR' },
-          { '@type': 'City', name: 'Hyderabad' },
-          { '@type': 'City', name: 'Chennai' },
-        ],
-        openingHoursSpecification: [
-          {
-            '@type': 'OpeningHoursSpecification',
-            dayOfWeek: [
-              'Monday',
-              'Tuesday',
-              'Wednesday',
-              'Thursday',
-              'Friday',
-              'Saturday',
-            ],
-            opens: '10:00',
-            closes: '20:00',
-          },
-        ],
-        hasOfferCatalog: {
-          '@type': 'OfferCatalog',
-          name: 'Marine Living Systems & Luxury Aquarium Services',
-          itemListElement: [
-            {
-              '@type': 'OfferCatalog',
-              name: 'Quarantine-Certified Marine Livestock & Exotic Fish',
-            },
-            {
-              '@type': 'OfferCatalog',
-              name: 'NemoLight Extreme Reef LED Systems',
-            },
-            {
-              '@type': 'OfferCatalog',
-              name: 'Bespoke Architectural Marine Aquarium Design & Installation',
-            },
-            {
-              '@type': 'OfferCatalog',
-              name: 'Reef Tank Renovation & Biology Restoration',
-            },
-          ],
-        },
-        priceRange: '₹₹₹₹',
-        sameAs: [SITE_CONFIG.facebook, SITE_CONFIG.googleMaps],
-      },
+      orgJsonLd,
     ],
   };
 

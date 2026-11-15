@@ -2,7 +2,11 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { BeforeAfterSlider } from '@/components/ui/BeforeAfterSlider';
 import { SITE_CONFIG } from '@/lib/config';
-import { generateBreadcrumbJsonLd, generateServiceJsonLd } from '@/lib/seo/structuredData';
+import {
+  generateBreadcrumbJsonLd,
+  generateServiceJsonLd,
+  generateFaqJsonLd,
+} from '@/lib/seo/structuredData';
 
 export const metadata: Metadata = {
   title: 'Aquarium Renovation & Biological Restoration',
@@ -137,6 +141,34 @@ const METRICS = [
   { value: 'Zero', label: 'Millwork Impact', detail: 'Existing cabinetry and architectural walls preserved' },
 ];
 
+const RENOVATION_FAQS = [
+  {
+    question: 'How does an aquarium renovation and biological restoration work?',
+    answer:
+      'Marine Creatures restores troubled or clouded aquariums using an on-site, turnkey protocol starting from ₹15,000. We diagnose water chemistry imbalances, safely relocate livestock into mobile climate-controlled pods, remove glass scratches and nuisance algae, upgrade old hardware with silent DC variable-speed pumps, and reboot the nitrifying microbiome without replacing existing architectural cabinetry.',
+  },
+  {
+    question: 'What happens to my living corals and marine fish during tank renovation?',
+    answer:
+      'We execute a 100% Zero-Loss Livestock Relocation Protocol. Your existing fish, corals, and invertebrates are placed into temperature-regulated, aerated, and biologically conditioned staging pods on-site, ensuring zero osmotic or thermal shock throughout the entire restoration window.',
+  },
+  {
+    question: 'Can scratched OptiWhite glass or acrylic viewing panels be restored?',
+    answer:
+      'Yes. Our optical detailing team utilizes micro-abrasive diamond-compound restoration discs to polish away scratches, calcium deposits, and yellowing organics in situ, restoring museum-grade optical clarity while preserving the structural integrity of your viewing panel.',
+  },
+  {
+    question: 'When is a biological reset or microbial reboot necessary for a reef tank?',
+    answer:
+      'A biological reset is indicated when an aquarium suffers from chronic nuisance dinoflagellates, persistent cyanobacteria mats, toxic anaerobic hydrogen sulfide pockets, or unresponsive Old Tank Syndrome. We detoxify existing live rock, replenish trace elements, and seed diverse nitrifying strains to establish biological resilience.',
+  },
+  {
+    question: 'Can older noisy equipment be retrofitted with modern silent DC components?',
+    answer:
+      'Absolutely. We strip out vibrating AC pumps and leaking PVC joints, installing whisper-quiet DC variable-flow pumps operating under 28 decibels, high-efficiency protein skimmers, and app-controlled LED fixtures calibrated for optimal coral growth.',
+  },
+];
+
 export default function RenovationPage() {
   const whatsappUrl = `https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(
     'Hello Marine Creatures, I would like to consult on an aquarium renovation for my existing tank.'
@@ -151,10 +183,14 @@ export default function RenovationPage() {
   const serviceJsonLd = generateServiceJsonLd({
     name: 'Aquarium Renovation & Biological Ecosystem Revival',
     description:
-      'Comprehensive restoration of existing troubled marine aquariums. Glass polishing, algae eradication, silent DC pump and NemoLight LED retrofits.',
+      'Comprehensive restoration of existing troubled marine aquariums. Glass polishing, algae eradication, silent DC pump and NemoLight LED retrofits. Restorations start from ₹15,000.',
     url: '/renovation',
     serviceType: 'AquariumRenovationService',
+    startingPrice: 15000,
+    priceCurrency: 'INR',
+    priceDescription: 'Starting baseline price for marine aquarium renovation and revival',
   });
+  const faqJsonLd = generateFaqJsonLd(RENOVATION_FAQS);
 
   return (
     <div style={{ background: 'var(--color-primary)', minHeight: '100vh' }}>
@@ -165,6 +201,10 @@ export default function RenovationPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
 
       {/* Visual Breadcrumbs */}
@@ -212,7 +252,18 @@ export default function RenovationPage() {
           <p className="font-body font-light text-[--color-muted] leading-relaxed max-w-2xl mt-4 text-sm sm:text-base md:text-lg">
             We take troubled, neglected, or declining aquariums and transform them into living architectural centerpieces — without tearing out custom cabinetry or dismantling your space.
           </p>
-          <div className="flex flex-wrap items-center gap-4 mt-8">
+          <div className="inline-flex items-center gap-3 p-3.5 mt-4 rounded-xl border border-cyan-500/30 bg-cyan-950/40 backdrop-blur-md">
+            <span className="text-[10px] font-mono text-cyan-300 uppercase tracking-widest font-semibold">
+              CONFIRMED BASELINE PRICING
+            </span>
+            <span className="text-white font-medium text-sm sm:text-base">
+              Starting from ₹15,000
+            </span>
+            <span className="text-[11px] text-cyan-200/70 hidden sm:inline">
+              | Full biological revival &amp; scratch removal
+            </span>
+          </div>
+          <div className="flex flex-wrap items-center gap-4 mt-6">
             <Link href="/contact?service=renovation" className="btn-primary inline-flex items-center gap-2">
               <span>SCHEDULE FORENSIC ASSESSMENT</span>
               <span aria-hidden="true">→</span>
@@ -392,6 +443,40 @@ export default function RenovationPage() {
               <div className="text-[11px] text-[--color-muted] leading-tight">{m.detail}</div>
             </div>
           ))}
+        </div>
+
+        {/* ── Frequently Asked Questions (Answer Engine Optimization) ────────── */}
+        <div className="mb-24 pt-12 border-t border-white/10">
+          <div className="max-w-3xl mb-12">
+            <span className="text-label text-cyan-400 block mb-2">
+              RESTORATION FORENSICS &amp; PROTOCOLS
+            </span>
+            <h2 className="font-display text-display-sm text-white font-light">
+              Frequently Asked Renovation Questions
+            </h2>
+            <p className="font-body text-xs sm:text-sm text-[--color-muted] mt-2">
+              Detailed answers on our zero-loss livestock temporary holding, optical glass polishing, and biological reboot process.
+            </p>
+          </div>
+
+          <div className="space-y-4 max-w-4xl">
+            {RENOVATION_FAQS.map((faq, idx) => (
+              <details
+                key={idx}
+                className="group p-6 rounded-2xl border border-white/10 bg-[rgba(3,10,16,0.6)] open:bg-[rgba(3,10,16,0.9)] open:border-cyan-400/30 transition-all duration-200"
+              >
+                <summary className="flex items-center justify-between cursor-pointer list-none text-base sm:text-lg font-light text-white group-hover:text-cyan-300">
+                  <span className="pr-4">{faq.question}</span>
+                  <span className="text-cyan-400 text-xl font-mono shrink-0 transition-transform duration-200 group-open:rotate-45">
+                    +
+                  </span>
+                </summary>
+                <p className="mt-4 font-body font-light text-xs sm:text-sm text-[--color-muted] leading-relaxed border-t border-white/5 pt-4">
+                  {faq.answer}
+                </p>
+              </details>
+            ))}
+          </div>
         </div>
 
         {/* ── Final Conversion Callout ────────────────────────────────────── */}

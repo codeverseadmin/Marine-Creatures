@@ -7,6 +7,7 @@ import { SITE_CONFIG } from '@/lib/config';
 import { generateProductJsonLd, generateBreadcrumbJsonLd } from '@/lib/seo/structuredData';
 import { CATALOG_SEO_MAP } from '@/lib/seo/catalogSeoData';
 import { resolveAuthoritativeProduct } from '@/lib/services/product-resolution';
+import { getExplainableRecommendations } from '@/lib/data/product-recommendations';
 
 export const dynamic = 'force-dynamic';
 
@@ -185,8 +186,13 @@ export default async function ProductDetailPage({ params }: Props) {
   const canonicalUrl = `${SITE_CONFIG.url}/marketplace/${canonicalSlug}`;
   const seoData = CATALOG_SEO_MAP[product.id];
 
-  // Structured Data (Product + Breadcrumbs)
-  const productJsonLd = generateProductJsonLd(product, canonicalUrl, variantId);
+  // Deterministic Explainable Product Recommendations (REO Engine)
+  const explainableRecs = getExplainableRecommendations(product.id, 4);
+  const relatedProducts = explainableRecs.map((r) => r.product);
+  const relatedUrls = relatedProducts.map((p) => `/marketplace/${p.id}`);
+
+  // Structured Data (Product + Breadcrumbs + Machine-Readable Compatibility Graph)
+  const productJsonLd = generateProductJsonLd(product, canonicalUrl, variantId, relatedUrls);
 
   const breadcrumbs = [
     { name: 'Home', url: '/' },
@@ -211,19 +217,6 @@ export default async function ProductDetailPage({ params }: Props) {
   });
 
   const breadcrumbJsonLd = generateBreadcrumbJsonLd(breadcrumbs);
-
-  // Deterministic Related products via SEO map or curated pairings
-  const relatedProducts =
-    seoData && seoData.relatedProductIds?.length > 0
-      ? (seoData.relatedProductIds
-          .map((rid) => PRODUCTS.find((p) => p.id === rid))
-          .filter(Boolean) as Product[])
-      : PRODUCTS.filter(
-          (p) =>
-            p.id !== product.id &&
-            (product.recommendedPairings?.includes(p.id) ||
-              p.category === product.category)
-        ).slice(0, 4);
 
   const serviceConnection = seoData?.serviceLink
     ? { link: seoData.serviceLink, text: seoData.serviceText }
