@@ -7,7 +7,7 @@ import { getValidatedSessionSecret } from '@/lib/rbac/session';
  */
 
 export const MAX_MEDIA_FILE_SIZE = 25 * 1024 * 1024; // 25 MB
-export const UPLOAD_CHUNK_SIZE = 1 * 1024 * 1024; // 1 MB per chunk (optimal for fast, reliable serverless writes & consumer uplinks)
+export const UPLOAD_CHUNK_SIZE = 512 * 1024; // 512 KB per chunk (optimal for fast, resilient serverless writes & consumer Wi-Fi/broadband uplinks)
 
 /**
  * Resolves standard CORS headers for admin media upload endpoints.

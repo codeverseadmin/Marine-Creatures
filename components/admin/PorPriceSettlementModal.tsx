@@ -32,12 +32,13 @@ export default function PorPriceSettlementModal({
   useEffect(() => {
     if (!order) return;
     const initialInputs: Record<string, string> = {};
-    order.items.forEach((item) => {
-      const key = item.product.id || (item as any).id;
+    (order.items || []).forEach((item) => {
+      const key = (item as any).id || item.product?.id || (item as any)._id;
+      const originalPrice = typeof (item as any).price === 'number' ? (item as any).price : (typeof item.product?.price === 'number' ? item.product.price : 0);
       if (typeof item.agreedUnitPrice === 'number' && item.agreedUnitPrice > 0) {
         initialInputs[key] = String(item.agreedUnitPrice);
-      } else if (typeof item.product.price === 'number' && item.product.price > 0 && !item.priceOnRequest && item.pricingStatus !== 'PENDING_POR') {
-        initialInputs[key] = String(item.product.price);
+      } else if (originalPrice > 0 && !item.priceOnRequest && item.pricingStatus !== 'PENDING_POR') {
+        initialInputs[key] = String(originalPrice);
       } else {
         initialInputs[key] = '';
       }
@@ -63,7 +64,9 @@ export default function PorPriceSettlementModal({
     if (!order || !order.items) return [];
 
     return order.items.map((item) => {
-      const key = item.product.id || (item as any).id;
+      const key = (item as any).id || item.product?.id || (item as any)._id;
+      const itemName = (item as any).name || item.product?.name || 'Specimen';
+      const originalPrice = typeof (item as any).price === 'number' ? (item as any).price : (typeof item.product?.price === 'number' ? item.product.price : 0);
       const rawInput = pricingInputs[key] ?? '';
       const trimmed = rawInput.trim();
       const numVal = parseFloat(trimmed);
@@ -71,8 +74,7 @@ export default function PorPriceSettlementModal({
       const isPor = Boolean(
         item.priceOnRequest ||
         item.pricingStatus === 'PENDING_POR' ||
-        item.product.price === 0 ||
-        (item as any).price === 0
+        originalPrice === 0
       );
 
       const isValidPositive = !isNaN(numVal) && numVal > 0 && isFinite(numVal);
@@ -82,13 +84,15 @@ export default function PorPriceSettlementModal({
 
       const effectiveUnitPrice = isValidPositive
         ? Math.round(numVal * 100) / 100
-        : (!isPor && item.product.price > 0 ? item.product.price : 0);
+        : (!isPor && originalPrice > 0 ? originalPrice : 0);
 
       const lineTotal = effectiveUnitPrice * (item.quantity || 1);
 
       return {
         item,
         key,
+        itemName,
+        originalPrice,
         rawInput,
         numVal,
         isPor,
@@ -98,8 +102,8 @@ export default function PorPriceSettlementModal({
         lineTotal,
         variant:
           (item as any).variant ||
-          (item.product as any).variant ||
-          item.product.variants?.[0]?.name ||
+          (item.product as any)?.variant ||
+          item.product?.variants?.[0]?.name ||
           (item as any).category ||
           'Standard Specimen',
       };
@@ -188,7 +192,7 @@ export default function PorPriceSettlementModal({
         } else if (line.isPor) {
           updates.push({
             id: line.key,
-            name: line.item.product.name,
+            name: line.itemName,
             agreedUnitPrice: valRes.num!,
           });
         }
@@ -237,7 +241,7 @@ export default function PorPriceSettlementModal({
         } else {
           updates.push({
             id: line.key,
-            name: line.item.product.name,
+            name: line.itemName,
             agreedUnitPrice: valRes.num!,
           });
         }
@@ -357,9 +361,9 @@ export default function PorPriceSettlementModal({
               </thead>
               <tbody className="divide-y divide-slate-800/60 font-sans">
                 {lineItemCalculations.map((line) => {
-                  const { item, key, isPor, lineTotal, variant, isConfirmed } = line;
+                  const { item, key, itemName, originalPrice, isPor, lineTotal, variant, isConfirmed } = line;
                   const err = validationErrors[key];
-                  const imgUrl = item.product.images?.[0] || '/images/products/placeholder.jpg';
+                  const imgUrl = (item as any).image || item.product?.images?.[0] || '/images/products/placeholder.jpg';
 
                   return (
                     <tr
@@ -377,7 +381,7 @@ export default function PorPriceSettlementModal({
                         <div className="flex items-center gap-3 min-w-[180px]">
                           <img
                             src={imgUrl}
-                            alt={item.product.name}
+                            alt={itemName}
                             className="w-10 h-10 rounded-xl object-cover bg-slate-800 border border-slate-700/60 shrink-0"
                             onError={(e) => {
                               (e.currentTarget as HTMLImageElement).src =
@@ -386,7 +390,7 @@ export default function PorPriceSettlementModal({
                           />
                           <div className="min-w-0">
                             <span className="font-semibold text-white truncate block text-xs sm:text-sm">
-                              {item.product.name}
+                              {itemName}
                             </span>
                             <span className="text-[10px] text-slate-400 font-mono block">
                               ID: {key}
@@ -417,7 +421,7 @@ export default function PorPriceSettlementModal({
                           </span>
                         ) : (
                           <span className="text-xs text-slate-400 font-mono">
-                            ₹{item.product.price.toLocaleString('en-IN')}
+                            ₹{originalPrice.toLocaleString('en-IN')}
                           </span>
                         )}
                       </td>

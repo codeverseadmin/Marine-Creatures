@@ -547,12 +547,16 @@ export default function AdminPage({ initialTab = 'overview', initialSubtab }: Ad
             setSidebarOpen={setSidebarOpen}
             desktopSidebarOpen={desktopSidebarOpen}
             setDesktopSidebarOpen={setDesktopSidebarOpen}
-            dbStatus={{
-              connected: overviewData?.system.database.status === 'healthy',
-              cluster: overviewData?.system.database.cluster,
-              database: overviewData?.system.database.database,
-              latencyMs: overviewData?.system.database.latencyMs,
-            }}
+            dbStatus={
+              overviewData
+                ? {
+                    connected: overviewData.system?.database?.status?.toLowerCase() === 'healthy',
+                    cluster: overviewData.system?.database?.cluster,
+                    database: overviewData.system?.database?.database,
+                    latencyMs: overviewData.system?.database?.latencyMs,
+                  }
+                : undefined
+            }
             handleLogout={handleLogout}
             onOpenSearch={() => setIsSearchOpen(true)}
           />

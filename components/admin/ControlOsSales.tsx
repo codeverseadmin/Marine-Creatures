@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { SalesSubtab } from './types';
 import { ProductThumbnail } from '@/components/ui/ProductThumbnail';
+import PorPriceSettlementModal from './PorPriceSettlementModal';
 
 interface ControlOsSalesProps {
   initialSubtab?: SalesSubtab;
@@ -22,6 +23,8 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
   const [awbInput, setAwbInput] = useState('');
   const [courierInput, setCourierInput] = useState('IndiGo CarGo Priority Express');
   const [stepCounts, setStepCounts] = useState<Record<string, number>>({});
+  const [porSettlementOrder, setPorSettlementOrder] = useState<any | null>(null);
+  const [pendingActionAfterPricing, setPendingActionAfterPricing] = useState<(() => void) | null>(null);
 
   // ─── Enquiries State ───────────────────────────────────────────────────────
   const [enquiries, setEnquiries] = useState<any[]>([]);
@@ -214,6 +217,93 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
       }
     } catch {
       showToast('Error saving AWB');
+    }
+  };
+
+  // ─── POR Pricing Helpers & Handlers ─────────────────────────────────────────
+  const orderHasUnresolvedPor = useCallback((order: any): boolean => {
+    if (!order) return false;
+    if (order.hasUnresolvedPorItems) return true;
+    return (order.items || []).some(
+      (it: any) =>
+        (it.priceOnRequest || it.pricingStatus === 'PENDING_POR' || (it.product && it.product.price === 0) || it.price === 0) &&
+        (!it.agreedUnitPrice || it.agreedUnitPrice <= 0)
+    );
+  }, []);
+
+  const orderHasAnyPor = useCallback((order: any): boolean => {
+    if (!order) return false;
+    return (order.items || []).some(
+      (it: any) =>
+        it.priceOnRequest ||
+        it.pricingStatus === 'PENDING_POR' ||
+        (it.product && it.product.price === 0) ||
+        it.price === 0 ||
+        Boolean(it.agreedUnitPrice)
+    );
+  }, []);
+
+  const handleOpenPricingModal = useCallback((order: any, pendingAction?: () => void) => {
+    setPorSettlementOrder(order);
+    setPendingActionAfterPricing(pendingAction ? () => pendingAction : null);
+  }, []);
+
+  const handleGenerateInvoiceClick = useCallback((order: any) => {
+    if (orderHasUnresolvedPor(order)) {
+      showToast('⚠️ Price On Request settlement is pending. Settle agreed prices before generating invoice.');
+      handleOpenPricingModal(order, () => {
+        window.open(`/invoice/${order.id}`, '_blank');
+      });
+    } else {
+      window.open(`/invoice/${order.id}`, '_blank');
+    }
+  }, [orderHasUnresolvedPor, handleOpenPricingModal, showToast]);
+
+  const handleSavePricingFromModal = async (
+    itemsToUpdate: Array<{ id: string; name: string; agreedUnitPrice: number }>,
+    isFullSettlement: boolean
+  ): Promise<{ success: boolean; error?: string }> => {
+    if (!porSettlementOrder) return { success: false, error: 'No order selected.' };
+
+    try {
+      const res = await fetch(`/api/admin/orders/${porSettlementOrder.id}/por-pricing`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          items: itemsToUpdate,
+          expectedVersion: porSettlementOrder.pricingVersion,
+          pricedBy: 'Admin Concierge',
+        }),
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        return { success: false, error: json.error || 'Failed to save agreed pricing.' };
+      }
+
+      await fetchOrders();
+
+      if (isFullSettlement) {
+        showToast(`✓ Pricing settled and official invoice generated for #${porSettlementOrder.id}`);
+        if (pendingActionAfterPricing) {
+          pendingActionAfterPricing();
+          setPendingActionAfterPricing(null);
+        } else {
+          window.open(`/invoice/${porSettlementOrder.id}`, '_blank');
+        }
+      } else {
+        const remainingCount = (porSettlementOrder.items || []).filter((it: any) => {
+          const isPor = it.priceOnRequest || it.pricingStatus === 'PENDING_POR' || (it.product && it.product.price === 0) || it.price === 0;
+          const updated = itemsToUpdate.find((u) => u.id === (it.id || it.product?.id) || u.name === (it.name || it.product?.name));
+          return isPor && !updated;
+        }).length;
+        showToast(`✓ Saved partial pricing. ${remainingCount} item(s) still pending settlement.`);
+      }
+
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Network error saving agreed pricing.' };
     }
   };
 
@@ -503,14 +593,18 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
                           </div>
                         )}
 
-                        <a
-                          href={`/invoice/${o.id}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="min-h-[44px] px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium flex items-center justify-center text-center border border-slate-700"
+                        <button
+                          type="button"
+                          onClick={() => handleGenerateInvoiceClick(o)}
+                          className={`min-h-[44px] px-2 rounded-xl text-xs font-semibold flex items-center justify-center text-center border transition-all ${
+                            orderHasUnresolvedPor(o)
+                              ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border-amber-500/40 font-bold shadow-sm'
+                              : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+                          }`}
+                          title={orderHasUnresolvedPor(o) ? 'Mandatory: Settle POR pricing before generating invoice' : 'Open Invoice'}
                         >
-                          Invoice ↗
-                        </a>
+                          {orderHasUnresolvedPor(o) ? '🔒 Settle Price' : 'Invoice ↗'}
+                        </button>
 
                         <button
                           onClick={() => setSelectedOrder(o)}
@@ -560,13 +654,25 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
                             <span className="text-[11px] text-slate-400 font-mono">{o.phone} • {o.city}</span>
                           </td>
                           <td className="p-3">
-                            <span className="font-medium text-white">{o.items?.length || 0} specimens</span>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="font-medium text-white">{o.items?.length || 0} specimens</span>
+                              {orderHasUnresolvedPor(o) && (
+                                <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                  POR Pending
+                                </span>
+                              )}
+                            </div>
                             <span className="block text-[10px] text-slate-400 truncate max-w-xs">
                               {o.items?.map((i: any) => `${i.name} (x${i.quantity})`).join(', ')}
                             </span>
                           </td>
                           <td className="p-3 font-mono font-bold text-emerald-400">
-                            ₹{o.totalAmount?.toLocaleString('en-IN')}
+                            <div>₹{o.totalAmount?.toLocaleString('en-IN')}</div>
+                            {orderHasUnresolvedPor(o) && (
+                              <span className="block text-[10px] text-amber-400/90 font-mono font-normal">
+                                (POR Partial)
+                              </span>
+                            )}
                           </td>
                           <td className="p-3">
                             <span
@@ -639,15 +745,26 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
                                   → {nextStep}
                                 </button>
                               )}
-                              <a
-                                href={`/invoice/${o.id}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-mono"
-                                title="Open Invoice"
-                              >
-                                Invoice ↗
-                              </a>
+                              {orderHasUnresolvedPor(o) ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleGenerateInvoiceClick(o)}
+                                  className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[10px] font-bold flex items-center gap-1 shadow-sm transition-all cursor-pointer"
+                                  title="Mandatory: Settle pending POR pricing before generating invoice"
+                                >
+                                  <span>🔒</span>
+                                  <span>Settle Price</span>
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleGenerateInvoiceClick(o)}
+                                  className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-mono transition-colors cursor-pointer"
+                                  title="Open Invoice"
+                                >
+                                  Invoice ↗
+                                </button>
+                              )}
                               <button
                                 onClick={() => setSelectedOrder(o)}
                                 className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px]"
@@ -733,6 +850,15 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
                             <h5 className="font-semibold text-white text-xs">{item.name}</h5>
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="text-[10px] text-slate-400">Qty: {item.quantity}</span>
+                              {(item.priceOnRequest || item.pricingStatus === 'PENDING_POR' || item.price === 0) && (
+                                <span className={`px-1.5 py-0.2 rounded text-[9px] font-mono font-bold uppercase ${
+                                  item.agreedUnitPrice
+                                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                    : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                }`}>
+                                  {item.agreedUnitPrice ? `Agreed ₹${item.agreedUnitPrice}` : 'POR Pending'}
+                                </span>
+                              )}
                               {item.warranty?.hasWarranty ? (
                                 <span className="text-[10px] text-cyan-400 font-mono">
                                   🛡️ {item.warranty.durationValue} {item.warranty.durationUnit} ({item.warranty.provider === 'manufacturer' ? 'Mfg' : 'Seller'})
@@ -772,6 +898,42 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
                     </div>
                   </div>
                 )}
+
+                {/* Actions */}
+                <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 border-t border-slate-800">
+                  {orderHasUnresolvedPor(selectedOrder) ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const ord = selectedOrder;
+                        setSelectedOrder(null);
+                        handleOpenPricingModal(ord);
+                      }}
+                      className="min-h-[44px] px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer"
+                    >
+                      <span>🔒</span>
+                      <span>Settle Pending Product Pricing</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        window.open(`/invoice/${selectedOrder.id}`, '_blank');
+                      }}
+                      className="min-h-[44px] px-4 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+                    >
+                      <span>📄</span>
+                      <span>View Official Invoice ↗</span>
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedOrder(null)}
+                    className="min-h-[44px] px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer"
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -1278,6 +1440,19 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
             </div>
           )}
         </div>
+      )}
+
+      {/* POR Price Settlement Modal */}
+      {porSettlementOrder && (
+        <PorPriceSettlementModal
+          order={porSettlementOrder}
+          isOpen={Boolean(porSettlementOrder)}
+          onClose={() => {
+            setPorSettlementOrder(null);
+            setPendingActionAfterPricing(null);
+          }}
+          onSavePricing={handleSavePricingFromModal}
+        />
       )}
     </div>
   );

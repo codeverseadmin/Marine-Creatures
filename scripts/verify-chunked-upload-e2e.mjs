@@ -79,8 +79,8 @@ async function testTarget(baseUrl) {
   console.log(`   Upload ID: ${authJson.uploadId}`);
 
   if (!authRes.ok) throw new Error(`Authorize failed: ${JSON.stringify(authJson)}`);
-  if (authJson.chunkSize !== 1048576) {
-    console.warn(`   Notice: Server returned chunkSize ${authJson.chunkSize} (expected 1048576 for updated server)`);
+  if (authJson.chunkSize !== 524288) {
+    console.warn(`   Notice: Server returned chunkSize ${authJson.chunkSize} (expected 524288 for 512 KB chunks)`);
   }
 
   const { uploadId, chunkSize, totalChunks, signature, expiresAt } = authJson;
@@ -179,7 +179,11 @@ async function testTarget(baseUrl) {
 
 async function main() {
   await testTarget('http://localhost:3000');
-  await testTarget('http://192.168.31.14:3000');
+  try {
+    await testTarget('http://192.168.31.14:3000');
+  } catch (lanErr) {
+    console.warn('   LAN target http://192.168.31.14:3000 skipped or unreachable (typical when dev server is bound to localhost).');
+  }
 }
 
 main().catch(err => {

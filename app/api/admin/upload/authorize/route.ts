@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
 
     // 5. Generate secure upload session
     const uploadId = `mc_up_${Date.now()}_${crypto.randomBytes(8).toString('hex')}`;
-    const chunkSize = UPLOAD_CHUNK_SIZE; // 1 MB
+    const chunkSize = UPLOAD_CHUNK_SIZE; // 512 KB per chunk
     const totalChunks = Math.ceil(cleanSize / chunkSize);
     const expiresAt = Date.now() + 3600 * 1000; // 1 hour validity
 

@@ -32,7 +32,7 @@ export interface ChunkedUploadResult {
 }
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB
-const DEFAULT_RETRIES = 3;
+const DEFAULT_RETRIES = 5;
 
 /**
  * Uploads a file of any size up to 25 MB using resilient 3-step chunked pipeline:
@@ -127,7 +127,7 @@ export async function uploadFileChunked(
         formData.append('chunk', chunkBlob, `${filename}.part${chunkIndex}`);
 
         const chunkAbortController = new AbortController();
-        const timeoutId = setTimeout(() => chunkAbortController.abort(), 45000);
+        const timeoutId = setTimeout(() => chunkAbortController.abort(), 60000);
 
         const onUserAbort = () => chunkAbortController.abort();
         if (options.signal) {
@@ -160,9 +160,9 @@ export async function uploadFileChunked(
         lastError = err;
         if (options.signal?.aborted) throw err;
         console.warn(`[ChunkedUpload] Chunk ${chunkIndex + 1}/${totalChunks} attempt ${attempt} failed:`, err?.message || err);
-        // Exponential backoff before retry (1s, 2s, 3s)
+        // Exponential backoff before retry (1s, 2s, 3s, 4s...)
         if (attempt < maxRetries) {
-          await new Promise((r) => setTimeout(r, Math.min(attempt * 1000, 3000)));
+          await new Promise((r) => setTimeout(r, Math.min(attempt * 1000, 4000)));
         }
       }
     }
@@ -173,7 +173,7 @@ export async function uploadFileChunked(
         lastError?.name === 'AbortError' ||
         (lastError?.message && lastError.message.toLowerCase().includes('fetch'));
       const networkHint = isFetchErr
-        ? 'Connection interrupted or server restarting. Please click Retry.'
+        ? 'Connection interrupted or server compiling. Click ↻ Retry Failed.'
         : lastError?.message || 'Network error';
 
       throw new Error(
