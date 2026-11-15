@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { SalesSubtab } from './types';
 import { ProductThumbnail } from '@/components/ui/ProductThumbnail';
 import PorPriceSettlementModal from './PorPriceSettlementModal';
+import { isPartnerShipmentOrder, POPULAR_CARRIER_PARTNERS } from '@/lib/fulfillment-utils';
 
 interface ControlOsSalesProps {
   initialSubtab?: SalesSubtab;
@@ -25,6 +26,14 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
   const [stepCounts, setStepCounts] = useState<Record<string, number>>({});
   const [porSettlementOrder, setPorSettlementOrder] = useState<any | null>(null);
   const [pendingActionAfterPricing, setPendingActionAfterPricing] = useState<(() => void) | null>(null);
+
+  // ─── Fulfillment / Shipment Modal State ─────────────────────────────────────
+  const [fulfillmentModalOrder, setFulfillmentModalOrder] = useState<any | null>(null);
+  const [isShipmentViaPartner, setIsShipmentViaPartner] = useState<boolean>(false);
+  const [fulfillmentCourierInput, setFulfillmentCourierInput] = useState<string>('Priority Air Cargo Express');
+  const [fulfillmentAwbInput, setFulfillmentAwbInput] = useState<string>('');
+  const [fulfillmentEtaInput, setFulfillmentEtaInput] = useState<string>('Tomorrow via Priority Air Cargo');
+  const [savingFulfillment, setSavingFulfillment] = useState<boolean>(false);
 
   // ─── Enquiries State ───────────────────────────────────────────────────────
   const [enquiries, setEnquiries] = useState<any[]>([]);
@@ -167,14 +176,14 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
 
   // Scroll lock when any modal is open
   useEffect(() => {
-    if (selectedOrder || followUpModalEnquiry || activeCustomerDossier) {
+    if (selectedOrder || followUpModalEnquiry || activeCustomerDossier || porSettlementOrder || fulfillmentModalOrder) {
       const originalOverflow = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
       return () => {
         document.body.style.overflow = originalOverflow;
       };
     }
-  }, [selectedOrder, followUpModalEnquiry, activeCustomerDossier]);
+  }, [selectedOrder, followUpModalEnquiry, activeCustomerDossier, porSettlementOrder, fulfillmentModalOrder]);
 
   // Order state transition
   const handleAdvanceStep = async (orderId: string, nextStep: string) => {
@@ -217,6 +226,62 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
       }
     } catch {
       showToast('Error saving AWB');
+    }
+  };
+
+  // ─── Fulfillment Configuration Handlers ─────────────────────────────────────
+  const openFulfillmentModal = useCallback((order: any) => {
+    const isPartner = isPartnerShipmentOrder(order);
+    setIsShipmentViaPartner(isPartner);
+    setFulfillmentCourierInput(order.courierName || 'Priority Air Cargo Express');
+    setFulfillmentAwbInput(order.awbNumber || '');
+    setFulfillmentEtaInput(order.estimatedDelivery || (isPartner ? 'Tomorrow via Priority Air Cargo' : 'Direct Concierge Handover'));
+    setFulfillmentModalOrder(order);
+  }, []);
+
+  const handleSaveFulfillment = async () => {
+    if (!fulfillmentModalOrder) return;
+    if (isShipmentViaPartner && !fulfillmentAwbInput.trim()) {
+      showToast('⚠️ Please enter an Air Waybill (AWB) or Shipment ID for partner cargo.');
+      return;
+    }
+    setSavingFulfillment(true);
+    try {
+      const payload: any = {
+        id: fulfillmentModalOrder.id,
+        isShippedViaPartner: isShipmentViaPartner,
+        fulfillmentType: isShipmentViaPartner ? 'partner_shipment' : 'direct_delivery',
+        courierName: isShipmentViaPartner ? (fulfillmentCourierInput.trim() || 'Priority Air Cargo Express') : '',
+        awbNumber: isShipmentViaPartner ? fulfillmentAwbInput.trim() : '',
+        estimatedDelivery: fulfillmentEtaInput.trim() || (isShipmentViaPartner ? 'Within 24-48 Hours' : 'Direct Concierge Handover'),
+      };
+
+      const res = await fetch('/api/admin/orders', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
+
+      const json = await res.json();
+      if (res.ok && json.success) {
+        showToast(
+          isShipmentViaPartner
+            ? `✓ Partner Shipment saved (${payload.courierName} • ${payload.awbNumber})`
+            : `✓ Configured as Direct Local Handover (No carrier partner required)`
+        );
+        if (selectedOrder && selectedOrder.id === fulfillmentModalOrder.id) {
+          setSelectedOrder((prev: any) => prev ? { ...prev, ...payload } : null);
+        }
+        setFulfillmentModalOrder(null);
+        await fetchOrders();
+      } else {
+        showToast(json.error || 'Failed to save fulfillment configuration');
+      }
+    } catch {
+      showToast('Network error saving fulfillment configuration');
+    } finally {
+      setSavingFulfillment(false);
     }
   };
 
@@ -534,47 +599,33 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
                         </div>
 
                         <div className="text-right">
-                          <span className="text-[10px] text-slate-400 block">Cargo / AWB</span>
-                          {editingAwbOrderId === o.id ? (
-                            <div className="flex items-center gap-1.5 mt-1">
-                              <input
-                                type="text"
-                                placeholder="AWB"
-                                value={awbInput}
-                                onChange={(e) => setAwbInput(e.target.value)}
-                                className="w-24 h-8 px-2 rounded bg-black border border-slate-700 text-[11px] font-mono text-white"
-                              />
-                              <button
-                                onClick={() => handleSaveAwb(o.id)}
-                                className="min-h-[32px] px-2.5 bg-cyan-400 text-slate-950 font-bold rounded text-[11px]"
-                              >
-                                Save
-                              </button>
-                              <button
-                                onClick={() => setEditingAwbOrderId(null)}
-                                className="min-h-[32px] px-2 text-slate-400 hover:text-white text-xs"
-                              >
-                                ✕
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="flex items-center justify-end gap-1.5">
-                              <span className="font-mono text-[11px] text-slate-300">
-                                {o.awbNumber || 'No AWB'}
-                              </span>
-                              <button
-                                onClick={() => {
-                                  setEditingAwbOrderId(o.id);
-                                  setAwbInput(o.awbNumber || '');
-                                  setCourierInput(o.courierName || 'IndiGo CarGo Priority Express');
-                                }}
-                                className="min-h-[36px] min-w-[36px] flex items-center justify-center text-xs text-cyan-400"
-                                title="Edit AWB / Carrier"
-                              >
-                                ✏️
-                              </button>
-                            </div>
-                          )}
+                          <span className="text-[10px] text-slate-400 block mb-0.5">Fulfillment / Shipment</span>
+                          <button
+                            type="button"
+                            onClick={() => openFulfillmentModal(o)}
+                            className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-left transition-all active:scale-95"
+                            title="Click to configure shipment vs direct handover"
+                          >
+                            {isPartnerShipmentOrder(o) ? (
+                              <div className="text-right">
+                                <span className="font-mono text-[11px] font-bold text-cyan-300 block">
+                                  ✈️ {o.awbNumber || 'Pending AWB'}
+                                </span>
+                                <span className="text-[9px] text-slate-400 block truncate max-w-[130px]">
+                                  {o.courierName || 'Partner Cargo'} ✏️
+                                </span>
+                              </div>
+                            ) : (
+                              <div className="text-right">
+                                <span className="text-[11px] font-semibold text-emerald-400 block">
+                                  🚚 Direct Handover
+                                </span>
+                                <span className="text-[9px] text-slate-500 block">
+                                  No Partner Carrier ✏️
+                                </span>
+                              </div>
+                            )}
+                          </button>
                         </div>
                       </div>
 
@@ -692,47 +743,38 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
                             </span>
                           </td>
                           <td className="p-3">
-                            {editingAwbOrderId === o.id ? (
-                              <div className="flex items-center gap-1.5">
-                                <input
-                                  type="text"
-                                  placeholder="AWB Number"
-                                  value={awbInput}
-                                  onChange={(e) => setAwbInput(e.target.value)}
-                                  className="w-28 h-7 px-2 rounded bg-black border border-slate-700 text-[11px] font-mono text-white"
-                                />
-                                <button
-                                  onClick={() => handleSaveAwb(o.id)}
-                                  className="px-2 py-1 bg-cyan-400 text-slate-950 font-bold rounded text-[10px]"
-                                >
-                                  Save
-                                </button>
-                                <button
-                                  onClick={() => setEditingAwbOrderId(null)}
-                                  className="px-1.5 py-1 text-slate-400 hover:text-white text-[10px]"
-                                >
-                                  ✕
-                                </button>
-                              </div>
-                            ) : (
-                              <div className="flex items-center gap-1.5">
-                                <span className="font-mono text-[11px] text-slate-300">
-                                  {o.awbNumber || 'No AWB'}
-                                </span>
-                                <button
-                                  onClick={() => {
-                                    setEditingAwbOrderId(o.id);
-                                    setAwbInput(o.awbNumber || '');
-                                    setCourierInput(o.courierName || 'IndiGo CarGo Priority Express');
-                                  }}
-                                  className="text-[10px] text-cyan-400 hover:underline"
-                                  title="Edit AWB / Carrier"
-                                >
-                                  ✏️
-                                </button>
-                              </div>
-                            )}
-                            <span className="text-[10px] text-slate-400 block mt-0.5">{o.courierName}</span>
+                            <button
+                              type="button"
+                              onClick={() => openFulfillmentModal(o)}
+                              className="text-left group hover:bg-slate-800/80 p-1.5 rounded-lg border border-slate-800/60 hover:border-slate-700 transition-all block w-full"
+                              title="Click to configure shipment vs direct handover"
+                            >
+                              {isPartnerShipmentOrder(o) ? (
+                                <div>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="font-mono text-[11px] font-bold text-cyan-300">
+                                      ✈️ {o.awbNumber || 'Pending AWB'}
+                                    </span>
+                                    <span className="text-[10px] text-cyan-400 opacity-60 group-hover:opacity-100">✏️</span>
+                                  </div>
+                                  <span className="text-[10px] text-slate-400 block truncate max-w-[140px] mt-0.5">
+                                    {o.courierName || 'Priority Air Cargo'}
+                                  </span>
+                                </div>
+                              ) : (
+                                <div>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-[11px] font-semibold text-emerald-400">
+                                      🚚 Direct Handover
+                                    </span>
+                                    <span className="text-[10px] text-emerald-400 opacity-60 group-hover:opacity-100">✏️</span>
+                                  </div>
+                                  <span className="text-[10px] text-slate-500 block mt-0.5">
+                                    No Partner Carrier
+                                  </span>
+                                </div>
+                              )}
+                            </button>
                           </td>
                           <td className="p-3 pr-4 text-right">
                             <div className="flex items-center justify-end gap-1.5">
@@ -823,13 +865,49 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
                     </a>
                     <p className="text-slate-300 mt-1">{selectedOrder.address}, {selectedOrder.city} - {selectedOrder.pincode}</p>
                   </div>
-                  <div className="bg-[#050f18] p-3.5 rounded-xl border border-slate-800">
-                    <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">
-                      Logistics Telemetry
-                    </span>
-                    <p className="text-slate-300"><strong className="text-white">Carrier:</strong> {selectedOrder.courierName}</p>
-                    <p className="text-slate-300"><strong className="text-white">AWB:</strong> {selectedOrder.awbNumber || 'Pending'}</p>
-                    <p className="text-slate-300"><strong className="text-white">ETA:</strong> {selectedOrder.estimatedDelivery}</p>
+                  <div className="bg-[#050f18] p-3.5 rounded-xl border border-slate-800 relative">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">
+                        Logistics &amp; Fulfillment
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => openFulfillmentModal(selectedOrder)}
+                        className="text-[10px] text-cyan-400 hover:text-cyan-300 hover:underline flex items-center gap-1 font-semibold"
+                      >
+                        <span>⚙️</span>
+                        <span>Configure</span>
+                      </button>
+                    </div>
+                    {isPartnerShipmentOrder(selectedOrder) ? (
+                      <div className="space-y-1">
+                        <p className="text-slate-300">
+                          <strong className="text-white">Mode:</strong> <span className="text-cyan-400 font-medium">✈️ Partner Cargo</span>
+                        </p>
+                        <p className="text-slate-300">
+                          <strong className="text-white">Carrier:</strong> {selectedOrder.courierName || 'Priority Air Cargo Express'}
+                        </p>
+                        <p className="text-slate-300">
+                          <strong className="text-white">AWB:</strong>{' '}
+                          <span className="font-mono text-cyan-300 font-bold">{selectedOrder.awbNumber || 'Pending'}</span>
+                        </p>
+                        <p className="text-slate-300">
+                          <strong className="text-white">ETA:</strong> {selectedOrder.estimatedDelivery || 'Within 24-48 Hours'}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-1">
+                        <p className="text-slate-300">
+                          <strong className="text-white">Mode:</strong> <span className="text-emerald-400 font-semibold">🚚 Direct Handover</span>
+                        </p>
+                        <p className="text-slate-400 text-[11px]">
+                          Local concierge delivery / store handover. No partner courier or AWB on invoice.
+                        </p>
+                        <p className="text-slate-300">
+                          <strong className="text-white">Handover ETA:</strong> {selectedOrder.estimatedDelivery || 'Direct Concierge Handover'}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -1453,6 +1531,249 @@ export function ControlOsSales({ initialSubtab = 'orders', showToast }: ControlO
           }}
           onSavePricing={handleSavePricingFromModal}
         />
+      )}
+
+      {/* ── Fulfillment & Shipment Configuration Modal ─────────────────────── */}
+      {fulfillmentModalOrder && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="fulfillment-modal-title"
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+        >
+          <div className="bg-[#0b1420] border border-slate-800 rounded-2xl sm:rounded-3xl p-5 sm:p-6 max-w-lg w-full space-y-4 shadow-2xl relative text-slate-200 animate-in fade-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between border-b border-slate-800 pb-3">
+              <div>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-cyan-400 font-bold block">
+                  ORDER FULFILLMENT SETTINGS
+                </span>
+                <h3 id="fulfillment-modal-title" className="text-base sm:text-lg font-bold text-white">
+                  Dispatch &amp; Shipment Method
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Order <span className="font-mono text-cyan-300 font-bold">#{fulfillmentModalOrder.id}</span> • {fulfillmentModalOrder.customerName}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setFulfillmentModalOrder(null)}
+                className="min-w-[36px] min-h-[36px] flex items-center justify-center text-slate-400 hover:text-white rounded-xl bg-slate-800/40 hover:bg-slate-800 transition-colors"
+                aria-label="Close Modal"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Destination summary */}
+            <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800/80 text-xs flex items-center justify-between">
+              <div>
+                <span className="text-[10px] text-slate-500 block uppercase font-mono">Consignee Destination</span>
+                <span className="font-semibold text-slate-200">
+                  {fulfillmentModalOrder.city} • PIN: {fulfillmentModalOrder.pincode}
+                </span>
+              </div>
+              <div className="text-right">
+                <span className="text-[10px] text-slate-500 block uppercase font-mono">Total Order</span>
+                <span className="font-mono text-emerald-400 font-bold">
+                  ₹{fulfillmentModalOrder.totalAmount?.toLocaleString('en-IN')}
+                </span>
+              </div>
+            </div>
+
+            {/* Mode Selection Cards */}
+            <div>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">
+                Select Dispatch Option:
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {/* Option 1: Direct Handover */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsShipmentViaPartner(false);
+                    if (!fulfillmentEtaInput || fulfillmentEtaInput.includes('Priority Air Cargo')) {
+                      setFulfillmentEtaInput('Direct Concierge Handover');
+                    }
+                  }}
+                  className={`p-3.5 rounded-xl border text-left transition-all ${
+                    !isShipmentViaPartner
+                      ? 'bg-emerald-500/15 border-emerald-400 text-white shadow-lg shadow-emerald-500/10 ring-1 ring-emerald-400'
+                      : 'bg-slate-900/70 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xl">🚚</span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                      !isShipmentViaPartner ? 'bg-emerald-400 text-slate-950' : 'bg-slate-800 text-slate-400'
+                    }`}>
+                      No Partner
+                    </span>
+                  </div>
+                  <h4 className="font-bold text-xs mt-2 text-white">Direct Local Delivery</h4>
+                  <p className="text-[10px] text-slate-400 mt-1 leading-snug">
+                    In-house delivery or pickup. No courier partner or AWB details required.
+                  </p>
+                </button>
+
+                {/* Option 2: Partner Shipment */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsShipmentViaPartner(true);
+                    if (!fulfillmentCourierInput) {
+                      setFulfillmentCourierInput('Priority Air Cargo Express');
+                    }
+                    if (!fulfillmentEtaInput || fulfillmentEtaInput.includes('Direct Concierge')) {
+                      setFulfillmentEtaInput('Tomorrow via Priority Air Cargo');
+                    }
+                  }}
+                  className={`p-3.5 rounded-xl border text-left transition-all ${
+                    isShipmentViaPartner
+                      ? 'bg-cyan-500/15 border-cyan-400 text-white shadow-lg shadow-cyan-500/10 ring-1 ring-cyan-400'
+                      : 'bg-slate-900/70 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xl">✈️</span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                      isShipmentViaPartner ? 'bg-cyan-400 text-slate-950' : 'bg-slate-800 text-slate-400'
+                    }`}>
+                      Cargo Partner
+                    </span>
+                  </div>
+                  <h4 className="font-bold text-xs mt-2 text-white">Partner Cargo Shipment</h4>
+                  <p className="text-[10px] text-slate-400 mt-1 leading-snug">
+                    Commercial carrier (Air Cargo/Courier). Collects Carrier &amp; AWB tracking ID.
+                  </p>
+                </button>
+              </div>
+            </div>
+
+            {/* Conditional Fields */}
+            {isShipmentViaPartner ? (
+              <div className="space-y-3 p-3.5 rounded-xl bg-slate-900/90 border border-cyan-500/30 text-xs">
+                <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-wider block">
+                  Partner Logistics Parameters (Shown on Official Invoice)
+                </span>
+
+                {/* Carrier Partner */}
+                <div>
+                  <label className="text-slate-300 block mb-1 font-medium">
+                    Carrier Partner Name <span className="text-cyan-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={fulfillmentCourierInput}
+                    onChange={(e) => setFulfillmentCourierInput(e.target.value)}
+                    placeholder="e.g. Priority Air Cargo Express"
+                    className="w-full min-h-[40px] bg-[#050f18] border border-slate-700 rounded-xl px-3 text-white focus:outline-none focus:ring-1 focus:ring-cyan-500 text-xs"
+                  />
+                  {/* Quick Select Carrier Pills */}
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {POPULAR_CARRIER_PARTNERS.map((carrier) => (
+                      <button
+                        key={carrier}
+                        type="button"
+                        onClick={() => setFulfillmentCourierInput(carrier)}
+                        className={`text-[10px] px-2 py-0.5 rounded-md border transition-all ${
+                          fulfillmentCourierInput === carrier
+                            ? 'bg-cyan-400/20 text-cyan-300 border-cyan-400/40'
+                            : 'bg-slate-800/80 text-slate-400 border-slate-700 hover:text-white'
+                        }`}
+                      >
+                        {carrier}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Air Waybill (AWB) */}
+                <div>
+                  <label className="text-slate-300 block mb-1 font-medium">
+                    Air Waybill (AWB) / Shipment ID <span className="text-cyan-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={fulfillmentAwbInput}
+                    onChange={(e) => setFulfillmentAwbInput(e.target.value)}
+                    placeholder="e.g. EXP-AIR-7729-CCU"
+                    className="w-full min-h-[40px] bg-[#050f18] border border-slate-700 rounded-xl px-3 font-mono text-cyan-300 font-bold focus:outline-none focus:ring-1 focus:ring-cyan-500 text-xs"
+                  />
+                  <span className="text-[10px] text-slate-500 block mt-1">
+                    Air Cargo Waybill assigned by airline/courier partner. Printed on customer manifest.
+                  </span>
+                </div>
+
+                {/* Estimated Delivery / ETA */}
+                <div>
+                  <label className="text-slate-300 block mb-1 font-medium">
+                    Estimated Delivery / Flight ETA
+                  </label>
+                  <input
+                    type="text"
+                    value={fulfillmentEtaInput}
+                    onChange={(e) => setFulfillmentEtaInput(e.target.value)}
+                    placeholder="e.g. Tomorrow via Priority Air Cargo"
+                    className="w-full min-h-[40px] bg-[#050f18] border border-slate-700 rounded-xl px-3 text-white focus:outline-none focus:ring-1 focus:ring-cyan-500 text-xs"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs space-y-2">
+                <div className="flex items-center gap-2 text-emerald-400 font-semibold">
+                  <span>✓</span>
+                  <span>Direct Concierge Delivery Active</span>
+                </div>
+                <p className="text-slate-300 text-[11px] leading-relaxed">
+                  No carrier partner or AWB tracking code will be required or collected. The customer invoice will be generated cleanly for direct local delivery without air cargo placeholders.
+                </p>
+                <div>
+                  <label className="text-slate-300 block mb-1 font-medium text-[11px]">
+                    Handover ETA / Delivery Note (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={fulfillmentEtaInput}
+                    onChange={(e) => setFulfillmentEtaInput(e.target.value)}
+                    placeholder="e.g. Direct Concierge Handover"
+                    className="w-full min-h-[40px] bg-[#050f18] border border-slate-700 rounded-xl px-3 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 text-xs"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Footer Actions */}
+            <div className="pt-2 flex items-center justify-end gap-2.5 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setFulfillmentModalOrder(null)}
+                disabled={savingFulfillment}
+                className="min-h-[42px] px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-mono transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveFulfillment}
+                disabled={savingFulfillment}
+                className="min-h-[42px] px-5 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-400/20 transition-all flex items-center gap-2 active:scale-95 disabled:opacity-50"
+              >
+                {savingFulfillment ? (
+                  <>
+                    <span className="w-3.5 h-3.5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>✓</span>
+                    <span>Save &amp; Update Invoice</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

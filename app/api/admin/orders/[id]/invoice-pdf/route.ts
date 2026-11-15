@@ -24,6 +24,7 @@ import { OrderModel } from '@/models/Order';
 import { requireAnyPermission } from '@/lib/rbac/guard';
 import { InvoicePDFDocument, ExecutiveInvoiceOrderData } from '@/lib/invoice-pdf-template';
 import { getUpiPaymentSettings, resolveOrderInvoicePaymentData } from '@/lib/services/upi-qr';
+import { isPartnerShipmentOrder } from '@/lib/fulfillment-utils';
 
 // Force Node.js runtime — @react-pdf/renderer requires Node (canvas/fs APIs)
 export const runtime = 'nodejs';
@@ -186,9 +187,11 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
       }),
       totalAmount:       order.totalAmount,
       subtotal:          order.subtotal || order.totalAmount,
-      courierName:       order.courierName || '',
-      awbNumber:         order.awbNumber || '',
-      estimatedDelivery: order.estimatedDelivery || '',
+      isShippedViaPartner: isPartnerShipmentOrder(order),
+      fulfillmentType:   isPartnerShipmentOrder(order) ? 'partner_shipment' : 'direct_delivery',
+      courierName:       isPartnerShipmentOrder(order) ? (order.courierName || 'Priority Air Cargo Express') : '',
+      awbNumber:         isPartnerShipmentOrder(order) ? (order.awbNumber || '') : '',
+      estimatedDelivery: order.estimatedDelivery || (isPartnerShipmentOrder(order) ? 'Within 24-48 Hours' : 'Direct Concierge Handover'),
       invoiceNumber:     cleanInvoiceNumber,
       isApproved:        order.isApproved,
       approvedAt:        order.approvedAt || '',

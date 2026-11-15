@@ -44,6 +44,8 @@ export interface CustomerOrder {
   totalAmount: number;
   currentStep: OrderProgressStep;
   statusHistory: StatusUpdateLog[];
+  isShippedViaPartner?: boolean;
+  fulfillmentType?: 'partner_shipment' | 'direct_delivery';
   awbNumber?: string;
   courierName?: string;
   estimatedDelivery: string;
@@ -83,7 +85,12 @@ interface OrderContextType {
     }
   ) => Promise<{ success: boolean; data?: CustomerOrder; error?: string }>;
   updateOrderStatus: (orderId: string, nextStep: OrderProgressStep, note?: string) => Promise<void>;
-  updateOrderTracking: (orderId: string, awbNumber: string, courierName: string) => void;
+  updateOrderTracking: (
+    orderId: string,
+    awbNumber: string,
+    courierName: string,
+    options?: { isShippedViaPartner?: boolean; estimatedDelivery?: string }
+  ) => void;
   setOrderPorPricing: (
     orderId: string,
     items: Array<{ id: string; agreedUnitPrice: number }>,
@@ -493,11 +500,24 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const updateOrderTracking = (orderId: string, awbNumber: string, courierName: string) => {
+  const updateOrderTracking = (
+    orderId: string,
+    awbNumber: string,
+    courierName: string,
+    options?: { isShippedViaPartner?: boolean; estimatedDelivery?: string }
+  ) => {
+    const isPartner = options?.isShippedViaPartner ?? Boolean(awbNumber && !awbNumber.includes('PENDING'));
     setOrders((prev) =>
       prev.map((order) => {
         if (order.id !== orderId) return order;
-        const updated = { ...order, awbNumber, courierName };
+        const updated = {
+          ...order,
+          awbNumber,
+          courierName,
+          isShippedViaPartner: isPartner,
+          fulfillmentType: isPartner ? ('partner_shipment' as const) : ('direct_delivery' as const),
+          ...(options?.estimatedDelivery ? { estimatedDelivery: options.estimatedDelivery } : {}),
+        };
         if (activeOrder?.id === orderId) {
           setActiveOrder(updated);
         }
@@ -509,7 +529,14 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ id: orderId, awbNumber, courierName }),
+      body: JSON.stringify({
+        id: orderId,
+        awbNumber,
+        courierName,
+        isShippedViaPartner: isPartner,
+        fulfillmentType: isPartner ? 'partner_shipment' : 'direct_delivery',
+        ...(options?.estimatedDelivery ? { estimatedDelivery: options.estimatedDelivery } : {}),
+      }),
     }).catch((err) => {
       if (process.env.NODE_ENV === 'development') console.warn('Cloud order tracking update error:', err);
     });

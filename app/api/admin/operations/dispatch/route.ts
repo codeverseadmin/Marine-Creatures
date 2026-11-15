@@ -46,7 +46,20 @@ export async function PATCH(req: NextRequest) {
   try {
     await connectToDatabase();
     const body = await req.json();
-    const { orderId, awbNumber, courierName, estimatedDelivery, currentStep, dispatchNote } = body;
+    const {
+      orderId,
+      awbNumber,
+      awb,
+      courierName,
+      courier,
+      estimatedDelivery,
+      eta,
+      currentStep,
+      step,
+      dispatchNote,
+      isShippedViaPartner,
+      fulfillmentType,
+    } = body;
 
     if (!orderId) {
       return NextResponse.json({ success: false, error: 'Order ID required' }, { status: 400 });
@@ -57,12 +70,39 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404 });
     }
 
-    if (awbNumber) order.awbNumber = awbNumber.trim();
-    if (courierName) order.courierName = courierName.trim();
-    if (estimatedDelivery) order.estimatedDelivery = estimatedDelivery.trim();
+    const resolvedAwb = awbNumber !== undefined ? awbNumber : awb;
+    const resolvedCourier = courierName !== undefined ? courierName : courier;
+    const resolvedEta = estimatedDelivery !== undefined ? estimatedDelivery : eta;
+    const resolvedStep = currentStep || (step ? step.toLowerCase() : undefined);
 
-    if (currentStep && ['packed', 'dispatched', 'delivered'].includes(currentStep)) {
-      order.currentStep = currentStep;
+    if (isShippedViaPartner !== undefined) {
+      order.isShippedViaPartner = Boolean(isShippedViaPartner);
+      order.fulfillmentType = order.isShippedViaPartner ? 'partner_shipment' : 'direct_delivery';
+      if (!order.isShippedViaPartner) {
+        order.awbNumber = '';
+        order.courierName = '';
+      }
+    } else if (fulfillmentType !== undefined) {
+      order.fulfillmentType = fulfillmentType === 'partner_shipment' ? 'partner_shipment' : 'direct_delivery';
+      order.isShippedViaPartner = order.fulfillmentType === 'partner_shipment';
+      if (!order.isShippedViaPartner) {
+        order.awbNumber = '';
+        order.courierName = '';
+      }
+    }
+
+    if (resolvedAwb !== undefined && order.isShippedViaPartner !== false) {
+      order.awbNumber = typeof resolvedAwb === 'string' ? resolvedAwb.trim() : '';
+    }
+    if (resolvedCourier !== undefined && order.isShippedViaPartner !== false) {
+      order.courierName = typeof resolvedCourier === 'string' ? resolvedCourier.trim() : order.courierName;
+    }
+    if (resolvedEta !== undefined) {
+      order.estimatedDelivery = typeof resolvedEta === 'string' ? resolvedEta.trim() : order.estimatedDelivery;
+    }
+
+    if (resolvedStep && ['packed', 'dispatched', 'delivered'].includes(resolvedStep)) {
+      order.currentStep = resolvedStep as any;
 
       const nowFormatted = new Date().toLocaleDateString('en-IN', {
         day: 'numeric',

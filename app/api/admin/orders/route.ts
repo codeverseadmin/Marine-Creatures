@@ -83,7 +83,18 @@ export async function PATCH(req: NextRequest) {
   try {
     await connectToDatabase();
     const body = await req.json();
-    const { id, currentStep, awbNumber, courierName, estimatedDelivery, orderNotes, isApproved, note } = body;
+    const {
+      id,
+      currentStep,
+      awbNumber,
+      courierName,
+      estimatedDelivery,
+      orderNotes,
+      isApproved,
+      note,
+      isShippedViaPartner,
+      fulfillmentType,
+    } = body;
 
     if (!id || typeof id !== 'string') {
       return NextResponse.json({ success: false, error: 'Order ID is required' }, { status: 400 });
@@ -131,6 +142,24 @@ export async function PATCH(req: NextRequest) {
       };
 
       order.history.push(historyEntry as any);
+    }
+
+    if (isShippedViaPartner !== undefined) {
+      const isPartner = Boolean(isShippedViaPartner);
+      updates.isShippedViaPartner = isPartner;
+      updates.fulfillmentType = isPartner ? 'partner_shipment' : 'direct_delivery';
+      if (!isPartner) {
+        updates.awbNumber = '';
+        if (courierName === undefined) updates.courierName = '';
+      }
+    } else if (fulfillmentType !== undefined) {
+      const isPartner = fulfillmentType === 'partner_shipment';
+      updates.fulfillmentType = isPartner ? 'partner_shipment' : 'direct_delivery';
+      updates.isShippedViaPartner = isPartner;
+      if (!isPartner) {
+        updates.awbNumber = '';
+        if (courierName === undefined) updates.courierName = '';
+      }
     }
 
     if (awbNumber !== undefined) updates.awbNumber = typeof awbNumber === 'string' ? awbNumber.trim() : '';

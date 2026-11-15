@@ -10,6 +10,7 @@ import {
 } from '@/lib/context/OrderContext';
 import { useInvoicePdfShare } from '@/lib/hooks/useInvoicePdfShare';
 import PorPriceSettlementModal from '@/components/admin/PorPriceSettlementModal';
+import { isPartnerShipmentOrder } from '@/lib/fulfillment-utils';
 
 interface OrdersTabProps {
   showToast: (message: string) => void;
@@ -165,7 +166,11 @@ export default function OrdersTab({ showToast }: OrdersTabProps) {
   const [orderSearch, setOrderSearch] = useState('');
   const [orderStatusFilter, setOrderStatusFilter] = useState<string>('all');
   const [editingTrackingOrderId, setEditingTrackingOrderId] = useState<string | null>(null);
-  const [trackingForm, setTrackingForm] = useState({ awb: '', courier: '' });
+  const [trackingForm, setTrackingForm] = useState<{ awb: string; courier: string; isPartner: boolean }>({
+    awb: '',
+    courier: '',
+    isPartner: false,
+  });
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Sync from database on mount
@@ -191,9 +196,18 @@ export default function OrdersTab({ showToast }: OrdersTabProps) {
   };
 
   const handleSaveTracking = (orderId: string) => {
-    updateOrderTracking(orderId, trackingForm.awb, trackingForm.courier);
+    updateOrderTracking(
+      orderId,
+      trackingForm.isPartner ? trackingForm.awb.trim() : '',
+      trackingForm.isPartner ? (trackingForm.courier.trim() || 'Priority Air Cargo Express') : '',
+      { isShippedViaPartner: trackingForm.isPartner }
+    );
     setEditingTrackingOrderId(null);
-    showToast(`✓ Tracking updated for #${orderId}`);
+    showToast(
+      trackingForm.isPartner
+        ? `✓ Partner Cargo tracking updated for #${orderId}`
+        : `✓ Configured as Direct Handover for #${orderId}`
+    );
   };
 
   const filteredOrders = orders.filter((order) => {
@@ -694,54 +708,97 @@ export default function OrdersTab({ showToast }: OrdersTabProps) {
                   {/* Courier / AWB Tracking Section */}
                   <div className="flex items-center gap-2">
                     {isEditingTracking ? (
-                      <div className="flex items-center gap-2 bg-slate-900 p-2 rounded-xl border border-cyan-400/40">
-                        <input
-                          type="text"
-                          placeholder="AWB #"
-                          value={trackingForm.awb}
-                          onChange={(e) => setTrackingForm({ ...trackingForm, awb: e.target.value })}
-                          className="h-8 px-2.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white w-28 focus:outline-none focus:border-cyan-400"
-                        />
-                        <input
-                          type="text"
-                          placeholder="Courier Name"
-                          value={trackingForm.courier}
-                          onChange={(e) => setTrackingForm({ ...trackingForm, courier: e.target.value })}
-                          className="h-8 px-2.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white w-32 focus:outline-none focus:border-cyan-400"
-                        />
-                        <button
-                          onClick={() => handleSaveTracking(order.id)}
-                          className="h-8 px-2.5 rounded-lg bg-cyan-400 text-slate-950 font-bold text-xs"
-                        >
-                          Save
-                        </button>
-                        <button
-                          onClick={() => setEditingTrackingOrderId(null)}
-                          className="h-8 px-2 rounded-lg bg-slate-800 text-slate-300 text-xs"
-                        >
-                          ✕
-                        </button>
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 bg-slate-900 p-2.5 rounded-xl border border-cyan-400/40">
+                        {/* Dispatch Mode Toggle */}
+                        <div className="flex items-center gap-1 bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-[11px]">
+                          <button
+                            type="button"
+                            onClick={() => setTrackingForm({ ...trackingForm, isPartner: false })}
+                            className={`px-2 py-1 rounded-md font-medium transition-all ${
+                              !trackingForm.isPartner
+                                ? 'bg-emerald-500/20 text-emerald-300 font-bold'
+                                : 'text-slate-400 hover:text-white'
+                            }`}
+                          >
+                            🚚 Direct
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setTrackingForm({ ...trackingForm, isPartner: true, courier: trackingForm.courier || 'Priority Air Cargo Express' })}
+                            className={`px-2 py-1 rounded-md font-medium transition-all ${
+                              trackingForm.isPartner
+                                ? 'bg-cyan-500/20 text-cyan-300 font-bold'
+                                : 'text-slate-400 hover:text-white'
+                            }`}
+                          >
+                            ✈️ Partner Cargo
+                          </button>
+                        </div>
+
+                        {trackingForm.isPartner ? (
+                          <>
+                            <input
+                              type="text"
+                              placeholder="AWB #"
+                              value={trackingForm.awb}
+                              onChange={(e) => setTrackingForm({ ...trackingForm, awb: e.target.value })}
+                              className="h-8 px-2.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white w-28 focus:outline-none focus:border-cyan-400 font-mono"
+                            />
+                            <input
+                              type="text"
+                              placeholder="Courier Name"
+                              value={trackingForm.courier}
+                              onChange={(e) => setTrackingForm({ ...trackingForm, courier: e.target.value })}
+                              className="h-8 px-2.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white w-32 focus:outline-none focus:border-cyan-400"
+                            />
+                          </>
+                        ) : (
+                          <span className="text-[11px] text-slate-400 italic px-1">
+                            Direct local delivery (no courier/AWB on invoice)
+                          </span>
+                        )}
+
+                        <div className="flex items-center gap-1.5 ml-auto">
+                          <button
+                            onClick={() => handleSaveTracking(order.id)}
+                            className="h-8 px-3 rounded-lg bg-cyan-400 text-slate-950 font-bold text-xs"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={() => setEditingTrackingOrderId(null)}
+                            className="h-8 px-2 rounded-lg bg-slate-800 text-slate-300 text-xs"
+                          >
+                            ✕
+                          </button>
+                        </div>
                       </div>
                     ) : (
                       <div className="flex items-center gap-2 text-xs">
                         <span className="text-slate-400">
-                          {order.awbNumber ? (
-                            <span className="font-mono text-cyan-300">AWB: {order.awbNumber}</span>
+                          {isPartnerShipmentOrder(order) ? (
+                            <span className="font-mono text-cyan-300">
+                              ✈️ AWB: {order.awbNumber || 'Pending'} ({order.courierName || 'Partner Cargo'})
+                            </span>
                           ) : (
-                            <span className="text-slate-500">No AWB added</span>
+                            <span className="text-emerald-400 font-medium">
+                              🚚 Direct Handover (No Partner Carrier)
+                            </span>
                           )}
                         </span>
                         <button
                           onClick={() => {
+                            const isPartner = isPartnerShipmentOrder(order);
                             setTrackingForm({
                               awb: order.awbNumber || '',
                               courier: order.courierName || '',
+                              isPartner,
                             });
                             setEditingTrackingOrderId(order.id);
                           }}
                           className="h-8 px-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 text-xs font-medium transition-colors"
                         >
-                          ✏️ Edit Tracking
+                          ✏️ Edit Fulfillment
                         </button>
                       </div>
                     )}

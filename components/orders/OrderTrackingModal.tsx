@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useOrder, TRACKING_STEPS_META, OrderProgressStep, CustomerOrder, StatusUpdateLog } from '@/lib/context/OrderContext';
 import { SITE_CONFIG } from '@/lib/config';
 import { ProductThumbnail } from '@/components/ui/ProductThumbnail';
+import { isPartnerShipmentOrder } from '@/lib/fulfillment-utils';
 
 function mapTrackDataToCustomerOrder(t: any, existingOrder?: CustomerOrder | null): CustomerOrder {
   const stepsOrder: OrderProgressStep[] = ['placed', 'quarantine', 'packed', 'dispatched', 'delivered'];
@@ -375,9 +376,15 @@ export function OrderTrackingModal() {
                       <span>⚡</span>
                       <span>{currentOrder.estimatedDelivery}</span>
                     </span>
-                    {currentOrder.awbNumber && (
-                      <span className="text-[11px] font-mono text-slate-400 block mt-0.5">
-                        AWB: <strong className="text-white">{currentOrder.awbNumber}</strong> ({currentOrder.courierName})
+                    {isPartnerShipmentOrder(currentOrder) ? (
+                      currentOrder.awbNumber ? (
+                        <span className="text-[11px] font-mono text-slate-400 block mt-0.5">
+                          AWB: <strong className="text-white">{currentOrder.awbNumber}</strong> ({currentOrder.courierName})
+                        </span>
+                      ) : null
+                    ) : (
+                      <span className="text-[11px] text-emerald-400 block mt-0.5 font-medium">
+                        🚚 Direct Concierge Handover
                       </span>
                     )}
                   </div>

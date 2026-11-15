@@ -464,17 +464,24 @@ export async function POST(req: NextRequest) {
     const approvedAt = isAdmin && typeof body.approvedAt === 'string' ? body.approvedAt : undefined;
 
     // Fulfillment & tracking metadata strictly server-controlled
+    const isShippedViaPartner =
+      isAdmin && typeof body.isShippedViaPartner === 'boolean'
+        ? body.isShippedViaPartner
+        : (isAdmin && body.fulfillmentType === 'partner_shipment');
+
+    const fulfillmentType = isShippedViaPartner ? 'partner_shipment' : 'direct_delivery';
+
     const courierName =
-      isAdmin && typeof body.courierName === 'string'
+      isAdmin && isShippedViaPartner && typeof body.courierName === 'string'
         ? body.courierName.slice(0, 100)
-        : 'Priority Air Cargo Express';
+        : (isShippedViaPartner ? 'Priority Air Cargo Express' : '');
 
     const estimatedDelivery =
       isAdmin && typeof body.estimatedDelivery === 'string'
         ? body.estimatedDelivery.slice(0, 100)
-        : 'Within 24-48 Hours';
+        : (isShippedViaPartner ? 'Within 24-48 Hours' : 'Direct Concierge Handover');
 
-    const awbNumber = isAdmin && typeof body.awbNumber === 'string' ? body.awbNumber.trim().slice(0, 100) : undefined;
+    const awbNumber = isAdmin && isShippedViaPartner && typeof body.awbNumber === 'string' ? body.awbNumber.trim().slice(0, 100) : undefined;
 
     const invoiceNumber =
       isAdmin && typeof body.invoiceNumber === 'string' ? body.invoiceNumber.trim().slice(0, 100) : undefined;
@@ -496,7 +503,7 @@ export async function POST(req: NextRequest) {
     const initialInvoiceNumber = hasUnresolvedPorItems ? undefined : invoiceNumber;
 
     // Explicit server-controlled order payload — ZERO client-payload spreading
-    const orderPayload = {
+    const orderPayload: any = {
       id,
       customerName,
       phone,
@@ -510,6 +517,8 @@ export async function POST(req: NextRequest) {
       coupon: couponSnapshot,
       currentStep,
       hasUnresolvedPorItems,
+      isShippedViaPartner,
+      fulfillmentType,
       awbNumber,
       courierName,
       estimatedDelivery,
@@ -681,7 +690,18 @@ export async function PATCH(req: NextRequest) {
   try {
     await connectToDatabase();
     const body = await req.json();
-    const { id, currentStep, awbNumber, courierName, estimatedDelivery, orderNotes, isApproved, note } = body;
+    const {
+      id,
+      currentStep,
+      awbNumber,
+      courierName,
+      estimatedDelivery,
+      orderNotes,
+      isApproved,
+      note,
+      isShippedViaPartner,
+      fulfillmentType,
+    } = body;
 
     if (!id || typeof id !== 'string') {
       return NextResponse.json({ success: false, error: 'Order ID is required' }, { status: 400 });
@@ -787,6 +807,24 @@ export async function PATCH(req: NextRequest) {
         order.history = [];
       }
       order.history.push(historyEntry as any);
+    }
+
+    if (isShippedViaPartner !== undefined) {
+      const isPartner = Boolean(isShippedViaPartner);
+      updates.isShippedViaPartner = isPartner;
+      updates.fulfillmentType = isPartner ? 'partner_shipment' : 'direct_delivery';
+      if (!isPartner) {
+        updates.awbNumber = '';
+        if (courierName === undefined) updates.courierName = '';
+      }
+    } else if (fulfillmentType !== undefined) {
+      const isPartner = fulfillmentType === 'partner_shipment';
+      updates.fulfillmentType = isPartner ? 'partner_shipment' : 'direct_delivery';
+      updates.isShippedViaPartner = isPartner;
+      if (!isPartner) {
+        updates.awbNumber = '';
+        if (courierName === undefined) updates.courierName = '';
+      }
     }
 
     if (awbNumber !== undefined) updates.awbNumber = typeof awbNumber === 'string' ? awbNumber.trim() : '';

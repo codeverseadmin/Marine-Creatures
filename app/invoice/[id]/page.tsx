@@ -7,6 +7,7 @@ import { useOrder } from '@/lib/context/OrderContext';
 import { SITE_CONFIG } from '@/lib/config';
 import { useInvoicePdfShare } from '@/lib/hooks/useInvoicePdfShare';
 import { formatExecutiveDate } from '@/lib/invoice-pdf-template';
+import { isPartnerShipmentOrder } from '@/lib/fulfillment-utils';
 import {
   DEFAULT_BUSINESS_UPI_ID,
   DEFAULT_PAYEE_NAME,
@@ -145,6 +146,8 @@ export default function InvoicePage({ params }: InvoicePageProps) {
   const order = orders.find(
     (o) => o.id.toLowerCase() === orderId.toLowerCase() || o.id.replace('MC-', '') === rawId
   ) || remoteOrder;
+
+  const isPartner = isPartnerShipmentOrder(order);
 
   const handlePrint = () => {
     window.print();
@@ -634,34 +637,64 @@ export default function InvoicePage({ params }: InvoicePageProps) {
             )}
           </div>
 
-          {/* Transit & Air Cargo Manifest */}
-          <div className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800 print:bg-slate-50 print:border-black/20 space-y-1.5">
-            <span className="text-[10px] font-bold text-cyan-400 print:text-black uppercase tracking-wider block mb-1">
-              Live Air Cargo Dispatch Details
-            </span>
-            <div className="grid grid-cols-2 gap-y-1.5 pt-0.5">
-              <div>
-                <span className="text-[11px] text-slate-400 print:text-slate-600 block">Carrier Partner</span>
-                <span className="font-semibold text-white print:text-black">
-                  {order.courierName || 'IndiGo CarGo Priority'}
-                </span>
-              </div>
-              <div>
-                <span className="text-[11px] text-slate-400 print:text-slate-600 block">Air Waybill (AWB)</span>
-                <span className="font-mono font-bold text-cyan-300 print:text-black">
-                  {order.awbNumber || 'EXP-AIR-PENDING'}
-                </span>
-              </div>
-              <div>
-                <span className="text-[11px] text-slate-400 print:text-slate-600 block">Est. Delivery</span>
-                <span className="text-white print:text-black">{order.estimatedDelivery}</span>
-              </div>
-              <div>
-                <span className="text-[11px] text-slate-400 print:text-slate-600 block">Packaging Standard</span>
-                <span className="text-emerald-400 print:text-black font-semibold">Climate Thermal Pod</span>
+          {/* Transit & Fulfillment Manifest */}
+          {isPartner ? (
+            <div className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800 print:bg-slate-50 print:border-black/20 space-y-1.5">
+              <span className="text-[10px] font-bold text-cyan-400 print:text-black uppercase tracking-wider block mb-1">
+                Live Air Cargo Dispatch Details
+              </span>
+              <div className="grid grid-cols-2 gap-y-1.5 pt-0.5">
+                <div>
+                  <span className="text-[11px] text-slate-400 print:text-slate-600 block">Carrier Partner</span>
+                  <span className="font-semibold text-white print:text-black">
+                    {order.courierName || 'Priority Air Cargo Express'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[11px] text-slate-400 print:text-slate-600 block">Air Waybill (AWB)</span>
+                  <span className="font-mono font-bold text-cyan-300 print:text-black">
+                    {order.awbNumber || 'EXP-AIR-PENDING'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[11px] text-slate-400 print:text-slate-600 block">Est. Delivery</span>
+                  <span className="text-white print:text-black">{order.estimatedDelivery || 'Within 24-48 Hours'}</span>
+                </div>
+                <div>
+                  <span className="text-[11px] text-slate-400 print:text-slate-600 block">Packaging Standard</span>
+                  <span className="text-emerald-400 print:text-black font-semibold">Climate Thermal Pod</span>
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800 print:bg-slate-50 print:border-black/20 space-y-1.5">
+              <span className="text-[10px] font-bold text-cyan-400 print:text-black uppercase tracking-wider block mb-1">
+                Fulfillment &amp; Delivery Details
+              </span>
+              <div className="grid grid-cols-2 gap-y-1.5 pt-0.5">
+                <div>
+                  <span className="text-[11px] text-slate-400 print:text-slate-600 block">Fulfillment Mode</span>
+                  <span className="font-semibold text-white print:text-black">
+                    Direct Local Delivery / Handover
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[11px] text-slate-400 print:text-slate-600 block">Transit Method</span>
+                  <span className="text-slate-300 print:text-slate-800 font-medium">
+                    Direct Concierge Handover
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[11px] text-slate-400 print:text-slate-600 block">Est. Delivery</span>
+                  <span className="text-white print:text-black">{order.estimatedDelivery || 'Direct Concierge Handover'}</span>
+                </div>
+                <div>
+                  <span className="text-[11px] text-slate-400 print:text-slate-600 block">Packaging Standard</span>
+                  <span className="text-emerald-400 print:text-black font-semibold">Climate Thermal Pod</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Itemized Specimens Table */}
@@ -770,7 +803,9 @@ export default function InvoicePage({ params }: InvoicePageProps) {
               <span className="text-emerald-400 print:text-black font-semibold">FREE (₹0)</span>
             </div>
             <div className="flex justify-between py-1 border-b border-slate-800/80 print:border-black/20">
-              <span className="text-slate-400 print:text-slate-600">Priority Cargo Air Transit:</span>
+              <span className="text-slate-400 print:text-slate-600">
+                {isPartner ? 'Priority Cargo Air Transit:' : 'Local Delivery / Handover:'}
+              </span>
               <span className="text-emerald-400 print:text-black font-semibold">FREE (₹0)</span>
             </div>
             <div className="flex justify-between py-2 text-sm font-bold bg-cyan-400/10 print:bg-slate-100 p-2.5 rounded-xl">

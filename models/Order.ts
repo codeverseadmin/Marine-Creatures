@@ -91,6 +91,8 @@ export interface IOrderDocument extends Document {
   pricingVersion?: number;
   originalInvoiceNumber?: string;
   invoiceRevisions?: IInvoiceRevision[];
+  isShippedViaPartner?: boolean;
+  fulfillmentType?: 'partner_shipment' | 'direct_delivery';
   awbNumber?: string;
   courierName: string;
   estimatedDelivery: string;
@@ -228,6 +230,12 @@ const OrderSchema = new Schema<IOrderDocument>(
     pricingVersion: { type: Number, default: 1 },
     originalInvoiceNumber: { type: String },
     invoiceRevisions: { type: [InvoiceRevisionSchema], default: [] },
+    isShippedViaPartner: { type: Boolean, default: false },
+    fulfillmentType: {
+      type: String,
+      enum: ['partner_shipment', 'direct_delivery'],
+      default: 'direct_delivery',
+    },
     awbNumber: { type: String },
     courierName: { type: String, default: 'Priority Air Cargo Express' },
     estimatedDelivery: { type: String, default: 'Within 24-48 Hours' },

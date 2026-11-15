@@ -17,6 +17,7 @@ import {
   StyleSheet,
   Image,
 } from '@react-pdf/renderer';
+import { isPartnerShipmentOrder } from './fulfillment-utils';
 
 // ─── Executive Colour Palette ────────────────────────────────────────────────
 const C = {
@@ -629,6 +630,8 @@ export interface ExecutiveInvoiceOrderData {
     eligibleSubtotal?: number;
     description?: string;
   };
+  isShippedViaPartner?: boolean;
+  fulfillmentType?: string;
   courierName?: string;
   awbNumber?: string;
   estimatedDelivery?: string;
@@ -712,6 +715,7 @@ export function InvoicePDFDocument({ order }: { order: ExecutiveInvoiceOrderData
   // Automatic or conditional switching to 'TAX INVOICE' is strictly disallowed
   // without explicit business owner authorization.
   const docTitle = 'INVOICE & DISPATCH MANIFEST';
+  const isPartner = isPartnerShipmentOrder(order);
 
   return (
     <Document
@@ -777,19 +781,38 @@ export function InvoicePDFDocument({ order }: { order: ExecutiveInvoiceOrderData
 
           {/* Right Panel: Consignment & Dispatch Specifications */}
           <View style={styles.infoCard}>
-            <Text style={styles.cardTitle}>Consignment Specifications</Text>
+            <Text style={styles.cardTitle}>
+              {isPartner ? 'Consignment Specifications' : 'Fulfillment Specifications'}
+            </Text>
             <View style={styles.consignmentGrid}>
-              <View style={styles.consignmentItem}>
-                <Text style={styles.consignmentLabel}>Carrier Partner</Text>
-                <Text style={styles.consignmentValue}>{order.courierName || 'Priority Air Cargo'}</Text>
-              </View>
-              <View style={styles.consignmentItem}>
-                <Text style={styles.consignmentLabel}>Air Waybill (AWB)</Text>
-                <Text style={styles.consignmentValue}>{validAwb || 'Assigned at Dispatch'}</Text>
-              </View>
+              {isPartner ? (
+                <>
+                  <View style={styles.consignmentItem}>
+                    <Text style={styles.consignmentLabel}>Carrier Partner</Text>
+                    <Text style={styles.consignmentValue}>{order.courierName || 'Priority Air Cargo Express'}</Text>
+                  </View>
+                  <View style={styles.consignmentItem}>
+                    <Text style={styles.consignmentLabel}>Air Waybill (AWB)</Text>
+                    <Text style={styles.consignmentValue}>{validAwb || 'Assigned at Dispatch'}</Text>
+                  </View>
+                </>
+              ) : (
+                <>
+                  <View style={styles.consignmentItem}>
+                    <Text style={styles.consignmentLabel}>Fulfillment Mode</Text>
+                    <Text style={styles.consignmentValue}>Direct Local Delivery / Handover</Text>
+                  </View>
+                  <View style={styles.consignmentItem}>
+                    <Text style={styles.consignmentLabel}>Transit Method</Text>
+                    <Text style={styles.consignmentValue}>Direct Concierge Handover</Text>
+                  </View>
+                </>
+              )}
               <View style={styles.consignmentItem}>
                 <Text style={styles.consignmentLabel}>Est. Delivery</Text>
-                <Text style={styles.consignmentValue}>{validEstDelivery || 'Standard Express'}</Text>
+                <Text style={styles.consignmentValue}>
+                  {validEstDelivery || (isPartner ? 'Standard Express' : 'Direct Concierge Handover')}
+                </Text>
               </View>
               <View style={styles.consignmentItem}>
                 <Text style={styles.consignmentLabel}>Packaging Standard</Text>
@@ -922,7 +945,9 @@ export function InvoicePDFDocument({ order }: { order: ExecutiveInvoiceOrderData
               <Text style={styles.summaryValFree}>Complimentary</Text>
             </View>
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Priority Cargo Transit</Text>
+              <Text style={styles.summaryLabel}>
+                {isPartner ? 'Priority Cargo Transit' : 'Local Delivery / Handover'}
+              </Text>
               <Text style={styles.summaryValFree}>Complimentary</Text>
             </View>
             <View style={styles.totalBox}>

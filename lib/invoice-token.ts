@@ -1,4 +1,5 @@
 import { randomBytes, createHash, timingSafeEqual } from 'crypto';
+import { isPartnerShipmentOrder } from './fulfillment-utils';
 
 export const INVOICE_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
@@ -75,6 +76,7 @@ export function isInvoiceTokenExpired(expiresAt?: Date | string | null): boolean
  * Strictly strips raw MongoDB fields, internal hashes, and unauthorized system state.
  */
 export function serializeCustomerInvoice(order: any) {
+  const isPartner = isPartnerShipmentOrder(order);
   return {
     id: order.id,
     invoiceNumber: order.invoiceNumber || `INV-${order.id}`,
@@ -84,9 +86,11 @@ export function serializeCustomerInvoice(order: any) {
     city: order.city || '',
     pincode: order.pincode || '',
     orderNotes: order.orderNotes || '',
-    courierName: order.courierName || 'Priority Air Cargo Express',
-    awbNumber: order.awbNumber || null,
-    estimatedDelivery: order.estimatedDelivery || 'Within 24-48 Hours',
+    isShippedViaPartner: isPartner,
+    fulfillmentType: isPartner ? 'partner_shipment' : 'direct_delivery',
+    courierName: isPartner ? (order.courierName || 'Priority Air Cargo Express') : '',
+    awbNumber: isPartner ? (order.awbNumber || null) : null,
+    estimatedDelivery: order.estimatedDelivery || (isPartner ? 'Within 24-48 Hours' : 'Direct Concierge Handover'),
     currentStep: order.currentStep || 'placed',
     isApproved: Boolean(order.isApproved),
     createdAt: order.createdAt,
