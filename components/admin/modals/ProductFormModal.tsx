@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { Product, ProductMedia } from '@/lib/data/products';
 import { optimizeImageForUpload } from '@/lib/image-optimizer';
 import { uploadFileChunked } from '@/lib/services/chunked-upload';
+import { VideoTrimmerModal } from '@/components/admin/video/VideoTrimmerModal';
+import { TrimResult } from '@/lib/services/video-trimmer';
 
 interface ProductFormModalProps {
   isOpen: boolean;
@@ -29,6 +31,8 @@ export function ProductFormModal({
   const [newMediaUrl, setNewMediaUrl] = useState('');
   const [newMediaType, setNewMediaType] = useState<'image' | 'video'>('image');
   const [uploadingMedia, setUploadingMedia] = useState(false);
+  const [videoTrimmerFile, setVideoTrimmerFile] = useState<File | null>(null);
+  const [isVideoTrimmerOpen, setIsVideoTrimmerOpen] = useState(false);
 
   if (!isOpen) return null;
 
@@ -114,24 +118,31 @@ export function ProductFormModal({
     }
   };
 
-  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
     const file = files[0];
+    e.target.value = '';
 
     if (file.size > 25 * 1024 * 1024) {
       alert('Direct video upload is limited to 25MB. For larger videos, paste an MP4 or YouTube URL into the media list.');
       return;
     }
 
+    // Launch WhatsApp-style in-built video trimmer
+    setVideoTrimmerFile(file);
+    setIsVideoTrimmerOpen(true);
+  };
+
+  const performDirectVideoUpload = async (fileToUpload: File) => {
     setUploadingMedia(true);
-    showToast(`Uploading specimen video "${file.name}" (0%)...`);
+    showToast(`Uploading specimen video "${fileToUpload.name}" (0%)...`);
 
     try {
-      const data = await uploadFileChunked(file, {
+      const data = await uploadFileChunked(fileToUpload, {
         productId: productForm.id,
         onProgress: (p) => {
-          showToast(`Uploading "${file.name}": ${p.percent}%...`);
+          showToast(`Uploading "${fileToUpload.name}": ${p.percent}%...`);
         },
       });
 
@@ -139,7 +150,7 @@ export function ProductFormModal({
         id: data.mediaId || `media-vid-${Date.now()}`,
         type: 'video',
         url: data.url,
-        title: file.name,
+        title: fileToUpload.name,
       };
 
       setProductForm((prev) => {
@@ -153,13 +164,12 @@ export function ProductFormModal({
         };
       });
 
-      showToast(`✓ Specimen video "${file.name}" uploaded successfully!`);
+      showToast(`✓ Specimen video "${fileToUpload.name}" uploaded successfully!`);
     } catch (err: any) {
       console.error('Video upload error:', err);
       alert(`Video upload failed: ${err.message}`);
     } finally {
       setUploadingMedia(false);
-      e.target.value = '';
     }
   };
 
@@ -648,6 +658,27 @@ export function ProductFormModal({
           </button>
         </div>
       </form>
+
+      {/* ── In-Built WhatsApp-Style Video Trimmer Modal ──────────────────────── */}
+      <VideoTrimmerModal
+        isOpen={isVideoTrimmerOpen}
+        file={videoTrimmerFile}
+        onClose={() => {
+          setIsVideoTrimmerOpen(false);
+          setVideoTrimmerFile(null);
+        }}
+        onConfirmTrimmed={(trimmedFile, stats) => {
+          setIsVideoTrimmerOpen(false);
+          setVideoTrimmerFile(null);
+          performDirectVideoUpload(trimmedFile);
+          showToast(`✓ Specimen video trimmed (${stats.trimmedDuration.toFixed(1)}s) & uploading!`);
+        }}
+        onUploadOriginal={(origFile) => {
+          setIsVideoTrimmerOpen(false);
+          setVideoTrimmerFile(null);
+          performDirectVideoUpload(origFile);
+        }}
+      />
     </div>
   );
 }

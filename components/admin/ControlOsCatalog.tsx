@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { Product, ProductMedia } from '@/lib/data/products';
 import { optimizeImageForUpload } from '@/lib/image-optimizer';
 import { uploadFileChunked } from '@/lib/services/chunked-upload';
+import { VideoTrimmerModal } from '@/components/admin/video/VideoTrimmerModal';
+import { TrimResult } from '@/lib/services/video-trimmer';
 
 // Category taxonomy constants
 export const CATALOG_CATEGORIES = [
@@ -157,6 +159,11 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {}, ini
   const [newImageAlt, setNewImageAlt] = useState('');
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
 
+  // In-Built Video Trimmer Modal State (WhatsApp-Style Trimming)
+  const [videoTrimmerFile, setVideoTrimmerFile] = useState<File | null>(null);
+  const [isVideoTrimmerOpen, setIsVideoTrimmerOpen] = useState(false);
+  const [pendingTrimmerStandalone, setPendingTrimmerStandalone] = useState(false);
+
   // Global Media Library & Asset Repository State
   const [mediaLibraryItems, setMediaLibraryItems] = useState<any[]>([]);
   const [mediaLibraryCounts, setMediaLibraryCounts] = useState<{
@@ -200,14 +207,14 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {}, ini
 
   // Scroll lock when modal dialogs are active
   useEffect(() => {
-    if (isEditorOpen || archiveTarget || duplicateTarget || previewVideo || mediaDeleteTarget) {
+    if (isEditorOpen || archiveTarget || duplicateTarget || previewVideo || mediaDeleteTarget || isVideoTrimmerOpen) {
       const originalOverflow = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
       return () => {
         document.body.style.overflow = originalOverflow;
       };
     }
-  }, [isEditorOpen, archiveTarget, duplicateTarget, previewVideo, mediaDeleteTarget]);
+  }, [isEditorOpen, archiveTarget, duplicateTarget, previewVideo, mediaDeleteTarget, isVideoTrimmerOpen]);
 
   // ── Fetch Authoritative Catalog from MongoDB ───────────────────────────────
   const fetchCatalogData = useCallback(async () => {
@@ -791,7 +798,7 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {}, ini
     }
   };
 
-  const handleFilesSelected = (files: File[], isStandalone = false) => {
+  const enqueueAndUploadFiles = (files: File[], isStandalone = false) => {
     if (!files || files.length === 0) return;
 
     const newQueueItems: UploadQueueItem[] = files.map((file) => {
@@ -833,6 +840,49 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {}, ini
       const errors = newQueueItems.filter((i) => i.error).map((i) => `"${i.name}": ${i.error}`);
       setMediaError(errors.join('; '));
     }
+  };
+
+  const handleFilesSelected = (files: File[], isStandalone = false) => {
+    if (!files || files.length === 0) return;
+
+    const videoFiles: File[] = [];
+    const nonVideoFiles: File[] = [];
+
+    files.forEach((file) => {
+      const ext = file.name.split('.').pop()?.toLowerCase() || '';
+      const isVideo = file.type.startsWith('video/') || ['mp4', 'webm', 'mov'].includes(ext);
+      if (isVideo) {
+        videoFiles.push(file);
+      } else {
+        nonVideoFiles.push(file);
+      }
+    });
+
+    // Upload non-video files immediately
+    if (nonVideoFiles.length > 0) {
+      enqueueAndUploadFiles(nonVideoFiles, isStandalone);
+    }
+
+    // Launch in-built WhatsApp-style video trimmer for the video file
+    if (videoFiles.length > 0) {
+      setVideoTrimmerFile(videoFiles[0]);
+      setPendingTrimmerStandalone(isStandalone);
+      setIsVideoTrimmerOpen(true);
+    }
+  };
+
+  const handleConfirmTrimmedVideo = (trimmedFile: File, stats: TrimResult) => {
+    setIsVideoTrimmerOpen(false);
+    setVideoTrimmerFile(null);
+    enqueueAndUploadFiles([trimmedFile], pendingTrimmerStandalone);
+    showToast(`✓ Specimen video trimmed to ${stats.trimmedDuration.toFixed(1)}s & queued for upload!`);
+  };
+
+  const handleUploadOriginalVideo = (originalFile: File) => {
+    setIsVideoTrimmerOpen(false);
+    setVideoTrimmerFile(null);
+    enqueueAndUploadFiles([originalFile], pendingTrimmerStandalone);
+    showToast(`✓ Specimen video queued for upload!`);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -3295,26 +3345,44 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {}, ini
                       </p>
                     </div>
 
-                    <label
-                      htmlFor="catalog-file-upload"
-                      className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs cursor-pointer shadow-md transition-colors ${
-                        isUploadingMedia
-                          ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
-                          : 'bg-cyan-400 hover:bg-cyan-300 text-slate-950'
-                      }`}
-                    >
-                      {isUploadingMedia ? (
-                        <>
-                          <span className="inline-block w-3.5 h-3.5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-                          <span>Processing & Uploading...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>📁</span>
-                          <span>Select Photos & Videos</span>
-                        </>
-                      )}
-                    </label>
+                    <div className="flex flex-wrap items-center justify-center gap-2">
+                      <label
+                        htmlFor="catalog-file-upload"
+                        className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs cursor-pointer shadow-md transition-colors ${
+                          isUploadingMedia
+                            ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
+                            : 'bg-cyan-400 hover:bg-cyan-300 text-slate-950'
+                        }`}
+                      >
+                        {isUploadingMedia ? (
+                          <>
+                            <span className="inline-block w-3.5 h-3.5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                            <span>Processing & Uploading...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>📁</span>
+                            <span>Select Photos & Videos</span>
+                          </>
+                        )}
+                      </label>
+
+                      <label
+                        htmlFor="catalog-video-picker"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl font-bold text-xs bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 cursor-pointer shadow-md transition-colors"
+                      >
+                        <span>✂️</span>
+                        <span>Trim & Upload Video</span>
+                      </label>
+                      <input
+                        type="file"
+                        id="catalog-video-picker"
+                        accept="video/mp4,video/webm,video/quicktime,video/*"
+                        onChange={handleFileUpload}
+                        disabled={isUploadingMedia}
+                        className="hidden"
+                      />
+                    </div>
 
                     {/* External URL Input */}
                     <div className="flex flex-col sm:flex-row items-center gap-2 max-w-lg mx-auto pt-2">
@@ -3393,6 +3461,21 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {}, ini
                             </div>
 
                             <div className="flex items-center gap-2 shrink-0">
+                              {item.isVideo && item.file && (item.status === 'error' || item.status === 'pending') && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setVideoTrimmerFile(item.file);
+                                    setPendingTrimmerStandalone(false);
+                                    setIsVideoTrimmerOpen(true);
+                                  }}
+                                  className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 hover:bg-purple-500/30 text-[10px] font-mono font-semibold transition-colors flex items-center gap-1"
+                                  title="Trim this video before uploading"
+                                >
+                                  <span>✂️</span>
+                                  <span>Trim</span>
+                                </button>
+                              )}
                               {item.status === 'pending' && (
                                 <span className="text-[11px] text-slate-500 font-mono">Queued</span>
                               )}
@@ -4077,6 +4160,18 @@ export function ControlOsCatalog({ onReturnToOverview, showToast = () => {}, ini
           </div>
         </div>
       )}
+
+      {/* ── In-Built WhatsApp-Style Video Trimmer Modal ──────────────────────── */}
+      <VideoTrimmerModal
+        isOpen={isVideoTrimmerOpen}
+        file={videoTrimmerFile}
+        onClose={() => {
+          setIsVideoTrimmerOpen(false);
+          setVideoTrimmerFile(null);
+        }}
+        onConfirmTrimmed={handleConfirmTrimmedVideo}
+        onUploadOriginal={handleUploadOriginalVideo}
+      />
     </div>
   );
 }
