@@ -95,3 +95,4 @@ flowchart TD
 * **Brand Language Rule:** Strictly avoid prohibited coral terms in customer-facing website copy.
 * **Financial Integrity:** Never emit zero-rupee prices for Price On Request items.
 * **Separation of Concerns:** External account logins and DNS changes remain founder actions.
+
