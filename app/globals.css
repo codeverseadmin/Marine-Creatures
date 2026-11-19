@@ -6,17 +6,40 @@
    Marine Creatures — Global Styles
    ============================================================================ */
 
-:root {
+/* ============================================================================
+   Adaptive Day/Night Ocean Theme Tokens (MC-ADAPTIVE-OCEAN-THEME-V1)
+   ============================================================================ */
+
+/* NIGHT MODE — The Mysterious Deep (Default / Signature Ocean) */
+:root,
+[data-theme="night"] {
+  color-scheme: dark;
+
   /* Color tokens */
   --color-primary: #02070B;
   --color-secondary: #07151C;
   --color-deep: #0B2028;
+  --color-surface: #07151C;
+  --color-surface-hover: #0D2530;
   --color-accent: #00B8D9;
   --color-cyan: #36D6E8;
   --color-text: #F4F8FA;
+  --color-text-secondary: #D2E4EB;
   --color-muted: #9AAEB5;
-  --color-border: rgba(255,255,255,0.10);
+  --color-border: rgba(255, 255, 255, 0.10);
+  --color-border-subtle: rgba(255, 255, 255, 0.05);
   --color-gold: #C7A76C;
+
+  /* Atmospheric / Layout */
+  --color-hero-vignette: linear-gradient(to bottom, rgba(2,7,11,0.65) 0%, rgba(2,7,11,0.25) 45%, rgba(2,7,11,0.85) 85%, #02070B 100%);
+  --color-nav-bg: rgba(2, 7, 11, 0.88);
+  --color-nav-border: rgba(255, 255, 255, 0.08);
+  --color-dock-bg: rgba(3, 10, 16, 0.94);
+  --color-dock-border: rgba(255, 255, 255, 0.12);
+  --color-card-bg: rgba(6, 20, 29, 0.65);
+  --color-card-hover-border: rgba(0, 184, 217, 0.35);
+  --color-card-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  --grain-opacity: 0.04;
 
   /* Typography */
   --font-display: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
@@ -31,7 +54,38 @@
   --dur-cinematic: 1000ms;
 }
 
-/* Actinic Moonlight Mode: Bioluminescent fluorescent reef lighting */
+/* DAY MODE — The Living Ocean (Premium naturally illuminated underwater luxury) */
+[data-theme="day"] {
+  color-scheme: light;
+
+  /* Color tokens */
+  --color-primary: #F0F6F8;        /* Soft luminous oceanic seafoam mist */
+  --color-secondary: #E3EEF2;      /* Clear sunlit lagoon reef shelf */
+  --color-deep: #D0E4EA;           /* Depth-filtered soft ocean azure */
+  --color-surface: #FFFFFF;        /* Pure pearl white card surfaces */
+  --color-surface-hover: #EBF4F7;
+  --color-accent: #007E96;         /* Deep vibrant tropical marine teal (WCAG AA compliant contrast > 4.5:1) */
+  --color-cyan: #0298B3;
+  --color-text: #061B23;           /* Rich deep marine navy for crisp typography */
+  --color-text-secondary: #163642;
+  --color-muted: #4B6E7B;          /* Sophisticated ocean slate with high readability (5.1:1 contrast) */
+  --color-border: rgba(6, 27, 35, 0.12);
+  --color-border-subtle: rgba(6, 27, 35, 0.06);
+  --color-gold: #8E6B2E;           /* Deep antique bronze gold */
+
+  /* Atmospheric / Layout */
+  --color-hero-vignette: linear-gradient(to bottom, rgba(240,246,248,0.55) 0%, rgba(240,246,248,0.15) 45%, rgba(240,246,248,0.85) 85%, #F0F6F8 100%);
+  --color-nav-bg: rgba(240, 246, 248, 0.94);
+  --color-nav-border: rgba(6, 27, 35, 0.08);
+  --color-dock-bg: rgba(240, 246, 248, 0.96);
+  --color-dock-border: rgba(6, 27, 35, 0.12);
+  --color-card-bg: rgba(255, 255, 255, 0.92);
+  --color-card-hover-border: rgba(0, 126, 150, 0.4);
+  --color-card-shadow: 0 12px 32px rgba(6, 27, 35, 0.08);
+  --grain-opacity: 0.015;
+}
+
+/* Actinic Moonlight Mode: Bioluminescent fluorescent reef lighting (Backwards compatibility) */
 [data-spectrum="actinic"] {
   --color-primary: #010306;
   --color-secondary: #040d17;
@@ -51,6 +105,175 @@
 
 [data-spectrum="actinic"] .btn-primary {
   box-shadow: 0 0 25px rgba(0, 240, 255, 0.6) !important;
+}
+
+/* ============================================================================
+   Adaptive Theme Transition & Global Day Overrides
+   ============================================================================ */
+
+/* Smooth color transitions for background and typography */
+html {
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+[data-theme="day"] body {
+  background-color: var(--color-primary);
+  color: var(--color-text);
+}
+
+[data-theme="day"] .grain-overlay {
+  opacity: 0.015;
+}
+
+/* Glass cards & surfaces in Day mode */
+[data-theme="day"] .glass-card {
+  background: var(--color-card-bg) !important;
+  border-color: var(--color-border) !important;
+  box-shadow: var(--color-card-shadow) !important;
+}
+
+[data-theme="day"] .glass-card-hover:hover {
+  border-color: var(--color-card-hover-border) !important;
+  box-shadow: 0 16px 36px rgba(0, 126, 150, 0.15) !important;
+}
+
+[data-theme="day"] .glass-dock {
+  background: var(--color-dock-bg) !important;
+  border-color: var(--color-dock-border) !important;
+  box-shadow: 0 12px 36px rgba(6, 27, 35, 0.10) !important;
+}
+
+/* Navigation in Day mode */
+[data-theme="day"] header[aria-label="Main navigation"] {
+  background: var(--color-nav-bg) !important;
+  border-bottom-color: var(--color-nav-border) !important;
+  box-shadow: 0 4px 20px rgba(6, 27, 35, 0.06) !important;
+}
+
+[data-theme="day"] header[aria-label="Main navigation"] .text-white {
+  color: #061B23 !important;
+}
+
+[data-theme="day"] header[aria-label="Main navigation"] .border-\[rgba\(255\,255\,255\,0\.15\)\] {
+  border-color: rgba(6, 27, 35, 0.15) !important;
+}
+
+/* Mobile Quick Actions Dock in Day mode */
+[data-theme="day"] [aria-label="Mobile quick actions"] nav {
+  background: var(--color-dock-bg) !important;
+  border-color: var(--color-dock-border) !important;
+  box-shadow: 0 12px 36px rgba(6, 27, 35, 0.12), 0 0 16px rgba(0, 126, 150, 0.08) !important;
+}
+
+[data-theme="day"] [aria-label="Mobile quick actions"] .text-slate-400 {
+  color: #4B6E7B !important;
+}
+
+[data-theme="day"] [aria-label="Mobile quick actions"] .bg-white\/\[0\.06\] {
+  background-color: rgba(6, 27, 35, 0.06) !important;
+}
+
+/* Footer in Day mode */
+[data-theme="day"] footer {
+  background: linear-gradient(180deg, #E3EEF2 0%, #D0E4EA 100%) !important;
+  border-top-color: rgba(6, 27, 35, 0.12) !important;
+  color: #061B23 !important;
+}
+
+[data-theme="day"] footer .text-white {
+  color: #061B23 !important;
+}
+
+[data-theme="day"] footer .text-slate-400,
+[data-theme="day"] footer .text-slate-300 {
+  color: #4B6E7B !important;
+}
+
+[data-theme="day"] footer .bg-white\/\[0\.01\] {
+  background-color: rgba(6, 27, 35, 0.03) !important;
+}
+
+[data-theme="day"] footer .border-white\/\[0\.06\],
+[data-theme="day"] footer .border-white\/10 {
+  border-color: rgba(6, 27, 35, 0.08) !important;
+}
+
+/* Primary and Ghost buttons in Day mode */
+[data-theme="day"] .btn-primary {
+  background: var(--color-accent) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 16px rgba(0, 126, 150, 0.28) !important;
+}
+
+[data-theme="day"] .btn-ghost {
+  border-color: rgba(6, 27, 35, 0.2) !important;
+  color: #061B23 !important;
+}
+
+[data-theme="day"] .btn-ghost:hover {
+  border-color: #061B23 !important;
+  color: #061B23 !important;
+}
+
+/* Translucent surfaces in Day mode */
+[data-theme="day"] .border-white\/10,
+[data-theme="day"] .border-white\/\[0\.08\],
+[data-theme="day"] .border-white\/\[0\.06\],
+[data-theme="day"] .border-white\/\[0\.04\] {
+  border-color: rgba(6, 27, 35, 0.10) !important;
+}
+
+[data-theme="day"] .bg-white\/\[0\.03\],
+[data-theme="day"] .bg-white\/\[0\.04\],
+[data-theme="day"] .bg-white\/\[0\.05\],
+[data-theme="day"] .bg-white\/\[0\.06\] {
+  background-color: rgba(6, 27, 35, 0.03) !important;
+}
+
+[data-theme="day"] .bg-black\/40,
+[data-theme="day"] .bg-black\/50,
+[data-theme="day"] .bg-black\/60,
+[data-theme="day"] .bg-black\/70,
+[data-theme="day"] .bg-black\/80 {
+  background-color: rgba(255, 255, 255, 0.88) !important;
+  color: #061B23 !important;
+}
+
+[data-theme="day"] .text-slate-300,
+[data-theme="day"] .text-slate-400 {
+  color: var(--color-muted) !important;
+}
+
+[data-theme="day"] .text-slate-200 {
+  color: var(--color-text-secondary) !important;
+}
+
+/* Service Hero Vignettes & Light Rays */
+[data-theme="day"] .hero-vignette {
+  background: var(--color-hero-vignette) !important;
+}
+
+[data-theme="day"] .light-ray {
+  background: linear-gradient(180deg, rgba(0, 126, 150, 0.12) 0%, transparent 80%) !important;
+}
+
+/* Mobile Category Drawer in Day mode */
+[data-theme="day"] #mobile-category-drawer {
+  background: #F0F6F8 !important;
+  border-left-color: rgba(6, 27, 35, 0.12) !important;
+  color: #061B23 !important;
+}
+
+[data-theme="day"] #mobile-category-drawer .text-white {
+  color: #061B23 !important;
+}
+
+/* Control OS / Admin permanent lock to Night Mode */
+[data-theme="night"],
+[data-theme="night"] *,
+[data-theme="night"] header,
+[data-theme="night"] footer {
+  /* Control OS always stays locked to Night theme */
 }
 
 /* ============================================================================

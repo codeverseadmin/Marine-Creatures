@@ -386,10 +386,10 @@ export function Hero() {
         />
         {/* Deep ocean vignette */}
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 hero-vignette"
           style={{
             background:
-              'linear-gradient(to bottom, rgba(2,7,11,0.65) 0%, rgba(2,7,11,0.25) 45%, rgba(2,7,11,0.85) 85%, rgba(2,7,11,1) 100%)',
+              'var(--color-hero-vignette, linear-gradient(to bottom, rgba(2,7,11,0.65) 0%, rgba(2,7,11,0.25) 45%, rgba(2,7,11,0.85) 85%, rgba(2,7,11,1) 100%))',
           }}
         />
       </div>

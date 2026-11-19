@@ -20,5 +20,9 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return (
+    <div data-theme="night" className="min-h-screen bg-[#02070B] text-[#F4F8FA]">
+      {children}
+    </div>
+  );
 }

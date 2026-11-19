@@ -94,6 +94,7 @@ import { OrderTrackingModal } from '@/components/orders/OrderTrackingModal';
 import { FounderConciergePill } from '@/components/ui/FounderConciergePill';
 import { FlyToCartEffect } from '@/components/cart/FlyToCartEffect';
 import { MobileBottomNav } from '@/components/layout/MobileBottomNav';
+import { DevThemeSwitcher } from '@/components/theme/DevThemeSwitcher';
 
 export default function RootLayout({
   children,
@@ -254,6 +255,19 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        {/* Anti-FOUC Theme Pre-hydration Script */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){
+              try {
+                var saved = localStorage.getItem('mc_theme_mode');
+                var theme = (saved === 'day' || saved === 'night') ? saved : 'night';
+                document.documentElement.setAttribute('data-theme', theme);
+                document.documentElement.setAttribute('data-spectrum', theme === 'day' ? 'sunlit' : 'actinic');
+              } catch(e) {}
+            })()`,
+          }}
+        />
       </head>
       <body>
         {/* Subtle grain overlay for texture */}
@@ -275,6 +289,7 @@ export default function RootLayout({
                     <FounderConciergePill />
                     <MobileBottomNav />
                     <Footer />
+                    <DevThemeSwitcher />
                   </SmoothScroll>
                 </OrderProvider>
               </WishlistProvider>
