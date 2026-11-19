@@ -402,7 +402,7 @@ export function MobileCategoryDrawer({
 
           <Link
             href="/marketplace"
-            onClick={onClose}
+            onClick={() => handleSelect('all', 'All Products')}
             className="w-full py-3 rounded-xl bg-[#00D4FF] hover:bg-[#69E7EA] text-[#020609] text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(0,212,255,0.3)] transition-all active:scale-[0.98]"
           >
             <span>View Full Store ({products.length} Items)</span>

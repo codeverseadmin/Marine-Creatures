@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { useCatalog } from '@/lib/context/CatalogContext';
 import { ProductCard } from '@/components/marketplace/ProductCard';
 import { PromoCarousel } from '@/components/ui/PromoCarousel';
+import { MobileCategoryDrawer } from '@/components/marketplace/MobileCategoryDrawer';
 
 interface CategoryOption {
   id: string;
@@ -82,15 +83,28 @@ function MarketplaceContent() {
   const queryParam = searchParams.get('q') || searchParams.get('search');
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategoryLabel, setSelectedCategoryLabel] = useState<string>('All Items');
+  const [isCategoryDrawerOpen, setIsCategoryDrawerOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('featured');
+
+  // Helper to map category IDs to friendly labels
+  const getCategoryLabel = (catId: string): string => {
+    if (catId === 'all') return 'All Items';
+    if (catId === 'aquatic-remedies') return 'Aquatic Remedies';
+    if (catId.startsWith('sub:')) return catId.slice(4);
+    const match = CATEGORIES.find((c) => c.id === catId);
+    return match ? match.label : catId;
+  };
 
   // Handle category and section query params if linked from elsewhere
   useEffect(() => {
     if (sectionParam === 'live') {
       setSelectedCategory('marine-life');
+      setSelectedCategoryLabel('Fish & Reef Life');
     } else if (categoryParam) {
       setSelectedCategory(categoryParam);
+      setSelectedCategoryLabel(getCategoryLabel(categoryParam));
     }
   }, [sectionParam, categoryParam]);
 
@@ -105,8 +119,19 @@ function MarketplaceContent() {
     return products
       .filter((item) => {
         // Category filter
-        const matchesCategory =
-          selectedCategory === 'all' || item.category === selectedCategory;
+        let matchesCategory = true;
+        if (selectedCategory === 'all') {
+          matchesCategory = true;
+        } else if (selectedCategory === 'aquatic-remedies') {
+          matchesCategory =
+            Boolean(item.brand?.toLowerCase().includes('aquatic remed')) ||
+            Boolean(item.name?.toLowerCase().includes('aquatic remed'));
+        } else if (selectedCategory.startsWith('sub:')) {
+          const subLabel = selectedCategory.slice(4).toLowerCase();
+          matchesCategory = (item.categoryLabel || '').toLowerCase() === subLabel;
+        } else {
+          matchesCategory = item.category === selectedCategory;
+        }
 
         // Search query
         const query = searchQuery.toLowerCase().trim();
@@ -228,7 +253,7 @@ function MarketplaceContent() {
           </div>
 
           {/* Quick Search Chips */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-[11px] pt-1">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none touch-momentum text-[11px] pt-1">
             <span className="text-[var(--color-muted)] text-[10px] uppercase font-bold tracking-wider shrink-0 flex items-center gap-1.5">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
@@ -259,38 +284,109 @@ function MarketplaceContent() {
             <PromoCarousel />
           </div>
 
-          {/* ── Single Clean Category Bar with Clear Visual Separation ───── */}
-          {/*
-            On mobile the count text is hidden so the scrollable row has full width.
-            The outer div uses flex-col on mobile and flex-row on sm+ so there is
-            never any horizontal squeeze that clips category buttons.
-          */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-5 sm:pt-6 border-t border-[rgba(255,255,255,0.08)]">
-            {/* Scrollable category buttons */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none touch-momentum">
-              {CATEGORIES.map((cat) => {
-                const isActive = selectedCategory === cat.id;
-                return (
+          {/* ── Category Selection: Mobile Hamburger Drawer Trigger + Desktop Luxury Glass Tabs ── */}
+          <div className="pt-5 sm:pt-6 border-t border-[rgba(255,255,255,0.08)]">
+            {/* ── MOBILE ONLY (< md): Luxury Hamburger Category Trigger Card ── */}
+            <div className="block md:hidden space-y-2.5">
+              <button
+                type="button"
+                onClick={() => setIsCategoryDrawerOpen(true)}
+                className="w-full min-h-[54px] px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-[#07242E] via-[#08303C] to-[#07242E] border border-[rgba(0,212,255,0.35)] hover:border-[var(--color-accent)] shadow-[0_4px_20px_rgba(0,212,255,0.12)] flex items-center justify-between transition-all group active:scale-[0.99] touch-manipulation backdrop-blur-md"
+                aria-label="Open Category Menu"
+              >
+                <div className="flex items-center gap-2.5 shrink-0">
+                  <span className="w-9 h-9 rounded-xl bg-[rgba(0,184,217,0.15)] border border-[rgba(0,184,217,0.4)] text-[var(--color-accent)] flex items-center justify-center text-base font-bold group-hover:scale-105 transition-transform shrink-0">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <line x1="3" y1="6" x2="21" y2="6" />
+                      <line x1="3" y1="12" x2="21" y2="12" />
+                      <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
+                  </span>
+                  <div className="text-left">
+                    <span className="text-[9px] uppercase font-bold tracking-[0.2em] text-[var(--color-accent)] block leading-tight">
+                      Browse Marine Life &amp; Gear
+                    </span>
+                    <span className="text-xs sm:text-sm font-bold text-white tracking-wider whitespace-nowrap block">
+                      SHOP BY CATEGORY
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 shrink-0 ml-auto pl-2">
+                  <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[rgba(0,184,217,0.15)] text-[var(--color-accent)] border border-[rgba(0,184,217,0.3)] whitespace-nowrap max-w-[140px] truncate">
+                    {selectedCategoryLabel}
+                  </span>
+                  <div className="w-6 h-6 rounded-lg bg-black/40 flex items-center justify-center text-slate-400 group-hover:text-[var(--color-accent)] transition-colors border border-slate-800">
+                    <svg
+                      className="w-3.5 h-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </button>
+
+              {/* Active Filter Pill Bar (Shown when filtered on mobile) */}
+              {selectedCategory !== 'all' && (
+                <div className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-[#082B32]/60 border border-[rgba(0,212,255,0.3)] text-xs animate-fadeIn">
+                  <div className="flex items-center gap-2 truncate pr-2">
+                    <span className="w-2 h-2 rounded-full bg-[var(--color-accent)] animate-pulse shrink-0" />
+                    <span className="text-slate-300 text-[11px]">Filtered:</span>
+                    <span className="font-bold text-[var(--color-accent)] text-xs truncate">
+                      {selectedCategoryLabel}
+                    </span>
+                    <span className="text-slate-400 text-[11px] font-mono shrink-0">
+                      ({filteredProducts.length} shown)
+                    </span>
+                  </div>
                   <button
-                    key={cat.id}
-                    onClick={() => setSelectedCategory(cat.id)}
-                    className={`h-10 px-4 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 shrink-0 active:scale-95 ${
-                      isActive
-                        ? 'bg-[var(--color-accent)] text-[var(--color-primary)] font-bold shadow-[0_4px_20px_rgba(0,184,217,0.35)]'
-                        : 'bg-[var(--color-secondary)] hover:bg-[rgba(7,21,28,0.95)] text-[var(--color-muted)] border border-[rgba(255,255,255,0.08)]'
-                    }`}
+                    type="button"
+                    onClick={() => {
+                      setSelectedCategory('all');
+                      setSelectedCategoryLabel('All Items');
+                    }}
+                    className="text-[11px] text-[var(--color-accent)] hover:text-white underline font-semibold shrink-0 active:scale-95 transition-all"
                   >
-                    <CategoryIcon id={cat.id} />
-                    <span>{cat.label}</span>
+                    Reset to All
                   </button>
-                );
-              })}
+                </div>
+              )}
             </div>
 
-            {/* Item count — hidden on mobile to avoid squeezing the scroll row */}
-            <span className="text-xs text-[var(--color-muted)] shrink-0 hidden sm:inline">
-              Showing <strong className="text-[var(--color-text)]">{filteredProducts.length}</strong> items
-            </span>
+            {/* ── DESKTOP ONLY (md+): Luxury Glass Horizontal Tab Bar ── */}
+            <div className="hidden md:flex items-center justify-between gap-3">
+              {/* Category buttons */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none touch-momentum">
+                {CATEGORIES.map((cat) => {
+                  const isActive = selectedCategory === cat.id;
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => {
+                        setSelectedCategory(cat.id);
+                        setSelectedCategoryLabel(cat.label);
+                      }}
+                      className={`h-10 px-4 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 shrink-0 active:scale-95 ${
+                        isActive
+                          ? 'bg-[var(--color-accent)] text-[var(--color-primary)] font-bold shadow-[0_4px_20px_rgba(0,184,217,0.35)]'
+                          : 'bg-[var(--color-secondary)] hover:bg-[rgba(7,21,28,0.95)] text-[var(--color-muted)] border border-[rgba(255,255,255,0.08)]'
+                      }`}
+                    >
+                      <CategoryIcon id={cat.id} />
+                      <span>{cat.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Item count */}
+              <span className="text-xs text-[var(--color-muted)] shrink-0">
+                Showing <strong className="text-[var(--color-text)]">{filteredProducts.length}</strong> items
+              </span>
+            </div>
           </div>
 
           {selectedCategory === 'lighting-tech' && (
@@ -389,6 +485,18 @@ function MarketplaceContent() {
           </Link>
         </div>
       </section>
+
+      {/* ── Mobile Category Drawer ──────────────────────────────────────── */}
+      <MobileCategoryDrawer
+        isOpen={isCategoryDrawerOpen}
+        onClose={() => setIsCategoryDrawerOpen(false)}
+        activeCategory={selectedCategory}
+        onSelectCategory={(categoryId, label) => {
+          setSelectedCategory(categoryId);
+          setSelectedCategoryLabel(label);
+        }}
+        products={products}
+      />
     </div>
   );
 }
